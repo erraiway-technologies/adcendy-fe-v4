@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   LANDING_SECTIONS,
@@ -31,7 +31,14 @@ function mountedSectionFiles(composition: string): string[] {
     ...source.matchAll(/import\('@\/components\/sections\/([\w-]+)'\)/g),
     ...source.matchAll(/from '@\/components\/sections\/([\w-]+)'/g),
   ].map((match) => `components/sections/${match[1]}.tsx`);
-  return [...new Set(files)];
+  // A section's own data module (e.g. faq-content.ts) declares ids too.
+  const siblings = files.flatMap((file) =>
+    [...read(file).matchAll(/from '\.\/([\w-]+)'/g)]
+      .map((match) => [`components/sections/${match[1]}.ts`, `components/sections/${match[1]}.tsx`])
+      .map((candidates) => candidates.find((candidate) => existsSync(join(ROOT, candidate))))
+      .filter((candidate): candidate is string => candidate !== undefined),
+  );
+  return [...new Set([...files, ...siblings])];
 }
 
 /** Every id declared on an element in these files — literal or data-driven. */

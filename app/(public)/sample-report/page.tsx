@@ -1,5 +1,12 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { pageMetadata } from '@/shared/seo/site';
+
+// A placeholder until the sample exists: linked to, but not a search result.
+export const metadata = {
+  ...pageMetadata('/sample-report', { title: 'Sample report' }),
+  robots: { index: false, follow: true },
+};
 
 export default function SampleReportPage() {
   return (
