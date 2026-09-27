@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { BUSINESS_TERMS } from '@/shared/marketing/business-terms';
-import { getSupportContact } from '@/shared/support/support-contact';
+import { useSupportContact } from '@/shared/support/useSupportContact';
 
 export default function ContactPage() {
-  const support = getSupportContact();
+  const support = useSupportContact();
 
   return (
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 py-12">

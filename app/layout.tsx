@@ -1,7 +1,7 @@
 import React from "react"
 import type { Metadata } from 'next'
 import { DM_Sans, Space_Grotesk, Inter } from 'next/font/google'
-import { Providers } from '@/shared/providers/Providers'
+import { Providers, RuntimeConfigGate } from '@/shared/providers/Providers'
 import { ApiDebugPanel } from '@/components/dev/api-debug-panel'
 import { BUSINESS_TERMS } from '@/shared/marketing/business-terms'
 import Script from 'next/script'
@@ -35,6 +35,19 @@ export const metadata: Metadata = {
     template: '%s | AdCendy',
   },
   description: `Competitive intelligence and a human-reviewed marketing strategy your team can own, delivered within ${BUSINESS_TERMS.delivery.businessDays} business days.`,
+  // Link previews (WhatsApp, LinkedIn, Slack, X). No absolute URL or image here:
+  // the same build serves uat and production, each on its own host.
+  openGraph: {
+    type: 'website',
+    siteName: 'AdCendy',
+    title: 'AdCendy - Market Intelligence & Strategy Reports',
+    description: `Competitive intelligence and a human-reviewed marketing strategy your team can own, delivered within ${BUSINESS_TERMS.delivery.businessDays} business days.`,
+  },
+  twitter: {
+    card: 'summary',
+    title: 'AdCendy - Market Intelligence & Strategy Reports',
+    description: `Competitive intelligence and a human-reviewed marketing strategy your team can own, delivered within ${BUSINESS_TERMS.delivery.businessDays} business days.`,
+  },
   icons: {
     icon: [
       {
@@ -61,7 +74,10 @@ export default function RootLayout({
       <body className={`${_inter.variable} ${_spaceGrotesk.variable} ${_dmSans.variable} font-sans antialiased`} suppressHydrationWarning>
         <Providers>
           {children}
-          <ApiDebugPanel />
+          {/* Local debugging only; it reads the runtime flags, so it waits for them. */}
+          <RuntimeConfigGate fallback={null}>
+            <ApiDebugPanel />
+          </RuntimeConfigGate>
         </Providers>
       </body>
     </html>

@@ -1,12 +1,7 @@
-'use client';
+import { LandingPage } from '@/features/landing/components/LandingPage';
 
-import dynamic from 'next/dynamic';
-
-const LandingPage = dynamic(
-  () => import('@/features/landing/components/LandingPage').then(m => ({ default: m.LandingPage })),
-  { ssr: false }
-);
-
+// Rendered on the server, so the front page arrives as finished HTML - readable
+// before any JavaScript runs, and by search engines and link previews.
 export default function Home() {
   return <LandingPage />;
 }

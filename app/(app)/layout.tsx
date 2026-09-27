@@ -9,8 +9,9 @@ import { authRepository } from '@/shared/api/repositories';
 import { refreshSession } from '@/shared/api/http';
 import { ApiError } from '@/shared/api/errors';
 import { Button } from '@/components/ui/button';
+import { RuntimeConfigGate } from '@/shared/providers/Providers';
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+function AppLayoutInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isAuthed, setIsAuthed] = useState(false);
@@ -140,4 +141,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return <div className="adcendy-cinematic"><AppShell>{children}</AppShell></div>;
+}
+
+/**
+ * The signed-in app needs the runtime configuration before anything - its
+ * session check included - may run, so the whole tree waits behind the gate.
+ * Public pages do not, and the server renders them in full.
+ */
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <RuntimeConfigGate>
+      <AppLayoutInner>{children}</AppLayoutInner>
+    </RuntimeConfigGate>
+  );
 }

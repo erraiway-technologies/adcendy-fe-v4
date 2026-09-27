@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ThemeProvider } from 'next-themes';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { SWRConfig } from 'swr';
@@ -11,15 +11,18 @@ import { useRuntimeConfigReady } from '@/shared/runtime-config/features';
 import { getBrowserRuntimeConfig } from '@/shared/runtime-config/types';
 import { initErrorReporting } from '@/shared/monitoring/error-reporting';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60 * 1000,
-      gcTime: 5 * 60 * 1000,
-      retry: false,
+// One client per render tree: on the server that is one per request, so public
+// pages rendered there can never share cached data between visitors.
+const createQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 60 * 1000,
+        gcTime: 5 * 60 * 1000,
+        retry: false,
+      },
     },
-  },
-});
+  });
 
 function AuthSessionBootstrap() {
   useEffect(() => {
@@ -50,38 +53,51 @@ function ErrorReportingBootstrap() {
   return null;
 }
 
-function RuntimeConfigGate({ children }: { children: React.ReactNode }) {
+const LOADING_RUNTIME_CONFIG = (
+  <main className="flex min-h-screen items-center justify-center" role="status">
+    Loading application configuration…
+  </main>
+);
+
+/**
+ * Renders its children only once the browser has the runtime configuration
+ * (/runtime-config.js). The server never has it, so anything behind this gate
+ * is drawn in the browser only. The signed-in app sits behind it; public pages
+ * do not, so the server renders them in full.
+ */
+export function RuntimeConfigGate({
+  children,
+  fallback = LOADING_RUNTIME_CONFIG,
+}: {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}) {
   const runtimeConfigReady = useRuntimeConfigReady();
-
-  if (!runtimeConfigReady) {
-    return (
-      <main className="flex min-h-screen items-center justify-center" role="status">
-        Loading application configuration…
-      </main>
-    );
-  }
-
-  return children;
+  return runtimeConfigReady ? children : fallback;
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(createQueryClient);
+
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-      <RuntimeConfigGate>
+      {/* Both need the runtime configuration, so they start once it is there -
+          invisibly, without holding back the page. */}
+      <RuntimeConfigGate fallback={null}>
         <ErrorReportingBootstrap />
         <AuthSessionBootstrap />
-        <SWRConfig
-          value={{
-            shouldRetryOnError: false,
-            errorRetryCount: 0,
-          }}
-        >
-          <QueryClientProvider client={queryClient}>
-            {children}
-            <Toaster />
-          </QueryClientProvider>
-        </SWRConfig>
       </RuntimeConfigGate>
+      <SWRConfig
+        value={{
+          shouldRetryOnError: false,
+          errorRetryCount: 0,
+        }}
+      >
+        <QueryClientProvider client={queryClient}>
+          {children}
+          <Toaster />
+        </QueryClientProvider>
+      </SWRConfig>
     </ThemeProvider>
   );
 }
