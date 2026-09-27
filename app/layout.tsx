@@ -1,34 +1,12 @@
 import React from "react"
 import type { Metadata } from 'next'
-import { DM_Sans, Space_Grotesk, Inter } from 'next/font/google'
 import { Providers, RuntimeConfigGate } from '@/shared/providers/Providers'
 import { BrandSplash } from '@/shared/components/BrandSplash'
 import { ApiDebugPanel } from '@/components/dev/api-debug-panel'
 import { BUSINESS_TERMS } from '@/shared/marketing/business-terms'
 import Script from 'next/script'
+import './fonts.css'
 import './globals.css'
-
-const _spaceGrotesk = Space_Grotesk({ 
-  subsets: ["latin"],
-  variable: '--font-space-grotesk',
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-  preload: true
-});
-const _inter = Inter({ 
-  subsets: ["latin"],
-  variable: '--font-inter',
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-  preload: true
-});
-const _dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: '--font-dm-sans',
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-  preload: true
-});
 
 export const metadata: Metadata = {
   title: {
@@ -71,8 +49,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <Script src="/runtime-config.js" strategy="beforeInteractive" />
+        {/* Self-hosted fonts (app/fonts.css); the Latin files are what nearly every page needs. */}
+        <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
-      <body className={`${_inter.variable} ${_spaceGrotesk.variable} ${_dmSans.variable} font-sans antialiased`} suppressHydrationWarning>
+      <body className="font-sans antialiased" suppressHydrationWarning>
         {/* First load only: the logo until the page is ready, then one reveal. */}
         <BrandSplash />
         <Providers>
