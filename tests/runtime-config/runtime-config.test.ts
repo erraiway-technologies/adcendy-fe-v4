@@ -9,7 +9,7 @@ import { assertBrowserOrigin } from '../../shared/runtime-config/types.ts';
 const production = {
   NODE_ENV: 'production',
   APP_ENV: 'production',
-  APP_ORIGIN: 'https://app.adcendy.com',
+  APP_ORIGIN: 'https://www.adcendy.com',
   RELEASE_ID: 'git-65a37c3',
   SUPPORT_URL: 'https://support.adcendy.com/help',
 };
@@ -110,7 +110,7 @@ test('rejects Production, UAT, and localhost mismatches', () => {
         APP_ENV: 'uat',
         APP_ORIGIN: 'https://uat.adcendy.com',
         RELEASE_ID: 'release-1',
-        SUPPORT_URL: 'https://app.adcendy.com/help',
+        SUPPORT_URL: 'https://www.adcendy.com/help',
       }),
     /Production hostname in UAT/,
   );
@@ -215,11 +215,11 @@ test('enforces analytics destination separation', () => {
 test('runtime script and browser guard enforce the authoritative host', () => {
   const config = buildRuntimePublicConfig(production);
   const script = serializeRuntimeConfigScript(config);
-  assert.match(script, /app\.adcendy\.com/);
+  assert.match(script, /www\.adcendy\.com/);
   assert.match(script, /adcendy-runtime-config-ready/);
   assert.doesNotMatch(script, /api\.adcendy\.com/);
   assert.doesNotThrow(() =>
-    assertBrowserOrigin(config, 'https://app.adcendy.com'),
+    assertBrowserOrigin(config, 'https://www.adcendy.com'),
   );
   assert.throws(
     () => assertBrowserOrigin(config, 'https://uat.adcendy.com'),
@@ -230,10 +230,10 @@ test('runtime script and browser guard enforce the authoritative host', () => {
 test('APP_ORIGIN is required and must be a bare origin fit for its environment', () => {
   assert.throws(() => buildRuntimePublicConfig({ ...production, APP_ORIGIN: '' }), /APP_ORIGIN is required/);
   for (const APP_ORIGIN of [
-    'https://app.adcendy.com/app',
-    'https://app.adcendy.com?x=1',
-    'https://user:pass@app.adcendy.com',
-    'http://app.adcendy.com',
+    'https://www.adcendy.com/app',
+    'https://www.adcendy.com?x=1',
+    'https://user:pass@www.adcendy.com',
+    'http://www.adcendy.com',
     'https://localhost',
     'https://uat.adcendy.com',
     'not a url',
@@ -241,8 +241,8 @@ test('APP_ORIGIN is required and must be a bare origin fit for its environment',
     assert.throws(() => buildRuntimePublicConfig({ ...production, APP_ORIGIN }), /APP_ORIGIN/, APP_ORIGIN);
   }
   assert.equal(
-    buildRuntimePublicConfig({ ...production, APP_ORIGIN: 'https://app.adcendy.com/' }).APP_ORIGIN,
-    'https://app.adcendy.com',
+    buildRuntimePublicConfig({ ...production, APP_ORIGIN: 'https://www.adcendy.com/' }).APP_ORIGIN,
+    'https://www.adcendy.com',
   );
   const local = { APP_ENV: 'local', RELEASE_ID: 'r1' };
   assert.equal(buildRuntimePublicConfig({ ...local, APP_ORIGIN: 'http://127.0.0.1:34100' }).APP_ORIGIN, 'http://127.0.0.1:34100');
@@ -252,7 +252,7 @@ test('APP_ORIGIN is required and must be a bare origin fit for its environment',
 test('the same image serves any origin the deployment names, and only that one', () => {
   const config = buildRuntimePublicConfig({ ...production, APP_ORIGIN: 'https://www.adcendy-new.example' });
   assert.doesNotThrow(() => assertBrowserOrigin(config, 'https://www.adcendy-new.example'));
-  assert.throws(() => assertBrowserOrigin(config, 'https://app.adcendy.com'), /cannot run/);
+  assert.throws(() => assertBrowserOrigin(config, 'https://www.adcendy.com'), /cannot run/);
   assert.match(serializeRuntimeConfigScript(config), /"APP_ORIGIN":"https:\/\/www\.adcendy-new\.example"/);
 });
 

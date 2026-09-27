@@ -149,7 +149,10 @@ function validateHttpsPublicUrl(
   }
   if (
     appEnvironment === 'uat' &&
-    (hostname === 'app.adcendy.com' || hostname === 'api.adcendy.com')
+    (hostname === 'www.adcendy.com' ||
+      hostname === 'adcendy.com' ||
+      hostname === 'app.adcendy.com' ||
+      hostname === 'api.adcendy.com')
   ) {
     throw new Error(`${name} contains a Production hostname in UAT.`);
   }

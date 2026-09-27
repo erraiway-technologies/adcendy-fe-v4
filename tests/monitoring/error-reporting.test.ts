@@ -7,9 +7,9 @@ import { scrubBreadcrumb, scrubErrorEvent } from '../../shared/monitoring/scrub-
 
 const production = {
   APP_ENV: 'production',
-  APP_ORIGIN: 'https://app.adcendy.com',
+  APP_ORIGIN: 'https://www.adcendy.com',
   RELEASE_ID: 'r1',
-  SUPPORT_URL: 'https://app.adcendy.com/contact',
+  SUPPORT_URL: 'https://www.adcendy.com/contact',
 };
 const DSN = 'https://0123456789abcdef0123456789abcdef@o1.ingest.sentry.io/4500';
 
@@ -30,7 +30,7 @@ test('error events leave without identity, headers, queries or tokens', () => {
     type: undefined,
     user: { id: 'u1', email: 'a@b.com' },
     request: {
-      url: 'https://app.adcendy.com/app/campaigns/1?token=abc#x',
+      url: 'https://www.adcendy.com/app/campaigns/1?token=abc#x',
       headers: { Authorization: 'Bearer abc' },
       cookies: { refresh: 'x' },
       query_string: 'token=abc',

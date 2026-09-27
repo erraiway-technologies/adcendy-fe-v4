@@ -53,7 +53,7 @@ test('rejects production and non-local targets', () => {
   withEnvironment(
     {
       ADCENDY_TARGET_ENV: 'uat',
-      ADCENDY_BASE_URL: 'https://app.adcendy.com',
+      ADCENDY_BASE_URL: 'https://www.adcendy.com',
     },
     () => assert.throws(resolveCampaignTarget, /refuses production target/),
   );
