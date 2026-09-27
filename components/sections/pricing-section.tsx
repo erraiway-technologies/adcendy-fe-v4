@@ -6,7 +6,7 @@ import { Check, Globe2, MapPinned } from 'lucide-react';
 import { useMarketingAuth } from '@/src/lib/auth/useAuth';
 import { formatMinorAmount } from '@/shared/payments/razorpay';
 import { usePublicCatalogue } from '@/shared/payments/usePublicCatalogue';
-import type { BillingBundle, BillingPilotOffer } from '@/shared/types/billing';
+import type { BillingBundle } from '@/shared/types/billing';
 import {
   bundleOriginalPrice,
   marketCountDescription,
@@ -38,27 +38,6 @@ function PriceBeforeDiscount({ bundle }: { bundle: BillingBundle }) {
 // a short last row is centred, so any count lays out without a gap.
 const CARD_ROW = 'mx-auto flex max-w-6xl flex-wrap justify-center gap-6';
 const CARD_WIDTH = 'w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]';
-
-/** Seats taken and left, as the server counts them. */
-function SeatMeter({ offer }: { offer: BillingPilotOffer }) {
-  const taken = Math.max(0, offer.seatsTotal - offer.seatsRemaining);
-  const percent = Math.round((taken / offer.seatsTotal) * 100);
-  return (
-    <div className="mx-auto max-w-md space-y-1.5">
-      <div
-        className="h-2 w-full overflow-hidden rounded-full bg-muted"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={offer.seatsTotal}
-        aria-valuenow={taken}
-        aria-label="Pilot seats taken"
-      >
-        <div className="h-full rounded-full bg-primary" style={{ width: `${percent}%` }} />
-      </div>
-      <p className="text-center text-xs font-semibold text-primary">{pilotSeatsLabel(offer)}</p>
-    </div>
-  );
-}
 
 type PackageKind = 'pilot' | 'package';
 
@@ -217,7 +196,7 @@ const INCLUDED = [
   'Competitive and market intelligence on your market, and a strategy built on it — delivered as a document your team owns',
   'Human review gate — nothing ships without passing it',
   `${revisionRoundsLabel({ sentenceStart: true })} if the strategy doesn’t fit`,
-  `${TERMS.guidedSupportDays} days of guided support — a kickoff, a check on your numbers against the plan’s targets, and a final review`,
+  `${TERMS.guidedSupportDays} days of guided support, in writing — a kickoff, a check on your numbers against the plan’s targets, and a final review`,
   'Email support throughout',
   'A clear roadmap for what to do next',
 ];
@@ -248,7 +227,7 @@ export function Pricing() {
   // (backend R-8).
   const catalogueQuery = usePublicCatalogue();
   const { isPilot } = catalogueQuery;
-  // Shown while the pilot runs, sold out included; seats are the server's count.
+  // Shown while the pilot runs, sold out included.
   const pilotOffer = catalogueQuery.data?.pilotOffer ?? null;
   // Whatever the server priced for this visitor, in the order it sent it.
   const packages = catalogueQuery.data?.items ?? [];
@@ -373,12 +352,9 @@ export function Pricing() {
                     {pilotOffer.soldOut
                       ? 'The pilot is full. Regular prices apply.'
                       : (pilotOffer.note ?? 'Pilot pricing') +
-                        ' \u2014 limited to ' +
-                        pilotOffer.seatsTotal +
-                        ' clients. Everyone after them pays the regular price.'}
+                        ' \u2014 for a limited number of clients. Everyone after them pays the regular price.'}
                   </p>
                 </div>
-                <SeatMeter offer={pilotOffer} />
                 <div className={CARD_ROW}>
                   {pilotPackages.map((bundle) => (
                     <div key={bundle.sku} className="w-full sm:max-w-md">
@@ -481,7 +457,7 @@ export function Pricing() {
             href={ctaHref}
             className="inline-flex items-center justify-center px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors"
           >
-            Start with a free competitive snapshot
+            Get your strategy
           </Link>
         </motion.div>
       </div>

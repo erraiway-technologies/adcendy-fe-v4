@@ -149,7 +149,7 @@ test("the pilot sells beside the regular packages, not instead of them", async (
   );
 });
 
-test("pilot seats are shown as the server counts them, sold out included", () => {
+test("pilot seats are never counted out loud, sold out included", () => {
   const offer = {
     label: "Founding pricing",
     note: null,
@@ -157,14 +157,14 @@ test("pilot seats are shown as the server counts them, sold out included", () =>
     seatsRemaining: 7,
     soldOut: false,
   };
-  assert.equal(pilotSeatsLabel(offer), "7 of 10 pilot seats left");
+  assert.equal(pilotSeatsLabel(offer), "Limited seats, claim yours while they last");
   assert.equal(
     pilotSeatsLabel({ ...offer, seatsRemaining: 1 }),
-    "1 of 10 pilot seat left",
+    "Limited seats, claim yours while they last",
   );
   assert.equal(
     pilotSeatsLabel({ ...offer, seatsRemaining: 0, soldOut: true }),
-    "All 10 pilot seats are taken",
+    "All pilot seats are taken",
   );
 });
 

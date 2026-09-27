@@ -131,7 +131,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               >
                 <Image
                   src="/Adcendy-logo-tight.svg"
-                  alt="Adcendy"
+                  alt="AdCendy"
                   width={340}
                   height={56}
                   className="h-10 w-[340px]"
@@ -189,7 +189,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-2 border-b border-border px-6 py-4">
           <Image
             src="/Adcendy-logo-tight.svg"
-            alt="Adcendy"
+            alt="AdCendy"
             width={300}
             height={50}
             className="h-9 w-[300px]"
@@ -240,7 +240,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex flex-1 items-center gap-2">
             <Image
               src="/Adcendy-logo-tight.svg"
-              alt="Adcendy"
+              alt="AdCendy"
               width={260}
               height={44}
               className="h-8 w-[260px]"
@@ -260,7 +260,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <div className="flex items-center gap-2 border-b border-border px-6 py-4">
                   <Image
                     src="/Adcendy-logo-tight.svg"
-                    alt="Adcendy"
+                    alt="AdCendy"
                     width={300}
                     height={50}
                     className="h-9 w-[300px]"

@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import { Check, X } from 'lucide-react';
 
 const STRONG_FIT = [
@@ -78,19 +77,6 @@ export function WhoItsFor() {
           </motion.div>
         </div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="mt-10 text-center text-sm text-muted-foreground"
-        >
-          Not sure which you are?{' '}
-          <Link href="/sample-report" className="text-primary font-semibold hover:underline">
-            See a sample report
-          </Link>{' '}
-          and decide for yourself.
-        </motion.p>
       </div>
     </section>
   );

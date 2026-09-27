@@ -37,11 +37,11 @@ export function isPilotCatalogue(
  * a full pilot is part of what makes it believable.
  */
 export function pilotSeatsLabel(offer: BillingPilotOffer): string {
+  // No counts: an early seat count reads as "nobody has bought yet".
   if (offer.soldOut || offer.seatsRemaining <= 0) {
-    return `All ${offer.seatsTotal} pilot seats are taken`;
+    return "All pilot seats are taken";
   }
-  const seats = offer.seatsRemaining === 1 ? "seat" : "seats";
-  return `${offer.seatsRemaining} of ${offer.seatsTotal} pilot ${seats} left`;
+  return "Limited seats, claim yours while they last";
 }
 
 /** The pre-discount price a pilot bundle is measured against, if stated. */

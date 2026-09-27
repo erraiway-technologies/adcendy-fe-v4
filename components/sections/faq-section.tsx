@@ -39,7 +39,7 @@ export function FAQ() {
             Frequently asked questions
           </h2>
           <p className="text-lg text-muted-foreground">
-            Everything you need to know about Adcendy
+            Everything you need to know about AdCendy
           </p>
         </motion.div>
 

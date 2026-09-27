@@ -26,7 +26,6 @@ const LINKS: Record<string, FooterLink[]> = {
     { section: S.budget },
     { section: S.pricing },
     { section: S.faq },
-    { label: 'Sample strategy', href: '/sample-report' },
   ],
   'Is it for you': [
     { section: T.goodFit },
@@ -75,7 +74,7 @@ export function MarketingFooter() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-3">
             <Link href="/" className="font-space-grotesk text-lg font-bold text-foreground">
-              Adcendy
+              AdCendy
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Market intelligence. Expert review.
@@ -106,7 +105,7 @@ export function MarketingFooter() {
             {copyrightNotice()}
           </p>
           <p className="text-xs text-muted-foreground">
-            Adcendy &mdash; Market intelligence. Expert review. Direction your team can own.
+            AdCendy &mdash; Market intelligence. Expert review. Direction your team can own.
           </p>
         </div>
       </div>

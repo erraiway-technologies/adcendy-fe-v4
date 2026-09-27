@@ -44,17 +44,12 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     {
       question: 'Will you execute the strategy for me?',
       answer:
-        `No — and that's deliberate. We're the direction, not the hands. The strategy is built for your team (in-house marketers, freelancers, or an agency) to own and run. Every market includes ${TERMS.guidedSupportDays} days of guided support — a kickoff, a check on your numbers against the plan's targets, and a final review — so your team isn't on its own while they execute. If you have no way to execute yet, we're probably not the right first step.`,
-    },
-    {
-      question: 'Can I see a sample before paying?',
-      answer:
-        "Yes — and we'd encourage it. A redacted sample report shows exactly what's inside before you commit. Or use the free competitive snapshot to see how we read your own market.",
+        `No — and that's deliberate. We're the direction, not the hands. The strategy is built for your team (in-house marketers, freelancers, or an agency) to own and run. Every market includes ${TERMS.guidedSupportDays} days of guided support, in writing — a kickoff, a check on your numbers against the plan's targets, and a final review — so your team isn't on its own while they execute. If you have no way to execute yet, we're probably not the right first step.`,
     },
     {
       question: 'Do you work with international clients?',
       answer:
-        "Yes. We cover India, the US, and the UK today, and more countries on request. International pricing is in USD; the deliverable is the same. Each country is a separate market — see \"What counts as one market?\" above.",
+        "Yes. We work with businesses anywhere in the world, in whichever country their buyers are. Prices are shown for where you are, and the deliverable is the same everywhere. Each country is a separate market — see \"What counts as one market?\" above.",
     },
     {
       id: 'faq-industries',

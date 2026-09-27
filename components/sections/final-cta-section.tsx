@@ -25,7 +25,7 @@ export function FinalCTA() {
             <span className="text-primary">Give your team the direction to act on it.</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Free 1-page competitive snapshot. No card, no call, no commitment.
+            One market, one strategy, reviewed by a person before it reaches you.
           </p>
         </motion.div>
 
@@ -42,15 +42,9 @@ export function FinalCTA() {
               whileTap={{ scale: 0.95 }}
               className="px-8 py-3.5 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
             >
-              Get my snapshot
+              Get your strategy
               <ChevronRight className="w-4 h-4" />
             </motion.div>
-          </Link>
-          <Link
-            href="/contact"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
-          >
-            Or book a {TERMS.intake.callMinutes}-minute call if you'd rather talk first
           </Link>
         </motion.div>
 
@@ -61,7 +55,7 @@ export function FinalCTA() {
           transition={{ delay: 0.25 }}
           className="text-xs text-muted-foreground"
         >
-          No card. No call. {TERMS.intake.formMinutes}-minute form, delivered {deliveryWindowLabel()}.
+          No calls. A {TERMS.intake.formMinutes}-minute form, and your strategy {deliveryWindowLabel()}.
         </motion.p>
       </div>
     </section>

@@ -1,8 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, ChevronRight, Megaphone, Globe, Users, LayoutGrid, MessageSquare, CalendarDays, X } from 'lucide-react';
-import Link from 'next/link';
+import { Check, Megaphone, Globe, Users, LayoutGrid, MessageSquare, CalendarDays, X } from 'lucide-react';
 import { BUSINESS_TERMS as TERMS } from '@/shared/marketing/business-terms';
 
 const DELIVERABLES = [
@@ -145,18 +144,6 @@ export function WhatYouGet() {
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-          className="mt-10 text-center"
-        >
-          <Link href="/sample-report" className="inline-flex items-center gap-2 text-primary font-semibold hover:underline">
-            See what&apos;s inside a report
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-        </motion.div>
       </div>
     </section>
   );

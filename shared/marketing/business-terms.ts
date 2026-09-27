@@ -20,8 +20,6 @@ export const BUSINESS_TERMS = {
   },
   intake: {
     formMinutes: 15,
-    /** The optional call offered instead of the form. */
-    callMinutes: 20,
   },
   revisionRoundsIncluded: 1,
   guidedSupportDays: 30,

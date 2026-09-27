@@ -7,7 +7,7 @@ const COSTS = [
   {
     icon: Banknote,
     label: 'The ad spend it directs',
-    body: 'Every rupee or dollar you put behind the wrong angle, the wrong audience, or the wrong channel is spent whether the direction was right or not.',
+    body: 'Every bit of budget you put behind the wrong angle, the wrong audience, or the wrong channel is spent whether the direction was right or not.',
   },
   {
     icon: CalendarClock,

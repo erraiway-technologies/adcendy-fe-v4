@@ -50,17 +50,17 @@ export function StarfieldHero() {
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
               >
-                Get a free competitive snapshot
+                Get your strategy
                 <ChevronRight className="w-4 h-4" />
               </motion.div>
             </Link>
-            <Link href="/sample-report">
+            <Link href="#how-it-works">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-3 border border-border text-foreground font-semibold rounded-lg hover:bg-card/50 transition-colors flex items-center justify-center gap-2"
               >
-                See what&apos;s inside a report
+                See how it works
                 <ChevronRight className="w-4 h-4" />
               </motion.div>
             </Link>
@@ -72,7 +72,7 @@ export function StarfieldHero() {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="text-xs text-muted-foreground"
           >
-            No card. No call. {TERMS.intake.formMinutes}-minute form, delivered {deliveryWindowLabel()}.
+            No calls. A {TERMS.intake.formMinutes}-minute form, and your strategy {deliveryWindowLabel()}.
           </motion.p>
         </motion.div>
       </div>

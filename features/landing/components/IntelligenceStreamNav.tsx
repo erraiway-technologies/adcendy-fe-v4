@@ -55,7 +55,7 @@ export function IntelligenceStreamNav() {
         >
           <Image
             src="/Adcendy-logo-tight.svg"
-            alt="Adcendy"
+            alt="AdCendy"
             width={340}
             height={56}
             className="h-10 w-[340px]"

@@ -20,8 +20,7 @@ const BELIEFS = [
 ];
 
 export function Manifesto() {
-  const { isPilot, data } = usePublicCatalogue();
-  const pilotSeats = data?.pilotOffer?.seatsTotal;
+  const { isPilot } = usePublicCatalogue();
   return (
     <section id="manifesto" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-4xl mx-auto">
@@ -35,7 +34,7 @@ export function Manifesto() {
             How we think about marketing strategy
           </h2>
           <p className="text-lg text-muted-foreground">
-            Three things shaped how Adcendy works.
+            Three things shaped how AdCendy works.
           </p>
         </motion.div>
 
@@ -72,12 +71,12 @@ export function Manifesto() {
           className="mt-12 pt-8 border-t border-border"
         >
           <p className="text-muted-foreground text-sm leading-relaxed">
-            We are a small team building Adcendy under{' '}
+            We are a small team building AdCendy under{' '}
             <span className="text-foreground font-medium">{TERMS.company.legalName}</span>.
-            {isPilot && pilotSeats && (
+            {isPilot && (
               <>
                 {' '}
-                We are starting with a {pilotSeats}-client pilot to build this <em>with</em> real
+                We are starting with a small, limited pilot to build this <em>with</em> real
                 founder feedback, not in a vacuum.
               </>
             )}

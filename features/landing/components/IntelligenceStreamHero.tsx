@@ -93,7 +93,7 @@ export function IntelligenceStreamHero() {
 
           <div className="flex flex-col sm:flex-row" style={{ gap: '14px' }}>
             <Link
-              href="/sample-report"
+              href="#pricing"
               style={{
                 ...MONO,
                 fontSize: '11px',
@@ -107,7 +107,7 @@ export function IntelligenceStreamHero() {
                 textAlign: 'center',
               }}
             >
-              See what&apos;s inside a report -&gt;
+              See pricing -&gt;
             </Link>
             <Link
               href="#who-its-for"

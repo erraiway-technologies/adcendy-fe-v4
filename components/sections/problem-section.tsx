@@ -71,7 +71,7 @@ export function ProblemSection() {
             <em>your</em> competitors, and <em>your</em> customer — that someone qualified
             has stress-tested before handing it over.
           </p>
-          <p className="text-primary font-semibold">That&apos;s what Adcendy does.</p>
+          <p className="text-primary font-semibold">That&apos;s what AdCendy does.</p>
         </motion.div>
       </div>
     </section>
