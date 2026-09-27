@@ -2,6 +2,7 @@ import React from "react"
 import type { Metadata } from 'next'
 import { DM_Sans, Space_Grotesk, Inter } from 'next/font/google'
 import { Providers, RuntimeConfigGate } from '@/shared/providers/Providers'
+import { BrandSplash } from '@/shared/components/BrandSplash'
 import { ApiDebugPanel } from '@/components/dev/api-debug-panel'
 import { BUSINESS_TERMS } from '@/shared/marketing/business-terms'
 import Script from 'next/script'
@@ -72,6 +73,8 @@ export default function RootLayout({
         <Script src="/runtime-config.js" strategy="beforeInteractive" />
       </head>
       <body className={`${_inter.variable} ${_spaceGrotesk.variable} ${_dmSans.variable} font-sans antialiased`} suppressHydrationWarning>
+        {/* First load only: the logo until the page is ready, then one reveal. */}
+        <BrandSplash />
         <Providers>
           {children}
           {/* Local debugging only; it reads the runtime flags, so it waits for them. */}

@@ -10,6 +10,7 @@ import { refreshSession } from '@/shared/api/http';
 import { useRuntimeConfigReady } from '@/shared/runtime-config/features';
 import { getBrowserRuntimeConfig } from '@/shared/runtime-config/types';
 import { initErrorReporting } from '@/shared/monitoring/error-reporting';
+import { BrandLoadingMark } from '@/shared/components/BrandLoadingMark';
 
 // One client per render tree: on the server that is one per request, so public
 // pages rendered there can never share cached data between visitors.
@@ -53,11 +54,7 @@ function ErrorReportingBootstrap() {
   return null;
 }
 
-const LOADING_RUNTIME_CONFIG = (
-  <main className="flex min-h-screen items-center justify-center" role="status">
-    Loading application configuration…
-  </main>
-);
+const LOADING_RUNTIME_CONFIG = <BrandLoadingMark label="Loading AdCendy" />;
 
 /**
  * Renders its children only once the browser has the runtime configuration

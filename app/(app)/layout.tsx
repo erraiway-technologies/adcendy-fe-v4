@@ -10,6 +10,7 @@ import { refreshSession } from '@/shared/api/http';
 import { ApiError } from '@/shared/api/errors';
 import { Button } from '@/components/ui/button';
 import { RuntimeConfigGate } from '@/shared/providers/Providers';
+import { BrandLoadingMark } from '@/shared/components/BrandLoadingMark';
 
 function AppLayoutInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -130,8 +131,8 @@ function AppLayoutInner({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="adcendy-cinematic min-h-screen bg-background flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
+      <div className="adcendy-cinematic min-h-screen bg-background">
+        <BrandLoadingMark label="Checking your session" />
       </div>
     );
   }
