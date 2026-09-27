@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { clearAuth, getToken, getUser } from '@/features/auth/auth';
 import type { AuthUser } from '@/features/auth/types';
-import { refreshSession } from '@/shared/api/http';
+import { bootstrapSession } from '@/shared/api/http';
 import { authRepository } from '@/shared/api/repositories';
 
 type AuthStatus = 'loading' | 'anon' | 'authed';
@@ -37,7 +37,7 @@ export function useMarketingAuth() {
 
     const bootstrap = async () => {
       if (!getToken() || !getUser()) {
-        await refreshSession();
+        await bootstrapSession();
       }
       if (!cancelled) checkAuthState();
     };

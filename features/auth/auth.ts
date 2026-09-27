@@ -6,6 +6,12 @@ const LEGACY_AUTH_STORAGE_KEYS = [
   'adcendy_user',
 ] as const;
 const AUTH_SYNC_STORAGE_KEY = 'adcendy_auth_sync';
+/**
+ * Whether this browser has had a session since it last signed out - a yes/no,
+ * never a credential. Public pages ask the Backend for a session only when it
+ * is set, so an anonymous visit makes no refresh request that is bound to 401.
+ */
+const SESSION_HINT_STORAGE_KEY = 'adcendy_session_hint';
 const AUTH_CHANNEL_NAME = 'adcendy_auth';
 
 type AuthSyncMessage = 'session-established' | 'session-cleared';
@@ -66,6 +72,24 @@ export function clearLegacyAuthStorage(): void {
   }
 }
 
+function setSessionHint(present: boolean): void {
+  try {
+    if (present) localStorage.setItem(SESSION_HINT_STORAGE_KEY, '1');
+    else localStorage.removeItem(SESSION_HINT_STORAGE_KEY);
+  } catch {
+    // Storage can be unavailable in privacy-restricted browser contexts.
+  }
+}
+
+export function hasSessionHint(): boolean {
+  if (!isBrowser()) return false;
+  try {
+    return localStorage.getItem(SESSION_HINT_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
 export function getToken(): string | null {
   return isBrowser() ? accessToken : null;
 }
@@ -91,6 +115,7 @@ export function clearAuth(options: { broadcast?: boolean } = {}): void {
 
   accessToken = null;
   currentUser = null;
+  setSessionHint(false);
   clearLegacyAuthStorage();
   notifyAuthChange();
 
@@ -120,6 +145,7 @@ export function setAuthSession(
   clearLegacyAuthStorage();
   accessToken = session.accessToken;
   currentUser = session.user;
+  setSessionHint(true);
   notifyAuthChange();
 
   if (options.broadcast !== false) {

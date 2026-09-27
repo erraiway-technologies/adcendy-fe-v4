@@ -1,7 +1,13 @@
+// Cloudflare Web Analytics: Cloudflare adds its beacon to pages it proxies
+// (static.cloudflareinsights.com) and the beacon reports to
+// cloudflareinsights.com. Cookieless; it is the site's only analytics.
+const cloudflareAnalyticsScript = 'https://static.cloudflareinsights.com';
+const cloudflareAnalyticsReport = 'https://cloudflareinsights.com';
+
 const scriptSources =
   process.env.NODE_ENV === 'development'
-    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com"
-    : "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com";
+    ? `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com ${cloudflareAnalyticsScript}`
+    : `script-src 'self' 'unsafe-inline' https://checkout.razorpay.com ${cloudflareAnalyticsScript}`;
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -47,7 +53,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' https://*.razorpay.com; connect-src 'self' https://*.razorpay.com; frame-src https://*.razorpay.com; img-src 'self' data: blob: https://*.razorpay.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; ${scriptSources}; upgrade-insecure-requests`,
+            value: `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' https://*.razorpay.com; connect-src 'self' https://*.razorpay.com ${cloudflareAnalyticsReport}; frame-src https://*.razorpay.com; img-src 'self' data: blob: https://*.razorpay.com; font-src 'self' data:; style-src 'self' 'unsafe-inline'; ${scriptSources}; upgrade-insecure-requests`,
           },
         ],
       },

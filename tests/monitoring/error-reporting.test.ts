@@ -61,7 +61,12 @@ test('reports go through the same-origin tunnel, so the CSP stays self-only', ()
   const reporting = readFileSync('shared/monitoring/error-reporting.ts', 'utf8');
   assert.match(reporting, /tunnel: ERROR_REPORTING_TUNNEL_PATH/);
   assert.match(reporting, /ERROR_REPORTING_TUNNEL_PATH = '\/monitoring\/errors'/);
-  assert.match(readFileSync('next.config.mjs', 'utf8'), /connect-src 'self' https:\/\/\*\.razorpay\.com;/);
+  // No error-reporting host: only payments and Cloudflare's analytics beacon leave the origin.
+  assert.match(
+    readFileSync('next.config.mjs', 'utf8'),
+    /connect-src 'self' https:\/\/\*\.razorpay\.com \$\{cloudflareAnalyticsReport\};/,
+  );
+  assert.match(readFileSync('next.config.mjs', 'utf8'), /cloudflareAnalyticsReport = 'https:\/\/cloudflareinsights\.com'/);
   for (const boundary of ['app/error.tsx', 'app/global-error.tsx']) {
     assert.match(readFileSync(boundary, 'utf8'), /ErrorFallback/, boundary);
   }

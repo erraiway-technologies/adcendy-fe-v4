@@ -6,6 +6,7 @@ import { ApiError, normalizeError } from './errors';
 import {
   clearAuth,
   getToken,
+  hasSessionHint,
   setAuthSession,
 } from '@/features/auth/auth';
 import {
@@ -158,6 +159,30 @@ async function performRefresh(): Promise<RefreshSessionResult> {
     errorCode: 'REFRESH_IN_PROGRESS',
     message: 'Another session refresh is still in progress.',
   };
+}
+
+/**
+ * Where a page load always asks the Backend for a session: the signed-in app
+ * and the sign-in screens. Everywhere else it asks only when this browser has
+ * had a session (hasSessionHint), so an anonymous visitor to a public page
+ * sends no refresh request that can only fail with a 401.
+ */
+const SESSION_PATH_PREFIXES = ['/app', '/admin', '/auth'];
+
+export function bootstrapSession(): Promise<RefreshSessionResult> {
+  const path = typeof window === 'undefined' ? '' : window.location.pathname;
+  const sessionPath = SESSION_PATH_PREFIXES.some(
+    (prefix) => path === prefix || path.startsWith(`${prefix}/`),
+  );
+  if (!sessionPath && !hasSessionHint()) {
+    return Promise.resolve({
+      ok: false,
+      kind: 'anonymous',
+      errorCode: 'NO_SESSION',
+      message: 'Not signed in.',
+    });
+  }
+  return refreshSession();
 }
 
 /**
