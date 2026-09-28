@@ -4,12 +4,13 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { useMarketingAuth } from '@/src/lib/auth/useAuth';
-import { BUSINESS_TERMS as TERMS, deliveryWindowLabel } from '@/shared/marketing/business-terms';
+import { BUSINESS_TERMS as TERMS, callBookingLink, deliveryWindowLabel } from '@/shared/marketing/business-terms';
 
 export function FinalCTA() {
   const { status } = useMarketingAuth();
   const isAuthed = status === 'authed';
   const ctaHref = isAuthed ? '/app' : '/auth/signup';
+  const booking = callBookingLink();
 
   return (
     <section id="final-cta" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-background">
@@ -46,6 +47,13 @@ export function FinalCTA() {
               <ChevronRight className="w-4 h-4" />
             </motion.div>
           </Link>
+          <a
+            href={booking.href}
+            {...(booking.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+          >
+            Prefer to talk first? Book a {TERMS.calls.fitCallMinutes}-minute call about scope and fit
+          </a>
         </motion.div>
 
         <motion.p
@@ -55,7 +63,7 @@ export function FinalCTA() {
           transition={{ delay: 0.25 }}
           className="text-xs text-muted-foreground"
         >
-          No calls. A {TERMS.intake.formMinutes}-minute form, and your strategy {deliveryWindowLabel()}.
+          No calls needed. A {TERMS.intake.formMinutes}-minute form, and your strategy {deliveryWindowLabel()}.
         </motion.p>
       </div>
     </section>

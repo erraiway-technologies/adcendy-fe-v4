@@ -195,9 +195,9 @@ function CustomQuoteCard() {
 const INCLUDED = [
   'Competitive and market intelligence on your market, and a strategy built on it — delivered as a document your team owns',
   'Human review gate — nothing ships without passing it',
-  `${revisionRoundsLabel({ sentenceStart: true })} if the strategy doesn’t fit`,
-  `${TERMS.guidedSupportDays} days of guided support, in writing — a kickoff, a check on your numbers against the plan’s targets, and a final review`,
-  'Email support throughout',
+  `${revisionRoundsLabel({ sentenceStart: true })} if the strategy doesn’t fit, requested within ${TERMS.support.revisionRequestDays} days of delivery`,
+  `${TERMS.support.windowDays} days of support after delivery — written answers within ${TERMS.support.answerWithin}, and two written reviews of your numbers against the plan’s targets`,
+  `A recorded ${TERMS.support.walkthroughVideo} walkthrough of your strategy, and one ${TERMS.calls.walkthroughCallMinutes}-minute call to go through it`,
   'A clear roadmap for what to do next',
 ];
 

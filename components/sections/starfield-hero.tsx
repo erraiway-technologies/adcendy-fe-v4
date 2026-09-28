@@ -72,7 +72,7 @@ export function StarfieldHero() {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="text-xs text-muted-foreground"
           >
-            No calls. A {TERMS.intake.formMinutes}-minute form, and your strategy {deliveryWindowLabel()}.
+            No calls needed. A {TERMS.intake.formMinutes}-minute form, and your strategy {deliveryWindowLabel()}.
           </motion.p>
         </motion.div>
       </div>

@@ -28,7 +28,7 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     {
       question: 'How long does it actually take?',
       answer:
-        `We deliver ${deliveryWindowLabel()} of confirming your inputs are complete. That is a written commitment in our Delivery Policy, not an estimate. ` +
+        `We deliver ${deliveryWindowLabel()} of confirming your inputs are complete. That is a written commitment in our Delivery Policy, not an estimate. The clock pauses only while we wait on something we asked you for, and we email you when work starts, when it goes into review, and when it's delivered. ` +
         (isPilot
           ? "During the pilot we deliberately cap how many strategies we take on at once so this timeline holds — if we're at capacity when you order, we'll tell you the honest turnaround before you pay, not after."
           : "If we're ever at capacity when you order, we'll tell you the honest turnaround before you pay, not after."),
@@ -36,7 +36,7 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     {
       question: "What if the strategy doesn't fit my business?",
       answer:
-        `You get ${revisionRoundsLabel()} included.` +
+        `You get ${revisionRoundsLabel()} included: ask for it in writing within ${TERMS.support.revisionRequestDays} days of delivery, and we deliver it within ${TERMS.support.revisionBusinessDays} business days.` +
         (isPilot
           ? ` During the pilot, the pilot guarantee also applies: ${PILOT_GUARANTEE_TEXT}`
           : ""),
@@ -44,7 +44,12 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     {
       question: 'Will you execute the strategy for me?',
       answer:
-        `No — and that's deliberate. We're the direction, not the hands. The strategy is built for your team (in-house marketers, freelancers, or an agency) to own and run. Every market includes ${TERMS.guidedSupportDays} days of guided support, in writing — a kickoff, a check on your numbers against the plan's targets, and a final review — so your team isn't on its own while they execute. If you have no way to execute yet, we're probably not the right first step.`,
+        `No — and that's deliberate. We're the direction, not the hands. The strategy is built for your team (in-house marketers, freelancers, or an agency) to own and run. Every market includes ${TERMS.support.windowDays} days of support after delivery — written answers within ${TERMS.support.answerWithin}, two written reviews of your numbers against the plan's targets, a recorded walkthrough of the strategy, and one ${TERMS.calls.walkthroughCallMinutes}-minute call to go through it — so your team isn't on its own while they execute. We don't run or audit ad accounts, or review creatives, landing pages or copy. If you have no way to execute yet, we're probably not the right first step.`,
+    },
+    {
+      question: 'Can I talk to someone before buying?',
+      answer:
+        `Yes. Book a ${TERMS.calls.fitCallMinutes}-minute video call about scope, process, fit and price (${TERMS.calls.hours}) — it's about whether we're right for you, not marketing advice. Or email ${TERMS.contact.hello}; we reply within ${TERMS.contact.replyWithin}. For several markets or an agency partnership, we'll arrange a call to put together a quote.`,
     },
     {
       question: 'Do you work with international clients?',

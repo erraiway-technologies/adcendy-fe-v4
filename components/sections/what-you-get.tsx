@@ -45,7 +45,7 @@ const PROVIDES = [
 ];
 
 const DOES_NOT = [
-  'We don\'t run your marketing. No ad management, no content production, no campaign execution.',
+  'We don\'t run your marketing. No ad management or ad-account audits, no content production or creative reviews, no campaign execution.',
   'We\'re not an agency or a done-for-you service.',
   'We don\'t replace your marketing team — we give them direction and intelligence to act on.',
   'We\'re not useful if you have no way to execute (no team, no freelancers, no capacity). A plan needs hands to run it.',

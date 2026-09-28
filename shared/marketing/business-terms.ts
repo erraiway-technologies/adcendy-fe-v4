@@ -22,12 +22,41 @@ export const BUSINESS_TERMS = {
     formMinutes: 15,
   },
   revisionRoundsIncluded: 1,
-  guidedSupportDays: 30,
+  /** Terms of Service, section 27: support after delivery. */
+  support: {
+    windowDays: 30,
+    /** Written answers, within this, for the whole window. */
+    answerWithin: 'one business day',
+    /** The revision round is requested within this many days of delivery... */
+    revisionRequestDays: 14,
+    /** ...and delivered within this many business days. */
+    revisionBusinessDays: 3,
+    walkthroughVideo: '10–15 minute',
+  },
+  /** Terms of Service, section 27: calls are optional, by video, booked. */
+  calls: {
+    fitCallMinutes: 20,
+    walkthroughCallMinutes: 30,
+    hours: 'Monday to Friday, 1:30–9:30 pm IST',
+  },
+  contact: {
+    /** Before buying: questions, quotes, partnerships. */
+    hello: 'hello@adcendy.com',
+    /** Paying clients. */
+    support: 'support@adcendy.com',
+    /** Personal data requests. */
+    privacy: 'privacy@adcendy.com',
+    replyWithin: 'one business day',
+    /**
+     * The booking page for calls. Null until it exists: the site then asks
+     * visitors to email hello@ to book instead.
+     */
+    bookingUrl: null as string | null,
+  },
   pilotGuarantee: {
     /** Fewer actionable opportunities than this and the pilot fee is refunded. */
     minimumOpportunities: 3,
   },
-  contactResponse: 'one business day',
   report: {
     pages: '25–35',
     readingTime: '~1 hour',
@@ -52,6 +81,17 @@ export function revisionRoundsLabel(
   const word = NUMBER_WORDS[count] ?? String(count);
   const label = `${word} revision round${count === 1 ? '' : 's'}`;
   return sentenceStart ? label.charAt(0).toUpperCase() + label.slice(1) : label;
+}
+
+/**
+ * Where to book a call: the booking page once it exists, an email to hello@
+ * until then.
+ */
+export function callBookingLink(): { href: string; external: boolean } {
+  const { bookingUrl, hello } = BUSINESS_TERMS.contact;
+  return bookingUrl
+    ? { href: bookingUrl, external: true }
+    : { href: `mailto:${hello}?subject=${encodeURIComponent('Booking a call')}`, external: false };
 }
 
 export function copyrightNotice(now: Date = new Date()): string {

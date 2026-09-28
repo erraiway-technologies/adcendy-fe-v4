@@ -60,7 +60,7 @@ export function HowItWorks() {
             From intake to direction {deliveryWindowLabel()}
           </h2>
           <p className="text-lg text-muted-foreground">
-            Four steps, all in writing. No calls needed.
+            Four steps, in writing. No calls needed — though you can book one if you&apos;d like to talk.
           </p>
         </motion.div>
 
