@@ -64,7 +64,8 @@ export const BUSINESS_TERMS = {
     minimumOpportunities: 3,
   },
   report: {
-    pages: '25–35',
+    /** The whole package - strategy, research and guidance - as erraiway.com states it too. */
+    pages: '30–50',
     readingTime: '~1 hour',
   },
 } as const;

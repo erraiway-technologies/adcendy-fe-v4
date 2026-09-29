@@ -77,7 +77,7 @@ export function WhatYouGet() {
           transition={{ delay: 0.2 }}
           className="text-center text-sm text-muted-foreground mb-12"
         >
-          Average length: {TERMS.report.pages} pages. Time to read: {TERMS.report.readingTime}. Time for your team to act on it: starts day one.
+          The whole package: about {TERMS.report.pages} pages. Time to read the core strategy: {TERMS.report.readingTime}. Time for your team to act on it: starts day one.
         </motion.p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
