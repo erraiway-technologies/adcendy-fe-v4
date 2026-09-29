@@ -49,8 +49,9 @@ export const BUSINESS_TERMS = {
     replyWithin: 'one business day',
     /**
      * The fit call's booking page (Zoho Bookings). The walkthrough and quote
-     * calls have private links, sent by email, never published here. Null
-     * sends visitors to email hello@ to book instead.
+     * calls have private links, offered only in the signed-in dashboard
+     * (shared/support/support-window.ts). Null sends visitors to email hello@
+     * to book instead.
      */
     bookingUrl: 'https://adcendy1.zohobookings.in/488505000000030046' as string | null,
   },

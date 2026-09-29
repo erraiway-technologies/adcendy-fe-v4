@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,6 +46,8 @@ import {
   nextOrderPollDelay,
 } from "@/shared/payments/order-polling";
 import { getSupportContact } from "@/shared/support/support-contact";
+import { CLIENT_BOOKING_LINKS } from "@/shared/support/support-window";
+import { BUSINESS_TERMS } from "@/shared/marketing/business-terms";
 
 function contactSupportPhrase(): string {
   const support = getSupportContact();
@@ -496,12 +497,25 @@ export default function CheckoutPage() {
                 </Alert>
               ) : null}
               <p className="text-sm text-muted-foreground sm:col-span-3">
-                Need a set of countries these don’t cover?{" "}
-                <Link className="text-primary hover:underline" href="/contact">
-                  Ask us for a multi-market quote
-                </Link>{" "}
+                Need a set of countries these don’t cover, or an agency
+                partnership?{" "}
+                <a
+                  className="text-primary hover:underline"
+                  href={CLIENT_BOOKING_LINKS.quoteCall}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Book a call for a quote
+                </a>{" "}
                 — we run the same campaign across each country you name and
-                price the package with you.
+                price the package with you. Or email{" "}
+                <a
+                  className="text-primary hover:underline"
+                  href={`mailto:${BUSINESS_TERMS.contact.hello}`}
+                >
+                  {BUSINESS_TERMS.contact.hello}
+                </a>
+                .
               </p>
             </CardContent>
           </Card>

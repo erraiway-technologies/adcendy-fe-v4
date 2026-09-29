@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { intelligenceRepository, wizardRepository } from '@/shared/api/repositories';
 import { canAccessCampaignFiles } from '@/shared/components/campaigns/campaign-ui';
 import { SubmittedInputsSummary } from '@/shared/components/campaigns/SubmittedInputsSummary';
+import { SupportWindowCard } from '@/shared/components/campaigns/SupportWindowCard';
 import { formatCampaignStatus } from '@/shared/types/campaign';
 import { humanizeReviewValue } from '@/shared/types/reviews';
 import { useLegacyPerformanceWorkspacesEnabled } from '@/shared/runtime-config/features';
@@ -297,6 +298,8 @@ export default function OverviewPage() {
           </div>
         </CardContent>
       </Card>
+
+      <SupportWindowCard campaignId={campaignId} />
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <Card className="border-border bg-card">
