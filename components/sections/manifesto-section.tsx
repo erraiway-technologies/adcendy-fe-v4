@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import { usePublicCatalogue } from '@/shared/payments/usePublicCatalogue';
 import { BUSINESS_TERMS as TERMS } from '@/shared/marketing/business-terms';
-import { TEAM } from '@/shared/marketing/team';
 
 const BELIEFS = [
   {
@@ -71,38 +70,18 @@ export function Manifesto() {
           transition={{ delay: 0.4 }}
           className="mt-12 pt-8 border-t border-border"
         >
-          <h3 className="font-space-grotesk text-lg font-bold text-foreground">
-            Who&apos;s behind AdCendy
-          </h3>
-          <p className="mt-2 text-muted-foreground text-sm leading-relaxed">
-            AdCendy is built by a two-person team under{' '}
+          {/* AdCendy is a product: the people behind it belong on the company's site. */}
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            AdCendy is a product of{' '}
             <span className="text-foreground font-medium">{TERMS.company.legalName}</span>.
+            {isPilot && (
+              <>
+                {' '}
+                We&apos;re starting with a small, limited pilot so the product is shaped by real
+                client feedback, not built in a vacuum.
+              </>
+            )}
           </p>
-          <ul className="mt-6 grid gap-6 sm:grid-cols-2">
-            {TEAM.map((member) => (
-              <li key={member.name} className="space-y-1">
-                <p className="text-foreground font-medium">{member.name}</p>
-                <p className="text-xs uppercase tracking-wide text-primary">{member.role}</p>
-                <p className="text-muted-foreground text-sm leading-relaxed">{member.about}</p>
-                {member.linkedinUrl && (
-                  <a
-                    href={member.linkedinUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline"
-                  >
-                    LinkedIn
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
-          {isPilot && (
-            <p className="mt-6 text-muted-foreground text-sm leading-relaxed">
-              We&apos;re starting with a small, limited pilot so the product is shaped by real
-              client feedback, not built in a vacuum.
-            </p>
-          )}
         </motion.div>
       </div>
     </section>

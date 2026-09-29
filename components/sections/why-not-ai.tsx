@@ -17,7 +17,7 @@ const PILLARS = [
   {
     icon: ShieldCheck,
     title: 'The review gate is mandatory, not marketing.',
-    body: "A named person reads every strategy end to end before it reaches you. They can reject it, send it back for more data, or cut any recommendation the evidence doesn't support. Most tools hand you whatever the model produced, unread by anyone.",
+    body: "A person on our team reads every strategy end to end before it reaches you. They can reject it, send it back for more data, or cut any recommendation the evidence doesn't support. Most tools hand you whatever the model produced, unread by anyone.",
   },
   {
     icon: FileSearch,

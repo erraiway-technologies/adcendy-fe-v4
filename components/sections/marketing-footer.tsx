@@ -77,7 +77,7 @@ export function MarketingFooter() {
               AdCendy
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Market intelligence. Expert review.
+              Market intelligence. Human review.
               <br />
               Direction your team can own.
             </p>
@@ -105,7 +105,7 @@ export function MarketingFooter() {
             {copyrightNotice()}
           </p>
           <p className="text-xs text-muted-foreground">
-            AdCendy &mdash; Market intelligence. Expert review. Direction your team can own.
+            AdCendy &mdash; Market intelligence. Human review. Direction your team can own.
           </p>
         </div>
       </div>
