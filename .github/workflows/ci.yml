@@ -78,7 +78,7 @@ jobs:
         run: npm run bundle:scan
 
       - name: Build standalone container once
-        run: docker build --build-arg NODE_VERSION="$(cat .nvmrc)" --tag adcendy-fe:${{ github.sha }} .
+        run: docker build --build-arg NODE_VERSION="$(cat .nvmrc)" --label org.opencontainers.image.revision=${{ github.sha }} --tag adcendy-fe:${{ github.sha }} .
 
       - name: Generate Production dependency SBOM
         run: |
@@ -139,6 +139,17 @@ jobs:
           docker push "$image:sha-${{ github.sha }}"
           digest="$(docker inspect --format='{{index .RepoDigests 0}}' "$image:sha-${{ github.sha }}")"
           echo "Released: $digest"
+          # :release is what `deploy.sh <env> --latest` deploys. It moves only
+          # while this commit is still the head of main, so a slower run for an
+          # older commit can never move it backwards.
+          head="$(git ls-remote origin refs/heads/main | cut -f1)"
+          if [ "$head" = "${{ github.sha }}" ]; then
+            docker tag adcendy-fe:${{ github.sha }} "$image:release"
+            docker push "$image:release"
+            echo "Moved $image:release to this build."
+          else
+            echo "main has moved on to $head; $image:release is left for that build."
+          fi
           {
             echo "## Release image"
             echo
