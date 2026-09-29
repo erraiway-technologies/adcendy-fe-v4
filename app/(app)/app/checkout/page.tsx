@@ -46,7 +46,6 @@ import {
   nextOrderPollDelay,
 } from "@/shared/payments/order-polling";
 import { getSupportContact } from "@/shared/support/support-contact";
-import { CLIENT_BOOKING_LINKS } from "@/shared/support/support-window";
 import { BUSINESS_TERMS } from "@/shared/marketing/business-terms";
 
 function contactSupportPhrase(): string {
@@ -501,7 +500,7 @@ export default function CheckoutPage() {
                 partnership?{" "}
                 <a
                   className="text-primary hover:underline"
-                  href={CLIENT_BOOKING_LINKS.quoteCall}
+                  href={BUSINESS_TERMS.contact.quoteBookingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

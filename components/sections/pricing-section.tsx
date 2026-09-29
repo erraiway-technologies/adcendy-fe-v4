@@ -180,12 +180,14 @@ function CustomQuoteCard() {
             <p className="text-4xl font-bold text-foreground">Let&rsquo;s talk</p>
             <p className="text-xs text-muted-foreground">priced with you</p>
           </div>
-          <Link
-            href="/contact"
+          <a
+            href={TERMS.contact.quoteBookingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex w-full items-center justify-center py-3 px-4 rounded-lg font-semibold transition-all text-sm border border-primary text-primary hover:bg-primary/10"
           >
-            Get a quote
-          </Link>
+            Book a call for a quote
+          </a>
         </div>
       </div>
     </motion.div>
@@ -440,9 +442,14 @@ export function Pricing() {
           className="mt-8 text-center text-sm text-muted-foreground"
         >
           Running strategies for multiple clients?{' '}
-          <Link href="/contact" className="text-primary font-semibold hover:underline">
-            Talk to us about partnership options
-          </Link>{' '}
+          <a
+            href={TERMS.contact.quoteBookingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary font-semibold hover:underline"
+          >
+            Book a call about partnership options
+          </a>{' '}
           — we work with agencies and resellers directly, not through bulk discounts.
         </motion.p>
 

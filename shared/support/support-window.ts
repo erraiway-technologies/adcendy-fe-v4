@@ -15,13 +15,12 @@ export const SUPPORT_WINDOW_DAYS = 30;
 export const REVISION_REQUEST_DAYS = 14;
 
 /**
- * The private Zoho Bookings links for signed-in clients. Not secret - anyone
- * holding one can book - but kept off the public site: the walkthrough is for
- * delivered strategies, the quote call for multi-market quotes and partnerships.
+ * The walkthrough call's private Zoho Bookings link, for signed-in clients
+ * with a delivered strategy. Not secret - anyone holding it can book - but
+ * kept off the public site.
  */
 export const CLIENT_BOOKING_LINKS = {
   walkthroughCall: 'https://adcendy1.zohobookings.in/488505000000033012',
-  quoteCall: 'https://adcendy1.zohobookings.in/488505000000033035',
 } as const;
 
 export interface SupportWindow {

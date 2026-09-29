@@ -36,6 +36,7 @@ export const BUSINESS_TERMS = {
   /** Terms of Service, section 27: calls are optional, by video, booked. */
   calls: {
     fitCallMinutes: 20,
+    quoteCallMinutes: 30,
     walkthroughCallMinutes: 30,
     hours: 'Monday to Friday, 1:30–9:30 pm IST',
   },
@@ -48,12 +49,13 @@ export const BUSINESS_TERMS = {
     privacy: 'privacy@adcendy.com',
     replyWithin: 'one business day',
     /**
-     * The fit call's booking page (Zoho Bookings). The walkthrough and quote
-     * calls have private links, offered only in the signed-in dashboard
-     * (shared/support/support-window.ts). Null sends visitors to email hello@
-     * to book instead.
+     * The fit call's booking page (Zoho Bookings). Null sends visitors to
+     * email hello@ to book instead. The walkthrough call has a private link,
+     * offered only in the signed-in dashboard (shared/support/support-window.ts).
      */
     bookingUrl: 'https://adcendy1.zohobookings.in/488505000000030046' as string | null,
+    /** Multi-market quotes and agency partnerships: a public booking page too. */
+    quoteBookingUrl: 'https://adcendy1.zohobookings.in/488505000000033035',
   },
   pilotGuarantee: {
     /** Fewer actionable opportunities than this and the pilot fee is refunded. */

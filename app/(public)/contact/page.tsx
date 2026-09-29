@@ -71,6 +71,23 @@ export default function ContactPage() {
                 : `email ${TERMS.contact.hello} with a few times that suit you.`}
             </p>
           </li>
+          <li className="rounded-lg border border-border p-5">
+            <p className="text-sm text-muted-foreground">Several markets, or an agency partnership?</p>
+            <p className="mt-1 text-lg">
+              <a
+                href={TERMS.contact.quoteBookingUrl}
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Book a {TERMS.calls.quoteCallMinutes}-minute call for a quote
+              </a>
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              We scope the countries or the partnership with you and price the package. Same hours;
+              or email {TERMS.contact.hello}.
+            </p>
+          </li>
         </ul>
 
         <div className="text-center space-y-4">

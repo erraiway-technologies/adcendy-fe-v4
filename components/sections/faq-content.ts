@@ -49,7 +49,7 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     {
       question: 'Can I talk to someone before buying?',
       answer:
-        `Yes. Book a ${TERMS.calls.fitCallMinutes}-minute video call about scope, process, fit and price (${TERMS.calls.hours}) — it's about whether we're right for you, not marketing advice. Or email ${TERMS.contact.hello}; we reply within ${TERMS.contact.replyWithin}. For several markets or an agency partnership, we'll arrange a call to put together a quote.`,
+        `Yes. Book a ${TERMS.calls.fitCallMinutes}-minute video call about scope, process, fit and price (${TERMS.calls.hours}) — it's about whether we're right for you, not marketing advice. Or email ${TERMS.contact.hello}; we reply within ${TERMS.contact.replyWithin}. For several markets or an agency partnership, book a ${TERMS.calls.quoteCallMinutes}-minute quote call from our contact page.`,
     },
     {
       question: 'Do you work with international clients?',
