@@ -9,6 +9,8 @@
 export const BUSINESS_TERMS = {
   company: {
     legalName: 'Erraiway Technologies LLP',
+    /** The company's own site: who is behind AdCendy lives there, not here. */
+    url: 'https://www.erraiway.com',
   },
   delivery: {
     /**

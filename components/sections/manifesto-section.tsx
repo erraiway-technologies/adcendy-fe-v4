@@ -70,10 +70,18 @@ export function Manifesto() {
           transition={{ delay: 0.4 }}
           className="mt-12 pt-8 border-t border-border"
         >
-          {/* AdCendy is a product: the people behind it belong on the company's site. */}
+          {/* AdCendy is a product: the people behind it are on the company's site. */}
           <p className="text-muted-foreground text-sm leading-relaxed">
             AdCendy is a product of{' '}
-            <span className="text-foreground font-medium">{TERMS.company.legalName}</span>.
+            <a
+              href={TERMS.company.url}
+              target="_blank"
+              rel="noopener"
+              className="text-foreground font-medium hover:text-primary hover:underline"
+            >
+              {TERMS.company.legalName}
+            </a>
+            .
             {isPilot && (
               <>
                 {' '}
