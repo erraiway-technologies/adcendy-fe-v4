@@ -48,10 +48,11 @@ export const BUSINESS_TERMS = {
     privacy: 'privacy@adcendy.com',
     replyWithin: 'one business day',
     /**
-     * The booking page for calls. Null until it exists: the site then asks
-     * visitors to email hello@ to book instead.
+     * The fit call's booking page (Zoho Bookings). The walkthrough and quote
+     * calls have private links, sent by email, never published here. Null
+     * sends visitors to email hello@ to book instead.
      */
-    bookingUrl: null as string | null,
+    bookingUrl: 'https://adcendy1.zohobookings.in/488505000000030046' as string | null,
   },
   pilotGuarantee: {
     /** Fewer actionable opportunities than this and the pilot fee is refunded. */
