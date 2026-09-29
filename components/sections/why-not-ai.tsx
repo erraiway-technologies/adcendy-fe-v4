@@ -16,8 +16,8 @@ const PILLARS = [
   },
   {
     icon: ShieldCheck,
-    title: 'The human review gate is mandatory, not marketing.',
-    body: "A named reviewer can reject the strategy, send it back for more data, catch what the model missed, and is accountable for the bet it asks you to make. Nothing ships without passing that gate. Most tools hand you whatever the model produced, unread by anyone.",
+    title: 'The review gate is mandatory, not marketing.',
+    body: "A named person reads every strategy end to end before it reaches you. They can reject it, send it back for more data, or cut any recommendation the evidence doesn't support. Most tools hand you whatever the model produced, unread by anyone.",
   },
   {
     icon: FileSearch,

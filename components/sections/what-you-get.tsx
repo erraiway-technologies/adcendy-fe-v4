@@ -41,7 +41,7 @@ const PROVIDES = [
   'A full competitive and market intelligence workup — competitor positioning, their advertising and search approach in plain terms, keyword and channel opportunities, and the gaps in your market.',
   'A marketing strategy built on that intelligence — priorities, positioning, channel and messaging direction, grounded in your unit economics.',
   'Delivered as a clear document your team owns, executes, and refines — not a black box.',
-  'A strategic starting point at consultant-grade depth, without the consultant timeline or retainer.',
+  'A strategic starting point built on real market evidence, without a consultant’s timeline or retainer.',
 ];
 
 const DOES_NOT = [

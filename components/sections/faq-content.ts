@@ -18,7 +18,7 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     {
       question: 'How is this different from an AI tool?',
       answer:
-        "Generic tools generate from patterns — they don't know your actual competitors or what's moving in your market right now. We analyze your real market first, and the strategy is built on what we find. Then a human strategist validates it before it reaches you.",
+        "Generic tools generate from patterns — they don't know your actual competitors or what's moving in your market right now. We analyze your real market first, and the strategy is built on what we find. Then a named person checks every recommendation against the evidence before it reaches you.",
     },
     {
       question: "What if I don't have a website yet?",
@@ -65,7 +65,7 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     {
       question: 'Who actually reviews my strategy?',
       answer:
-        "Every strategy is reviewed by an experienced marketer before delivery — nothing ships without passing that review. As we grow, we're building out the review bench so that standard holds as volume increases.",
+        "Every report is reviewed by Mridul Hemani, AdCendy's lead technical architect, who built the intelligence system behind it. The review checks three things: every recommendation traces to real market evidence, it fits your budget, team and goals, and nothing unverified is presented as fact. When experienced marketers join the review bench, we'll name them here.",
     },
     {
       question: 'What happens to my data?',

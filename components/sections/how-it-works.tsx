@@ -30,9 +30,9 @@ const STEPS: Array<{
   },
   {
     number: '03',
-    title: 'A human strategist reviews and refines',
+    title: 'We check every recommendation against the evidence',
     description:
-      'Nothing ships without passing our review gate. An experienced strategist validates the positioning, pressure-tests every recommendation, and turns the intelligence into direction your team can act on.',
+      "Nothing ships until it passes our review gate. Every recommendation is traced back to the market data behind it and checked against your budget, team and goals. If it doesn't hold up, it goes back for more data. Anything we couldn't verify is marked as unknown, never filled in with a guess.",
     icon: UserCheck,
   },
   {
