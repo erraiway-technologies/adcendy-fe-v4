@@ -128,6 +128,14 @@ export const queryKeys = {
         : ([...queryKeys.adminReview.all, 'aiCallsList'] as const),
     aiCall: (callId: string) => [...queryKeys.adminReview.all, 'aiCall', callId] as const,
   },
+  systemSettings: {
+    all: ['systemSettings'] as const,
+    list: () => [...queryKeys.systemSettings.all, 'list'] as const,
+    history: (key?: string) =>
+      key
+        ? ([...queryKeys.systemSettings.all, 'history', key] as const)
+        : ([...queryKeys.systemSettings.all, 'history'] as const),
+  },
   coupons: {
     all: ['coupons'] as const,
     list: () => [...queryKeys.coupons.all, 'list'] as const,
