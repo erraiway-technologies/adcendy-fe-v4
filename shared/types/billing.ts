@@ -62,6 +62,11 @@ export interface BillingOrder {
   bundleSku: string;
   /** Bought at the pilot price. */
   pilot?: boolean;
+  /** The coupon applied; `amountMinor` is already after it. */
+  couponCode?: string | null;
+  /** The bundle price before the coupon; null when none was applied. */
+  listAmountMinor?: number | null;
+  discountMinor?: number;
   createdAt: string;
   paidAt: string | null;
   /**

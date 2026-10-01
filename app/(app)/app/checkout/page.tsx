@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { billingRepository, legalRepository } from "@/shared/api/repositories";
 import { queryKeys } from "@/shared/api/queryKeys";
@@ -23,6 +24,7 @@ import {
   getCheckoutRequiredDocumentIds,
 } from "@/shared/legal/legal-flow-utils";
 import type { BillingBundle, BillingOrder } from "@/shared/types/billing";
+import type { CouponPreview } from "@/shared/types/coupons";
 import {
   formatMinorAmount,
   loadRazorpayCheckout,
@@ -140,6 +142,13 @@ export default function CheckoutPage() {
   const [shouldPoll, setShouldPoll] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+  const [couponInput, setCouponInput] = useState("");
+  // The coupon as the server priced it for one bundle; checked again by the
+  // server when the order is created.
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponPreview | null>(
+    null,
+  );
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   const documentsQuery = useQuery({
     queryKey: queryKeys.legal.activeDocuments(),
@@ -199,6 +208,16 @@ export default function CheckoutPage() {
   );
   const selectedBundle =
     bundles.find((bundle) => bundle.sku === selectedSku) ?? bundles[0];
+  const couponForSelection =
+    appliedCoupon && appliedCoupon.sku === selectedBundle?.sku
+      ? appliedCoupon
+      : null;
+  const amountDue = selectedBundle
+    ? {
+        amountMinor: couponForSelection?.amountMinor ?? selectedBundle.amountMinor,
+        currency: selectedBundle.currency,
+      }
+    : null;
   const pilotOffer = bundlesQuery.data?.pilotOffer ?? null;
   // The pilot is shown beside the regular price for the same markets.
   const { comparisons, others } = useMemo(
@@ -319,6 +338,7 @@ export default function CheckoutPage() {
         selectedBundle.sku,
         crypto.randomUUID(),
         requiredDocumentIds,
+        couponForSelection?.couponCode ?? null,
       );
       if (!order.providerOrderId)
         throw new Error("Razorpay did not return an order ID.");
@@ -387,6 +407,40 @@ export default function CheckoutPage() {
       );
     },
   });
+
+  const applyCouponMutation = useMutation({
+    mutationFn: ({ code, sku }: { code: string; sku: string }) =>
+      billingRepository.previewCoupon(code, sku),
+    onMutate: () => setCouponError(null),
+    onSuccess: (preview) => {
+      setAppliedCoupon(preview);
+      setCouponInput(preview.couponCode);
+    },
+    onError: (error: unknown) => {
+      setAppliedCoupon(null);
+      setCouponError(errorMessage(error, "Could not check that coupon."));
+    },
+  });
+
+  const applyCoupon = () => {
+    const code = couponInput.trim();
+    if (!code || !selectedBundle) return;
+    applyCouponMutation.mutate({ code, sku: selectedBundle.sku });
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError(null);
+    setCouponInput("");
+  };
+
+  // A coupon is priced per package, so picking another one prices it again.
+  const selectBundle = (sku: string) => {
+    setSelectedSku(sku);
+    if (appliedCoupon && appliedCoupon.sku !== sku) {
+      applyCouponMutation.mutate({ code: appliedCoupon.couponCode, sku });
+    }
+  };
 
   const toggleAcceptedDocument = (documentId: string, checked: boolean) => {
     setSubmitError(null);
@@ -459,7 +513,7 @@ export default function CheckoutPage() {
                     note={pilotOffer ? pilotSeatsLabel(pilotOffer) : null}
                     highlight
                     selected={selectedBundle?.sku === pilot.sku}
-                    onSelect={setSelectedSku}
+                    onSelect={selectBundle}
                   />
                   {regular ? (
                     <BundleOption
@@ -467,7 +521,7 @@ export default function CheckoutPage() {
                       tag="Regular price"
                       note="What every client pays after the pilot"
                       selected={selectedBundle?.sku === regular.sku}
-                      onSelect={setSelectedSku}
+                      onSelect={selectBundle}
                     />
                   ) : null}
                 </div>
@@ -482,7 +536,7 @@ export default function CheckoutPage() {
                   key={bundle.sku}
                   bundle={bundle}
                   selected={selectedBundle?.sku === bundle.sku}
-                  onSelect={setSelectedSku}
+                  onSelect={selectBundle}
                 />
               ))}
               {bundlesQuery.isLoading ? (
@@ -601,11 +655,86 @@ export default function CheckoutPage() {
                     One-time purchase
                   </div>
                 </div>
-                <div className="text-xl font-semibold">
-                  {formatMinorAmount(selectedBundle)}
+                <div className="text-right">
+                  {couponForSelection ? (
+                    <div className="text-sm text-muted-foreground line-through">
+                      {formatMinorAmount(selectedBundle)}
+                    </div>
+                  ) : null}
+                  <div className="text-xl font-semibold">
+                    {amountDue ? formatMinorAmount(amountDue) : null}
+                  </div>
                 </div>
               </div>
             ) : null}
+
+            <div className="space-y-2">
+              <label
+                htmlFor="checkout-coupon"
+                className="text-sm font-medium text-foreground"
+              >
+                Coupon code
+              </label>
+              {couponForSelection ? (
+                <div className="flex items-center justify-between rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-sm">
+                  <span>
+                    <span className="font-mono font-semibold">
+                      {couponForSelection.couponCode}
+                    </span>{" "}
+                    −
+                    {formatMinorAmount({
+                      amountMinor: couponForSelection.discountMinor,
+                      currency: couponForSelection.currency,
+                    })}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={removeCoupon}
+                    disabled={isBusy}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    id="checkout-coupon"
+                    value={couponInput}
+                    onChange={(event) => {
+                      setCouponInput(event.target.value.toUpperCase());
+                      setCouponError(null);
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        applyCoupon();
+                      }
+                    }}
+                    placeholder="Enter a code"
+                    maxLength={32}
+                    disabled={isBusy || applyCouponMutation.isPending}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={applyCoupon}
+                    disabled={
+                      isBusy ||
+                      applyCouponMutation.isPending ||
+                      !couponInput.trim() ||
+                      !selectedBundle
+                    }
+                  >
+                    {applyCouponMutation.isPending ? "Checking…" : "Apply"}
+                  </Button>
+                </div>
+              )}
+              {couponError ? (
+                <p className="text-sm text-destructive">{couponError}</p>
+              ) : null}
+            </div>
 
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
@@ -651,8 +780,8 @@ export default function CheckoutPage() {
                 ? "Preparing secure checkout…"
                 : isCheckoutOpen
                   ? "Checkout open…"
-                  : selectedBundle
-                    ? `Pay ${formatMinorAmount(selectedBundle)}`
+                  : amountDue
+                    ? `Pay ${formatMinorAmount(amountDue)}`
                     : "Select a market"}
             </Button>
             <p className="text-center text-xs text-muted-foreground">

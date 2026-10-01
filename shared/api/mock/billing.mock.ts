@@ -5,6 +5,7 @@ import type {
   VerifyPaymentPayload,
   VerifyPaymentResult,
 } from "@/shared/types/billing";
+import type { CouponPreview } from "@/shared/types/coupons";
 
 // A SKU's credits are markets: one credit buys one country, covered end to
 // end. The server owns these prices and how many packages a country gets;
@@ -42,6 +43,37 @@ const usBundles: BillingBundle[] = [
 ];
 const orders = new Map<string, BillingOrder>();
 
+// Mock mode's one coupon: 10% off any regular package. The server's rules
+// (limits, dates, currency) live in the Backend; this exercises the page.
+const MOCK_COUPON_CODE = "WELCOME10";
+const MOCK_COUPON_PERCENT = 10;
+
+function priceWithMockCoupon(
+  bundle: BillingBundle,
+  couponCode: string,
+): CouponPreview {
+  const code = couponCode.trim().toUpperCase();
+  if (code !== MOCK_COUPON_CODE) {
+    throw new Error("That coupon code is not valid.");
+  }
+  if (bundle.pilot) {
+    throw new Error(
+      "Coupons cannot be used on pilot pricing. Choose a regular package.",
+    );
+  }
+  const discountMinor = Math.floor(
+    (bundle.amountMinor * MOCK_COUPON_PERCENT) / 100,
+  );
+  return {
+    couponCode: code,
+    sku: bundle.sku,
+    currency: bundle.currency,
+    listAmountMinor: bundle.amountMinor,
+    discountMinor,
+    amountMinor: bundle.amountMinor - discountMinor,
+  };
+}
+
 export const billingMockAdapter = {
   async listPublicBundles(countryCode?: string): Promise<BillingCatalogue> {
     return this.listBundles(countryCode);
@@ -75,29 +107,45 @@ export const billingMockAdapter = {
     sku: string,
     _idempotencyKey: string,
     _acceptedLegalDocumentVersionIdsV2?: string[],
+    couponCode?: string | null,
     countryCode?: string,
   ): Promise<BillingOrder> {
     const catalogue = await this.listBundles(countryCode);
     const bundle = catalogue.items.find((item) => item.sku === sku);
     if (!bundle) throw new Error("Invalid bundle SKU");
+    const coupon = couponCode ? priceWithMockCoupon(bundle, couponCode) : null;
     const orderId = `mock-${crypto.randomUUID()}`;
     const order: BillingOrder = {
       orderId,
       provider: "RAZORPAY",
       providerOrderId: `order_${crypto.randomUUID().replaceAll("-", "")}`,
       providerPaymentId: null,
-      amountMinor: bundle.amountMinor,
+      amountMinor: coupon?.amountMinor ?? bundle.amountMinor,
       currency: bundle.currency,
       credits: bundle.credits,
       status: "CREATED",
       bundleSku: bundle.sku,
       pilot: bundle.pilot ?? false,
+      couponCode: coupon?.couponCode ?? null,
+      listAmountMinor: coupon?.listAmountMinor ?? null,
+      discountMinor: coupon?.discountMinor ?? 0,
       createdAt: new Date().toISOString(),
       paidAt: null,
       refundReason: null,
     };
     orders.set(orderId, order);
     return order;
+  },
+
+  async previewCoupon(
+    couponCode: string,
+    sku: string,
+    countryCode?: string,
+  ): Promise<CouponPreview> {
+    const catalogue = await this.listBundles(countryCode);
+    const bundle = catalogue.items.find((item) => item.sku === sku);
+    if (!bundle) throw new Error("Invalid bundle SKU");
+    return priceWithMockCoupon(bundle, couponCode);
   },
 
   async getOrder(orderId: string): Promise<BillingOrder> {

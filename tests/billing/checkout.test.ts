@@ -28,6 +28,7 @@ test("mock checkout keeps the order identity and transitions it to paid", async 
     "5 Markets",
     "checkout-test-idempotency",
     ["doc-terms"],
+    null,
     "US",
   );
   assert.equal(order.status, "CREATED");

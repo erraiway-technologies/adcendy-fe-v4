@@ -128,6 +128,10 @@ export const queryKeys = {
         : ([...queryKeys.adminReview.all, 'aiCallsList'] as const),
     aiCall: (callId: string) => [...queryKeys.adminReview.all, 'aiCall', callId] as const,
   },
+  coupons: {
+    all: ['coupons'] as const,
+    list: () => [...queryKeys.coupons.all, 'list'] as const,
+  },
   opsV2: {
     all: ['opsV2'] as const,
     campaigns: () => [...queryKeys.opsV2.all, 'campaigns'] as const,

@@ -6,6 +6,7 @@ import type {
   VerifyPaymentPayload,
   VerifyPaymentResult,
 } from "@/shared/types/billing";
+import type { CouponPreview } from "@/shared/types/coupons";
 
 function unwrapData<T>(response: ApiResponse<T> | T): T {
   if (response && typeof response === "object" && "data" in response) {
@@ -34,16 +35,30 @@ export const billingRealAdapter = {
     sku: string,
     idempotencyKey: string,
     acceptedLegalDocumentVersionIdsV2: string[],
+    couponCode?: string | null,
   ): Promise<BillingOrder> {
     const response = await http<ApiResponse<BillingOrder> | BillingOrder>(
       "/v1/billing/orders",
       {
         method: "POST",
         // The buyer's tick travels with the order, so the acceptance is
-        // recorded before any payment is started.
-        body: { sku, acceptedLegalDocumentVersionIdsV2 },
+        // recorded before any payment is started. The coupon is checked
+        // again by the server when the order is created.
+        body: {
+          sku,
+          acceptedLegalDocumentVersionIdsV2,
+          ...(couponCode ? { couponCode } : {}),
+        },
         headers: { "Idempotency-Key": idempotencyKey },
       },
+    );
+    return unwrapData(response);
+  },
+
+  async previewCoupon(couponCode: string, sku: string): Promise<CouponPreview> {
+    const response = await http<ApiResponse<CouponPreview> | CouponPreview>(
+      "/v1/billing/coupons/preview",
+      { method: "POST", body: { couponCode, sku }, allowAuthReplay: true },
     );
     return unwrapData(response);
   },
