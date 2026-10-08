@@ -140,6 +140,10 @@ export const queryKeys = {
     all: ['coupons'] as const,
     list: () => [...queryKeys.coupons.all, 'list'] as const,
   },
+  adminOrders: {
+    all: ['adminOrders'] as const,
+    list: (query: Record<string, unknown>) => [...queryKeys.adminOrders.all, 'list', query] as const,
+  },
   opsV2: {
     all: ['opsV2'] as const,
     campaigns: () => [...queryKeys.opsV2.all, 'campaigns'] as const,

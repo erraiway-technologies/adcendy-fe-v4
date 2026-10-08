@@ -12,6 +12,7 @@ export { adminReviewRepository } from './adminReview.repo';
 export { opsV2Repository } from './opsV2.repo';
 export { systemSettingsRepository } from './systemSettings.repo';
 export { couponsRepository } from './coupons.repo';
+export { adminOrdersRepository } from './adminOrders.repo';
 export { legalRepository } from './legal.repo';
 export { runsV2Repository } from './runsV2.repo';
 export { channelResultsV2Repository } from './channelResultsV2.repo';
