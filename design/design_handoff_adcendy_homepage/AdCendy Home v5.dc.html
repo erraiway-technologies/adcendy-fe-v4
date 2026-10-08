@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#232323;color:#F5F5F4;font-family:'Outfit',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:hover{color:#FFFFFF}
+*{box-sizing:border-box}
+</style>
+</helmet>
+
+<div ref="{{ rootRef }}" style="background:#232323;overflow-x:clip">
+
+<header style="position:fixed;top:12px;left:0;right:0;z-index:50;padding:0 16px;pointer-events:none">
+  <div data-navbar="1" style="pointer-events:auto;margin:0 auto;max-width:1400px;display:flex;align-items:center;justify-content:space-between;gap:12px 28px;flex-wrap:wrap;padding:10px 10px 10px 20px;border-radius:10px;border:1px solid transparent;background:transparent;transition:max-width .8s cubic-bezier(.2,.7,.2,1),background .5s,border-color .5s">
+    <a href="#top" style="font-size:20px;font-weight:600;letter-spacing:-.02em;white-space:nowrap">AdCendy</a>
+    <nav style="display:flex;gap:6px 28px;font-size:15px;flex-wrap:wrap;white-space:nowrap;color:#E4E4E1">
+      <a href="#inside">Inside a strategy</a><a href="#how">How it works</a><a href="#pricing">Pricing</a><a href="https://www.adcendy.com/auth/login">Sign in</a>
+    </nav>
+    <a href="https://www.adcendy.com/auth/signup" style="padding:10px 16px;border-radius:6px;background:#FFFFFF;color:#1E1E1E;font-size:15px;white-space:nowrap;transition:background .3s" style-hover="background:#E9E9E6;color:#1E1E1E">Get your strategy →</a>
+  </div>
+</header>
+
+<main id="top">
+
+<section data-hero="1" style="position:relative;height:100vh;min-height:640px;overflow:hidden;background:linear-gradient(180deg,#1A1D23 0%,#262B34 34%,#3F4250 54%,#5B5157 62%,#2C2828 72%,#232323 100%)">
+  <div style="position:absolute;left:50%;top:62%;width:1600px;height:520px;margin:-260px 0 0 -800px;border-radius:50%;background:radial-gradient(closest-side,rgba(232,172,132,.32),transparent);pointer-events:none"></div>
+  <canvas ref="{{ canvasRef }}" style="position:absolute;inset:0;width:100%;height:100%;display:block"></canvas>
+  <div style="position:absolute;inset:0;background-image:url('grain.png');opacity:.55;mix-blend-mode:overlay;pointer-events:none"></div>
+  <div style="position:absolute;left:0;right:0;bottom:0;height:22%;background:linear-gradient(180deg,transparent,#232323);pointer-events:none"></div>
+  <div data-hero-text="1" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;padding:0 32px 16vh;text-align:center">
+    <h1 data-intro="1" style="margin:0;font-weight:400;font-size:clamp(44px,5.6vw,86px);line-height:1.08;letter-spacing:-.02em;max-width:15ch;text-wrap:balance;color:#FFFFFF">Market intelligence your team can act on</h1>
+    <sc-if value="{{ heroCta }}" hint-placeholder-val="{{ true }}">
+      <a data-intro="1" href="https://www.adcendy.com/auth/signup" style="padding:13px 20px;border-radius:6px;background:#FFFFFF;color:#1E1E1E;font-size:16px;white-space:nowrap">Get your strategy →</a>
+    </sc-if>
+  </div>
+  <div style="position:absolute;left:50%;bottom:28px;width:1px;height:72px;margin-left:-.5px;background:rgba(255,255,255,.14);overflow:hidden">
+    <div data-cue="1" style="width:1px;height:28px;background:linear-gradient(180deg,transparent,#FFFFFF)"></div>
+  </div>
+</section>
+
+<section style="max-width:1280px;margin:0 auto;padding:160px 40px 0">
+  <p data-reveal="1" style="margin:0;font-size:clamp(28px,3.4vw,46px);line-height:1.25;letter-spacing:-.015em;max-width:30ch;text-wrap:pretty;color:#FFFFFF">Most teams can execute. What they're missing is someone to tell them what to aim at. <span style="color:#7E7E7A">We're not an agency, and it isn't AI-generated. A person reads every strategy, end to end, before it reaches you.</span></p>
+</section>
+
+<section id="inside" style="max-width:1280px;margin:0 auto;padding:180px 40px 0;scroll-margin-top:90px">
+  <div style="display:flex;justify-content:space-between;align-items:end;gap:20px 48px;flex-wrap:wrap;margin-bottom:56px">
+    <h2 data-reveal="1" style="margin:0;font-weight:500;font-size:clamp(36px,4vw,56px);letter-spacing:-.025em;line-height:1.05">Inside a strategy</h2>
+    <p data-reveal="1" data-delay="100" style="margin:0;font-size:17px;line-height:1.55;color:#A6A6A2;max-width:40ch">Sample pages from a 30–50 page strategy. Yours covers one market, end to end.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:40px;align-items:start">
+    <div data-reveal="1" style="display:flex;flex-direction:column;max-width:380px">
+      <sc-for list="{{ chapters }}" as="ch" hint-placeholder-count="5">
+        <button onClick="{{ ch.pick }}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:10px;padding:18px 0 16px;border-top:1px solid rgba(255,255,255,.08)">
+          <span style="display:flex;align-items:baseline;gap:14px;color:{{ ch.color }};transition:color .4s">
+            <span style="font-family:'Geist Mono',monospace;font-size:12px">{{ ch.n }}</span>
+            <span style="display:flex;flex-direction:column;gap:4px"><span style="font-size:20px;letter-spacing:-.01em">{{ ch.title }}</span><span style="font-size:14px;color:#8A8A86">{{ ch.sub }}</span></span>
+          </span>
+          <span style="height:1px;background:rgba(255,255,255,.08);overflow:hidden"><span data-chbar="{{ ch.i }}" style="display:block;height:100%;background:#FFFFFF;transform-origin:left;transform:scaleX(0)"></span></span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div data-reveal="1" data-delay="120" style="position:relative;grid-column:span 2;min-height:560px">
+
+      <div style="position:absolute;inset:0;transition:opacity .5s ease,transform .7s cubic-bezier(.2,.7,.2,1);opacity:{{ pg0.op }};transform:translateY({{ pg0.ty }}px);pointer-events:{{ pg0.pe }}">
+        <div style="height:100%;background:#ECEAE5;color:#1F1F1F;border-radius:4px;padding:36px 40px;display:flex;flex-direction:column;gap:28px;box-shadow:0 40px 80px rgba(0,0,0,.35)">
+          <div style="display:flex;justify-content:space-between;gap:16px;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#6E6C66"><span>Sample Co. · United Kingdom</span><span>01 · p. 4</span></div>
+          <div style="font-size:34px;letter-spacing:-.02em">Market snapshot</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;border-top:1px solid rgba(31,31,31,.12);padding-top:20px">
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:40px;letter-spacing:-.03em">48k</span><span style="font-size:14px;color:#6E6C66">monthly buyer searches</span></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:40px;letter-spacing:-.03em">+18%</span><span style="font-size:14px;color:#6E6C66">demand, year on year</span></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:40px;letter-spacing:-.03em">23</span><span style="font-size:14px;color:#6E6C66">active advertisers</span></div>
+          </div>
+          <div style="flex:1;display:flex;align-items:end;gap:6px;min-height:110px">
+            <sc-for list="{{ spark }}" as="h" hint-placeholder-count="12">
+              <span style="flex:1;height:{{ h }}%;background:#1F1F1F;border-radius:2px 2px 0 0;opacity:.85"></span>
+            </sc-for>
+          </div>
+          <div style="font-size:15px;line-height:1.5;color:#3E3D3A;border-left:2px solid #1F1F1F;padding-left:14px">Demand is growing faster than ad competition — a window of roughly six to nine months.</div>
+        </div>
+      </div>
+
+      <div style="position:absolute;inset:0;transition:opacity .5s ease,transform .7s cubic-bezier(.2,.7,.2,1);opacity:{{ pg1.op }};transform:translateY({{ pg1.ty }}px);pointer-events:{{ pg1.pe }}">
+        <div style="height:100%;background:#ECEAE5;color:#1F1F1F;border-radius:4px;padding:36px 40px;display:flex;flex-direction:column;gap:24px;box-shadow:0 40px 80px rgba(0,0,0,.35)">
+          <div style="display:flex;justify-content:space-between;gap:16px;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#6E6C66"><span>Sample Co. · United Kingdom</span><span>02 · p. 9</span></div>
+          <div style="font-size:34px;letter-spacing:-.02em">Competitor landscape</div>
+          <div style="display:flex;flex-direction:column;font-size:15px">
+            <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:12px;padding:10px 0;font-size:12px;color:#6E6C66;border-bottom:1px solid rgba(31,31,31,.15)"><span>Competitor</span><span>Leads on</span><span>Main channel</span><span>Ad activity</span></div>
+            <sc-for list="{{ rivals }}" as="r" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:12px;padding:14px 0;border-bottom:1px solid rgba(31,31,31,.08)"><span>{{ r.name }}</span><span>{{ r.lead }}</span><span>{{ r.channel }}</span><span style="display:flex;gap:3px;align-items:center"><sc-for list="{{ r.dots }}" as="d" hint-placeholder-count="3"><span style="width:8px;height:8px;border-radius:50%;background:{{ d }}"></span></sc-for></span></div>
+            </sc-for>
+          </div>
+          <div style="margin-top:auto;font-size:15px;line-height:1.5;color:#3E3D3A;border-left:2px solid #1F1F1F;padding-left:14px">Three of four competitors lead on price. No one leads on speed.</div>
+        </div>
+      </div>
+
+      <div style="position:absolute;inset:0;transition:opacity .5s ease,transform .7s cubic-bezier(.2,.7,.2,1);opacity:{{ pg2.op }};transform:translateY({{ pg2.ty }}px);pointer-events:{{ pg2.pe }}">
+        <div style="height:100%;background:#ECEAE5;color:#1F1F1F;border-radius:4px;padding:36px 40px;display:flex;flex-direction:column;gap:24px;box-shadow:0 40px 80px rgba(0,0,0,.35)">
+          <div style="display:flex;justify-content:space-between;gap:16px;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#6E6C66"><span>Sample Co. · United Kingdom</span><span>03 · p. 17</span></div>
+          <div style="font-size:14px;color:#6E6C66">Recommended position</div>
+          <div style="font-size:clamp(48px,5vw,72px);letter-spacing:-.035em;line-height:1">Lead on speed.</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:auto">
+            <div style="display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1px solid #1F1F1F"><span style="font-size:17px">Live in a day</span><span style="font-size:13px;line-height:1.5;color:#6E6C66">Competitors quote 2–6 weeks onboarding.</span></div>
+            <div style="display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1px solid #1F1F1F"><span style="font-size:17px">No setup fees</span><span style="font-size:13px;line-height:1.5;color:#6E6C66">Removes the main objection in reviews.</span></div>
+            <div style="display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1px solid #1F1F1F"><span style="font-size:17px">Real human support</span><span style="font-size:13px;line-height:1.5;color:#6E6C66">The top complaint about competitor A.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="position:absolute;inset:0;transition:opacity .5s ease,transform .7s cubic-bezier(.2,.7,.2,1);opacity:{{ pg3.op }};transform:translateY({{ pg3.ty }}px);pointer-events:{{ pg3.pe }}">
+        <div style="height:100%;background:#ECEAE5;color:#1F1F1F;border-radius:4px;padding:36px 40px;display:flex;flex-direction:column;gap:26px;box-shadow:0 40px 80px rgba(0,0,0,.35)">
+          <div style="display:flex;justify-content:space-between;gap:16px;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#6E6C66"><span>Sample Co. · United Kingdom</span><span>04 · p. 26</span></div>
+          <div style="font-size:34px;letter-spacing:-.02em">Channel direction</div>
+          <div style="display:flex;flex-direction:column;gap:22px">
+            <sc-for list="{{ channels }}" as="c" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:110px 1fr 48px;gap:16px;align-items:center">
+                <span style="font-size:16px">{{ c.name }}</span>
+                <div style="display:flex;flex-direction:column;gap:6px"><div style="height:6px;background:rgba(31,31,31,.1);border-radius:3px"><div style="height:100%;width:{{ c.w }}%;background:#1F1F1F;border-radius:3px"></div></div><span style="font-size:13px;color:#6E6C66">{{ c.why }}</span></div>
+                <span style="font-family:'Geist Mono',monospace;font-size:14px;text-align:right">{{ c.w }}%</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="position:absolute;inset:0;transition:opacity .5s ease,transform .7s cubic-bezier(.2,.7,.2,1);opacity:{{ pg4.op }};transform:translateY({{ pg4.ty }}px);pointer-events:{{ pg4.pe }}">
+        <div style="height:100%;background:#ECEAE5;color:#1F1F1F;border-radius:4px;padding:36px 40px;display:flex;flex-direction:column;gap:22px;box-shadow:0 40px 80px rgba(0,0,0,.35)">
+          <div style="display:flex;justify-content:space-between;gap:16px;font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:#6E6C66"><span>Sample Co. · United Kingdom</span><span>05 · p. 38</span></div>
+          <div style="font-size:34px;letter-spacing:-.02em">The first 30 days</div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ plan }}" as="p" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:56px 1fr auto;gap:16px;align-items:center;padding:16px 0;border-top:1px solid rgba(31,31,31,.12)">
+                <span style="font-family:'Geist Mono',monospace;font-size:13px;color:#6E6C66">{{ p.w }}</span>
+                <span style="font-size:17px">{{ p.task }}</span>
+                <span style="font-size:13px;color:#6E6C66;white-space:nowrap">{{ p.target }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section style="max-width:1280px;margin:0 auto;padding:200px 40px 0">
+  <h2 data-reveal="1" style="margin:0 0 48px;font-weight:500;font-size:clamp(36px,4vw,56px);letter-spacing:-.025em;line-height:1.05">Questions your strategy answers</h2>
+  <div style="display:flex;flex-direction:column;border-bottom:1px solid rgba(255,255,255,.1)">
+    <sc-for list="{{ qs }}" as="q" hint-placeholder-count="5">
+      <div data-reveal="1" style="border-top:1px solid rgba(255,255,255,.1)">
+        <button onClick="{{ q.toggle }}" style="all:unset;cursor:pointer;width:100%;box-sizing:border-box;display:grid;grid-template-columns:48px 1fr 32px;gap:16px;align-items:center;padding:30px 0;color:{{ q.color }};transition:color .3s" style-hover="color:#FFFFFF">
+          <span style="font-family:'Geist Mono',monospace;font-size:13px;color:#7E7E7A">{{ q.n }}</span>
+          <span style="font-size:clamp(22px,2.6vw,34px);letter-spacing:-.015em;line-height:1.2">{{ q.q }}</span>
+          <span style="font-size:24px;font-weight:300;justify-self:end;transform:rotate({{ q.rot }}deg);transition:transform .45s cubic-bezier(.2,.7,.2,1)">+</span>
+        </button>
+        <div style="display:grid;grid-template-rows:{{ q.rows }};transition:grid-template-rows .55s cubic-bezier(.2,.7,.2,1)">
+          <div style="overflow:hidden">
+            <div style="display:grid;grid-template-columns:48px 1fr;gap:16px;padding:0 48px 32px 0">
+              <span></span>
+              <div style="display:flex;flex-direction:column;gap:14px;max-width:62ch">
+                <span style="font-size:18px;line-height:1.6;color:#C4C4C0">{{ q.a }}</span>
+                <span style="font-family:'Geist Mono',monospace;font-size:12px;color:#7E7E7A">{{ q.where }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<section id="how" data-timeline="1" style="max-width:1280px;margin:0 auto;padding:200px 40px 0;scroll-margin-top:90px">
+  <div style="display:flex;justify-content:space-between;align-items:end;gap:20px 48px;flex-wrap:wrap;margin-bottom:64px">
+    <h2 data-reveal="1" style="margin:0;font-weight:500;font-size:clamp(36px,4vw,56px);letter-spacing:-.025em;line-height:1.05">Four days, in writing</h2>
+    <p data-reveal="1" data-delay="100" style="margin:0;font-size:17px;line-height:1.55;color:#A6A6A2;max-width:38ch">No calls required. One revision round and 30 days of written support included.</p>
+  </div>
+  <div style="position:relative">
+    <div style="position:absolute;left:0;right:0;top:5px;height:1px;background:rgba(255,255,255,.12)"></div>
+    <div data-tl-fill="1" style="position:absolute;left:0;right:0;top:5px;height:1px;background:#FFFFFF;transform-origin:left;transform:scaleX(0)"></div>
+    <div style="position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:40px 24px">
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <span data-node="{{ s.i }}" style="width:11px;height:11px;border-radius:50%;background:#232323;border:1px solid rgba(255,255,255,.4);transition:background .4s,border-color .4s"></span>
+          <span style="font-family:'Geist Mono',monospace;font-size:13px;color:#A6A6A2;margin-top:14px">{{ s.day }}</span>
+          <span style="font-size:22px;letter-spacing:-.01em;line-height:1.25">{{ s.title }}</span>
+          <span style="font-size:16px;line-height:1.55;color:#A6A6A2">{{ s.body }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" style="max-width:1280px;margin:0 auto;padding:200px 40px 0;scroll-margin-top:90px">
+  <div data-reveal="1" style="border:1px solid rgba(255,255,255,.1);border-radius:6px;background:#282828;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
+    <div style="padding:clamp(32px,4.5vw,56px);display:flex;flex-direction:column;justify-content:space-between;gap:40px">
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <span style="font-family:'Geist Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#7E7E7A">Pricing</span>
+        <h2 style="margin:0;font-weight:500;font-size:clamp(34px,3.8vw,52px);letter-spacing:-.025em;line-height:1.05">One market. One strategy. One fee.</h2>
+        <p style="margin:0;font-size:17px;line-height:1.55;color:#A6A6A2;max-width:40ch">One market is one country. No retainer. Your local price is shown at checkout.</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="https://www.adcendy.com/auth/signup" style="padding:14px 20px;border-radius:6px;background:#FFFFFF;color:#1E1E1E;font-size:16px;white-space:nowrap" style-hover="background:#E9E9E6;color:#1E1E1E">Get your strategy →</a>
+        <a href="https://adcendy1.zohobookings.in/488505000000030046" style="padding:14px 20px;border-radius:6px;border:1px solid rgba(255,255,255,.18);font-size:16px;white-space:nowrap;transition:background .3s" style-hover="background:rgba(255,255,255,.05)">Book a 20-min call</a>
+      </div>
+    </div>
+    <div style="padding:clamp(32px,4.5vw,56px);border-left:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column">
+      <sc-for list="{{ includes }}" as="i" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:28px 1fr;gap:8px;padding:16px 0;border-top:1px solid rgba(255,255,255,.08);font-size:16px;line-height:1.5;color:#E4E4E1"><span style="color:#7E7E7A">✓</span><span>{{ i }}</span></div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section style="max-width:1280px;margin:0 auto;padding:220px 40px 0">
+  <h2 data-reveal="1" style="margin:0;font-weight:500;font-size:clamp(40px,5.2vw,76px);letter-spacing:-.03em;line-height:1.04;max-width:14ch">Your team has the hands. We bring direction.</h2>
+  <div data-reveal="1" data-delay="120" style="margin-top:56px;position:relative">
+    <svg viewBox="0 0 1200 180" preserveAspectRatio="none" style="display:block;width:100%;height:180px;overflow:visible">
+      <path data-draw="1" pathLength="1" d="M0 160 L540 160 C660 160 720 152 800 124 S 1000 34 1192 14" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.5" vector-effect="non-scaling-stroke" style="stroke-dasharray:1;stroke-dashoffset:0"></path>
+    </svg>
+    <span style="position:absolute;right:0;top:4px;width:12px;height:12px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 24px rgba(255,255,255,.6)"></span>
+    <div style="position:absolute;left:0;top:118px;display:flex;flex-direction:column;gap:6px;font-family:'Geist Mono',monospace;font-size:12px;color:#7E7E7A"><span>Today</span></div>
+  </div>
+  <div data-reveal="1" data-delay="200" style="margin-top:48px;display:flex;gap:10px;flex-wrap:wrap">
+    <a href="https://www.adcendy.com/auth/signup" style="padding:15px 22px;border-radius:6px;background:#FFFFFF;color:#1E1E1E;font-size:17px;white-space:nowrap" style-hover="background:#E9E9E6;color:#1E1E1E">Get your strategy →</a>
+  </div>
+</section>
+
+</main>
+
+<footer style="max-width:1280px;margin:0 auto;padding:160px 40px 48px">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:20px 40px;flex-wrap:wrap;padding-top:28px;border-top:1px solid rgba(255,255,255,.08);font-size:15px;color:#A6A6A2">
+    <span style="font-size:18px;font-weight:600;color:#FFFFFF">AdCendy</span>
+    <div style="display:flex;gap:28px;flex-wrap:wrap"><a href="#inside">Inside a strategy</a><a href="#how">How it works</a><a href="#pricing">Pricing</a><a href="https://www.adcendy.com/contact">Contact</a></div>
+    <span style="color:#7E7E7A">© 2026 Erraiway Technologies LLP</span>
+  </div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;motion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showHeroButton&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { chapter: 0, auto: true, q: -1 };
+  rootRef = React.createRef();
+  canvasRef = React.createRef();
+
+  componentDidMount() {
+    const root = this.rootRef.current;
+    if (!root) return;
+    const motion = this.props.motion ?? true;
+    const ease = 'cubic-bezier(.2,.7,.2,1)';
+    this.startCanvas(motion);
+
+    if (motion) {
+      root.querySelectorAll('[data-intro]').forEach((el, i) => el.animate(
+        [{ opacity: 0, transform: 'translateY(16px)', filter: 'blur(8px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
+        { duration: 1400, delay: 200 + i * 220, easing: ease, fill: 'backwards' }));
+      const cue = root.querySelector('[data-cue]');
+      cue && cue.animate([{ transform: 'translateY(-30px)' }, { transform: 'translateY(76px)' }], { duration: 2200, iterations: Infinity, easing: 'ease-in-out' });
+    }
+
+    let pending = motion ? [...root.querySelectorAll('[data-reveal]')] : [];
+    const show = el => el.animate([{ opacity: 0, transform: 'translateY(22px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 1200, delay: +(el.dataset.delay || 0), easing: ease, fill: 'backwards' });
+    const draw = root.querySelector('[data-draw]');
+    let drawn = !motion;
+    const nav = root.querySelector('[data-navbar]');
+    const hero = root.querySelector('[data-hero]');
+    const heroText = root.querySelector('[data-hero-text]');
+    const tl = root.querySelector('[data-timeline]');
+    const tlFill = root.querySelector('[data-tl-fill]');
+    const nodes = [...root.querySelectorAll('[data-node]')];
+    const clamp = v => Math.min(1, Math.max(0, v));
+
+    const update = () => {
+      const vh = window.innerHeight || 800;
+      if (hero) {
+        const hr = hero.getBoundingClientRect();
+        this.heroVisible = hr.bottom > 0;
+        const s = hr.top < -40;
+        if (nav) {
+          nav.style.maxWidth = s ? '980px' : '1400px';
+          nav.style.background = s ? 'rgba(40,40,40,.82)' : 'transparent';
+          nav.style.borderColor = s ? 'rgba(255,255,255,.08)' : 'transparent';
+          nav.style.backdropFilter = nav.style.webkitBackdropFilter = s ? 'blur(16px)' : 'none';
+        }
+        if (motion && heroText) { heroText.style.transform = `translateY(${-hr.top * 0.28}px)`; heroText.style.opacity = String(clamp(1 + hr.top / (vh * 0.6))); }
+      }
+      if (tl && tlFill) {
+        const r = tl.getBoundingClientRect();
+        const p = motion ? clamp((vh * 0.7 - r.top) / (r.height * 0.75)) : 1;
+        tlFill.style.transform = `scaleX(${p})`;
+        nodes.forEach((n, i) => { const on = p >= i / Math.max(1, nodes.length - 1) - 0.001 && p > 0; n.style.background = on ? '#FFFFFF' : '#232323'; n.style.borderColor = on ? '#FFFFFF' : 'rgba(255,255,255,.4)'; });
+      }
+      if (!drawn && draw && draw.getBoundingClientRect().top < vh * 0.9) {
+        drawn = true;
+        draw.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 2400, delay: 200, easing: 'cubic-bezier(.6,0,.2,1)', fill: 'backwards' });
+      }
+      pending = pending.filter(el => { if (el.getBoundingClientRect().top < vh * 0.94) { show(el); return false; } return true; });
+    };
+    let last = 0;
+    this.onScroll = () => {
+      const now = Date.now();
+      if (now - last > 16) { last = now; update(); }
+      clearTimeout(this.trail); this.trail = setTimeout(update, 40);
+    };
+    window.addEventListener('scroll', this.onScroll, { passive: true, capture: true });
+    window.addEventListener('resize', this.onScroll);
+    update();
+    this.safety = setTimeout(() => root.querySelectorAll('[data-reveal]').forEach(el => el.getAnimations().forEach(a => { if (!a.currentTime) a.finish(); })), 2500);
+
+    this.runBar();
+    this.autoTimer = setInterval(() => { if (this.state.auto) this.setState(s => ({ chapter: (s.chapter + 1) % 5 })); }, 6000);
+  }
+
+  componentDidUpdate(_, prev) {
+    if (prev.chapter !== this.state.chapter || prev.auto !== this.state.auto) this.runBar();
+  }
+
+  runBar() {
+    const root = this.rootRef.current; if (!root) return;
+    root.querySelectorAll('[data-chbar]').forEach(b => {
+      b.getAnimations().forEach(a => a.cancel());
+      const active = +b.dataset.chbar === this.state.chapter;
+      if (!active) { b.style.transform = 'scaleX(0)'; return; }
+      if (!this.state.auto || this.props.motion === false) { b.style.transform = 'scaleX(1)'; return; }
+      b.style.transform = 'scaleX(0)';
+      b.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 6000, easing: 'linear', fill: 'forwards' });
+    });
+  }
+
+  startCanvas(motion) {
+    const cv = this.canvasRef.current; if (!cv) return;
+    const ctx = cv.getContext('2d');
+    const L = 6;
+    let mx = 0, tmx = 0;
+    const dots = Array.from({ length: 36 }, () => ({ x: Math.random(), y: 0.55 + Math.random() * 0.4, v: 0.00004 + Math.random() * 0.00008, a: Math.random() }));
+    this.onMouse = e => { tmx = (e.clientX / window.innerWidth) - 0.5; };
+    window.addEventListener('mousemove', this.onMouse);
+    const frame = t => {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const w = cv.clientWidth, h = cv.clientHeight;
+      if (!w || !h) return;
+      if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      mx += (tmx - mx) * 0.04;
+      dots.forEach(d => {
+        if (motion) { d.y -= d.v * 16; d.a += 0.004; if (d.y < 0.25) { d.y = 0.9; d.x = Math.random(); } }
+        const al = Math.max(0, Math.sin(d.a)) * Math.min(1, (d.y - 0.25) / 0.2) * 0.45;
+        ctx.fillStyle = `rgba(255,232,214,${al})`;
+        ctx.beginPath(); ctx.arc(d.x * w, d.y * h, 1.1, 0, Math.PI * 2); ctx.fill();
+      });
+      for (let i = 0; i < L; i++) {
+        const k = i / (L - 1);
+        const base = h * (0.6 + k * 0.3);
+        const amp = h * (0.06 + k * 0.035);
+        const off = mx * (10 + k * 40);
+        const pts = [];
+        for (let x = -40; x <= w + 40; x += 6) {
+          const nx = (x + off) / w;
+          const y = base - amp * (0.55 * Math.sin(nx * 2.1 * Math.PI + i * 1.7 + t * 0.00005 * (1 + k)) + 0.3 * Math.sin(nx * 4.7 * Math.PI + i * 2.3 - t * 0.00007) + 0.15 * Math.sin(nx * 10.3 * Math.PI + i * 0.9 + t * 0.0001));
+          pts.push([x, y]);
+        }
+        ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+        pts.forEach(p => ctx.lineTo(p[0], p[1]));
+        ctx.lineTo(w + 40, h); ctx.lineTo(-40, h); ctx.closePath();
+        const c0 = [74, 68, 76], c1 = [35, 35, 35];
+        const c = c0.map((v, j) => Math.round(v + (c1[j] - v) * k));
+        ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ctx.fill();
+        ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+        pts.forEach(p => ctx.lineTo(p[0], p[1]));
+        ctx.strokeStyle = `rgba(255,226,204,${0.2 - k * 0.12})`; ctx.lineWidth = 1; ctx.stroke();
+      }
+    };
+    const loop = t => { if (this.heroVisible !== false) frame(t); this.raf = requestAnimationFrame(loop); };
+    if (motion) this.raf = requestAnimationFrame(loop);
+    else { frame(0); this.onResizeStatic = () => frame(0); window.addEventListener('resize', this.onResizeStatic); }
+  }
+
+  componentWillUnmount() {
+    cancelAnimationFrame(this.raf); clearInterval(this.autoTimer); clearTimeout(this.trail); clearTimeout(this.safety);
+    window.removeEventListener('scroll', this.onScroll, { capture: true });
+    window.removeEventListener('resize', this.onScroll);
+    this.onMouse && window.removeEventListener('mousemove', this.onMouse);
+    this.onResizeStatic && window.removeEventListener('resize', this.onResizeStatic);
+  }
+
+  renderVals() {
+    const { chapter, q } = this.state;
+    const page = i => ({ op: chapter === i ? 1 : 0, ty: chapter === i ? 0 : (i < chapter ? -12 : 12), pe: chapter === i ? 'auto' : 'none' });
+    const lvl = n => [0, 1, 2].map(j => j < n ? '#1F1F1F' : 'rgba(31,31,31,.15)');
+    const chData = [
+      ['Market snapshot', 'Demand, growth and who is buying'],
+      ['Competitor landscape', 'How rivals position, advertise and rank'],
+      ['Positioning', 'The angle no one owns yet'],
+      ['Channel direction', 'Where the budget goes, and why'],
+      ['The first 30 days', 'Weekly priorities and targets']
+    ];
+    const qData = [
+      ['Who are you actually competing with?', 'Often not who you think. We map every brand bidding on your buyers\u2019 searches and running ads at them — and how each one positions itself.', 'Chapter 02 · Competitor landscape'],
+      ['Which buyer searches is no one answering?', 'High-intent searches where no competitor ranks or advertises well. These are your fastest, cheapest wins.', 'Chapter 01 · Market snapshot'],
+      ['What should you say that no one else is saying?', 'A position grounded in the gaps between competitors, with proof points your team can use in copy tomorrow.', 'Chapter 03 · Positioning'],
+      ['Where should the next marketing dollar go?', 'A channel mix with the rationale for each — tested against your budget, team and goals.', 'Chapter 04 · Channel direction'],
+      ['What does your team do on Monday?', 'Week-by-week priorities for the first 30 days, and the metric range that tells you it\u2019s working.', 'Chapter 05 · The first 30 days']
+    ];
+    return {
+      rootRef: this.rootRef,
+      canvasRef: this.canvasRef,
+      heroCta: this.props.showHeroButton ?? true,
+      chapters: chData.map(([title, sub], i) => ({
+        i, n: String(i + 1).padStart(2, '0'), title, sub,
+        color: chapter === i ? '#FFFFFF' : '#8A8A86',
+        pick: () => this.setState({ chapter: i, auto: false })
+      })),
+      pg0: page(0), pg1: page(1), pg2: page(2), pg3: page(3), pg4: page(4),
+      spark: [28, 34, 31, 42, 47, 45, 55, 61, 58, 70, 82, 94],
+      rivals: [
+        { name: 'Competitor A', lead: 'Price', channel: 'Search', dots: lvl(3) },
+        { name: 'Competitor B', lead: 'Features', channel: 'Search', dots: lvl(2) },
+        { name: 'Competitor C', lead: 'Price', channel: 'Social', dots: lvl(3) },
+        { name: 'Competitor D', lead: 'Price', channel: 'Content', dots: lvl(1) }
+      ],
+      channels: [
+        { name: 'Search', w: 40, why: '12 high-intent terms with weak competition' },
+        { name: 'LinkedIn', w: 30, why: 'Buyers are active; competitors are absent' },
+        { name: 'Content', w: 20, why: 'Answer the questions rivals ignore' },
+        { name: 'Partners', w: 10, why: 'Two adjacent tools share your audience' }
+      ],
+      plan: [
+        { w: 'Week 1', task: 'Launch search on the 12 priority terms', target: 'CPC under £2.10' },
+        { w: 'Week 2', task: 'Rewrite the homepage around speed', target: '+15% demo rate' },
+        { w: 'Week 3', task: 'Test three LinkedIn angles', target: 'CTR above 0.6%' },
+        { w: 'Week 4', task: 'Review numbers, cut the weakest channel', target: 'Written review' }
+      ],
+      qs: qData.map(([qq, a, where], i) => ({
+        n: String(i + 1).padStart(2, '0'), q: qq, a, where,
+        color: q === i ? '#FFFFFF' : '#C4C4C0',
+        rows: q === i ? '1fr' : '0fr', rot: q === i ? 45 : 0,
+        toggle: () => this.setState(s => ({ q: s.q === i ? -1 : i }))
+      })),
+      steps: [
+        { i: 0, day: 'Day 0', title: 'A 15-minute intake', body: 'Your product, audience, goals and the team you have.' },
+        { i: 1, day: 'Days 1–2', title: 'We map your market', body: 'Competitors, search demand, ads and channels.' },
+        { i: 2, day: 'Day 3', title: 'A strategist reviews it', body: 'Every claim traced to evidence. Unverified means cut.' },
+        { i: 3, day: 'Day 4', title: 'Your strategy lands', body: 'A document your team owns, plus a recorded walkthrough.' }
+      ],
+      includes: [
+        'Competitive and market intelligence, and the strategy built on it',
+        'Human review — nothing ships without passing it',
+        'One revision round within 14 days',
+        '30 days of written support',
+        'Recorded walkthrough and one 30-minute call'
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
