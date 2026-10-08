@@ -457,6 +457,17 @@ export default function CheckoutPage() {
   // The Backend says which policies checkout requires; none listed means
   // they are not published, and no payment starts without them.
   const policiesReady = requiredDocumentIds.length > 0;
+  const policiesLeftToAccept = requiredDocumentIds.filter(
+    (id) => !acceptedDocumentIds.includes(id),
+  ).length;
+  const isWaitingOnPolicies =
+    policiesReady && !hasAcceptedAllRequiredDocuments && !isBusy;
+
+  const scrollToPolicies = () => {
+    document
+      .getElementById("checkout-policies")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
 
   return (
     <div className="space-y-5 p-6">
@@ -573,7 +584,12 @@ export default function CheckoutPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card
+            id="checkout-policies"
+            className={
+              isWaitingOnPolicies ? "border-primary/60 transition-colors" : undefined
+            }
+          >
             <CardHeader>
               <CardTitle>2. Review and accept</CardTitle>
               <CardDescription>
@@ -763,9 +779,32 @@ export default function CheckoutPage() {
               </p>
             ) : null}
 
+            {isWaitingOnPolicies ? (
+              <p
+                id="checkout-pay-hint"
+                className="rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-sm text-foreground"
+              >
+                To pay, accept{" "}
+                {policiesLeftToAccept === 1
+                  ? "the remaining policy"
+                  : `all ${policiesLeftToAccept} remaining policies`}{" "}
+                in{" "}
+                <button
+                  type="button"
+                  onClick={scrollToPolicies}
+                  className="font-medium text-primary hover:underline"
+                >
+                  2. Review and accept
+                </button>
+                .
+              </p>
+            ) : null}
             <Button
               className="w-full"
               size="lg"
+              aria-describedby={
+                isWaitingOnPolicies ? "checkout-pay-hint" : undefined
+              }
               onClick={() => startPaymentMutation.mutate()}
               disabled={
                 isBusy ||
