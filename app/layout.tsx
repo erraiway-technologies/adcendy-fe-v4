@@ -30,15 +30,18 @@ const SITE_METADATA: Metadata = {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
+  // The tab icon. Its file name must survive a URL as written: a '+' in the
+  // old name ("Adcendy icon + bg 48x48.svg") reached the server as a space
+  // and 404'd, so browsers showed no icon at all.
   icons: {
     icon: [
       {
-        url: '/Adcendy icon + bg 48x48.svg',
+        url: '/favicon.svg',
         type: 'image/svg+xml',
-        sizes: '48x48',
+        sizes: 'any',
       },
     ],
-    shortcut: '/Adcendy icon + bg 48x48.svg',
+    shortcut: '/favicon.svg',
     apple: '/apple-icon.png',
   },
 };

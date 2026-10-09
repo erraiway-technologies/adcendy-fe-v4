@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BrandLogo } from '@/shared/components/BrandLogo';
 import { SectionLink } from '@/components/nav/section-link';
 import { useMarketingAuth } from '@/src/lib/auth/useAuth';
 import { HOME_CTA_LABEL } from '../../content/home';
@@ -64,12 +65,8 @@ export function SiteHeader() {
         )}
       >
         <div className="flex items-center justify-between gap-x-7 gap-y-3">
-          <Link
-            href="/"
-            onClick={closeMenu}
-            className="text-[20px] font-semibold tracking-[-.02em] whitespace-nowrap"
-          >
-            AdCendy
+          <Link href="/" onClick={closeMenu} className="shrink-0">
+            <BrandLogo height={48} priority />
           </Link>
 
           <nav aria-label="Main" className="hidden gap-x-7 text-[15px] whitespace-nowrap text-(--home-nav-link) lg:flex">

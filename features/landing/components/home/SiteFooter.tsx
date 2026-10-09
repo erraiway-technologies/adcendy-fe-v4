@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { SectionLink } from '@/components/nav/section-link';
 import { usePublicLegalDocuments } from '@/shared/legal/useLegalCatalogue';
+import { BrandLogo } from '@/shared/components/BrandLogo';
 import { BUSINESS_TERMS } from '@/shared/marketing/business-terms';
 import { SITE_TAGLINE } from '../../content/home';
 import {
@@ -52,8 +53,8 @@ export function SiteFooter() {
     <footer className="mx-auto max-w-[1280px] px-10 pt-40 pb-12 max-sm:px-6">
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-x-10 gap-y-12 border-t border-white/8 pt-12">
         <div className="flex flex-col gap-3">
-          <Link href="/" className="text-lg font-semibold text-white">
-            AdCendy
+          <Link href="/" className="w-fit">
+            <BrandLogo height={56} />
           </Link>
           <p className="max-w-[24ch] text-sm leading-[1.55] text-(--home-text-4)">{SITE_TAGLINE}</p>
         </div>
