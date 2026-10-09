@@ -504,7 +504,7 @@ function renderValue(value: unknown): ReactNode {
 function FieldCard({ label, value }: { label: string; value: unknown }) {
   return (
     <div className="space-y-2">
-      <p className="text-[13px] font-semibold tracking-[0.02em] text-amber-600 dark:text-amber-300">
+      <p className="text-[13px] font-semibold tracking-[0.02em] text-muted-foreground">
         {prettifyLabel(label)}
       </p>
       <div className="rounded-xl border border-border bg-card p-5">
@@ -838,8 +838,8 @@ function ActionButton({
 }) {
   const toneClasses =
     tone === 'accent'
-      ? 'border-amber-200/80 bg-gradient-to-br from-amber-300 to-amber-400 text-zinc-950 hover:from-amber-200 hover:to-amber-300 hover:border-amber-100'
-      : 'border-border/80 bg-gradient-to-br from-background/90 to-background/60 text-foreground hover:border-amber-300/60 hover:from-accent/55 hover:to-background/80';
+      ? 'border-white bg-white text-[#1E1E1E] hover:bg-[#E9E9E6] hover:border-[#E9E9E6]'
+      : 'border-border/80 bg-gradient-to-br from-background/90 to-background/60 text-foreground hover:border-white/40 hover:from-accent/55 hover:to-background/80';
 
   return (
     <Tooltip>
@@ -863,7 +863,7 @@ function ActionButton({
                   'mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border',
                   tone === 'accent'
                     ? 'border-zinc-900/15 bg-zinc-950/10 text-zinc-900'
-                    : 'border-amber-300/30 bg-amber-300/10 text-amber-300',
+                    : 'border-white/14 bg-white/5 text-white',
                 )}
               >
                 {icon}
@@ -879,7 +879,7 @@ function ActionButton({
                     'mt-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em]',
                     tone === 'accent'
                       ? 'bg-zinc-950/10 text-zinc-900/85'
-                      : 'bg-amber-300/10 text-amber-200',
+                      : 'bg-white/10 text-white/80',
                   )}
                 >
                   {badge}
@@ -907,7 +907,7 @@ function ActionButton({
         className="max-w-[360px] rounded-lg border border-border/70 bg-popover px-3.5 py-2.5 text-xs leading-5 text-popover-foreground shadow-xl"
       >
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-amber-300">
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-white">
             {tooltipTitle ?? label}
           </p>
           <p className="text-xs leading-5 text-popover-foreground/90">{tooltip}</p>
@@ -1658,7 +1658,7 @@ export default function ReviewerTaskDetailPage() {
           </Button>
         </Link>
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-600 dark:text-amber-300">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Reviewer Workspace
           </p>
           <h1 className="font-space-grotesk text-3xl font-bold text-foreground">Campaign Review Detail</h1>
@@ -1688,7 +1688,7 @@ export default function ReviewerTaskDetailPage() {
 
           {isAdmin ? (
             <Card className="relative overflow-hidden border-border bg-card/95 shadow-[0_18px_48px_rgba(0,0,0,0.35)]">
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-r from-amber-300/8 via-cyan-300/5 to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-r from-white/5 via-white/[.02] to-transparent" />
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Wrench className="h-5 w-5" />
@@ -1725,7 +1725,7 @@ export default function ReviewerTaskDetailPage() {
                 </div>
 
                 <div className="grid gap-4 xl:grid-cols-3">
-                  <div className="space-y-3 rounded-xl border border-amber-300/20 bg-gradient-to-br from-amber-300/8 via-background/35 to-background/25 p-4">
+                  <div className="space-y-3 rounded-xl border border-white/10 bg-white/[.03] p-4">
                     <div className="space-y-1">
                       <p className="text-sm font-semibold text-foreground">Reviewer Actions</p>
                       <p className="text-xs text-muted-foreground">Resolve blocker then open review assignment.</p>
@@ -2022,7 +2022,7 @@ export default function ReviewerTaskDetailPage() {
                           type="button"
                           onClick={() => void handleOutputConstraintSubmit()}
                           disabled={respondMutation.isPending || !allOutputConstraintIssuesLocked}
-                          className="w-full bg-amber-400 text-zinc-950 hover:bg-amber-300 sm:w-auto"
+                          className="w-full bg-white text-[#1E1E1E] hover:bg-[#E9E9E6] sm:w-auto"
                         >
                           {respondMutation.isPending ? 'Submitting...' : 'Submit Reviewer Response'}
                         </Button>

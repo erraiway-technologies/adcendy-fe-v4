@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Menu, LogOut, ShieldOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,11 @@ import { clearAuth, getUser } from '@/features/auth/auth';
 import { hasRoleAtLeast } from '@/features/auth/rbac';
 import type { AuthUser, Role } from '@/features/auth/types';
 import { authRepository } from '@/shared/api/repositories';
+
+/** The wordmark, as the public site's header sets it. */
+function Wordmark({ className = 'text-[20px]' }: { className?: string }) {
+  return <span className={`${className} font-semibold tracking-[-.02em] text-foreground whitespace-nowrap`}>AdCendy</span>;
+}
 
 interface NavItem {
   href: string;
@@ -132,15 +136,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 href="/app/campaigns"
                 className="inline-flex items-center"
               >
-                <Image
-                  src="/Adcendy-logo-tight.svg"
-                  alt="AdCendy"
-                  width={340}
-                  height={56}
-                  className="h-10 w-[340px]"
-                  style={{ transform: 'translateX(-46px) scaleX(1.22)', transformOrigin: 'left center' }}
-                  priority
-                />
+                <Wordmark className="text-[22px]" />
               </Link>
             </div>
 
@@ -190,15 +186,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen bg-background">
       <aside className="hidden w-64 flex-col border-r border-border bg-card md:flex">
         <div className="flex items-center gap-2 border-b border-border px-6 py-4">
-          <Image
-            src="/Adcendy-logo-tight.svg"
-            alt="AdCendy"
-            width={300}
-            height={50}
-            className="h-9 w-[300px]"
-            style={{ transform: 'translateX(-40px) scaleX(1.2)', transformOrigin: 'left center' }}
-            priority
-          />
+          <Wordmark className="text-[20px]" />
         </div>
         <nav className="flex-1 space-y-2 px-4 py-6">
           {visibleNavItems.map((item) => (
@@ -241,15 +229,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-border bg-card px-4 py-3 md:hidden">
           <div className="flex flex-1 items-center gap-2">
-            <Image
-              src="/Adcendy-logo-tight.svg"
-              alt="AdCendy"
-              width={260}
-              height={44}
-              className="h-8 w-[260px]"
-              style={{ transform: 'translateX(-36px) scaleX(1.18)', transformOrigin: 'left center' }}
-              priority
-            />
+            <Wordmark className="text-[18px]" />
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -261,15 +241,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-0">
                 <div className="flex items-center gap-2 border-b border-border px-6 py-4">
-                  <Image
-                    src="/Adcendy-logo-tight.svg"
-                    alt="AdCendy"
-                    width={300}
-                    height={50}
-                    className="h-9 w-[300px]"
-                    style={{ transform: 'translateX(-40px) scaleX(1.2)', transformOrigin: 'left center' }}
-                    priority
-                  />
+                  <Wordmark className="text-[20px]" />
                 </div>
                 <nav className="space-y-2 px-4 py-6">
                   {visibleNavItems.map((item) => (

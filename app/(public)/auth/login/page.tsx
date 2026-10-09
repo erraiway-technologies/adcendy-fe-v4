@@ -32,7 +32,8 @@ function LoginContent() {
   });
   const isAdminLoginFlow = pathname === '/admin/login';
   const variant = useLandingDesignVariant();
-  const isV2 = variant === 'v2';
+  // Every design but the classic v1 signs in inside the shell.
+  const inShell = variant !== 'v1';
 
   useEffect(() => {
     let isCancelled = false;
@@ -137,7 +138,7 @@ function LoginContent() {
 
   const form = (
     <>
-      {!isV2 && (
+      {!inShell && (
         <>
           {/* Close button to go back to landing page */}
           <Link 
@@ -176,7 +177,7 @@ function LoginContent() {
             placeholder="your@email.com" 
             value={formData.email}
             onChange={handleInputChange}
-            className={isV2 ? 'h-11 bg-[rgba(8,12,14,0.92)] border-[rgba(237,232,220,0.12)] text-[rgba(237,232,220,0.9)] placeholder:text-[rgba(237,232,220,0.45)] focus-visible:ring-[rgba(212,168,83,0.35)] focus-visible:border-[rgba(212,168,83,0.5)]' : ''}
+            className={inShell ? 'h-11 bg-white/[.04] border-white/14 text-white/90 placeholder:text-white/45 focus-visible:ring-white/35 focus-visible:border-white/50' : ''}
             required 
           />
         </div>
@@ -186,7 +187,7 @@ function LoginContent() {
             <Label htmlFor="password">Password</Label>
             <Link 
               href="/auth/forgot-password" 
-              className={isV2 ? 'text-xs text-[rgba(237,232,220,0.68)] hover:text-[rgba(212,168,83,0.9)] transition-colors' : 'text-xs text-primary hover:underline'}
+              className={inShell ? 'text-xs text-white/70 hover:text-white/90 transition-colors' : 'text-xs text-primary hover:underline'}
             >
               Forgot password?
             </Link>
@@ -198,20 +199,20 @@ function LoginContent() {
             placeholder="••••••••" 
             value={formData.password}
             onChange={handleInputChange}
-            className={isV2 ? 'h-11 bg-[rgba(8,12,14,0.92)] border-[rgba(237,232,220,0.12)] text-[rgba(237,232,220,0.9)] placeholder:text-[rgba(237,232,220,0.45)] focus-visible:ring-[rgba(212,168,83,0.35)] focus-visible:border-[rgba(212,168,83,0.5)]' : ''}
+            className={inShell ? 'h-11 bg-white/[.04] border-white/14 text-white/90 placeholder:text-white/45 focus-visible:ring-white/35 focus-visible:border-white/50' : ''}
             required 
           />
         </div>
 
-        <Button type="submit" className={isV2 ? 'w-full h-11 bg-[#cfa35b] text-[#11181a] hover:bg-[#d8af67] font-medium' : 'w-full'} disabled={isLoading}>
+        <Button type="submit" className={inShell ? 'w-full h-11 bg-white text-[#1E1E1E] hover:bg-[#E9E9E6] font-medium' : 'w-full'} disabled={isLoading}>
           {isLoading ? 'Signing in...' : 'Sign In'}
         </Button>
       </form>
 
       {!isAdminLoginFlow && (
-        <div className={isV2 ? 'text-center text-sm text-[rgba(237,232,220,0.58)]' : 'text-center text-sm text-muted-foreground'}>
+        <div className={inShell ? 'text-center text-sm text-white/60' : 'text-center text-sm text-muted-foreground'}>
           Don't have an account?{' '}
-          <Link href={`/auth/signup${signupQuery}`} className={isV2 ? 'text-[rgba(212,168,83,0.9)] hover:underline' : 'text-primary hover:underline'}>
+          <Link href={`/auth/signup${signupQuery}`} className={inShell ? 'text-white/90 hover:underline' : 'text-primary hover:underline'}>
             Sign up
           </Link>
         </div>
@@ -219,7 +220,7 @@ function LoginContent() {
     </>
   );
 
-  if (isV2) {
+  if (inShell) {
     return (
       <AuthV2Shell
         title={isAdminLoginFlow ? 'Admin sign in' : 'Sign in'}

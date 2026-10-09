@@ -21,6 +21,27 @@ export const LANDING_SECTIONS = {
   faq: { id: 'faq', label: 'FAQ' },
 } as const;
 
+/**
+ * The v3 homepage's sections, in the order the page presents them
+ * (features/landing/components/LandingPageV3.tsx). They keep the ids and
+ * labels the earlier pages used, so links made for those still land; only
+ * "Inside a strategy" is new.
+ */
+export const HOME_SECTIONS = {
+  whyNotYourTeam: LANDING_SECTIONS.whyNotYourTeam,
+  inside: { id: 'inside', label: 'Inside a strategy' },
+  whatYouGet: LANDING_SECTIONS.whatYouGet,
+  howItWorks: LANDING_SECTIONS.howItWorks,
+  benchmarks: LANDING_SECTIONS.benchmarks,
+  whoItsFor: LANDING_SECTIONS.whoItsFor,
+  whyNotAI: LANDING_SECTIONS.whyNotAI,
+  comparison: LANDING_SECTIONS.comparison,
+  budget: LANDING_SECTIONS.budget,
+  pricing: LANDING_SECTIONS.pricing,
+  manifesto: LANDING_SECTIONS.manifesto,
+  faq: LANDING_SECTIONS.faq,
+} as const;
+
 /** Places inside a section that a link can land on directly. */
 export const LANDING_SUB_TARGETS = {
   goodFit: { id: 'who-its-for-fit', label: 'Who it’s for' },

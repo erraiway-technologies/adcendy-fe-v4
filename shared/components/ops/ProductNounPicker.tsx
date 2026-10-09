@@ -87,7 +87,7 @@ export function ProductNounPicker({
   };
 
   return (
-    <Card className="border-amber-300/30 bg-card">
+    <Card className="border-white/14 bg-card">
       <CardHeader>
         <CardTitle>Confirm The Search Terms</CardTitle>
         <CardDescription>

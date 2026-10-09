@@ -80,14 +80,18 @@ export function deliveryWindowLabel(): string {
 
 const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five'] as const;
 
+/** "four"; "Four" at a sentence start. Falls back to digits past five. */
+export function numberWord(count: number, { sentenceStart = false }: { sentenceStart?: boolean } = {}): string {
+  const word = NUMBER_WORDS[count] ?? String(count);
+  return sentenceStart ? word.charAt(0).toUpperCase() + word.slice(1) : word;
+}
+
 /** "one revision round", "two revision rounds"; "One revision round" at a sentence start. */
 export function revisionRoundsLabel(
   { sentenceStart = false }: { sentenceStart?: boolean } = {},
   count: number = BUSINESS_TERMS.revisionRoundsIncluded,
 ): string {
-  const word = NUMBER_WORDS[count] ?? String(count);
-  const label = `${word} revision round${count === 1 ? '' : 's'}`;
-  return sentenceStart ? label.charAt(0).toUpperCase() + label.slice(1) : label;
+  return `${numberWord(count, { sentenceStart })} revision round${count === 1 ? '' : 's'}`;
 }
 
 /**

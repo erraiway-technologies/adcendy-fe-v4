@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  HOME_SECTIONS,
   LANDING_SECTIONS,
   LANDING_SUB_TARGETS,
 } from "../../features/landing/landing-sections.ts";
@@ -13,6 +14,13 @@ const NAVIGATION_SOURCES = [
   "components/sections/marketing-footer.tsx",
   "components/nav/marketing-nav.tsx",
   "features/landing/components/IntelligenceStreamNav.tsx",
+  "features/landing/components/home/SiteHeader.tsx",
+  "features/landing/components/home/SiteFooter.tsx",
+];
+
+const FOOTERS = [
+  "components/sections/marketing-footer.tsx",
+  "features/landing/components/home/SiteFooter.tsx",
 ];
 
 const LANDING_COMPOSITIONS = [
@@ -85,6 +93,41 @@ for (const composition of LANDING_COMPOSITIONS) {
   });
 }
 
+/** The v3 homepage's own files, and the FAQ data it renders. */
+function homeV3Files(): string[] {
+  const dir = "features/landing/components/home";
+  return [
+    "features/landing/components/LandingPageV3.tsx",
+    ...readdirSync(join(ROOT, dir))
+      .filter((name) => name.endsWith(".tsx"))
+      .map((name) => `${dir}/${name}`),
+    "components/sections/faq-content.ts",
+  ];
+}
+
+test("every nav and footer target lands exactly once on the v3 homepage", () => {
+  const ids = declaredIds(homeV3Files());
+  const targets = [...Object.values(HOME_SECTIONS), ...Object.values(LANDING_SUB_TARGETS)];
+  const problems = targets.flatMap(({ id }) => {
+    const count = ids.filter((declared) => declared === id).length;
+    return count === 1 ? [] : [`#${id} declared ${count} times`];
+  });
+  assert.deepEqual(problems, []);
+});
+
+test("the v3 homepage keeps every section the earlier homepage had", () => {
+  const missing = Object.values(LANDING_SECTIONS).filter(
+    (section) => !Object.values(HOME_SECTIONS).some((home) => home.id === section.id),
+  );
+  assert.deepEqual(missing, []);
+});
+
+test("every public page wears the site header and footer", () => {
+  const layout = read("app/(public)/layout.tsx");
+  assert.match(layout, /<SiteHeader \/>/);
+  assert.match(layout, /<SiteFooter \/>/);
+});
+
 test("navs and footer link sections only through the shared list", () => {
   // A hand-written '/#pricing' can drift from the page; SectionLink with an
   // id from LANDING_SECTIONS cannot. It also scrolls on a repeat click, which
@@ -100,9 +143,9 @@ test("navs and footer link sections only through the shared list", () => {
 
 test("every page link in the footer points at a route that exists", () => {
   const routes = publicRoutes();
-  const pageLinks = [
-    ...read("components/sections/marketing-footer.tsx").matchAll(/href: '([^']+)'/g),
-  ].map((match) => match[1]!);
+  const pageLinks = FOOTERS.flatMap((footer) =>
+    [...read(footer).matchAll(/href: '([^']+)'/g)].map((match) => match[1]!),
+  );
 
   assert.ok(pageLinks.length > 0, "found no page links to check");
   assert.deepEqual(

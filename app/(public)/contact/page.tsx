@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { BUSINESS_TERMS as TERMS, callBookingLink } from '@/shared/marketing/business-terms';
 import { pageMetadata } from '@/shared/seo/site';
 
@@ -26,79 +24,69 @@ const CHANNELS = [
   },
 ];
 
+const ROW = 'grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] gap-x-10 gap-y-2 border-t border-white/10 py-7';
+const LABEL = 'text-base text-(--home-text-3)';
+const LINK = 'text-[clamp(20px,2.2vw,26px)] tracking-[-.01em] text-white underline decoration-white/25 underline-offset-[6px] hover:decoration-white';
+
 export default function ContactPage() {
   const booking = callBookingLink();
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 py-24">
-      <div className="max-w-3xl w-full space-y-10">
-        <div className="text-center space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Contact</p>
-          <h1 className="font-space-grotesk text-4xl sm:text-5xl font-bold">Talk to us</h1>
-          <p className="text-muted-foreground text-lg">
-            We work in writing: email is our channel of record, and we reply within{' '}
-            {TERMS.contact.replyWithin} (Monday to Friday, excluding public holidays in India).
-          </p>
-        </div>
+    <main className="mx-auto max-w-[1280px] px-10 pt-[160px] max-sm:px-6">
+      <span className="font-geist-mono text-xs tracking-[.06em] text-(--home-text-4) uppercase">Contact</span>
+      <h1 className="mt-4 text-[clamp(44px,5.6vw,86px)] leading-[1.08] font-normal tracking-[-.02em]">Talk to us</h1>
+      <p className="mt-6 max-w-[52ch] text-lg leading-[1.6] text-(--home-text-2)">
+        We work in writing: email is our channel of record, and we reply within {TERMS.contact.replyWithin} (Monday
+        to Friday, excluding public holidays in India).
+      </p>
 
-        <ul className="space-y-4">
-          {CHANNELS.map((channel) => (
-            <li key={channel.email} className="rounded-lg border border-border p-5">
-              <p className="text-sm text-muted-foreground">{channel.label}</p>
-              <p className="mt-1 text-lg">
-                <a href={`mailto:${channel.email}`} className="text-primary hover:underline">
-                  {channel.email}
-                </a>
-                {channel.note && <span className="text-sm text-muted-foreground"> — {channel.note}</span>}
-              </p>
-            </li>
-          ))}
-          <li className="rounded-lg border border-border p-5">
-            <p className="text-sm text-muted-foreground">Prefer to talk first?</p>
-            <p className="mt-1 text-lg">
-              <a
-                href={booking.href}
-                className="text-primary hover:underline"
-                {...(booking.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-              >
-                Book a {TERMS.calls.fitCallMinutes}-minute video call
+      <ul className="mt-16 border-b border-white/10">
+        {CHANNELS.map((channel) => (
+          <li key={channel.email} className={ROW}>
+            <p className={LABEL}>{channel.label}</p>
+            <p>
+              <a href={`mailto:${channel.email}`} className={LINK}>
+                {channel.email}
               </a>
+              {channel.note && <span className="mt-1 block text-sm text-(--home-text-4)">{channel.note}</span>}
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
+          </li>
+        ))}
+        <li className={ROW}>
+          <p className={LABEL}>Prefer to talk first?</p>
+          <div>
+            <a
+              href={booking.href}
+              className={LINK}
+              {...(booking.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
+              Book a {TERMS.calls.fitCallMinutes}-minute video call
+            </a>
+            <p className="mt-2 text-sm leading-[1.55] text-(--home-text-4)">
               About scope, process, fit and price — not marketing advice. {TERMS.calls.hours};{' '}
               {TERMS.contact.bookingUrl
                 ? 'the booking page shows the times in your own time zone.'
                 : `email ${TERMS.contact.hello} with a few times that suit you.`}
             </p>
-          </li>
-          <li className="rounded-lg border border-border p-5">
-            <p className="text-sm text-muted-foreground">Several markets, or an agency partnership?</p>
-            <p className="mt-1 text-lg">
-              <a
-                href={TERMS.contact.quoteBookingUrl}
-                className="text-primary hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Book a {TERMS.calls.quoteCallMinutes}-minute call for a quote
-              </a>
+          </div>
+        </li>
+        <li className={ROW}>
+          <p className={LABEL}>Several markets, or an agency partnership?</p>
+          <div>
+            <a href={TERMS.contact.quoteBookingUrl} className={LINK} target="_blank" rel="noopener noreferrer">
+              Book a {TERMS.calls.quoteCallMinutes}-minute call for a quote
+            </a>
+            <p className="mt-2 text-sm leading-[1.55] text-(--home-text-4)">
+              We scope the countries or the partnership with you and price the package. Same hours; or email{' '}
+              {TERMS.contact.hello}.
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              We scope the countries or the partnership with you and price the package. Same hours;
-              or email {TERMS.contact.hello}.
-            </p>
-          </li>
-        </ul>
+          </div>
+        </li>
+      </ul>
 
-        <div className="text-center space-y-4">
-          <p className="text-sm text-muted-foreground">
-            We don&apos;t offer support by phone, WhatsApp or social media.
-          </p>
-          <Link href="/" className="inline-flex">
-            <Button variant="outline">Back to Home</Button>
-          </Link>
-        </div>
-      </div>
-    </div>
+      <p className="mt-8 font-geist-mono text-xs text-(--home-text-4)">
+        We don&apos;t offer support by phone, WhatsApp or social media.
+      </p>
+    </main>
   );
 }

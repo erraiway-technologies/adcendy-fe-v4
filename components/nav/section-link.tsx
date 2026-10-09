@@ -33,7 +33,8 @@ export function SectionLink({ sectionId, onClick, ...props }: SectionLinkProps) 
     if (!target) return;
 
     event.preventDefault();
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
     if (window.location.hash !== `#${sectionId}`) {
       window.history.pushState(null, '', href);
     }

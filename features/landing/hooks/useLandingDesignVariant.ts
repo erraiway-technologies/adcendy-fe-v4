@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import ENV from '@/lib/env';
-import type { LandingDesignVariant } from '../types/landing.types';
+import { isLandingDesignVariant, type LandingDesignVariant } from '../types/landing.types';
 import { LANDING_DESIGN_CONFIG } from '../config/landingDesignConfig';
 
 /** Variant overrides (?v=, the toggle, localStorage) exist only for local design review. */
@@ -19,13 +19,13 @@ export function useLandingDesignVariant(): LandingDesignVariant {
       return;
     }
     const qp = new URLSearchParams(window.location.search).get(LANDING_DESIGN_CONFIG.queryParamKey);
-    if (qp === 'v1' || qp === 'v2') {
+    if (isLandingDesignVariant(qp)) {
       localStorage.setItem(LANDING_DESIGN_CONFIG.localStorageKey, qp);
       setVariant(qp);
       return;
     }
     const stored = localStorage.getItem(LANDING_DESIGN_CONFIG.localStorageKey);
-    if (stored === 'v1' || stored === 'v2') {
+    if (isLandingDesignVariant(stored)) {
       setVariant(stored);
       return;
     }

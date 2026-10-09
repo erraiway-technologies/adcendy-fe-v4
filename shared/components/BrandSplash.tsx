@@ -9,6 +9,25 @@ const FADE_MS = 350;
 
 type SplashPhase = 'showing' | 'leaving' | 'gone';
 
+/** Fired on window when the splash starts to fade out. */
+const SPLASH_LEAVING_EVENT = 'brand-splash:leaving';
+
+/**
+ * Runs `callback` once the page can be seen: now if there is no splash (a
+ * client-side navigation) or it is already fading, otherwise when it starts to
+ * fade. For entrance animations that would otherwise play unseen beneath it.
+ * Returns a function that cancels the wait.
+ */
+export function whenBrandSplashLeaves(callback: () => void): () => void {
+  const splash = document.getElementById('brand-splash');
+  if (!splash || splash.classList.contains('brand-splash--leaving')) {
+    callback();
+    return () => {};
+  }
+  window.addEventListener(SPLASH_LEAVING_EVENT, callback, { once: true });
+  return () => window.removeEventListener(SPLASH_LEAVING_EVENT, callback);
+}
+
 /**
  * The first thing on screen on a fresh load: the AdCendy mark, breathing on
  * the page background, over the server-rendered page. It is in the server's
@@ -50,6 +69,7 @@ export function BrandSplash() {
 
   useEffect(() => {
     if (phase !== 'leaving') return;
+    window.dispatchEvent(new Event(SPLASH_LEAVING_EVENT));
     const timer = window.setTimeout(() => setPhase('gone'), FADE_MS);
     return () => window.clearTimeout(timer);
   }, [phase]);

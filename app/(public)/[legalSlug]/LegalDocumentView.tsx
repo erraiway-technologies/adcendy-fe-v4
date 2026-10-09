@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { legalRepository } from '@/shared/api/repositories';
@@ -31,25 +30,22 @@ export function LegalDocumentView() {
   const document = documentQuery.data;
 
   return (
-    <main className="min-h-screen bg-background text-foreground px-4 py-16 sm:px-6">
-      <article className="mx-auto max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Legal</p>
+    <main className="mx-auto max-w-[1280px] px-10 pt-[160px] max-sm:px-6">
+      <article className="max-w-[72ch]">
+        <span className="font-geist-mono text-xs tracking-[.06em] text-(--home-text-4) uppercase">Legal</span>
         {documentQuery.isLoading ? (
-          <p className="mt-6 text-sm text-muted-foreground">Loading…</p>
+          <p className="mt-6 text-base text-(--home-text-3)">Loading…</p>
         ) : documentQuery.isError || !document ? (
-          <p className="mt-6 text-sm text-muted-foreground">
-            This policy could not be loaded. Please refresh the page.
-          </p>
+          <p className="mt-6 text-base text-(--home-text-3)">This policy could not be loaded. Please refresh the page.</p>
         ) : (
           <>
             <title>{`${document.title} | AdCendy`}</title>
-            <h1 className="mt-3 font-space-grotesk text-4xl font-bold sm:text-5xl">{document.title}</h1>
-            <LegalMarkdown markdown={document.content} className="legal-prose mt-10" />
+            <h1 className="mt-4 text-[clamp(36px,4vw,56px)] leading-[1.05] font-medium tracking-[-.025em] text-balance">
+              {document.title}
+            </h1>
+            <LegalMarkdown markdown={document.content} className="legal-prose mt-12" />
           </>
         )}
-        <Link href="/" className="mt-12 inline-block text-sm text-primary hover:underline">
-          Back to home
-        </Link>
       </article>
     </main>
   );

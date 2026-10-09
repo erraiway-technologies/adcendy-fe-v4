@@ -441,29 +441,32 @@ const SOURCE_TYPE_DESCRIPTIONS: Record<string, string> = {
 const WIZARD_MONO_STYLE: React.CSSProperties = {
   fontFamily: '"Geist Mono", "Courier New", monospace',
 };
+// Headings: the homepage's Outfit (the name is kept from the serif it replaced).
 const WIZARD_SERIF_STYLE: React.CSSProperties = {
-  fontFamily: '"Iowan Old Style", "Palatino Linotype", "Book Antiqua", Baskerville, Georgia, serif',
+  fontFamily: 'var(--font-outfit)',
   fontFeatureSettings: '"kern" 1, "liga" 1',
   textRendering: 'optimizeLegibility',
 };
+// The dusk tokens (app/globals.css .dark), set here too because the wizard
+// opens in a portal outside the app's wrapper.
 const WIZARD_CONTRAST_THEME = {
-  '--background': '#050607',
-  '--foreground': '#f2eadb',
-  '--card': '#0a0b0d',
-  '--card-foreground': '#f2eadb',
-  '--popover': '#0b0d10',
-  '--popover-foreground': '#f2eadb',
-  '--primary': '#d4a853',
-  '--primary-foreground': '#11100d',
-  '--secondary': '#131417',
-  '--secondary-foreground': '#f2eadb',
-  '--muted': '#101113',
-  '--muted-foreground': 'rgba(242, 234, 219, 0.72)',
-  '--accent': '#141518',
-  '--accent-foreground': '#f2eadb',
-  '--border': 'rgba(212, 168, 83, 0.22)',
-  '--input': '#0a0b0d',
-  '--ring': 'rgba(212, 168, 83, 0.5)',
+  '--background': '#232323',
+  '--foreground': '#F5F5F4',
+  '--card': '#282828',
+  '--card-foreground': '#F5F5F4',
+  '--popover': '#2B2B2B',
+  '--popover-foreground': '#F5F5F4',
+  '--primary': '#FFFFFF',
+  '--primary-foreground': '#1E1E1E',
+  '--secondary': '#363636',
+  '--secondary-foreground': '#F5F5F4',
+  '--muted': '#2E2E2E',
+  '--muted-foreground': '#A6A6A2',
+  '--accent': '#363636',
+  '--accent-foreground': '#FFFFFF',
+  '--border': 'rgba(255, 255, 255, 0.1)',
+  '--input': 'rgba(255, 255, 255, 0.14)',
+  '--ring': 'rgba(255, 255, 255, 0.4)',
 } as React.CSSProperties;
 
 function WizardSectionCard({
@@ -480,24 +483,24 @@ function WizardSectionCard({
   className?: string;
 }) {
   return (
-    <section className={cn('overflow-hidden rounded-[18px] border border-[rgba(242,234,219,0.16)] bg-[rgba(10,11,13,0.88)] shadow-[0_1px_0_rgba(50,56,65,0.03)]', className)}>
-      <div className="border-b border-[rgba(242,234,219,0.1)] px-6 py-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgba(242,234,219,0.62)]">{eyebrow}</p>
+    <section className={cn('overflow-hidden rounded-[18px] border border-white/15 bg-[#2A2A2A] shadow-[0_1px_0_rgba(50,56,65,0.03)]', className)}>
+      <div className="border-b border-white/10 px-6 py-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/60">{eyebrow}</p>
         <div className="mt-1.5">
           <div className="flex items-center gap-2">
-            <h3 className="text-[17px] font-semibold tracking-[-0.02em] text-[rgba(242,234,219,0.92)]">{title}</h3>
+            <h3 className="text-[17px] font-semibold tracking-[-0.02em] text-white/90">{title}</h3>
             {description ? (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
                     type="button"
-                    className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[rgba(242,234,219,0.62)] transition hover:text-[rgba(242,234,219,0.92)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(212,168,83,0.24)]"
+                    className="inline-flex h-5 w-5 items-center justify-center rounded-full text-white/60 transition hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25"
                     aria-label={`More information about ${title}`}
                   >
                     <CircleHelp className="h-4 w-4" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="top" sideOffset={8} className="max-w-[260px] rounded-lg bg-[rgba(11,13,16,0.96)] px-3 py-2 text-xs leading-5 text-[rgba(242,234,219,0.92)]">
+                <TooltipContent side="top" sideOffset={8} className="max-w-[260px] rounded-lg bg-[#2A2A2A] px-3 py-2 text-xs leading-5 text-white/90">
                   {description}
                 </TooltipContent>
               </Tooltip>
@@ -521,8 +524,8 @@ function SummaryField({
 }) {
   return (
     <div className={cn('space-y-1', className)}>
-      <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-[rgba(242,234,219,0.62)]">{label}</p>
-      <p className={cn('text-[14px] leading-6 text-[rgba(242,234,219,0.92)]', !value && 'italic text-[rgba(242,234,219,0.42)]')}>{value || 'Not provided'}</p>
+      <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-white/60">{label}</p>
+      <p className={cn('text-[14px] leading-6 text-white/90', !value && 'italic text-white/40')}>{value || 'Not provided'}</p>
     </div>
   );
 }
@@ -544,22 +547,22 @@ function FieldLabel({
 }) {
   return (
     <div className={cn('flex items-center gap-1.5', className)}>
-      <p className="text-[14px] font-semibold leading-6 text-[rgba(242,234,219,0.92)]">
+      <p className="text-[14px] font-semibold leading-6 text-white/90">
         {label}
-        {required ? <span className="ml-1 text-[rgba(212,168,83,0.9)]">*</span> : null}
+        {required ? <span className="ml-1 text-white/90">*</span> : null}
       </p>
       {helper ? (
         <Tooltip>
           <TooltipTrigger asChild>
             <button
               type="button"
-              className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[rgba(242,234,219,0.62)] transition hover:text-[rgba(242,234,219,0.92)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(212,168,83,0.24)]"
+              className="inline-flex h-4 w-4 items-center justify-center rounded-full text-white/60 transition hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25"
               aria-label={`More information about ${label}`}
             >
               <CircleHelp className="h-3.5 w-3.5" />
             </button>
           </TooltipTrigger>
-          <TooltipContent side="top" sideOffset={6} className="max-w-[220px] rounded-lg bg-[rgba(11,13,16,0.96)] px-2.5 py-2 text-xs leading-5 text-[rgba(242,234,219,0.92)]">
+          <TooltipContent side="top" sideOffset={6} className="max-w-[220px] rounded-lg bg-[#2A2A2A] px-2.5 py-2 text-xs leading-5 text-white/90">
             {helper}
           </TooltipContent>
         </Tooltip>
@@ -586,23 +589,23 @@ function StepTrail({
                 className={cn(
                   'flex h-9 w-9 items-center justify-center rounded-full border text-[11px] font-semibold transition',
                   isComplete
-                    ? 'border-[rgba(212,168,83,0.5)] bg-[rgba(212,168,83,0.22)] text-[rgba(242,234,219,0.92)]'
+                    ? 'border-white/50 bg-white/20 text-white/90'
                     : isActive
-                      ? 'border-[rgba(212,168,83,0.5)] bg-[rgba(212,168,83,0.22)] text-[rgba(242,234,219,0.92)] ring-[4px] ring-[rgba(212,168,83,0.25)]'
-                      : 'border-[rgba(242,234,219,0.16)] bg-[rgba(10,11,13,0.88)] text-[rgba(242,234,219,0.62)]',
+                      ? 'border-white/50 bg-white/20 text-white/90 ring-[4px] ring-white/25'
+                      : 'border-white/15 bg-[#2A2A2A] text-white/60',
                 )}
               >
                 {isComplete ? <Check className="h-4 w-4" /> : `0${wizardStep.step}`}
               </div>
               <p
                 style={WIZARD_MONO_STYLE}
-                className={cn('text-[10px] font-semibold uppercase tracking-[0.08em]', isActive || isComplete ? 'text-[rgba(242,234,219,0.92)]' : 'text-[rgba(242,234,219,0.5)]')}
+                className={cn('text-[10px] font-semibold uppercase tracking-[0.08em]', isActive || isComplete ? 'text-white/90' : 'text-white/50')}
               >
                 {wizardStep.label}
               </p>
             </div>
             {index < WIZARD_STEPS.length - 1 ? (
-              <div className="mt-[18px] h-[1.5px] flex-1 bg-[rgba(242,234,219,0.12)]" />
+              <div className="mt-[18px] h-[1.5px] flex-1 bg-white/10" />
             ) : null}
           </div>
         );
@@ -612,7 +615,7 @@ function StepTrail({
 }
 
 function SectionDivider() {
-  return <div className="border-t border-[rgba(242,234,219,0.1)]" />;
+  return <div className="border-t border-white/10" />;
 }
 
 function ReviewSection({
@@ -741,7 +744,7 @@ function StepFooter({
   children: ReactNode;
 }) {
   return (
-    <div className="border-t border-[rgba(242,234,219,0.1)] bg-[rgba(9,10,12,0.92)] px-7 py-5">
+    <div className="border-t border-white/10 bg-[rgba(9,10,12,0.92)] px-7 py-5">
       <div className="mx-auto flex w-full max-w-[920px] justify-end gap-3">
         {children}
       </div>
@@ -757,14 +760,14 @@ function OptionBullet({ selected }: { selected: boolean }) {
   return (
     <span
       className={cn(
-        'mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-[1.5px] bg-[rgba(10,11,13,0.88)] transition',
-        selected ? 'border-[rgba(212,168,83,0.55)]' : 'border-[rgba(242,234,219,0.16)]',
+        'mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-[1.5px] bg-[#2A2A2A] transition',
+        selected ? 'border-white/55' : 'border-white/15',
       )}
     >
       <span
         className={cn(
           'h-2.5 w-2.5 rounded-full transition',
-          selected ? 'bg-[rgba(212,168,83,0.86)]' : 'bg-transparent',
+          selected ? 'bg-white/85' : 'bg-transparent',
         )}
       />
     </span>
@@ -782,7 +785,7 @@ function EmptyDashedAction({
     <button
       type="button"
       onClick={onClick}
-      className="flex h-[48px] w-full items-center justify-center rounded-2xl border border-dashed border-[rgba(242,234,219,0.16)] bg-[rgba(10,11,13,0.88)] text-[15px] font-medium text-[rgba(242,234,219,0.62)] transition hover:border-[rgba(212,168,83,0.45)] hover:text-[rgba(242,234,219,0.92)]"
+      className="flex h-[48px] w-full items-center justify-center rounded-2xl border border-dashed border-white/15 bg-[#2A2A2A] text-[15px] font-medium text-white/60 transition hover:border-white/45 hover:text-white/90"
     >
       {children}
     </button>
@@ -833,7 +836,7 @@ function QuietHint({
   children: ReactNode;
 }) {
   return (
-    <p className="text-[13px] leading-6 text-[rgba(242,234,219,0.62)]">{children}</p>
+    <p className="text-[13px] leading-6 text-white/60">{children}</p>
   );
 }
 
@@ -843,7 +846,7 @@ function SoftNotice({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl bg-[rgba(14,15,18,0.86)] px-4 py-3 text-[14px] leading-6 text-[rgba(242,234,219,0.62)]">
+    <div className="rounded-2xl bg-[rgba(14,15,18,0.86)] px-4 py-3 text-[14px] leading-6 text-white/60">
       {children}
     </div>
   );
@@ -861,9 +864,9 @@ function FixedCheckboxRow({
   label: string;
 }) {
   return (
-    <div className="flex w-full items-start gap-4 rounded-2xl border border-[rgba(242,234,219,0.16)] bg-[rgba(10,11,13,0.88)] p-4">
+    <div className="flex w-full items-start gap-4 rounded-2xl border border-white/15 bg-[#2A2A2A] p-4">
       <Checkbox data-testid={id} id={id} checked={checked} onCheckedChange={(next) => onCheckedChange(next === true)} className="mt-1" />
-      <label htmlFor={id} className="cursor-pointer text-sm font-medium text-[rgba(242,234,219,0.88)]">
+      <label htmlFor={id} className="cursor-pointer text-sm font-medium text-white/90">
         {label}
       </label>
     </div>
@@ -879,7 +882,7 @@ function ReviewSectionStack({
 }
 
 function InlineDivider() {
-  return <div className="border-t border-[rgba(242,234,219,0.1)]" />;
+  return <div className="border-t border-white/10" />;
 }
 
 function StepPage({
@@ -904,7 +907,7 @@ function ReviewFooter({
   children: ReactNode;
 }) {
   return (
-    <div className="border-t border-[rgba(242,234,219,0.1)] bg-[rgba(9,10,12,0.92)] px-7 py-5">
+    <div className="border-t border-white/10 bg-[rgba(9,10,12,0.92)] px-7 py-5">
       <div className="mx-auto flex w-full max-w-[920px] justify-end gap-3">{children}</div>
     </div>
   );
@@ -915,11 +918,11 @@ function InlineMutedLabel({
 }: {
   children: ReactNode;
 }) {
-  return <p className="text-[14px] leading-6 text-[rgba(242,234,219,0.62)]">{children}</p>;
+  return <p className="text-[14px] leading-6 text-white/60">{children}</p>;
 }
 
 function RequiredAsterisk() {
-  return <span className="ml-1 text-[rgba(212,168,83,0.9)]">*</span>;
+  return <span className="ml-1 text-white/90">*</span>;
 }
 
 function LabelText({ children }: { children: ReactNode }) {
@@ -961,7 +964,7 @@ function FinalConfirmationCard({
   children: ReactNode;
 }) {
   return (
-    <Card className="rounded-[18px] border-[rgba(242,234,219,0.16)] bg-[rgba(10,11,13,0.88)] shadow-none">
+    <Card className="rounded-[18px] border-white/15 bg-[#2A2A2A] shadow-none">
       {children}
     </Card>
   );
@@ -980,7 +983,7 @@ function MutedSummaryText({
 }: {
   children: ReactNode;
 }) {
-  return <span className="text-[rgba(242,234,219,0.62)]">{children}</span>;
+  return <span className="text-white/60">{children}</span>;
 }
 
 function CompactCardContent({
@@ -992,7 +995,7 @@ function CompactCardContent({
 }
 
 function TightDivider() {
-  return <div className="border-t border-[rgba(242,234,219,0.1)]" />;
+  return <div className="border-t border-white/10" />;
 }
 
 function GhostSecondaryText({
@@ -1000,7 +1003,7 @@ function GhostSecondaryText({
 }: {
   children: ReactNode;
 }) {
-  return <p className="text-[14px] leading-6 text-[rgba(242,234,219,0.62)]">{children}</p>;
+  return <p className="text-[14px] leading-6 text-white/60">{children}</p>;
 }
 
 function ReviewStat({
@@ -1054,7 +1057,7 @@ function DarkPrimaryButton({
   return (
     <Button
       className={cn(
-        'rounded-2xl border border-[rgba(212,168,83,0.52)] bg-[#d4a853] px-6 text-[#11100d] hover:bg-[#e0ba6a]',
+        'rounded-2xl border border-white/50 bg-white px-6 text-[#1E1E1E] hover:bg-[#E9E9E6]',
         className,
       )}
       {...props}
@@ -1073,7 +1076,7 @@ function LightOutlineButton({
     <Button
       variant="outline"
       className={cn(
-        'rounded-2xl border-[rgba(212,168,83,0.34)] bg-[rgba(10,11,13,0.88)] px-6 text-[rgba(212,168,83,0.9)] hover:border-[rgba(212,168,83,0.52)] hover:bg-[rgba(8,9,11,0.92)] hover:text-[rgba(242,234,219,0.92)]',
+        'rounded-2xl border-white/35 bg-[#2A2A2A] px-6 text-white/90 hover:border-white/50 hover:bg-[#2A2A2A] hover:text-white/90',
         className,
       )}
       {...props}
@@ -1093,7 +1096,7 @@ function SmallEditButton({
       variant="outline"
       size="sm"
       className={cn(
-        'rounded-xl border-[rgba(212,168,83,0.32)] bg-[rgba(10,11,13,0.88)] px-4 text-[rgba(212,168,83,0.9)] hover:bg-[rgba(8,9,11,0.92)]',
+        'rounded-xl border-white/30 bg-[#2A2A2A] px-4 text-white/90 hover:bg-[#2A2A2A]',
         className,
       )}
       {...props}
@@ -1347,7 +1350,7 @@ function SelectCardGroup<T extends string>({
               type="button"
               onClick={() => onChange(option.value)}
               className={cn(
-                'rounded-2xl border bg-[rgba(10,11,13,0.88)] text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(212,168,83,0.32)]',
+                'rounded-2xl border bg-[#2A2A2A] text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
                 density === 'inline'
                   ? 'px-4 py-4'
                   : density === 'list'
@@ -1356,8 +1359,8 @@ function SelectCardGroup<T extends string>({
                     ? 'px-5 py-4'
                     : 'px-5 py-[18px]',
                 isSelected
-                  ? 'border-[rgba(212,168,83,0.55)] shadow-[0_8px_18px_rgba(50,56,65,0.06)]'
-                  : 'border-[rgba(242,234,219,0.16)] hover:border-[rgba(212,168,83,0.45)]',
+                  ? 'border-white/55 shadow-[0_8px_18px_rgba(50,56,65,0.06)]'
+                  : 'border-white/15 hover:border-white/45',
               )}
             >
               <OptionCardContent density={density}>
@@ -3751,11 +3754,11 @@ export function CampaignWizardModal({
   const isCreateMode = !campaignId && step === 1;
   const activeStepMeta = WIZARD_STEPS.find((item) => item.step === step) ?? WIZARD_STEPS[0];
   const wizardInputClassName =
-    'h-[46px] rounded-[12px] border-[rgba(242,234,219,0.16)] bg-[rgba(10,11,13,0.88)] px-4 text-[15px] text-[rgba(242,234,219,0.92)] shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-[rgba(242,234,219,0.45)] focus-visible:border-[rgba(212,168,83,0.55)] focus-visible:ring-2 focus-visible:ring-[rgba(212,168,83,0.32)]';
+    'h-[46px] rounded-[12px] border-white/15 bg-[#2A2A2A] px-4 text-[15px] text-white/90 shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-white/45 focus-visible:border-white/55 focus-visible:ring-2 focus-visible:ring-white/30';
   const wizardRowControlClassName =
-    'h-[46px] rounded-[12px] border-[rgba(242,234,219,0.16)] bg-[rgba(10,11,13,0.88)] shadow-none transition-[border-color,box-shadow,background-color] focus-visible:border-[rgba(212,168,83,0.55)] focus-visible:ring-0';
+    'h-[46px] rounded-[12px] border-white/15 bg-[#2A2A2A] shadow-none transition-[border-color,box-shadow,background-color] focus-visible:border-white/55 focus-visible:ring-0';
   const wizardTextareaClassName =
-    'min-h-[88px] rounded-[12px] border-[rgba(242,234,219,0.16)] bg-[rgba(10,11,13,0.88)] px-4 py-3 text-[15px] text-[rgba(242,234,219,0.92)] shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-[rgba(242,234,219,0.45)] focus-visible:border-[rgba(212,168,83,0.55)] focus-visible:ring-2 focus-visible:ring-[rgba(212,168,83,0.32)]';
+    'min-h-[88px] rounded-[12px] border-white/15 bg-[#2A2A2A] px-4 py-3 text-[15px] text-white/90 shadow-none transition-[border-color,box-shadow,background-color] placeholder:text-white/45 focus-visible:border-white/55 focus-visible:ring-2 focus-visible:ring-white/30';
   const modalTitle =
     step === 1
       ? isCreateMode
@@ -3789,7 +3792,7 @@ export function CampaignWizardModal({
               : 'Review every section before strategy generation starts.';
 
   const contentClassName =
-    'w-[min(1040px,calc(100vw-2rem))] max-w-none overflow-hidden rounded-[24px] border-[rgba(242,234,219,0.16)] bg-[rgba(11,13,16,0.94)] p-0 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur-[3px] sm:w-[min(1040px,calc(100vw-3rem))]';
+    'w-[min(1040px,calc(100vw-2rem))] max-w-none overflow-hidden rounded-[24px] border-white/15 bg-[#2A2A2A] p-0 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur-[3px] sm:w-[min(1040px,calc(100vw-3rem))]';
   const shellInnerClassName = 'mx-auto w-full max-w-[920px]';
   const currentFormId =
     step === 1
@@ -3929,16 +3932,16 @@ export function CampaignWizardModal({
     <>
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent position="top" showCloseButton={false} className={contentClassName} style={WIZARD_CONTRAST_THEME}>
-          <div className="relative flex max-h-[calc(100vh-2rem)] flex-col text-[rgba(242,234,219,0.88)] font-[family:var(--font-dm-sans)]">
+          <div className="relative flex max-h-[calc(100vh-2rem)] flex-col text-white/90 font-[family:var(--font-dm-sans)]">
             <button
               type="button"
               onClick={() => handleClose(false)}
               aria-label="Close wizard"
-              className="absolute right-4 top-4 z-[80] inline-flex h-9 w-9 items-center justify-center rounded-md border border-[rgba(242,234,219,0.2)] bg-[rgba(11,13,16,0.92)] text-[rgba(242,234,219,0.86)] transition hover:bg-[rgba(16,18,22,0.96)] hover:text-[rgba(242,234,219,0.96)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(212,168,83,0.35)]"
+              className="absolute right-4 top-4 z-[80] inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/20 bg-[#2A2A2A] text-white/85 transition hover:bg-[rgba(16,18,22,0.96)] hover:text-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
             >
               <X className="h-4 w-4" />
             </button>
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_70%_at_50%_-12%,rgba(212,168,83,0.2)_0%,rgba(11,13,16,0)_68%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_70%_at_50%_-12%,rgba(255,255,255,0.06)_0%,rgba(11,13,16,0)_68%)]" />
             <div className="shrink-0 px-7 pb-6 pt-10 relative z-10">
               <div className={shellInnerClassName}>
                 <DialogHeader className="space-y-5 pr-8">
@@ -3946,17 +3949,17 @@ export function CampaignWizardModal({
                     <Badge
                       variant="secondary"
                       style={WIZARD_MONO_STYLE}
-                      className="w-fit rounded-full border border-[rgba(212,168,83,0.34)] bg-[rgba(212,168,83,0.14)] px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[rgba(212,168,83,0.92)] shadow-none"
+                      className="w-fit rounded-full border border-white/35 bg-white/15 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/90 shadow-none"
                     >
                       {`Step ${step} / ${activeStepMeta.hint}`}
                     </Badge>
                     <DialogTitle
                       style={WIZARD_SERIF_STYLE}
-                      className="text-[38px] leading-[0.98] font-medium tracking-[-0.03em] text-[rgba(242,234,219,0.93)]"
+                      className="text-[38px] leading-[0.98] font-medium tracking-[-0.03em] text-white/95"
                     >
                       {modalTitle}
                     </DialogTitle>
-                    <DialogDescription className="max-w-[680px] text-[15px] leading-8 text-[rgba(242,234,219,0.62)]">
+                    <DialogDescription className="max-w-[680px] text-[15px] leading-8 text-white/60">
                       {modalDescription}
                     </DialogDescription>
                   </div>
@@ -4482,10 +4485,10 @@ export function CampaignWizardModal({
                               }}
                               className={cn(
                                 'flex items-center gap-3 rounded-xl border px-3 py-2 text-left text-sm transition',
-                                'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(212,168,83,0.35)]',
+                                'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35',
                                 checked
-                                  ? 'border-[rgba(212,168,83,0.55)] bg-[rgba(212,168,83,0.08)] text-foreground'
-                                  : 'border-border/70 bg-card/95 text-foreground/85 hover:border-[rgba(212,168,83,0.45)]',
+                                  ? 'border-white/55 bg-white/10 text-foreground'
+                                  : 'border-border/70 bg-card/95 text-foreground/85 hover:border-white/45',
                               )}
                             >
                               <span
@@ -5446,10 +5449,10 @@ export function CampaignWizardModal({
                                     onClick={() => field.onChange(toggleCreativeCapability(selectedCapabilities, option.value))}
                                     className={cn(
                                       'flex items-center gap-3 rounded-xl border px-3 py-2 text-left text-sm transition',
-                                      'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(212,168,83,0.35)]',
+                                      'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35',
                                       selected
-                                        ? 'border-[rgba(212,168,83,0.55)] bg-[rgba(212,168,83,0.08)] text-foreground'
-                                        : 'border-border/70 bg-card/95 text-foreground/85 hover:border-[rgba(212,168,83,0.45)]',
+                                        ? 'border-white/55 bg-white/10 text-foreground'
+                                        : 'border-border/70 bg-card/95 text-foreground/85 hover:border-white/45',
                                     )}
                                   >
                                     <span
@@ -6424,7 +6427,7 @@ export function CampaignWizardModal({
                         <CardHeader>
                           <div className="flex items-start gap-3">
                             <FinalIconWrap>
-                              <ShieldCheck className="h-5 w-5 text-[rgba(212,168,83,0.9)]" />
+                              <ShieldCheck className="h-5 w-5 text-white/90" />
                             </FinalIconWrap>
                             <div className="space-y-1">
                               <CardTitle className="text-lg">Final Confirmation</CardTitle>
@@ -6613,18 +6616,18 @@ export function CampaignWizardModal({
       </Dialog>
 
       <AlertDialog open={showConflictDialog} onOpenChange={setShowConflictDialog}>
-        <AlertDialogContent className="border-[rgba(242,234,219,0.16)] bg-[rgba(11,13,16,0.96)] text-[rgba(242,234,219,0.92)] shadow-[0_28px_90px_rgba(0,0,0,0.55)]">
+        <AlertDialogContent className="border-white/15 bg-[#2A2A2A] text-white/90 shadow-[0_28px_90px_rgba(0,0,0,0.55)]">
           <AlertDialogHeader>
-            <AlertDialogTitle style={WIZARD_SERIF_STYLE} className="text-[30px] leading-[0.98] font-medium tracking-[-0.03em] text-[rgba(242,234,219,0.93)]">
+            <AlertDialogTitle style={WIZARD_SERIF_STYLE} className="text-[30px] leading-[0.98] font-medium tracking-[-0.03em] text-white/95">
               Campaign Updated Elsewhere
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-[rgba(242,234,219,0.62)]">
+            <AlertDialogDescription className="text-white/60">
               This campaign was updated in another session. Close this dialog and reopen the campaign to continue from the latest saved step.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction
-              className="border border-[rgba(212,168,83,0.5)] bg-[#d4a853] text-[#11100d] hover:bg-[#e0ba6a]"
+              className="border border-white/50 bg-white text-[#1E1E1E] hover:bg-[#E9E9E6]"
               onClick={() => {
                 setShowConflictDialog(false);
                 onOpenChange(false);
@@ -6637,31 +6640,31 @@ export function CampaignWizardModal({
       </AlertDialog>
 
       <AlertDialog open={showCommitConfirmDialog} onOpenChange={setShowCommitConfirmDialog}>
-        <AlertDialogContent className="max-w-[560px] border-[rgba(212,168,83,0.36)] bg-[rgba(11,13,16,0.97)] text-[rgba(242,234,219,0.92)] shadow-[0_28px_90px_rgba(0,0,0,0.55)]">
+        <AlertDialogContent className="max-w-[560px] border-white/35 bg-[#2A2A2A] text-white/90 shadow-[0_28px_90px_rgba(0,0,0,0.55)]">
           <AlertDialogHeader className="items-center text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[rgba(212,168,83,0.36)] bg-[rgba(212,168,83,0.18)] text-[rgba(212,168,83,0.92)] shadow-sm">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/35 bg-white/20 text-white/90 shadow-sm">
               <AlertTriangle className="h-7 w-7" />
             </div>
             <AlertDialogTitle
               style={WIZARD_SERIF_STYLE}
-              className="text-[38px] leading-[0.98] font-medium tracking-[-0.03em] text-[rgba(242,234,219,0.93)]"
+              className="text-[38px] leading-[0.98] font-medium tracking-[-0.03em] text-white/95"
             >
               Generate Strategy?
             </AlertDialogTitle>
-            <AlertDialogDescription className="max-w-[440px] text-[17px] leading-8 text-[rgba(242,234,219,0.62)]">
+            <AlertDialogDescription className="max-w-[440px] text-[17px] leading-8 text-white/60">
               Once you confirm, this wizard will be committed and you will not be able to make further changes here. Do you want to continue?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-2 flex w-full flex-row items-center justify-between sm:justify-between">
             <AlertDialogCancel
               disabled={commitMutation.isPending}
-              className="min-w-[120px] border-[rgba(212,168,83,0.32)] bg-[rgba(10,11,13,0.88)] text-[rgba(212,168,83,0.88)] hover:bg-[rgba(8,9,11,0.92)]"
+              className="min-w-[120px] border-white/30 bg-[#2A2A2A] text-white/90 hover:bg-[#2A2A2A]"
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={commitMutation.isPending}
-              className="min-w-[140px] border border-[rgba(212,168,83,0.52)] bg-[#d4a853] text-[#11100d] hover:bg-[#e0ba6a]"
+              className="min-w-[140px] border border-white/50 bg-white text-[#1E1E1E] hover:bg-[#E9E9E6]"
               onClick={(event) => {
                 event.preventDefault();
                 commitMutation.mutate(undefined, {

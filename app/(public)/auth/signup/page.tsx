@@ -59,7 +59,8 @@ function SignupContent() {
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const verifyingRef = useRef(false); // Prevent duplicate API calls
   const variant = useLandingDesignVariant();
-  const isV2 = variant === 'v2';
+  // Every design but the classic v1 signs in inside the shell.
+  const inShell = variant !== 'v1';
 
   const signupLegalChecklistItems = useMemo(
     () => buildLegalChecklistItems(activeLegalDocuments, 'SIGNUP'),
@@ -301,7 +302,7 @@ function SignupContent() {
 
   const content = (
     <>
-        {!isV2 && (
+        {!inShell && (
           <>
         {/* Close button to go back to landing page */}
         <Link 
@@ -361,14 +362,14 @@ function SignupContent() {
                 />
               </div>
 
-              <Button type="submit" className={isV2 ? 'w-full h-11 bg-[#cfa35b] text-[#11181a] hover:bg-[#d8af67] font-medium' : 'w-full'} disabled={isLoading}>
+              <Button type="submit" className={inShell ? 'w-full h-11 bg-white text-[#1E1E1E] hover:bg-[#E9E9E6] font-medium' : 'w-full'} disabled={isLoading}>
                 {isLoading ? 'Loading...' : 'Continue'}
               </Button>
             </form>
 
-            <div className={isV2 ? 'text-center text-sm text-[rgba(237,232,220,0.58)]' : 'text-center text-sm text-muted-foreground'}>
+            <div className={inShell ? 'text-center text-sm text-white/60' : 'text-center text-sm text-muted-foreground'}>
               Already have an account?{' '}
-              <Link href={`/auth/login${loginQuery}`} className={isV2 ? 'text-[rgba(212,168,83,0.9)] hover:underline' : 'text-primary hover:underline'}>
+              <Link href={`/auth/login${loginQuery}`} className={inShell ? 'text-white/90 hover:underline' : 'text-primary hover:underline'}>
                 Sign in
               </Link>
             </div>
@@ -385,13 +386,13 @@ function SignupContent() {
                 Back
               </button>
 
-              {isV2 ? (
+              {inShell ? (
                 <div className="text-center space-y-2">
-                  <p className="text-sm text-[rgba(237,232,220,0.62)]">
+                  <p className="text-sm text-white/60">
                     We've sent a 6-digit code to
                   </p>
-                  <div className="flex items-center justify-center gap-2 text-sm font-medium text-[rgba(237,232,220,0.84)]">
-                    <Mail className="w-4 h-4 text-[rgba(237,232,220,0.56)]" />
+                  <div className="flex items-center justify-center gap-2 text-sm font-medium text-white/85">
+                    <Mail className="w-4 h-4 text-white/55" />
                     {verificationState && maskEmail(verificationState.email)}
                   </div>
                 </div>
@@ -482,10 +483,10 @@ function SignupContent() {
             </button>
 
             <div className="space-y-2">
-              <h2 className={isV2 ? 'text-xl font-semibold text-[rgba(237,232,220,0.92)]' : 'font-space-grotesk text-2xl font-bold'}>
+              <h2 className={inShell ? 'text-xl font-semibold text-white/90' : 'font-space-grotesk text-2xl font-bold'}>
                 Accept Required Policies
               </h2>
-              <p className={isV2 ? 'text-sm text-[rgba(237,232,220,0.64)]' : 'text-sm text-muted-foreground'}>
+              <p className={inShell ? 'text-sm text-white/65' : 'text-sm text-muted-foreground'}>
                 Please review and accept Terms of Service and Privacy Policy to complete signup.
               </p>
             </div>
@@ -539,7 +540,7 @@ function SignupContent() {
 
               <Button
                 type="button"
-                className={isV2 ? 'w-full h-11 bg-[#cfa35b] text-[#11181a] hover:bg-[#d8af67] font-medium' : 'w-full'}
+                className={inShell ? 'w-full h-11 bg-white text-[#1E1E1E] hover:bg-[#E9E9E6] font-medium' : 'w-full'}
                 disabled={
                   isLoading ||
                   isLoadingLegalDocuments ||
@@ -556,7 +557,7 @@ function SignupContent() {
     </>
   );
 
-  if (variant === 'v2') {
+  if (inShell) {
     return (
       <AuthV2Shell
         title={

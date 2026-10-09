@@ -366,7 +366,7 @@ export default function CheckoutPage() {
         image: `${window.location.origin}/Adcendy-logo-tight.svg`,
         order_id: order.providerOrderId,
         prefill: { email: user?.email },
-        theme: { color: "#D4A853" },
+        theme: { color: "#232323" },
         retry: { enabled: true },
         modal: {
           confirm_close: true,

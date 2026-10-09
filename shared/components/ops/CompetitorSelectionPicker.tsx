@@ -85,7 +85,7 @@ export function CompetitorSelectionPicker({
   };
 
   return (
-    <Card className="border-amber-300/30 bg-card">
+    <Card className="border-white/14 bg-card">
       <CardHeader>
         <CardTitle>Pick Competitors</CardTitle>
         <CardDescription>
@@ -192,7 +192,7 @@ export function CompetitorSelectionPicker({
           type="button"
           onClick={submit}
           disabled={!canSubmit}
-          className="w-full bg-amber-400 text-zinc-950 hover:bg-amber-300 sm:w-auto"
+          className="w-full bg-white text-[#1E1E1E] hover:bg-[#E9E9E6] sm:w-auto"
         >
           {pending ? 'Submitting...' : picking ? 'Submit picks and resume' : 'Resume with named competitors only'}
         </Button>

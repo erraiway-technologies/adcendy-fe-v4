@@ -171,9 +171,9 @@ export default function OverviewPage() {
                     className={cn(
                       'rounded-2xl border p-4 transition-colors',
                       item.state === 'current'
-                        ? 'border-amber-300 bg-gradient-to-br from-amber-50 via-background to-amber-100/70 shadow-[0_18px_45px_-30px_rgba(217,119,6,0.9)] ring-1 ring-amber-200/70'
+                        ? 'border-white/40 bg-white/[.04] ring-1 ring-white/10'
                         : item.state === 'complete'
-                          ? 'border-emerald-200/80 bg-emerald-50/40'
+                          ? 'border-emerald-400/30 bg-emerald-400/5'
                           : 'border-border bg-background',
                     )}
                   >
@@ -183,9 +183,9 @@ export default function OverviewPage() {
                           className={cn(
                             'rounded-full p-1.5',
                             item.state === 'current'
-                              ? 'bg-amber-100'
+                              ? 'bg-white/10'
                               : item.state === 'complete'
-                                ? 'bg-emerald-100'
+                                ? 'bg-emerald-400/15'
                                 : 'bg-muted',
                           )}
                         >
@@ -195,7 +195,7 @@ export default function OverviewPage() {
                       </div>
                     </div>
                     {item.state === 'current' ? (
-                      <span className="mt-3 inline-flex rounded-full bg-amber-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-700">
+                      <span className="mt-3 inline-flex rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
                         {item.description}
                       </span>
                     ) : (
@@ -228,7 +228,7 @@ export default function OverviewPage() {
                   </Link>
                 </Button>
               ) : (
-                <div className="rounded-2xl border border-dashed border-amber-200 bg-amber-50/60 p-4 text-sm text-amber-800">
+                <div className="rounded-2xl border border-dashed border-white/14 bg-white/[.03] p-4 text-sm text-muted-foreground">
                   Supporting files will be available after strategy review is complete.
                 </div>
               )}

@@ -6,6 +6,7 @@ import { canOverrideLandingVariant, useLandingDesignVariant } from '../hooks/use
 
 const LandingPageV1 = dynamic(() => import('./LandingPageV1').then(m => ({ default: m.LandingPageV1 })));
 const LandingPageV2 = dynamic(() => import('./LandingPageV2').then(m => ({ default: m.LandingPageV2 })));
+const LandingPageV3 = dynamic(() => import('./LandingPageV3').then(m => ({ default: m.LandingPageV3 })));
 const LandingVariantToggle = dynamic(
   () => import('./LandingVariantToggle').then(m => ({ default: m.LandingVariantToggle })),
   { ssr: false }
@@ -20,7 +21,7 @@ export function LandingPage() {
 
   return (
     <>
-      {variant === 'v1' ? <LandingPageV1 /> : <LandingPageV2 />}
+      {variant === 'v1' ? <LandingPageV1 /> : variant === 'v2' ? <LandingPageV2 /> : <LandingPageV3 />}
       {runtimeConfigReady && canOverrideLandingVariant() && <LandingVariantToggle />}
     </>
   );

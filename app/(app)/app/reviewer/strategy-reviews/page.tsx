@@ -746,16 +746,16 @@ export default function ReviewerStrategyReviewsPage() {
       </Card>
 
       <Tabs defaultValue="reviewerTasks" className="space-y-4">
-        <TabsList className="h-auto w-full justify-start gap-1 rounded-xl border border-amber-300/80 bg-amber-100/80 p-1 dark:border-amber-500/40 dark:bg-amber-500/20">
+        <TabsList className="h-auto w-full justify-start gap-1 rounded-xl border border-border bg-card p-1">
           <TabsTrigger
             value="reviewerTasks"
-            className="flex-none rounded-md border border-transparent bg-transparent px-4 text-amber-900/90 transition-colors hover:bg-amber-200/70 data-[state=active]:border-amber-400 data-[state=active]:bg-amber-400 data-[state=active]:text-amber-950 data-[state=active]:shadow-sm dark:text-amber-200 dark:hover:bg-amber-500/20 dark:data-[state=active]:border-amber-300 dark:data-[state=active]:bg-amber-300 dark:data-[state=active]:text-amber-950"
+            className="flex-none rounded-md border border-transparent bg-transparent px-4 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground data-[state=active]:border-white data-[state=active]:bg-white data-[state=active]:text-[#1E1E1E] data-[state=active]:shadow-sm"
           >
             Intelligence Blockers ({reviewerTasksQuery.data?.length ?? 0})
           </TabsTrigger>
           <TabsTrigger
             value="sectionReviews"
-            className="flex-none rounded-md border border-transparent bg-transparent px-4 text-amber-900/90 transition-colors hover:bg-amber-200/70 data-[state=active]:border-amber-400 data-[state=active]:bg-amber-400 data-[state=active]:text-amber-950 data-[state=active]:shadow-sm dark:text-amber-200 dark:hover:bg-amber-500/20 dark:data-[state=active]:border-amber-300 dark:data-[state=active]:bg-amber-300 dark:data-[state=active]:text-amber-950"
+            className="flex-none rounded-md border border-transparent bg-transparent px-4 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground data-[state=active]:border-white data-[state=active]:bg-white data-[state=active]:text-[#1E1E1E] data-[state=active]:shadow-sm"
           >
             Strategy Review ({sectionReviewsQuery.data?.length ?? 0})
           </TabsTrigger>

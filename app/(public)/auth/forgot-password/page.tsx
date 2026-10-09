@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { AuthV2Shell } from '@/components/auth/auth-v2-shell';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { OtpInput } from '@/components/ui/otp-input';
 import { authApi } from '@/src/lib/api/auth';
-import { X, ArrowLeft, Mail, Clock, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Mail, Clock, CheckCircle2 } from 'lucide-react';
 
 type ResetStep = 'request' | 'verify' | 'success';
 
@@ -185,16 +185,9 @@ function ForgotPasswordContent() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4">
-      <Card className="w-full max-w-md p-8 space-y-6 border border-border bg-card relative">
-        {/* Close button to go back to landing page */}
-        <Link 
-          href="/"
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Back to home"
-        >
-          <X className="w-5 h-5" />
-        </Link>
+    // The shell's own Back link replaces the old close button.
+    <AuthV2Shell modal>
+      <div className="space-y-6">
 
         {step === 'request' && (
           <>
@@ -385,8 +378,8 @@ function ForgotPasswordContent() {
             </Button>
           </>
         )}
-      </Card>
-    </div>
+      </div>
+    </AuthV2Shell>
   );
 }
 

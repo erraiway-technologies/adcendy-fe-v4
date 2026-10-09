@@ -2,20 +2,32 @@
 
 import { useState, useEffect } from 'react';
 import { LANDING_DESIGN_CONFIG } from '../config/landingDesignConfig';
-import type { LandingDesignVariant } from '../types/landing.types';
+import {
+  LANDING_DESIGN_VARIANTS,
+  isLandingDesignVariant,
+  type LandingDesignVariant,
+} from '../types/landing.types';
+
+const VARIANT_NAMES: Record<LandingDesignVariant, string> = {
+  v1: 'Classic (v1)',
+  v2: 'Intelligence Stream (v2)',
+  v3: 'Dusk (v3)',
+};
 
 export function LandingVariantToggle() {
   const [variant, setVariant] = useState<LandingDesignVariant | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem(LANDING_DESIGN_CONFIG.localStorageKey) as LandingDesignVariant | null;
-    setVariant(stored === 'v1' || stored === 'v2' ? stored : LANDING_DESIGN_CONFIG.defaultVariant);
+    setVariant(isLandingDesignVariant(stored) ? stored : LANDING_DESIGN_CONFIG.defaultVariant);
   }, []);
 
   if (variant === null) return null;
 
+  const next =
+    LANDING_DESIGN_VARIANTS[(LANDING_DESIGN_VARIANTS.indexOf(variant) + 1) % LANDING_DESIGN_VARIANTS.length]!;
+
   const toggle = () => {
-    const next: LandingDesignVariant = variant === 'v1' ? 'v2' : 'v1';
     localStorage.setItem(LANDING_DESIGN_CONFIG.localStorageKey, next);
     window.location.reload();
   };
@@ -23,7 +35,7 @@ export function LandingVariantToggle() {
   return (
     <button
       onClick={toggle}
-      title={`Switch to ${variant === 'v1' ? 'Intelligence Stream (v2)' : 'Classic (v1)'}`}
+      title={`Switch to ${VARIANT_NAMES[next]}`}
       style={{
         position: 'fixed',
         bottom: '16px',
@@ -43,7 +55,7 @@ export function LandingVariantToggle() {
         transition: 'border-color 0.2s, color 0.2s',
       }}
     >
-      {variant === 'v1' ? 'v1 → v2' : 'v2 → v1'}
+      {`${variant} → ${next}`}
     </button>
   );
 }

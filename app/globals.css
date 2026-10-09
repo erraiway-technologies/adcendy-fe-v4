@@ -2,82 +2,93 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* The light variant of the dusk theme: the sample report's paper and ink.
+   The site renders dark (next-themes defaultTheme), so this shows only for
+   someone who picks light. */
 :root {
-  --background: #F6F2EE;
-  --foreground: #323841;
-  --card: #F6F2EE;
-  --card-foreground: #323841;
-  --popover: #F6F2EE;
-  --popover-foreground: #323841;
-  --primary: #323841;
-  --primary-foreground: #F6F2EE;
-  --secondary: #CACBCD;
-  --secondary-foreground: #323841;
-  --muted: #B3B9C1;
-  --muted-foreground: #77726E;
-  --accent: #B3B9C1;
-  --accent-foreground: #323841;
-  --destructive: #77726E;
-  --destructive-foreground: #F6F2EE;
-  --border: #CACBCD;
-  --input: #F6F2EE;
-  --ring: #77726E;
-  --chart-1: #323841;
-  --chart-2: #77726E;
-  --chart-3: #B3B9C1;
-  --chart-4: #CACBCD;
-  --chart-5: #8E949C;
-  --radius: 0.625rem;
-  --sidebar: #CACBCD;
-  --sidebar-foreground: #323841;
-  --sidebar-primary: #323841;
-  --sidebar-primary-foreground: #F6F2EE;
-  --sidebar-accent: #B3B9C1;
-  --sidebar-accent-foreground: #323841;
-  --sidebar-border: #B3B9C1;
-  --sidebar-ring: #77726E;
+  --background: #ECEAE5;
+  --foreground: #1F1F1F;
+  --card: #F4F3EF;
+  --card-foreground: #1F1F1F;
+  --popover: #F4F3EF;
+  --popover-foreground: #1F1F1F;
+  --primary: #1F1F1F;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E0DED8;
+  --secondary-foreground: #1F1F1F;
+  --muted: #E0DED8;
+  --muted-foreground: #6E6C66;
+  --accent: #E0DED8;
+  --accent-foreground: #1F1F1F;
+  --destructive: #B4473F;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(31, 31, 31, 0.12);
+  --input: rgba(31, 31, 31, 0.16);
+  --ring: rgba(31, 31, 31, 0.4);
+  --chart-1: #1F1F1F;
+  --chart-2: #B9785A;
+  --chart-3: #6E6C66;
+  --chart-4: #5F6B85;
+  --chart-5: #A6A6A2;
+  --radius: 0.375rem;
+  --sidebar: #E4E2DC;
+  --sidebar-foreground: #1F1F1F;
+  --sidebar-primary: #1F1F1F;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #D8D6CF;
+  --sidebar-accent-foreground: #1F1F1F;
+  --sidebar-border: rgba(31, 31, 31, 0.12);
+  --sidebar-ring: rgba(31, 31, 31, 0.4);
 }
 
-.dark {
-  --background: #060713;
-  --foreground: #EEF3FF;
-  --card: #0C1026;
-  --card-foreground: #EEF3FF;
-  --popover: #0C1026;
-  --popover-foreground: #EEF3FF;
-  --primary: #5B8CFF;
-  --primary-foreground: #FFFFFF;
-  --secondary: #35D3A3;
-  --secondary-foreground: #060713;
-  --muted: #111A36;
-  --muted-foreground: #9AA4BF;
-  --accent: #152143;
-  --accent-foreground: #EEF3FF;
-  --destructive: #FF5555;
+/* The dusk theme (the v5 homepage design): the homepage's
+   charcoal, warm greys and white, with no brand accent - primary is white.
+   The public site (.home-page) is dusk whatever theme someone picked. */
+.dark,
+.home-page {
+  --background: #232323;
+  --foreground: #F5F5F4;
+  --card: #282828;
+  --card-foreground: #F5F5F4;
+  --popover: #2B2B2B;
+  --popover-foreground: #F5F5F4;
+  --primary: #FFFFFF;
+  --primary-foreground: #1E1E1E;
+  --secondary: #363636;
+  --secondary-foreground: #F5F5F4;
+  --muted: #2E2E2E;
+  --muted-foreground: #A6A6A2;
+  --accent: #363636;
+  --accent-foreground: #FFFFFF;
+  --destructive: #E5675F;
   --destructive-foreground: #FFFFFF;
-  --border: #1F2A4A;
-  --input: #0C1026;
-  --ring: #5B8CFF;
-  --chart-1: #35D3A3;
-  --chart-2: #5B8CFF;
-  --chart-3: #9AA4BF;
-  --chart-4: #8B5CF6;
-  --chart-5: #06B6D4;
-  --sidebar: #0C1026;
-  --sidebar-foreground: #EEF3FF;
-  --sidebar-primary: #5B8CFF;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #35D3A3;
-  --sidebar-accent-foreground: #060713;
-  --sidebar-border: #1F2A4A;
-  --sidebar-ring: #5B8CFF;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.14);
+  --ring: rgba(255, 255, 255, 0.4);
+  --chart-1: #F5F5F4;
+  --chart-2: #E8AC84;
+  --chart-3: #8A9AB8;
+  --chart-4: #A6A6A2;
+  --chart-5: #5B5157;
+  --sidebar: #282828;
+  --sidebar-foreground: #F5F5F4;
+  --sidebar-primary: #FFFFFF;
+  --sidebar-primary-foreground: #1E1E1E;
+  --sidebar-accent: #363636;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: rgba(255, 255, 255, 0.4);
 }
 
 @theme inline {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-dm-sans: 'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-space-grotesk: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'Inter', 'Inter Fallback';
+  /* One family everywhere, as on the homepage: the older display and body
+     utilities (font-space-grotesk, font-dm-sans) now resolve to it too. */
+  --font-sans: 'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-dm-sans: 'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-space-grotesk: 'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-outfit: 'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-geist-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -147,68 +158,10 @@
   }
 }
 
+/* The signed-in app's wrapper (app/(app)/layout.tsx): the dusk tokens come
+   from .dark, so it only paints the page. */
 .adcendy-cinematic {
-  --background: #070d10;
-  --foreground: #ede8dc;
-  --card: #0a1114;
-  --card-foreground: #ede8dc;
-  --popover: #0a1114;
-  --popover-foreground: #ede8dc;
-  --primary: #d4a853;
-  --primary-foreground: #11181a;
-  --secondary: #11181a;
-  --secondary-foreground: #ede8dc;
-  --muted: #0d1519;
-  --muted-foreground: rgba(237, 232, 220, 0.62);
-  --accent: #11181a;
-  --accent-foreground: #ede8dc;
-  --border: rgba(237, 232, 220, 0.12);
-  --input: #0a1114;
-  --ring: rgba(212, 168, 83, 0.6);
-  --sidebar: #0a1114;
-  --sidebar-foreground: #ede8dc;
-  --sidebar-primary: #d4a853;
-  --sidebar-primary-foreground: #11181a;
-  --sidebar-accent: #11181a;
-  --sidebar-accent-foreground: #ede8dc;
-  --sidebar-border: rgba(237, 232, 220, 0.12);
-  --sidebar-ring: rgba(212, 168, 83, 0.6);
-  position: relative;
-  isolation: isolate;
-  background-color: #070d10;
-  background-image:
-    radial-gradient(140% 95% at 50% 36%, rgba(17, 24, 26, 0.78), rgba(7, 13, 16, 0.98)),
-    radial-gradient(70% 54% at 18% 16%, rgba(13, 21, 25, 0.24), transparent 74%),
-    radial-gradient(74% 62% at 84% 74%, rgba(15, 23, 28, 0.20), transparent 76%),
-    linear-gradient(to bottom, #0a1114, #070d10 32%, #05090b 100%);
-}
-
-.adcendy-cinematic::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, rgba(4, 8, 11, 0.88) 0%, rgba(4, 8, 11, 0.76) 26%, rgba(4, 8, 11, 0.44) 48%, rgba(4, 8, 11, 0.14) 66%, rgba(4, 8, 11, 0) 84%);
-}
-
-.adcendy-cinematic::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.14;
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.65'/%3E%3C/svg%3E");
-  background-size: 210px 210px;
-  mix-blend-mode: soft-light;
-}
-
-.adcendy-cinematic > * {
-  position: relative;
-  z-index: 1;
+  background-color: var(--background);
 }
 
 /* Published policy text rendered from vendored markdown (shared/legal). */
@@ -259,7 +212,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #070d10;
+  background: #232323;
   opacity: 1;
   transition: opacity 350ms ease;
   /* Safety net for a page whose JavaScript never runs: the splash still goes. */
@@ -273,7 +226,7 @@
   width: 96px;
   height: 96px;
   animation: brand-splash-breathe 1.8s ease-in-out infinite;
-  filter: drop-shadow(0 0 22px rgba(212, 168, 83, 0.35));
+  filter: drop-shadow(0 0 22px rgba(255, 255, 255, 0.18));
   will-change: transform, opacity;
 }
 @keyframes brand-splash-breathe {
@@ -300,5 +253,56 @@
   }
   .brand-splash {
     transition: none;
+  }
+}
+
+/* The public site (homepage, sign-in, contact, legal, sample report): the
+   dusk palette by name, for the layouts in features/landing/components/home.
+   It is always dark, whatever the app theme. */
+.home-page {
+  --home-bg: #232323;
+  --home-surface: #282828;
+  --home-surface-2: #363636;
+  --home-text: #F5F5F4;
+  --home-text-2: #C4C4C0;
+  --home-text-3: #A6A6A2;
+  --home-text-4: #7E7E7A;
+  --home-text-5: #8A8A86;
+  --home-nav-link: #E4E4E1;
+  --home-paper: #ECEAE5;
+  --home-ink: #1F1F1F;
+  --home-ink-2: #6E6C66;
+  --home-ink-3: #3E3D3A;
+  --home-button-text: #1E1E1E;
+  --home-button-hover: #E9E9E6;
+  --home-ease: cubic-bezier(.2, .7, .2, 1);
+
+  background: var(--home-bg);
+  color: var(--home-text);
+  font-family: var(--font-outfit);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+.home-page a:hover {
+  color: #FFFFFF;
+}
+/* The white buttons keep dark text on hover. */
+.home-page a.home-button-primary:hover {
+  color: var(--home-button-text);
+}
+
+/* The scroll cue: a white segment sliding down its track, on a loop. */
+@keyframes home-cue {
+  from { transform: translateY(-30px); }
+  to { transform: translateY(76px); }
+}
+/* The chapter in the report reader advances when its bar fills. */
+@keyframes home-chapter-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .home-cue {
+    animation: home-cue 2.2s ease-in-out infinite;
   }
 }
