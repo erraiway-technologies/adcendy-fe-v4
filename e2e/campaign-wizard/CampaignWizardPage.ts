@@ -96,6 +96,15 @@ const STATIC_OPTION_LABELS: Record<string, string> = {
   all: 'All of it',
 };
 
+// v3 (A3): content capacity by what it means.
+const CONTENT_CAPACITY_OPTION_LABELS: Record<string, string> = {
+  none: 'Nothing yet',
+  low: 'A post or two a week',
+  medium: 'Several a week',
+  high: 'Daily with a team',
+  unknown: "Don't know",
+};
+
 const EMAIL_LIST_OPTION_LABELS: Record<string, string> = {
   none: 'No email list',
   under_500: 'Under 500 contacts',
@@ -212,7 +221,9 @@ export class CampaignWizardPage {
     const desiredLabel =
       fieldPath === 'emailListSize'
         ? EMAIL_LIST_OPTION_LABELS[desiredValue]
-        : STATIC_OPTION_LABELS[desiredValue];
+        : fieldPath === 'contentCapacity'
+          ? CONTENT_CAPACITY_OPTION_LABELS[desiredValue]
+          : STATIC_OPTION_LABELS[desiredValue];
     const count = await options.count();
     for (let index = 0; index < count; index += 1) {
       const option = options.nth(index);
@@ -365,6 +376,13 @@ export class CampaignWizardPage {
     await this.chooseSelect('lifecycleStage', step.lifecycleStage);
     await this.fill('businessDescription', step.businessDescription);
     await this.fill('productCategory', step.productCategory);
+    // The wizard offers the step-1 focus as the first product; a fixture that
+    // lists its products without it would otherwise go one over the limit.
+    const focus = this.fixture.wizard.step1.focusName;
+    const prefilled = this.page.getByRole('button', { name: `Remove ${focus}` });
+    if (focus && !step.productsServices.includes(focus) && (await prefilled.isVisible())) {
+      await prefilled.click();
+    }
     await this.addTags('productsServices', step.productsServices);
     await this.fill('priceRangeLow', String(step.priceRangeLow));
     await this.fill('priceRangeHigh', String(step.priceRangeHigh));
