@@ -88,7 +88,7 @@ const step2Schema = z
     businessName: optionalTextMax(240),
     industryCategory: boundedText(200),
     businessModel: z.enum(['B2B', 'B2C', 'D2C', 'MARKETPLACE', 'HYBRID']),
-    audienceModel: z.enum(['single_sided', 'b2b2c', 'marketplace_platform', 'multi_sided', 'not_sure']),
+    audienceModel: z.enum(['single_sided', 'b2b2c', 'marketplace_platform', 'multi_sided', 'unknown']),
     lifecycleStage: z.enum(['pre_launch', 'launch', 'growth', 'scaling', 'mature']),
     businessDescription: boundedText(1000),
     productCategory: boundedText(160),
@@ -107,7 +107,7 @@ const step3Schema = z
     targetPersona: boundedText(500),
     targetAudience: optionalTextMax(700),
     audienceSegments: boundedStringList(200).max(10).default([]),
-    language: z.enum(['english', 'hindi', 'regional_other', 'mixed', 'not_sure']),
+    language: z.enum(['english', 'hindi', 'regional_other', 'mixed', 'unknown']),
     reportLanguage: z.enum(['', 'english', 'hindi', 'regional_other']).default(''),
     painPoints: boundedStringList(200).min(1),
     desiredOutcome: boundedText(300),
@@ -191,7 +191,7 @@ const activitySchema = z
   .object({
     channel: boundedText(120),
     status: z.enum(['active', 'paused', 'discontinued']),
-    workingAssessment: z.enum(['', 'clearly_working', 'unclear', 'not_working', 'not_sure']).default(''),
+    workingAssessment: z.enum(['', 'clearly_working', 'unclear', 'not_working', 'unknown']).default(''),
     evidence: optionalTextMax(500),
     monthlySpend: optionalTextMax(120),
     timeRunning: optionalTextMax(120),
@@ -211,11 +211,11 @@ const step5Schema = z
       'other',
     ]),
     monthlyMarketingSpend: z.enum(['nothing', 'under_5k', '5k_15k', '15k_50k', '50k_plus']),
-    // A dropdown of the monthly-spend bands plus not_sure. Free text no longer
+    // A dropdown of the monthly-spend bands plus Don't know. Free text no longer
     // reaches the wizard, so a free-text fixture value could not be selected.
-    paidMediaBudgetRange: z.enum(['nothing', 'under_5k', '5k_15k', '15k_50k', '50k_plus', 'not_sure']),
-    marketingHandler: z.enum(['founder_led', 'internal_marketer', 'agency', 'in_house_team', 'not_sure']),
-    contentCapacity: z.enum(['none', 'low', 'medium', 'high', 'not_sure']),
+    paidMediaBudgetRange: z.enum(['nothing', 'under_5k', '5k_15k', '15k_50k', '50k_plus', 'unknown']),
+    marketingHandler: z.enum(['founder_led', 'internal_marketer', 'agency', 'in_house_team', 'unknown']),
+    contentCapacity: z.enum(['none', 'low', 'medium', 'high', 'unknown']),
     // Wizard v2.1. Optional on the backend, but the wizard form will not save
     // step 5 without them, so a fixture that reaches the browser needs all three.
     marketingHoursPerWeek: z.enum([
@@ -224,7 +224,7 @@ const step5Schema = z
       'tenToTwenty',
       'twentyToForty',
       'fortyPlus',
-      'notSure',
+      'unknown',
     ]),
     creativeCapabilities: z
       .array(z.enum(['video', 'photography', 'copywriting', 'design', 'none']))
@@ -234,14 +234,14 @@ const step5Schema = z
       'withinThreeMonths',
       'withinSixMonths',
       'noFixedDeadline',
-      'notSure',
+      'unknown',
     ]),
     salesCapacity: optionalTextMax(120),
     currentMarketingActivity: z.array(activitySchema).default([]),
     pastMarketing: optionalTextMax(1200),
     whatsWorking: optionalTextMax(1200),
     biggestFrustration: optionalTextMax(1200),
-    knownCompetitorStatus: z.enum(['provided', 'none_known', 'not_sure']),
+    knownCompetitorStatus: z.enum(['provided', 'none_known', 'unknown']),
     knownCompetitors: boundedStringList(200).default([]),
     constraints: boundedStringList(200).default([]),
     channelsToAvoid: boundedStringList(100).default([]),
@@ -304,14 +304,14 @@ const step6Schema = z
       ])
       .default('not_tracked'),
     // Wizard v2.1. Optional on the backend, required by the form before step 6
-    // saves - "notSure" is always on offer.
+    // saves - "Don't know" (unknown) is always on offer.
     paybackWindow: z.enum([
       'firstOrder',
       'withinThreeMonths',
       'withinSixMonths',
       'withinTwelveMonths',
       'longerThanTwelveMonths',
-      'notSure',
+      'unknown',
     ]),
   })
   .strict();

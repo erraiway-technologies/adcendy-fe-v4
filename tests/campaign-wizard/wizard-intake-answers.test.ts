@@ -19,7 +19,8 @@ import {
 } from '../../shared/types/wizard.ts';
 
 // Wizard v2.1 intake answers. The backend step schemas are strict and these
-// are the option values GET /api/v2/wizard/options lists, verbatim.
+// are the option values GET /api/v2/wizard/options lists, verbatim; its
+// not-sure option is served as the one "Don't know", `unknown` (v3 rule 4).
 
 test('option values match the backend wizard contract exactly', () => {
   assert.deepEqual([...MARKETING_HOURS_PER_WEEK_VALUES], [
@@ -28,7 +29,7 @@ test('option values match the backend wizard contract exactly', () => {
     'tenToTwenty',
     'twentyToForty',
     'fortyPlus',
-    'notSure',
+    'unknown',
   ]);
   assert.deepEqual([...CREATIVE_CAPABILITY_VALUES], [
     'video',
@@ -42,7 +43,7 @@ test('option values match the backend wizard contract exactly', () => {
     'withinThreeMonths',
     'withinSixMonths',
     'noFixedDeadline',
-    'notSure',
+    'unknown',
   ]);
   assert.deepEqual([...PAYBACK_WINDOW_VALUES], [
     'firstOrder',
@@ -50,17 +51,19 @@ test('option values match the backend wizard contract exactly', () => {
     'withinSixMonths',
     'withinTwelveMonths',
     'longerThanTwelveMonths',
-    'notSure',
+    'unknown',
   ]);
-  assert.deepEqual([...PAID_MEDIA_BUDGET_RANGE_VALUES], [...MONTHLY_MARKETING_SPEND_VALUES, 'not_sure']);
+  assert.deepEqual([...PAID_MEDIA_BUDGET_RANGE_VALUES], [...MONTHLY_MARKETING_SPEND_VALUES, 'unknown']);
 });
 
-test('the paid media budget reads with the monthly spend labels, plus not sure', () => {
+test("the paid media budget reads with the monthly spend labels, plus Don't know", () => {
   for (const value of MONTHLY_MARKETING_SPEND_VALUES) {
     assert.equal(PAID_MEDIA_BUDGET_RANGE_LABELS[value], MONTHLY_MARKETING_SPEND_LABELS[value]);
   }
   assert.equal(formatPaidMediaBudgetRange('5k_15k'), 'INR 5,000 to INR 15,000');
-  assert.equal(formatPaidMediaBudgetRange('not_sure'), 'Not sure');
+  assert.equal(formatPaidMediaBudgetRange('unknown'), "Don't know");
+  // An answer saved before the change reads the same.
+  assert.equal(formatPaidMediaBudgetRange('not_sure'), "Don't know");
 });
 
 test('a paid media budget typed as free text before the dropdown is shown as typed', () => {

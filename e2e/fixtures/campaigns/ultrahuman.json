@@ -146,17 +146,17 @@
         {
           "channel": "Meta ads",
           "status": "active",
-          "workingAssessment": "not_sure"
+          "workingAssessment": "unknown"
         },
         {
           "channel": "Google search ads",
           "status": "active",
-          "workingAssessment": "not_sure"
+          "workingAssessment": "unknown"
         },
         {
           "channel": "Influencer marketing",
           "status": "active",
-          "workingAssessment": "not_sure"
+          "workingAssessment": "unknown"
         }
       ]
     },

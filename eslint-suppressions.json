@@ -247,9 +247,6 @@
     },
     "react-hooks/incompatible-library": {
       "count": 1
-    },
-    "react/no-unescaped-entities": {
-      "count": 4
     }
   },
   "shared/components/layout/ThemeToggle.tsx": {

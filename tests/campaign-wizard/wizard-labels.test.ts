@@ -20,11 +20,11 @@ import {
 // as the dropdown sends it: each must read in words, not as its value.
 const SERVED = {
   primaryGoal: ['revenue_growth', 'lead_generation', 'awareness', 'launch_readiness', 'retention', 'market_expansion', 'other'],
-  marketingHandler: ['founder_led', 'internal_marketer', 'agency', 'in_house_team', 'not_sure'],
-  contentCapacity: ['none', 'low', 'medium', 'high', 'not_sure'],
-  knownCompetitorStatus: ['provided', 'none_known', 'not_sure'],
+  marketingHandler: ['founder_led', 'internal_marketer', 'agency', 'in_house_team', 'unknown'],
+  contentCapacity: ['none', 'low', 'medium', 'high', 'unknown'],
+  knownCompetitorStatus: ['provided', 'none_known', 'unknown'],
   sensitiveCategoryFlags: [
-    'none', 'not_sure', 'healthcare', 'wellness', 'supplements', 'finance', 'legal', 'education_claims',
+    'none', 'unknown', 'healthcare', 'wellness', 'supplements', 'finance', 'legal', 'education_claims',
     'b2b_security_compliance', 'alcohol_tobacco_restricted', 'healthcare_wellness', 'restricted_products',
   ],
 };
@@ -46,7 +46,8 @@ test('every answer the backend serves today has a written label', () => {
 test('the review reads the goal and owner the dropdown sent', () => {
   assert.equal(formatPrimaryGoal('revenue_growth'), 'Revenue growth');
   assert.equal(formatMarketingHandler('founder_led'), 'Founder-led');
-  assert.equal(formatContentCapacity('not_sure'), 'Not sure');
+  assert.equal(formatContentCapacity('unknown'), "Don't know");
+  assert.equal(formatContentCapacity('not_sure'), "Don't know");
   assert.equal(formatKnownCompetitorStatus('none_known'), 'None known');
 });
 

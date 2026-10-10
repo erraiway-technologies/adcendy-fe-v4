@@ -39,8 +39,8 @@ const STATIC_OPTION_LABELS: Record<string, string> = {
   '5k_15k': 'INR 5,000 to INR 15,000',
   '15k_50k': 'INR 15,000 to INR 50,000',
   '50k_plus': 'Above INR 50,000',
-  not_sure: 'Not sure',
-  notSure: 'Not sure',
+  not_sure: "Don't know",
+  notSure: "Don't know",
   underFive: 'Under 5 hours',
   fiveToTen: '5–10 hours',
   tenToTwenty: '10–20 hours',
@@ -66,7 +66,7 @@ const STATIC_OPTION_LABELS: Record<string, string> = {
   twitter: 'Twitter / X',
   true: 'Connected',
   false: 'Not connected',
-  unknown: 'Unknown',
+  unknown: "Don't know",
 };
 
 const EMAIL_LIST_OPTION_LABELS: Record<string, string> = {

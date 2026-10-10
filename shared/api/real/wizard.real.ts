@@ -102,12 +102,13 @@ const MARKETING_HANDLER_TO_V2: Record<string, string> = {
   self: 'founder_led',
   team_member: 'internal_marketer',
   freelancer_agency: 'agency',
-  nobody: 'not_sure',
+  nobody: 'unknown',
   founder_led: 'founder_led',
   internal_marketer: 'internal_marketer',
   agency: 'agency',
   in_house_team: 'in_house_team',
-  not_sure: 'not_sure',
+  not_sure: 'unknown',
+  unknown: 'unknown',
 };
 
 const CAMPAIGN_STATUS_BY_WIZARD_STATUS: Record<WizardStateResponseV2['status'], CampaignStatus> = {
@@ -145,7 +146,7 @@ const AUDIENCE_MODEL_VALUES_V2 = [
   'b2b2c',
   'marketplace_platform',
   'multi_sided',
-  'not_sure',
+  'unknown',
 ] as const;
 
 const LIFECYCLE_STAGE_VALUES_V2 = [
@@ -187,7 +188,7 @@ const MARKETING_HANDLER_VALUES_V2 = [
   'internal_marketer',
   'agency',
   'in_house_team',
-  'not_sure',
+  'unknown',
 ] as const;
 
 const CONTENT_CAPACITY_VALUES_V2 = [
@@ -195,13 +196,13 @@ const CONTENT_CAPACITY_VALUES_V2 = [
   'low',
   'medium',
   'high',
-  'not_sure',
+  'unknown',
 ] as const;
 
 const KNOWN_COMPETITOR_STATUS_VALUES_V2 = [
   'provided',
   'none_known',
-  'not_sure',
+  'unknown',
 ] as const;
 
 const CURRENT_MARKETING_ACTIVITY_STATUS_VALUES_V2 = [
@@ -214,7 +215,7 @@ const CURRENT_MARKETING_ACTIVITY_ASSESSMENT_VALUES_V2 = [
   'clearly_working',
   'unclear',
   'not_working',
-  'not_sure',
+  'unknown',
 ] as const;
 
 function unwrapResponseData<T>(response: ApiResponse<T> | T): T {
@@ -504,10 +505,14 @@ function normalizeLanguage(value: unknown) {
   const normalized = normalizeString(value).toLowerCase();
 
   if (!normalized) {
-    return 'not_sure';
+    return 'unknown';
   }
 
-  if (normalized === 'english' || normalized === 'hindi' || normalized === 'regional_other' || normalized === 'mixed' || normalized === 'not_sure') {
+  if (normalized === 'not_sure') {
+    return 'unknown';
+  }
+
+  if (normalized === 'english' || normalized === 'hindi' || normalized === 'regional_other' || normalized === 'mixed' || normalized === 'unknown') {
     return normalized;
   }
 
@@ -530,7 +535,7 @@ function normalizeLanguage(value: unknown) {
     return 'regional_other';
   }
 
-  return 'not_sure';
+  return 'unknown';
 }
 
 function inferReportLanguage(language: string) {
@@ -826,7 +831,7 @@ function buildStep2Payload(data: Record<string, unknown>) {
     audienceModel: pickAllowedValue(
       data.audienceModel,
       AUDIENCE_MODEL_VALUES_V2,
-      'not_sure',
+      'unknown',
     ),
     lifecycleStage: pickAllowedValue(
       data.lifecycleStage,
@@ -929,12 +934,12 @@ function buildStep5Payload(data: Record<string, unknown>) {
     marketingHandler: pickAllowedValue(
       mapWithFallback(data.marketingHandler, MARKETING_HANDLER_TO_V2),
       MARKETING_HANDLER_VALUES_V2,
-      'not_sure',
+      'unknown',
     ),
     contentCapacity: pickAllowedValue(
       data.contentCapacity,
       CONTENT_CAPACITY_VALUES_V2,
-      'not_sure',
+      'unknown',
     ),
     // Wizard v2.1, sent as the backend's own camelCase values. An unknown value
     // is dropped rather than coerced to notSure: the backend keeps these
@@ -950,7 +955,7 @@ function buildStep5Payload(data: Record<string, unknown>) {
     knownCompetitorStatus: pickAllowedValue(
       data.knownCompetitorStatus,
       KNOWN_COMPETITOR_STATUS_VALUES_V2,
-      knownCompetitors.length ? 'provided' : 'not_sure',
+      knownCompetitors.length ? 'provided' : 'unknown',
     ),
     knownCompetitors: knownCompetitors.length ? knownCompetitors : undefined,
     constraints: normalizeStringList(data.constraints),

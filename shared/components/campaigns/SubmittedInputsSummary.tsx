@@ -109,7 +109,7 @@ function formatGoogleAnalyticsConnected(value?: boolean | 'unknown' | null) {
   }
 
   if (value === 'unknown') {
-    return 'Unknown';
+    return "Don't know";
   }
 
   return null;

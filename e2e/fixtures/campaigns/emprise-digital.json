@@ -80,9 +80,9 @@
     "step5": {
       "primaryGoal": "lead_generation",
       "monthlyMarketingSpend": "nothing",
-      "paidMediaBudgetRange": "not_sure",
-      "marketingHandler": "not_sure",
-      "contentCapacity": "not_sure",
+      "paidMediaBudgetRange": "unknown",
+      "marketingHandler": "unknown",
+      "contentCapacity": "unknown",
       "marketingHoursPerWeek": "tenToTwenty",
       "creativeCapabilities": [
         "copywriting",
@@ -91,7 +91,7 @@
       ],
       "deliveryDeadline": "withinThreeMonths",
       "salesCapacity": "not_sure",
-      "knownCompetitorStatus": "not_sure"
+      "knownCompetitorStatus": "unknown"
     },
     "step6": {
       "averageContractValue": "USD 10,000",

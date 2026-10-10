@@ -35,7 +35,7 @@ export const AUDIENCE_MODEL_VALUES = [
   'b2b2c',
   'marketplace_platform',
   'multi_sided',
-  'not_sure',
+  'unknown',
 ] as const;
 
 export type AudienceModel = (typeof AUDIENCE_MODEL_VALUES)[number];
@@ -55,7 +55,7 @@ export const LANGUAGE_VALUES = [
   'hindi',
   'regional_other',
   'mixed',
-  'not_sure',
+  'unknown',
 ] as const;
 
 export type Language = (typeof LANGUAGE_VALUES)[number];
@@ -186,6 +186,7 @@ export const AVG_CUSTOMER_RETENTION_VALUES = [
   'some_repeat',
   'mostly_repeat',
   'subscription',
+  'unknown',
 ] as const;
 
 export type AvgCustomerRetention = (typeof AVG_CUSTOMER_RETENTION_VALUES)[number];
@@ -195,6 +196,7 @@ export const REPEAT_PURCHASE_FREQUENCY_VALUES = [
   'every_few_months',
   'monthly',
   'weekly',
+  'unknown',
 ] as const;
 
 export type RepeatPurchaseFrequency = (typeof REPEAT_PURCHASE_FREQUENCY_VALUES)[number];
@@ -205,6 +207,7 @@ export const MONTHLY_WEBSITE_TRAFFIC_VALUES = [
   '2000_10000',
   '10000_50000',
   '50000_plus',
+  'unknown',
 ] as const;
 
 export type MonthlyWebsiteTraffic = (typeof MONTHLY_WEBSITE_TRAFFIC_VALUES)[number];
@@ -241,6 +244,7 @@ export const EMAIL_LIST_SIZE_VALUES = [
   '500_2000',
   '2000_10000',
   '10000_plus',
+  'unknown',
 ] as const;
 
 export type EmailListSize = (typeof EMAIL_LIST_SIZE_VALUES)[number];
@@ -265,7 +269,7 @@ export const AUDIENCE_MODEL_LABELS: Record<AudienceModel, string> = {
   b2b2c: 'Business + end customer (B2B2C)',
   marketplace_platform: 'Marketplace / two-sided platform',
   multi_sided: 'Multi-sided',
-  not_sure: 'Not sure',
+  unknown: "Don't know",
 };
 
 export const LIFECYCLE_STAGE_LABELS: Record<LifecycleStage, string> = {
@@ -281,7 +285,7 @@ export const LANGUAGE_LABELS: Record<Language, string> = {
   hindi: 'Hindi',
   regional_other: 'Regional language (other)',
   mixed: 'Mixed',
-  not_sure: 'Not sure',
+  unknown: "Don't know",
 };
 
 export const REPORT_LANGUAGE_LABELS: Record<ReportLanguage, string> = {
@@ -351,7 +355,7 @@ export const MARKETING_HANDLER_LABELS: Record<string, string> = {
   internal_marketer: 'Internal marketer',
   agency: 'Agency',
   in_house_team: 'In-house team',
-  not_sure: 'Not sure',
+  unknown: "Don't know",
   self: 'I handle it myself',
   team_member: 'A team member handles it',
   freelancer_agency: 'A freelancer or agency handles it',
@@ -397,6 +401,7 @@ export const AVG_CUSTOMER_RETENTION_LABELS: Record<AvgCustomerRetention, string>
   some_repeat: 'Some customers come back',
   mostly_repeat: 'Many customers come back',
   subscription: 'Subscription-based',
+  unknown: "Don't know",
 };
 
 export const REPEAT_PURCHASE_FREQUENCY_LABELS: Record<RepeatPurchaseFrequency, string> = {
@@ -404,6 +409,7 @@ export const REPEAT_PURCHASE_FREQUENCY_LABELS: Record<RepeatPurchaseFrequency, s
   every_few_months: 'Every few months',
   monthly: 'Monthly',
   weekly: 'Weekly',
+  unknown: "Don't know",
 };
 
 export const MONTHLY_WEBSITE_TRAFFIC_LABELS: Record<MonthlyWebsiteTraffic, string> = {
@@ -412,6 +418,7 @@ export const MONTHLY_WEBSITE_TRAFFIC_LABELS: Record<MonthlyWebsiteTraffic, strin
   '2000_10000': '2,000 to 10,000 visits',
   '10000_50000': '10,000 to 50,000 visits',
   '50000_plus': 'Above 50,000 visits',
+  unknown: "Don't know",
 };
 
 export const SOCIAL_PLATFORM_LABELS: Record<SocialPlatform, string> = {
@@ -442,6 +449,7 @@ export const EMAIL_LIST_SIZE_LABELS: Record<EmailListSize, string> = {
   '500_2000': '500 to 2,000 contacts',
   '2000_10000': '2,000 to 10,000 contacts',
   '10000_plus': 'Above 10,000 contacts',
+  unknown: "Don't know",
 };
 
 export const MARKETING_TARGET_TYPE_OPTIONS = MARKETING_TARGET_TYPE_VALUES.map((value) => ({
@@ -567,8 +575,10 @@ function formatWizardEnumValue<T extends string>(
     return null;
   }
 
-  // A value saved in another spelling (camelCase from the backend) still finds its label.
-  return labels[value] ?? labels[toWizardToken(value)] ?? value;
+  // A value saved in another spelling (camelCase from the backend) still finds
+  // its label, and the earlier not-sure answers read as the one "Don't know".
+  const token = toWizardToken(value);
+  return labels[value] ?? labels[token] ?? labels[token === 'not_sure' ? 'unknown' : token] ?? value;
 }
 
 /**
@@ -594,13 +604,13 @@ export const CONTENT_CAPACITY_LABELS: Record<string, string> = {
   low: 'Low',
   medium: 'Medium',
   high: 'High',
-  not_sure: 'Not sure',
+  unknown: "Don't know",
 };
 
 export const KNOWN_COMPETITOR_STATUS_LABELS: Record<string, string> = {
   provided: 'Provided',
   none_known: 'None known',
-  not_sure: 'Not sure',
+  unknown: "Don't know",
 };
 
 /**
@@ -610,7 +620,7 @@ export const KNOWN_COMPETITOR_STATUS_LABELS: Record<string, string> = {
  */
 export const SENSITIVE_CATEGORY_FLAG_LABELS: Record<string, string> = {
   none: 'None',
-  not_sure: 'Not sure',
+  unknown: "Don't know",
   healthcare: 'Healthcare',
   wellness: 'Wellness',
   supplements: 'Supplements',
@@ -723,14 +733,14 @@ export const PAID_MEDIA_BUDGET_RANGE_VALUES = [
   '5k_15k',
   '15k_50k',
   '50k_plus',
-  'not_sure',
+  'unknown',
 ] as const;
 
 export type PaidMediaBudgetRange = (typeof PAID_MEDIA_BUDGET_RANGE_VALUES)[number];
 
 export const PAID_MEDIA_BUDGET_RANGE_LABELS: Record<PaidMediaBudgetRange, string> = {
   ...MONTHLY_MARKETING_SPEND_LABELS,
-  not_sure: 'Not sure',
+  unknown: "Don't know",
 };
 
 export const PAID_MEDIA_BUDGET_RANGE_OPTIONS = PAID_MEDIA_BUDGET_RANGE_VALUES.map((value) => ({
@@ -756,7 +766,7 @@ export const MARKETING_HOURS_PER_WEEK_VALUES = [
   'tenToTwenty',
   'twentyToForty',
   'fortyPlus',
-  'notSure',
+  'unknown',
 ] as const;
 
 export type MarketingHoursPerWeek = (typeof MARKETING_HOURS_PER_WEEK_VALUES)[number];
@@ -767,7 +777,7 @@ export const MARKETING_HOURS_PER_WEEK_LABELS: Record<MarketingHoursPerWeek, stri
   tenToTwenty: '10–20 hours',
   twentyToForty: '20–40 hours',
   fortyPlus: '40+ hours (full-time or more)',
-  notSure: 'Not sure',
+  unknown: "Don't know",
 };
 
 export const MARKETING_HOURS_PER_WEEK_OPTIONS = MARKETING_HOURS_PER_WEEK_VALUES.map((value) => ({
@@ -803,7 +813,7 @@ export const DELIVERY_DEADLINE_VALUES = [
   'withinThreeMonths',
   'withinSixMonths',
   'noFixedDeadline',
-  'notSure',
+  'unknown',
 ] as const;
 
 export type DeliveryDeadline = (typeof DELIVERY_DEADLINE_VALUES)[number];
@@ -813,7 +823,7 @@ export const DELIVERY_DEADLINE_LABELS: Record<DeliveryDeadline, string> = {
   withinThreeMonths: 'Within 3 months',
   withinSixMonths: 'Within 6 months',
   noFixedDeadline: 'No fixed deadline',
-  notSure: 'Not sure',
+  unknown: "Don't know",
 };
 
 export const DELIVERY_DEADLINE_OPTIONS = DELIVERY_DEADLINE_VALUES.map((value) => ({
@@ -827,7 +837,7 @@ export const PAYBACK_WINDOW_VALUES = [
   'withinSixMonths',
   'withinTwelveMonths',
   'longerThanTwelveMonths',
-  'notSure',
+  'unknown',
 ] as const;
 
 export type PaybackWindow = (typeof PAYBACK_WINDOW_VALUES)[number];
@@ -838,7 +848,7 @@ export const PAYBACK_WINDOW_LABELS: Record<PaybackWindow, string> = {
   withinSixMonths: 'Within 6 months',
   withinTwelveMonths: 'Within 12 months',
   longerThanTwelveMonths: 'Longer than 12 months',
-  notSure: 'Not sure',
+  unknown: "Don't know",
 };
 
 export const PAYBACK_WINDOW_OPTIONS = PAYBACK_WINDOW_VALUES.map((value) => ({

@@ -75,8 +75,8 @@
       "primaryGoal": "lead_generation",
       "monthlyMarketingSpend": "nothing",
       "paidMediaBudgetRange": "nothing",
-      "marketingHandler": "not_sure",
-      "contentCapacity": "not_sure",
+      "marketingHandler": "unknown",
+      "contentCapacity": "unknown",
       "marketingHoursPerWeek": "tenToTwenty",
       "creativeCapabilities": [
         "photography",
@@ -85,7 +85,7 @@
       ],
       "deliveryDeadline": "withinThreeMonths",
       "salesCapacity": "not_sure",
-      "knownCompetitorStatus": "not_sure"
+      "knownCompetitorStatus": "unknown"
     },
     "step6": {
       "averageOrderValue": "INR 1,150",

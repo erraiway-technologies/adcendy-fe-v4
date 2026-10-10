@@ -328,7 +328,7 @@ const STEP2_AUDIENCE_MODEL_FALLBACK_OPTIONS: WizardStringOption[] = [
   { value: 'b2b2c', label: 'Business + end customer (B2B2C)' },
   { value: 'marketplace_platform', label: 'Marketplace / two-sided platform' },
   { value: 'multi_sided', label: 'Multi-sided' },
-  { value: 'not_sure', label: 'Not sure' },
+  { value: 'unknown', label: "Don't know" },
 ];
 
 const STEP2_LIFECYCLE_STAGE_FALLBACK_OPTIONS: WizardStringOption[] = [
@@ -344,7 +344,7 @@ const STEP3_LANGUAGE_FALLBACK_OPTIONS: WizardStringOption[] = [
   { value: 'hindi', label: 'Hindi' },
   { value: 'regional_other', label: 'Regional language (other)' },
   { value: 'mixed', label: 'Mixed' },
-  { value: 'not_sure', label: 'Not sure' },
+  { value: 'unknown', label: "Don't know" },
 ];
 
 const STEP3_REPORT_LANGUAGE_FALLBACK_OPTIONS: WizardStringOption[] = [
@@ -378,7 +378,7 @@ const STEP5_MARKETING_HANDLER_FALLBACK_OPTIONS: WizardStringOption[] = [
   { value: 'internal_marketer', label: 'Internal marketer' },
   { value: 'agency', label: 'Agency' },
   { value: 'in_house_team', label: 'In-house team' },
-  { value: 'not_sure', label: 'Not sure' },
+  { value: 'unknown', label: "Don't know" },
 ];
 
 const STEP5_CONTENT_CAPACITY_FALLBACK_OPTIONS: WizardStringOption[] = [
@@ -386,7 +386,7 @@ const STEP5_CONTENT_CAPACITY_FALLBACK_OPTIONS: WizardStringOption[] = [
   { value: 'low', label: 'Low' },
   { value: 'medium', label: 'Medium' },
   { value: 'high', label: 'High' },
-  { value: 'not_sure', label: 'Not sure' },
+  { value: 'unknown', label: "Don't know" },
 ];
 
 // Wizard v2.1 answers, used when the backend option list is unavailable. The
@@ -400,7 +400,7 @@ const STEP6_PAYBACK_WINDOW_FALLBACK_OPTIONS: WizardStringOption[] = [...PAYBACK_
 const STEP5_KNOWN_COMPETITOR_STATUS_FALLBACK_OPTIONS: WizardStringOption[] = [
   { value: 'provided', label: 'Provided' },
   { value: 'none_known', label: 'None known' },
-  { value: 'not_sure', label: 'Not sure' },
+  { value: 'unknown', label: "Don't know" },
 ];
 
 const STEP5_CURRENT_MARKETING_ACTIVITY_STATUS_FALLBACK_OPTIONS: WizardStringOption[] = [
@@ -413,7 +413,7 @@ const STEP5_CURRENT_MARKETING_ACTIVITY_ASSESSMENT_FALLBACK_OPTIONS: WizardString
   { value: 'clearly_working', label: 'Clearly working' },
   { value: 'unclear', label: 'Unclear' },
   { value: 'not_working', label: 'Not working' },
-  { value: 'not_sure', label: 'Not sure' },
+  { value: 'unknown', label: "Don't know" },
 ];
 
 const STEP7_DATA_CONSENT_FALLBACK_OPTIONS: WizardFieldOptionV2[] = [
@@ -1702,7 +1702,7 @@ function toGoogleAnalyticsSelectValue(value: GoogleAnalyticsConnectedValue) {
     return 'unknown';
   }
 
-  return OPTIONAL_SELECT_VALUE;
+  return '';
 }
 
 function fromGoogleAnalyticsSelectValue(value: string): GoogleAnalyticsConnectedValue {
@@ -1731,7 +1731,7 @@ function formatGoogleAnalyticsConnected(value: boolean | 'unknown' | null | unde
   }
 
   if (value === 'unknown') {
-    return 'Unknown';
+    return "Don't know";
   }
 
   return null;
@@ -4449,7 +4449,7 @@ export function CampaignWizardModal({
                         })}
                       </div>
                       <p className="text-[13px] leading-6 text-foreground/80">
-                        At least one flag is required. Include "none" or "not_sure" when applicable.
+                        At least one flag is required. Pick &ldquo;None&rdquo; or &ldquo;Don&rsquo;t know&rdquo; when no category applies.
                       </p>
                     </div>
                   ) : (
@@ -4458,8 +4458,8 @@ export function CampaignWizardModal({
                       label="Sensitive category flags"
                       helper="Use backend-defined risk/compliance category values."
                       required
-                      footnote='At least one flag is required. Include "none" or "not_sure" when applicable.'
-                      placeholder='e.g. none, not_sure, health_claims, financial_advice'
+                      footnote={`At least one flag is required. Pick "None" or "Don't know" when no category applies.`}
+                      placeholder='e.g. none, unknown, health_claims, financial_advice'
                       values={watchedSensitiveCategoryFlags}
                       pendingValue={sensitiveFlagDraft}
                       onPendingChange={setSensitiveFlagDraft}
@@ -5083,12 +5083,11 @@ export function CampaignWizardModal({
                         name="monthlyWebsiteTraffic"
                         control={step3Form.control}
                         render={({ field }) => (
-                          <Select onValueChange={(value) => field.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)} value={field.value || OPTIONAL_SELECT_VALUE}>
+                          <Select onValueChange={(value) => field.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)} value={field.value || ''}>
                             <SelectTrigger data-testid={wizardFieldTestId('monthlyWebsiteTraffic')} className={wizardInputClassName}>
                               <SelectValue placeholder="Select traffic" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value={OPTIONAL_SELECT_VALUE}>Prefer not to say</SelectItem>
                               {MONTHLY_WEBSITE_TRAFFIC_OPTIONS.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                   {option.label}
@@ -5107,12 +5106,11 @@ export function CampaignWizardModal({
                         name="emailListSize"
                         control={step3Form.control}
                         render={({ field }) => (
-                          <Select onValueChange={(value) => field.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)} value={field.value || OPTIONAL_SELECT_VALUE}>
+                          <Select onValueChange={(value) => field.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)} value={field.value || ''}>
                             <SelectTrigger data-testid={wizardFieldTestId('emailListSize')} className={wizardInputClassName}>
                               <SelectValue placeholder="Select size" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value={OPTIONAL_SELECT_VALUE}>Prefer not to say</SelectItem>
                               {EMAIL_LIST_SIZE_OPTIONS.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                   {option.label}
@@ -5143,10 +5141,9 @@ export function CampaignWizardModal({
                             <SelectValue placeholder="Select status" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value={OPTIONAL_SELECT_VALUE}>Prefer not to say</SelectItem>
                             <SelectItem value="true">Connected</SelectItem>
                             <SelectItem value="false">Not connected</SelectItem>
-                            <SelectItem value="unknown">Unknown</SelectItem>
+                            <SelectItem value="unknown">{"Don't know"}</SelectItem>
                           </SelectContent>
                         </Select>
                       )}
@@ -5545,13 +5542,12 @@ export function CampaignWizardModal({
                                   onValueChange={(value) =>
                                     controllerField.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)
                                   }
-                                  value={controllerField.value || OPTIONAL_SELECT_VALUE}
+                                  value={controllerField.value || ''}
                                 >
                                   <SelectTrigger data-testid={wizardFieldTestId(`currentMarketingActivity.${index}.workingAssessment`)} className={wizardInputClassName}>
                                     <SelectValue placeholder="Assessment" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value={OPTIONAL_SELECT_VALUE}>Not set</SelectItem>
                                     {currentMarketingActivityAssessmentOptions.map((option) => (
                                       <SelectItem key={option.value} value={option.value}>
                                         {option.label}
@@ -5978,12 +5974,11 @@ export function CampaignWizardModal({
                         name="avgCustomerRetention"
                         control={step3Form.control}
                         render={({ field }) => (
-                          <Select onValueChange={(value) => field.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)} value={field.value || OPTIONAL_SELECT_VALUE}>
+                          <Select onValueChange={(value) => field.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)} value={field.value || ''}>
                             <SelectTrigger data-testid={wizardFieldTestId('avgCustomerRetention')} className={wizardInputClassName}>
                               <SelectValue placeholder="Select pattern" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value={OPTIONAL_SELECT_VALUE}>Prefer not to say</SelectItem>
                               {AVG_CUSTOMER_RETENTION_OPTIONS.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                   {option.label}
@@ -6001,12 +5996,11 @@ export function CampaignWizardModal({
                         name="repeatPurchaseFrequency"
                         control={step3Form.control}
                         render={({ field }) => (
-                          <Select onValueChange={(value) => field.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)} value={field.value || OPTIONAL_SELECT_VALUE}>
+                          <Select onValueChange={(value) => field.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)} value={field.value || ''}>
                             <SelectTrigger data-testid={wizardFieldTestId('repeatPurchaseFrequency')} className={wizardInputClassName}>
                               <SelectValue placeholder="Select frequency" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value={OPTIONAL_SELECT_VALUE}>Prefer not to say</SelectItem>
                               {REPEAT_PURCHASE_FREQUENCY_OPTIONS.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                   {option.label}
