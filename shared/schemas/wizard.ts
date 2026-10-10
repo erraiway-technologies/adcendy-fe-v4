@@ -154,9 +154,10 @@ export const step2Schema = z.object({
   businessName: z.string().trim().max(240, 'Keep the business name under 240 characters').optional().or(z.literal('')),
   industryCategory: z.string().trim().min(1, 'Industry category is required'),
   businessType: z.string().trim().max(160, 'Keep the business type under 160 characters').optional().or(z.literal('')),
-  businessModel: z.enum(BUSINESS_MODEL_VALUES, {
-    required_error: 'Business model is required',
-  }),
+  // v3: derived by the backend from who the business sells to and how.
+  businessModel: z.enum(BUSINESS_MODEL_VALUES).optional(),
+  sellsTo: z.string().trim().min(1, 'Choose who you sell to'),
+  sellsVia: z.string().trim().min(1, 'Choose how you sell'),
   audienceModel: z.string().trim().min(1, 'Audience model is required'),
   lifecycleStage: z.string().trim().min(1, 'Lifecycle stage is required'),
   businessDescription: z.string().trim().min(1, 'Business description is required').max(1000, 'Keep the description under 1000 characters'),
@@ -173,6 +174,8 @@ export const step2Schema = z.object({
   sensitiveCategoryFlags: z.array(tagItemSchema).min(1, 'Add at least one sensitive category flag').max(20, 'Add up to 20 flags').default([]),
   complianceSensitiveClaims: z.array(tagItemSchema).max(20, 'Add up to 20 compliance claims').default([]),
   salesChannels: z.array(rankedSalesChannelSchema).default([]),
+  // Required by the step 4 submit handler, not here: this form backs step 2
+  // too, which would then refuse to save over a step 4 question.
   primaryConversionPath: z.string().trim().max(120, 'Keep this under 120 characters').optional().or(z.literal('')),
   socialHandles: z.array(socialHandleSchema).default([]),
   digitalPresenceLinks: z.array(digitalPresenceLinkSchema).default([]),

@@ -89,7 +89,9 @@ const step2Schema = z
   .object({
     businessName: optionalTextMax(240),
     industryCategory: boundedText(200),
-    businessModel: z.enum(['B2B', 'B2C', 'D2C', 'MARKETPLACE', 'HYBRID']),
+    // v3: who the business sells to and how; the backend derives the model.
+    sellsTo: z.enum(['consumers', 'businesses', 'both']),
+    sellsVia: z.enum(['own_channel', 'marketplaces', 'partners', 'mix']),
     audienceModel: z.enum(['single_sided', 'b2b2c', 'marketplace_platform', 'multi_sided', 'unknown']),
     lifecycleStage: z.enum(['pre_launch', 'launch', 'growth', 'scaling', 'mature']),
     businessDescription: boundedText(1000),
@@ -219,7 +221,7 @@ const step5Schema = z
     // v3: the whole monthly budget as an amount, and the share on paid ads.
     monthlyMarketingBudget: z.number().nonnegative(),
     paidAdsShare: z.enum(['none', 'under_quarter', 'about_half', 'most', 'all']),
-    marketingHandler: z.enum(['founder_led', 'internal_marketer', 'agency', 'in_house_team', 'unknown']),
+    marketingHandler: z.enum(['founder_led', 'in_house_marketer', 'in_house_team', 'agency', 'freelancer', 'nobody_yet']),
     contentCapacity: z.enum(['none', 'low', 'medium', 'high', 'unknown']),
     // Wizard v2.1. Optional on the backend, but the wizard form will not save
     // step 5 without them, so a fixture that reaches the browser needs all three.
@@ -395,26 +397,23 @@ export const campaignFixtureSchema = z
         message: 'audienceSegments is required for multi-sided audience models',
       });
     }
-    const committeeLike = /\b(committee|procurement|finance|approver|stakeholder)\b/i.test(step3.decisionProcess);
-    if (
-      (step2.businessModel === 'B2B' || committeeLike) &&
-      step3.buyerRoles.length === 0
-    ) {
+    // v3 P2: buyer roles are asked of businesses that sell to businesses, and
+    // sales capacity on the paths that end in a conversation.
+    if (step2.sellsTo === 'businesses' && step3.buyerRoles.length === 0) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['wizard', 'step3', 'buyerRoles'],
-        message: 'buyerRoles is required for B2B or committee-like decisions',
+        message: 'buyerRoles is required when selling to businesses',
       });
     }
     if (
-      (step2.businessModel === 'B2B' ||
-        ['book_demo', 'book_call'].includes(step4.primaryConversionPath)) &&
+      ['lead_form', 'book_demo', 'book_call', 'whatsapp'].includes(step4.primaryConversionPath) &&
       !step5.salesCapacity
     ) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['wizard', 'step5', 'salesCapacity'],
-        message: 'salesCapacity is required for sales-led contexts',
+        message: 'salesCapacity is required on the paths that end in a conversation',
       });
     }
     if (step1.sourceType === 'manual_only' && step4.trustSignals.length === 0) {

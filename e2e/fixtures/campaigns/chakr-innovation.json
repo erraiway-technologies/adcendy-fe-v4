@@ -19,7 +19,8 @@
     "step2": {
       "businessName": "Chakr Innovation",
       "industryCategory": "manufacturing_industrial",
-      "businessModel": "B2B",
+      "sellsTo": "businesses",
+      "sellsVia": "own_channel",
       "audienceModel": "single_sided",
       "lifecycleStage": "growth",
       "businessDescription": "Chakr Innovation is an Indian clean-technology and material-science company that develops emission-control, fuel-efficiency, environmental-monitoring and clean-energy solutions for businesses and institutions. Its products help organisations reduce harmful emissions from diesel and gas generators, control dust at industrial and construction sites, monitor environmental compliance, lower diesel consumption and pursue cleaner energy alternatives.",
@@ -80,7 +81,7 @@
     },
     "step5": {
       "primaryGoal": "leads",
-      "marketingHandler": "unknown",
+      "marketingHandler": "nobody_yet",
       "contentCapacity": "unknown",
       "marketingHoursPerWeek": "underFive",
       "creativeCapabilities": [

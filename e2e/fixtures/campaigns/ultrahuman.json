@@ -19,7 +19,8 @@
     "step2": {
       "businessName": "Ultrahuman",
       "industryCategory": "healthcare_wellness",
-      "businessModel": "D2C",
+      "sellsTo": "consumers",
+      "sellsVia": "own_channel",
       "audienceModel": "single_sided",
       "lifecycleStage": "scaling",
       "businessDescription": "Ultrahuman is a Bengaluru-based consumer health-technology company that designs wearable and at-home devices for tracking sleep, recovery, movement and metabolic health. Its flagship product is the Ultrahuman Ring, a smart ring that monitors sleep, heart rate, heart-rate variability, skin temperature and activity, with core features available without a mandatory subscription. The wider ecosystem includes the Ultrahuman M1 continuous glucose monitor, Ultrahuman Home for monitoring the sleep environment, and Blood Vision at-home blood testing. The company sells directly through its own website and through Amazon, Flipkart and Croma in India, and has users in more than 180 countries.",

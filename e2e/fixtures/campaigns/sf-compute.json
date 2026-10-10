@@ -19,7 +19,8 @@
     "step2": {
       "businessName": "SF Compute",
       "industryCategory": "saas_digital",
-      "businessModel": "B2B",
+      "sellsTo": "businesses",
+      "sellsVia": "own_channel",
       "audienceModel": "single_sided",
       "lifecycleStage": "growth",
       "businessDescription": "SF Compute is a United States-based GPU cloud infrastructure company and compute marketplace that provides flexible access to large-scale, vetted GPU clusters for artificial-intelligence training, inference, research and other high-performance computing workloads. Customers can obtain virtual machines, bare-metal clusters and managed infrastructure for periods ranging from short on-demand workloads to multi-year contracts, with the ability to resell unused committed capacity through SF Compute's market.",
@@ -81,7 +82,7 @@
     },
     "step5": {
       "primaryGoal": "leads",
-      "marketingHandler": "unknown",
+      "marketingHandler": "nobody_yet",
       "contentCapacity": "unknown",
       "marketingHoursPerWeek": "unknown",
       "creativeCapabilities": [

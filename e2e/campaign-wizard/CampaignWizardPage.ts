@@ -79,6 +79,16 @@ const STATIC_OPTION_LABELS: Record<string, string> = {
   b2b_security_compliance: 'B2B security and compliance',
   alcohol_tobacco_restricted: 'Alcohol, tobacco and restricted goods',
   healthcare_wellness: 'Healthcare and wellness',
+  own_channel: 'Own website or store',
+  partners: 'Through partners or distributors',
+  mix: 'A mix',
+  lead_form: 'Lead form or enquiry',
+  whatsapp: 'WhatsApp chat',
+  retail_visit: 'Visit a store',
+  app_signup: 'App sign-up',
+  in_house_marketer: 'One in-house marketer',
+  nobody_yet: 'Nobody yet',
+  founder_led: 'Founder',
   INR: 'Indian rupee (INR)',
   USD: 'US dollar (USD)',
   GBP: 'British pound (GBP)',
@@ -325,7 +335,8 @@ export class CampaignWizardPage {
     const step = this.fixture.wizard.step2;
     await this.fill('businessName', step.businessName);
     await this.chooseSelect('industryCategory', step.industryCategory);
-    await this.chooseSelect('businessModel', step.businessModel);
+    await this.chooseSelect('sellsTo', step.sellsTo);
+    await this.chooseSelect('sellsVia', step.sellsVia);
     await this.chooseSelect('audienceModel', step.audienceModel);
     await this.chooseSelect('lifecycleStage', step.lifecycleStage);
     await this.fill('businessDescription', step.businessDescription);
@@ -352,7 +363,10 @@ export class CampaignWizardPage {
     await this.fill('desiredOutcome', step.desiredOutcome);
     await this.fill('decisionProcess', step.decisionProcess);
     await this.addTags('painPoints', step.painPoints);
-    await this.addTags('buyerRoles', step.buyerRoles);
+    // Not asked of a business that sells only to consumers.
+    if (this.fixture.wizard.step2.sellsTo !== 'consumers') {
+      await this.addTags('buyerRoles', step.buyerRoles);
+    }
     await this.saveStep(3, 'Continue');
   }
 
@@ -417,7 +431,9 @@ export class CampaignWizardPage {
     for (const capability of step.creativeCapabilities) {
       await this.chooseCard('creativeCapabilities', capability);
     }
-    await this.fill('salesCapacity', step.salesCapacity);
+    if (this.isLeadGenerationPath()) {
+      await this.fill('salesCapacity', step.salesCapacity);
+    }
     await this.chooseSelect('knownCompetitorStatus', step.knownCompetitorStatus);
     await this.addTags('constraints', step.constraints);
 
@@ -464,13 +480,18 @@ export class CampaignWizardPage {
     }
     for (const fieldPath of [
       'grossMarginPercentage',
-      'monthlyOrderVolume',
       'productCost',
       'monthlyOrdersPerSubscriber',
       'monthlyChurnRate',
-      'salesCycleLength',
     ] as const) {
       await this.fill(fieldPath, step[fieldPath]);
+    }
+    // Asked by path: the sales cycle on the paths that end in a conversation,
+    // the order volume on the rest.
+    if (this.isLeadGenerationPath()) {
+      await this.fill('salesCycleLength', step.salesCycleLength);
+    } else {
+      await this.fill('monthlyOrderVolume', step.monthlyOrderVolume);
     }
     // Gross margin has no opt-out, so the wizard cannot be saved without it.
     // It comes from the fixture rather than a default here: a single default
@@ -479,7 +500,7 @@ export class CampaignWizardPage {
       throw new Error('Fixture is missing grossMarginBand; step 6 cannot be saved without it.');
     }
     await this.chooseSelect('grossMarginBand', step.grossMarginBand);
-    if (step.closeRateBand) {
+    if (step.closeRateBand && this.isLeadGenerationPath()) {
       await this.chooseSelect('closeRateBand', step.closeRateBand);
     }
     // Optional on the backend, required by the wizard form before step 6 saves.
@@ -508,6 +529,13 @@ export class CampaignWizardPage {
         await expect(section.getByText(value, { exact: false }).first()).toBeVisible();
       }
     }
+  }
+
+  /** Whether the fixture's conversion path ends in a conversation (v3 P2). */
+  private isLeadGenerationPath() {
+    return ['lead_form', 'book_call', 'book_demo', 'whatsapp'].includes(
+      this.fixture.wizard.step4.primaryConversionPath,
+    );
   }
 
   async validateReview() {
@@ -550,6 +578,12 @@ export class CampaignWizardPage {
       step5.salesCapacity,
       ...(step5.knownCompetitors ?? []),
     ]);
+    // A "Don't know" answer is listed as a gap, with a way back to it (v3 P2).
+    if (step5.contentCapacity === 'unknown') {
+      const gaps = this.page.getByTestId('wizard-review-gaps');
+      await expect(gaps).toBeVisible();
+      await expect(gaps).toContainText('Content capacity');
+    }
     await this.assertReviewContains(this.reviewSection('Economics'), [
       money(step6.averageOrderValueAmount),
       money(step6.typicalDealValue),

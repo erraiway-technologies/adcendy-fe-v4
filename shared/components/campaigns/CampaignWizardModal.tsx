@@ -86,7 +86,6 @@ import {
   type Step3FormData,
 } from '@/shared/schemas/wizard';
 import {
-  BUSINESS_MODEL_OPTIONS,
   formatBusinessModel,
   formatBusinessType,
   formatMarketScope,
@@ -170,6 +169,27 @@ const DEFAULT_CURRENCY_BY_COUNTRY: Record<string, string> = {
   GB: 'GBP',
 };
 
+/**
+ * Conversion paths that end in a conversation (v3 P2). Sales capacity, the
+ * typical deal value, the enquiry rate and the sales cycle are asked on
+ * these; order value and order volume on the rest. Mirrors the backend's
+ * LEAD_GENERATION_PATHS_V2.
+ */
+const LEAD_GENERATION_PATHS = new Set(['lead_form', 'book_call', 'book_demo', 'whatsapp']);
+
+const STEP2_SELLS_TO_FALLBACK_OPTIONS: WizardStringOption[] = [
+  { value: 'consumers', label: 'Consumers' },
+  { value: 'businesses', label: 'Businesses' },
+  { value: 'both', label: 'Both' },
+];
+
+const STEP2_SELLS_VIA_FALLBACK_OPTIONS: WizardStringOption[] = [
+  { value: 'own_channel', label: 'Own website or store' },
+  { value: 'marketplaces', label: 'Marketplaces' },
+  { value: 'partners', label: 'Through partners or distributors' },
+  { value: 'mix', label: 'A mix' },
+];
+
 const STEP1_CURRENCY_FALLBACK_OPTIONS: WizardStringOption[] = [
   { value: 'INR', label: 'Indian rupee (INR)' },
   { value: 'USD', label: 'US dollar (USD)' },
@@ -204,7 +224,9 @@ const EMPTY_STEP_2_VALUES: Step2FormData = {
   businessName: '',
   industryCategory: '',
   businessType: '',
-  businessModel: undefined as never,
+  businessModel: undefined,
+  sellsTo: '',
+  sellsVia: '',
   audienceModel: '',
   lifecycleStage: '',
   businessDescription: '',
@@ -1730,11 +1752,18 @@ function isBuyerRolesRequired({
   businessModel,
   audienceModel,
   decisionProcess,
+  sellsTo,
 }: {
   businessModel: unknown;
   audienceModel: unknown;
   decisionProcess: string;
+  sellsTo?: unknown;
 }) {
+  // v3: required of businesses that sell to businesses; selling to both
+  // shows the question and requires neither it nor the consumer ones.
+  if (typeof sellsTo === 'string' && sellsTo) {
+    return sellsTo === 'businesses';
+  }
   const normalizedDecisionProcess = decisionProcess.trim().toLowerCase();
   const committeeLikeDecision = /committee|approval|approver|sign[-\s]?off|procurement|stakeholder/.test(normalizedDecisionProcess);
   const businessModelRequiresRoles = businessModel === 'B2B';
@@ -2358,6 +2387,14 @@ export function CampaignWizardModal({
   // The paid budget's bands are snake_case already, so the canonical token is
   // the value to send. The capacity and payback questions send the backend's
   // camelCase values, which their canonical tokens would turn into snake_case.
+  const sellsToOptions = useMemo(
+    () => getStringFieldOptions(wizardOptions, 'sellsTo', STEP2_SELLS_TO_FALLBACK_OPTIONS),
+    [wizardOptions],
+  );
+  const sellsViaOptions = useMemo(
+    () => getStringFieldOptions(wizardOptions, 'sellsVia', STEP2_SELLS_VIA_FALLBACK_OPTIONS),
+    [wizardOptions],
+  );
   const currencyOptions = useMemo(
     () => getStringFieldOptions(wizardOptions, 'currency', STEP1_CURRENCY_FALLBACK_OPTIONS, { valueFrom: 'value' }),
     [wizardOptions],
@@ -2567,11 +2604,22 @@ export function CampaignWizardModal({
   const watchedDecisionProcess = step3Form.watch('decisionProcess') ?? '';
   const watchedAudienceModel = step2Form.watch('audienceModel');
   const watchedBusinessModel = step2Form.watch('businessModel');
+  const watchedSellsTo = step2Form.watch('sellsTo');
+  const watchedConversionPath = step2Form.watch('primaryConversionPath');
+  // What this client is asked follows its shape (v3 P2): business-buyer
+  // questions unless it sells only to consumers, lead-generation questions on
+  // the paths that end in a conversation, purchase questions on the rest.
+  // Before the path is chosen every question shows.
+  const asksBusinessBuyerQuestions = watchedSellsTo !== 'consumers';
+  const isLeadGenerationPath = LEAD_GENERATION_PATHS.has(watchedConversionPath ?? '');
+  const asksLeadGenerationQuestions = !watchedConversionPath || isLeadGenerationPath;
+  const asksPurchaseQuestions = !watchedConversionPath || !isLeadGenerationPath;
   const audienceSegmentsRequired = isAudienceSegmentsRequired(watchedAudienceModel);
   const buyerRolesRequired = isBuyerRolesRequired({
     businessModel: watchedBusinessModel,
     audienceModel: watchedAudienceModel,
     decisionProcess: watchedDecisionProcess,
+    sellsTo: watchedSellsTo,
   });
   const watchedConstraints = step3Form.watch('constraints') ?? [];
   const watchedChannelsToAvoid = step3Form.watch('channelsToAvoid') ?? [];
@@ -2707,13 +2755,10 @@ export function CampaignWizardModal({
       getDefaultStringOptionValue(audienceModelOptions, 'single_sided');
     const normalizedLifecycleStage =
       normalizeStringOptionValue(savedData.lifecycleStage, lifecycleStageOptions) || '';
+    // As answered: a path guessed from the sales channels would be an answer
+    // the client never gave (v3 rule 5).
     const normalizedPrimaryConversionPath =
-      normalizePrimaryConversionPath(savedChannelsData.primaryConversionPath, primaryConversionPathOptions) ||
-      normalizePrimaryConversionPath(
-        inferPrimaryConversionPathFromSalesChannels(savedChannelsData.salesChannels as RankedSalesChannel[] | undefined),
-        primaryConversionPathOptions,
-      ) ||
-      '';
+      normalizePrimaryConversionPath(savedChannelsData.primaryConversionPath, primaryConversionPathOptions) || '';
 
     step2Form.reset({
       businessName:
@@ -2731,7 +2776,10 @@ export function CampaignWizardModal({
         (savedData.businessModel as Step2FormData['businessModel']) ||
         (legacyStep1Data.businessModel as Step2FormData['businessModel']) ||
         campaign?.businessModel ||
-        undefined as never,
+        undefined,
+      // The backend hands an older draft's model back as the shape it implies.
+      sellsTo: normalizeStringOptionValue(savedData.sellsTo, sellsToOptions),
+      sellsVia: normalizeStringOptionValue(savedData.sellsVia, sellsViaOptions),
       audienceModel: normalizedAudienceModel,
       lifecycleStage: normalizedLifecycleStage,
       businessDescription:
@@ -2783,6 +2831,8 @@ export function CampaignWizardModal({
   }, [
     activeCampaignId,
     audienceModelOptions,
+    sellsToOptions,
+    sellsViaOptions,
     campaign,
     industryCategoryOptions,
     lifecycleStageOptions,
@@ -3230,7 +3280,9 @@ export function CampaignWizardModal({
           businessName: normalizeNullableString(data.businessName),
           industryCategory: normalizeNullableString(data.industryCategory),
           businessType: normalizeNullableString(data.businessType) ?? normalizeNullableString(data.industryCategory),
-          businessModel: data.businessModel,
+          // v3: the shape; the backend derives the business model.
+          sellsTo: data.sellsTo,
+          sellsVia: data.sellsVia,
           audienceModel: data.audienceModel,
           lifecycleStage: data.lifecycleStage,
           businessDescription: normalizeString(data.businessDescription),
@@ -3285,12 +3337,7 @@ export function CampaignWizardModal({
   const buildChannelsStepPayload = (step2Values: Step2FormData, step3Values: Step3FormData) => ({
     salesChannels: normalizeSalesChannels(step2Values.salesChannels),
     primaryConversionPath:
-      normalizePrimaryConversionPath(step2Values.primaryConversionPath, primaryConversionPathOptions) ||
-      normalizePrimaryConversionPath(
-        inferPrimaryConversionPathFromSalesChannels(step2Values.salesChannels),
-        primaryConversionPathOptions,
-      ) ||
-      getDefaultStringOptionValue(primaryConversionPathOptions),
+      normalizePrimaryConversionPath(step2Values.primaryConversionPath, primaryConversionPathOptions) || undefined,
     socialHandles: step2Values.socialHandles
       .map((item) => ({
         platform: item.platform,
@@ -3629,6 +3676,8 @@ export function CampaignWizardModal({
     ...step3Form.getValues(),
   };
   const localPreviewStep4 = localPreviewStep3;
+  // The answers skipped or not known, from the backend (v3 P2).
+  const intakeGaps = uiPreviewMode ? [] : (preview?.gaps ?? []);
   const effectivePreviewStep1 = uiPreviewMode ? localPreviewStep1 : previewStep1;
   const effectivePreviewStep2 = uiPreviewMode ? localPreviewStep2 : previewStep2;
   const effectivePreviewStep3 = uiPreviewMode ? localPreviewStep3 : previewStep3;
@@ -4390,28 +4439,35 @@ export function CampaignWizardModal({
                       <FieldMeta error={step2Form.formState.errors.industryCategory?.message} />
                     </div>
 
-                    <div className="space-y-2">
-                      <FieldLabel label="Business model" required />
-                      <Controller
-                        name="businessModel"
-                        control={step2Form.control}
-                        render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger data-testid={wizardFieldTestId('businessModel')} className={wizardInputClassName}>
-                              <SelectValue placeholder="Select business model" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {BUSINESS_MODEL_OPTIONS.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                      <FieldMeta error={step2Form.formState.errors.businessModel?.message} />
-                    </div>
+                    {(
+                      [
+                        ['sellsTo', 'Who do you sell to?', 'Select who you sell to', sellsToOptions],
+                        ['sellsVia', 'How do you sell?', 'Select where the sale happens', sellsViaOptions],
+                      ] as const
+                    ).map(([name, label, placeholder, options]) => (
+                      <div key={name} className="space-y-2">
+                        <FieldLabel label={label} required />
+                        <Controller
+                          name={name}
+                          control={step2Form.control}
+                          render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value || undefined}>
+                              <SelectTrigger data-testid={wizardFieldTestId(name)} className={wizardInputClassName}>
+                                <SelectValue placeholder={placeholder} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {options.map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                        <FieldMeta error={step2Form.formState.errors[name]?.message} />
+                      </div>
+                    ))}
 
                     <div className="space-y-2">
                       <FieldLabel label="Audience model" required />
@@ -4739,6 +4795,7 @@ export function CampaignWizardModal({
                     businessModel: step2BusinessModel,
                     audienceModel: step2AudienceModel,
                     decisionProcess: nextValues.decisionProcess ?? '',
+                    sellsTo: step2Form.getValues('sellsTo'),
                   });
 
                   if (audienceSegmentsAreRequired && normalizedAudienceSegments.length === 0) {
@@ -4904,6 +4961,8 @@ export function CampaignWizardModal({
                     error={getArrayFieldError(step3Form.formState.errors.painPoints)}
                   />
 
+                  {asksBusinessBuyerQuestions ? (
+                  <>
                   <InlineDivider />
 
                   <TagInputField
@@ -4930,6 +4989,8 @@ export function CampaignWizardModal({
                     })}
                     error={getArrayFieldError(step3Form.formState.errors.buyerRoles)}
                   />
+                  </>
+                  ) : null}
                 </WizardSectionCard>
 
                 </form>
@@ -4953,6 +5014,15 @@ export function CampaignWizardModal({
                   ]);
                   if (!valid) {
                     setErrorMessage('Fix Step 4 issues before continuing.');
+                    return;
+                  }
+                  // v3: no conversion path is assumed; the client picks one.
+                  if (!step2Form.getValues('primaryConversionPath')) {
+                    step2Form.setError('primaryConversionPath', {
+                      type: 'manual',
+                      message: 'Choose what a customer does to become a customer.',
+                    });
+                    setErrorMessage('Choose the primary conversion path.');
                     return;
                   }
                   if ((step2Form.getValues('salesChannels') ?? []).length === 0) {
@@ -5356,6 +5426,16 @@ export function CampaignWizardModal({
                     // begun before these questions still commits. Checked
                     // here rather than in step3Schema, which also runs on
                     // step 6.
+                    // Asked on the paths that end in a conversation, and
+                    // required there by the backend too.
+                    if (isLeadGenerationPath && !data.salesCapacity?.trim()) {
+                      step3Form.setError('salesCapacity', {
+                        type: 'manual',
+                        message: 'Say how many leads your team can handle.',
+                      });
+                      setErrorMessage('Answer the highlighted questions before continuing.');
+                      return;
+                    }
                     const goalsAnswers = goalsStepAnswersSchema.safeParse(data);
                     if (!goalsAnswers.success) {
                       for (const issue of goalsAnswers.error.issues) {
@@ -5606,8 +5686,9 @@ export function CampaignWizardModal({
                       />
                     </div>
 
+                    {isLeadGenerationPath ? (
                     <div className="space-y-2">
-                      <FieldLabel label="Sales capacity" />
+                      <FieldLabel label="Sales capacity" helper="How many leads your team can handle." required />
                       <Input
                         data-testid={wizardFieldTestId('salesCapacity')}
                         className={wizardInputClassName}
@@ -5616,6 +5697,7 @@ export function CampaignWizardModal({
                       />
                       <FieldMeta error={step3Form.formState.errors.salesCapacity?.message} />
                     </div>
+                    ) : null}
 
                     <div className="space-y-2">
                       <FieldLabel label="Known competitor status" required />
@@ -6010,12 +6092,16 @@ export function CampaignWizardModal({
                   <div className="grid gap-4 lg:grid-cols-2">
                     {(
                       [
-                        ['averageOrderValueAmount', 'Average order value', 'What a typical order is worth.'],
-                        ['typicalDealValue', 'Typical deal value', 'What a typical closed deal is worth.'],
+                        ['averageOrderValueAmount', 'Average order value', 'What a typical order is worth.', asksPurchaseQuestions],
+                        ['typicalDealValue', 'Typical deal value', 'What a typical closed deal is worth.', asksLeadGenerationQuestions],
                       ] as const
-                    ).map(([name, label, helper]) => (
+                    ).filter(([, , , asked]) => asked).map(([name, label, helper]) => (
                       <div key={name} className="space-y-2">
-                        <FieldLabel label={label} helper={`${helper} Give this or the other.`} />
+                        <FieldLabel
+                          label={label}
+                          helper={asksPurchaseQuestions && asksLeadGenerationQuestions ? `${helper} Give this or the other.` : helper}
+                          required={!(asksPurchaseQuestions && asksLeadGenerationQuestions)}
+                        />
                         <Controller
                           name={name}
                           control={step3Form.control}
@@ -6065,6 +6151,7 @@ export function CampaignWizardModal({
                       />
                       <FieldMeta error={step3Form.formState.errors.grossMarginBand?.message} />
                     </div>
+                    {asksLeadGenerationQuestions ? (
                     <div className="space-y-2">
                       <FieldLabel
                         label="Of the enquiries you get, how many become customers?"
@@ -6090,6 +6177,7 @@ export function CampaignWizardModal({
                       />
                       <FieldMeta error={step3Form.formState.errors.closeRateBand?.message} />
                     </div>
+                    ) : null}
                     <div className="space-y-2">
                       <FieldLabel
                         label="How long can you wait to earn back what it costs to win a customer?"
@@ -6137,6 +6225,7 @@ export function CampaignWizardModal({
                       />
                       <FieldMeta error={step3Form.formState.errors.monthlyRevenueAmount?.message} />
                     </div>
+                    {asksPurchaseQuestions ? (
                     <div className="space-y-2">
                       <FieldLabel label="Monthly order volume" />
                       <Input
@@ -6147,6 +6236,7 @@ export function CampaignWizardModal({
                       />
                       <FieldMeta error={step3Form.formState.errors.monthlyOrderVolume?.message} />
                     </div>
+                    ) : null}
                     <div className="space-y-2">
                       <FieldLabel label="Product cost" />
                       <Input
@@ -6211,11 +6301,13 @@ export function CampaignWizardModal({
                       />
                       <FieldMeta error={step3Form.formState.errors.repeatPurchaseFrequency?.message} />
                     </div>
+                    {asksLeadGenerationQuestions ? (
                     <div className="space-y-2">
                       <FieldLabel label="Sales cycle length" />
                       <Input data-testid={wizardFieldTestId('salesCycleLength')} className={wizardInputClassName} placeholder="e.g. 14 days" {...step3Form.register('salesCycleLength')} />
                       <FieldMeta error={step3Form.formState.errors.salesCycleLength?.message} />
                     </div>
+                    ) : null}
                   </div>
                 </WizardSectionCard>
               </form>
@@ -6266,6 +6358,14 @@ export function CampaignWizardModal({
                         <ReviewGrid>
                           <SummaryField label="Business name" value={effectivePreviewStep2?.businessName} />
                           <SummaryField label="Industry category" value={formatBusinessType(effectivePreviewStep2?.industryCategory || effectivePreviewStep2?.businessType || campaign?.businessType || null)} />
+                          <SummaryField
+                            label="Who you sell to"
+                            value={sellsToOptions.find((option) => option.value === effectivePreviewStep2?.sellsTo)?.label}
+                          />
+                          <SummaryField
+                            label="How you sell"
+                            value={sellsViaOptions.find((option) => option.value === effectivePreviewStep2?.sellsVia)?.label}
+                          />
                           <SummaryField label="Business model" value={formatBusinessModel(effectivePreviewStep2?.businessModel || campaign?.businessModel || null)} />
                           <SummaryField label="Audience model" value={formatAudienceModel(effectivePreviewStep2?.audienceModel)} />
                           <SummaryField label="Lifecycle stage" value={formatLifecycleStage(effectivePreviewStep2?.lifecycleStage)} />
@@ -6402,6 +6502,46 @@ export function CampaignWizardModal({
                             {primaryChannelDependency ? <SummaryField label="Primary Channel Dependency" value={`You seem ${String(primaryChannelDependency)} dependent on one main sales channel.`} /> : null}
                           </CardContent>
                         </Card>
+                      ) : null}
+
+                      {intakeGaps.length > 0 ? (
+                        <FinalConfirmationCard>
+                          <CardHeader>
+                            <CardTitle className="text-lg">What we don&rsquo;t know yet</CardTitle>
+                            <CardDescription>
+                              You skipped these or answered &ldquo;Don&rsquo;t know&rdquo;. The plan will say where it
+                              works without them. Answer any now, or generate as it is.
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <ul className="space-y-2" data-testid="wizard-review-gaps">
+                              {intakeGaps.map((gap) => (
+                                <li
+                                  key={`${gap.step}.${gap.field}`}
+                                  className="flex items-center justify-between gap-3 rounded-xl border border-white/10 px-3 py-2"
+                                >
+                                  <span className="text-sm text-white/90">
+                                    {gap.label}
+                                    <MutedSummaryText>
+                                      {gap.reason === 'unknown' ? ' · Don’t know' : ' · Not answered'}
+                                    </MutedSummaryText>
+                                  </span>
+                                  <LightOutlineButton
+                                    type="button"
+                                    onClick={() => {
+                                      setStep(gap.step as WizardModalStep);
+                                      if (activeCampaignId) {
+                                        syncWizardUrl(activeCampaignId, gap.step as WizardModalStep);
+                                      }
+                                    }}
+                                  >
+                                    Answer
+                                  </LightOutlineButton>
+                                </li>
+                              ))}
+                            </ul>
+                          </CardContent>
+                        </FinalConfirmationCard>
                       ) : null}
 
                       <FinalConfirmationCard>

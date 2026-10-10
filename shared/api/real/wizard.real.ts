@@ -102,17 +102,16 @@ const PRIMARY_GOAL_TO_V2: Record<string, string> = {
   launch_readiness: 'launch',
 };
 
+// Who handles marketing (v3 A2), with every earlier name read as the
+// current one: v1's, and v2's internal marketer and "not sure".
 const MARKETING_HANDLER_TO_V2: Record<string, string> = {
   self: 'founder_led',
-  team_member: 'internal_marketer',
+  team_member: 'in_house_marketer',
   freelancer_agency: 'agency',
-  nobody: 'unknown',
-  founder_led: 'founder_led',
-  internal_marketer: 'internal_marketer',
-  agency: 'agency',
-  in_house_team: 'in_house_team',
-  not_sure: 'unknown',
-  unknown: 'unknown',
+  nobody: 'nobody_yet',
+  internal_marketer: 'in_house_marketer',
+  not_sure: 'nobody_yet',
+  unknown: 'nobody_yet',
 };
 
 const CAMPAIGN_STATUS_BY_WIZARD_STATUS: Record<WizardStateResponseV2['status'], CampaignStatus> = {
@@ -169,6 +168,8 @@ const REPORT_LANGUAGE_VALUES_V2 = [
 
 const PRIMARY_CONVERSION_PATH_VALUES_V2 = [
   'buy_online',
+  'subscribe',
+  'lead_form',
   'book_demo',
   'book_call',
   'whatsapp',
@@ -176,6 +177,9 @@ const PRIMARY_CONVERSION_PATH_VALUES_V2 = [
   'app_signup',
   'other',
 ] as const;
+
+const SELLS_TO_VALUES_V2 = ['consumers', 'businesses', 'both'] as const;
+const SELLS_VIA_VALUES_V2 = ['own_channel', 'marketplaces', 'partners', 'mix'] as const;
 
 const PRIMARY_GOAL_VALUES_V2 = [
   'revenue_growth',
@@ -191,10 +195,11 @@ const PRIMARY_GOAL_VALUES_V2 = [
 
 const MARKETING_HANDLER_VALUES_V2 = [
   'founder_led',
-  'internal_marketer',
-  'agency',
+  'in_house_marketer',
   'in_house_team',
-  'unknown',
+  'agency',
+  'freelancer',
+  'nobody_yet',
 ] as const;
 
 const CONTENT_CAPACITY_VALUES_V2 = [
@@ -476,32 +481,6 @@ function stripUndefined(payload: Record<string, unknown>) {
   return cleaned;
 }
 
-function buildPrimaryConversionPath(salesChannels: Array<{ channel: string; rank: number }>) {
-  const primaryChannel = salesChannels[0]?.channel;
-
-  if (primaryChannel === 'whatsapp') {
-    return 'whatsapp';
-  }
-
-  if (primaryChannel === 'retail_store') {
-    return 'retail_visit';
-  }
-
-  if (primaryChannel === 'direct_sales') {
-    return 'book_call';
-  }
-
-  if (primaryChannel === 'app') {
-    return 'app_signup';
-  }
-
-  if (primaryChannel) {
-    return 'buy_online';
-  }
-
-  return 'other';
-}
-
 function extractKnownCompetitors(value: unknown) {
   if (!Array.isArray(value)) {
     return [];
@@ -634,6 +613,8 @@ function buildLegacyStepDataFromState(
       industryCategory: normalizeNullableString(step2.industryCategory),
       businessType: normalizeNullableString(step2.businessType),
       businessModel: normalizeNullableString(step2.businessModel),
+      sellsTo: normalizeNullableString(step2.sellsTo),
+      sellsVia: normalizeNullableString(step2.sellsVia),
       marketScope: mapWithFallback(step1.marketScope, MARKET_SCOPE_FROM_V2),
       audienceModel: normalizeNullableString(step2.audienceModel),
       lifecycleStage: normalizeNullableString(step2.lifecycleStage),
@@ -829,6 +810,7 @@ function buildPreviewFromState(state: WizardStateResponseV2): WizardPreview {
       step4,
     },
     derived: null,
+    gaps: Array.isArray(state.gaps) ? state.gaps : [],
   };
 }
 
@@ -862,7 +844,9 @@ function buildStep2Payload(data: Record<string, unknown>) {
       normalizeNullableString(data.industryCategory) ??
       normalizeNullableString(data.productCategory),
     businessType: normalizeNullableString(data.businessType),
-    businessModel: normalizeNullableString(data.businessModel),
+    // v3: the shape; the backend derives the business model from it.
+    sellsTo: pickAllowedValue(data.sellsTo, SELLS_TO_VALUES_V2),
+    sellsVia: pickAllowedValue(data.sellsVia, SELLS_VIA_VALUES_V2),
     audienceModel: pickAllowedValue(
       data.audienceModel,
       AUDIENCE_MODEL_VALUES_V2,
@@ -939,7 +923,9 @@ function buildStep4Payload(data: Record<string, unknown>) {
 
   return stripUndefined({
     salesChannels,
-    primaryConversionPath: primaryConversionPath ?? buildPrimaryConversionPath(salesChannels),
+    // As chosen: a path guessed from the sales channels would be an answer
+    // the client never gave (v3 rule 5).
+    primaryConversionPath,
     socialHandles: normalizeSocialHandles(data.socialHandles),
     digitalPresenceLinks: normalizeDigitalPresenceLinks(data.digitalPresenceLinks),
     trustSignals: normalizeStringList(data.trustSignals),
@@ -973,7 +959,6 @@ function buildStep5Payload(data: Record<string, unknown>) {
     marketingHandler: pickAllowedValue(
       mapWithFallback(data.marketingHandler, MARKETING_HANDLER_TO_V2),
       MARKETING_HANDLER_VALUES_V2,
-      'unknown',
     ),
     contentCapacity: pickAllowedValue(
       data.contentCapacity,

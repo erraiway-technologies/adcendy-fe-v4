@@ -20,7 +20,8 @@ const minimalFixture = {
     step2: {
       businessName: 'Schema Test',
       industryCategory: 'SaaS',
-      businessModel: 'B2B',
+      sellsTo: 'businesses',
+      sellsVia: 'own_channel',
       audienceModel: 'single_sided',
       lifecycleStage: 'growth',
       businessDescription: 'A test business description.',
@@ -48,7 +49,7 @@ const minimalFixture = {
       primaryGoal: 'leads',
       monthlyMarketingBudget: 0,
       paidAdsShare: 'none',
-      marketingHandler: 'unknown',
+      marketingHandler: 'nobody_yet',
       contentCapacity: 'unknown',
       marketingHoursPerWeek: 'unknown',
       creativeCapabilities: ['none'],

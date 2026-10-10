@@ -21,7 +21,8 @@ export interface CampaignFixture {
     step2: Record<string, unknown> & {
       businessName?: string;
       industryCategory: string;
-      businessModel: string;
+      sellsTo: string;
+      sellsVia: string;
       audienceModel: string;
       lifecycleStage: string;
       businessDescription: string;

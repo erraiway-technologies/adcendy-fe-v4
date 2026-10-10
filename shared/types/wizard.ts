@@ -357,8 +357,11 @@ export const PRIMARY_GOAL_LABELS: Record<string, string> = {
 
 /** Who handles marketing: today's values first, then the v1 ones older campaigns may hold. */
 export const MARKETING_HANDLER_LABELS: Record<string, string> = {
-  founder_led: 'Founder-led',
-  internal_marketer: 'Internal marketer',
+  founder_led: 'Founder',
+  in_house_marketer: 'One in-house marketer',
+  freelancer: 'Freelancer',
+  nobody_yet: 'Nobody yet',
+  internal_marketer: 'One in-house marketer',
   agency: 'Agency',
   in_house_team: 'In-house team',
   unknown: "Don't know",
@@ -969,6 +972,9 @@ export interface WizardPreviewStep2 {
   industryCategory?: string | null;
   businessType?: BusinessType | null;
   businessModel?: BusinessModel | null;
+  /** v3: who the business sells to and how; the model is derived from them. */
+  sellsTo?: string | null;
+  sellsVia?: string | null;
   audienceModel?: AudienceModel | string | null;
   lifecycleStage?: LifecycleStage | string | null;
   marketScope?: MarketScope | null;
@@ -1074,6 +1080,14 @@ export interface WizardDerivedMetrics {
   [key: string]: unknown;
 }
 
+/** An answer the client skipped or did not know (v3 P2), for the review. */
+export interface WizardIntakeGap {
+  step: number;
+  field: string;
+  label: string;
+  reason: 'unknown' | 'not_answered';
+}
+
 export interface WizardPreview {
   campaign: WizardPreviewCampaign;
   steps: {
@@ -1083,6 +1097,7 @@ export interface WizardPreview {
     step4?: WizardPreviewStep4;
   };
   derived?: WizardDerivedMetrics | null;
+  gaps?: WizardIntakeGap[];
 }
 
 export interface SaveWizardStepPayload {
@@ -1153,6 +1168,7 @@ export interface WizardStateResponseV2 {
     step6: Record<string, unknown> | null;
     step7: Record<string, unknown> | null;
   };
+  gaps?: WizardIntakeGap[];
 }
 
 export interface WizardCommitResponseV2 {

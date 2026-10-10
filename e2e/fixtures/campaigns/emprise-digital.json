@@ -19,7 +19,8 @@
     "step2": {
       "businessName": "Emprise Digital",
       "industryCategory": "professional_services",
-      "businessModel": "B2B",
+      "sellsTo": "businesses",
+      "sellsVia": "own_channel",
       "audienceModel": "single_sided",
       "lifecycleStage": "growth",
       "businessDescription": "Emprise Digital is a United States-based digital growth and performance marketing agency that helps established small businesses, local service providers, ecommerce brands, churches, nonprofits and pregnancy resource centres acquire customers, leads and supporters. The agency provides paid search, Local Services Ads, SEO, answer-engine optimisation, paid social advertising, website development, Google Ad Grant management, conversion tracking and AI-assisted customer-response services. It operates remotely from Conway, Arkansas and serves clients across the United States.",
@@ -81,7 +82,7 @@
     },
     "step5": {
       "primaryGoal": "leads",
-      "marketingHandler": "unknown",
+      "marketingHandler": "nobody_yet",
       "contentCapacity": "unknown",
       "marketingHoursPerWeek": "tenToTwenty",
       "creativeCapabilities": [

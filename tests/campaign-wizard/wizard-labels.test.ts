@@ -20,7 +20,7 @@ import {
 // as the dropdown sends it: each must read in words, not as its value.
 const SERVED = {
   primaryGoal: ['revenue_growth', 'new_customers', 'leads', 'awareness', 'launch', 'repeat_purchase_retention', 'footfall', 'market_expansion', 'other'],
-  marketingHandler: ['founder_led', 'internal_marketer', 'agency', 'in_house_team', 'unknown'],
+  marketingHandler: ['founder_led', 'in_house_marketer', 'in_house_team', 'agency', 'freelancer', 'nobody_yet'],
   contentCapacity: ['none', 'low', 'medium', 'high', 'unknown'],
   knownCompetitorStatus: ['provided', 'none_known', 'unknown'],
   sensitiveCategoryFlags: [
@@ -45,7 +45,9 @@ test('every answer the backend serves today has a written label', () => {
 
 test('the review reads the goal and owner the dropdown sent', () => {
   assert.equal(formatPrimaryGoal('revenue_growth'), 'Revenue growth');
-  assert.equal(formatMarketingHandler('founder_led'), 'Founder-led');
+  assert.equal(formatMarketingHandler('founder_led'), 'Founder');
+  // ... and the v2 name of one in-house marketer reads as it.
+  assert.equal(formatMarketingHandler('internal_marketer'), 'One in-house marketer');
   assert.equal(formatContentCapacity('unknown'), "Don't know");
   assert.equal(formatContentCapacity('not_sure'), "Don't know");
   assert.equal(formatKnownCompetitorStatus('none_known'), 'None known');
