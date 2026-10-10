@@ -1623,7 +1623,7 @@ function normalizeCurrentMarketingActivityItems(
 
       return {
         channel,
-        status: status || getDefaultStringOptionValue(statusOptions),
+        status: status || '',
         workingAssessment,
         evidence: normalizeString(typeof entry.evidence === 'string' ? entry.evidence : ''),
         monthlySpend: normalizeString(typeof entry.monthlySpend === 'string' ? entry.monthlySpend : ''),
@@ -2485,22 +2485,22 @@ export function CampaignWizardModal({
       campaign?.currentStep === 0 &&
       Object.keys(savedData).length === 0;
 
-    const sourceTypeFallbackPreference =
+    // No answer is preselected (v3 rule 5); a website already given is the
+    // one inference, since it says where to read from.
+    const hasEnteredUrl = Boolean(
       normalizeString(savedData.primaryUrl as string | undefined) ||
-      normalizeString(savedData.websiteUrl as string | undefined) ||
-      (!isFreshAutoCreatedDraft ? campaign?.website || '' : '')
-        ? 'website'
-        : 'manual_only';
+        normalizeString(savedData.websiteUrl as string | undefined) ||
+        (!isFreshAutoCreatedDraft ? campaign?.website || '' : ''),
+    );
     const inferredSourceType =
       normalizeStringOptionValue(savedData.sourceType, sourceTypeOptions) ||
-      getDefaultStringOptionValue(sourceTypeOptions, sourceTypeFallbackPreference);
+      (hasEnteredUrl ? normalizeStringOptionValue('website', sourceTypeOptions) : '');
     const inferredProductOrService = normalizeListItems(savedData.productOrService as string[] | string | undefined);
     const inferredMarketingTargetType =
       normalizeStringOptionValue(savedData.marketingTargetType, marketingTargetTypeOptions) ||
-      getDefaultStringOptionValue(
-        marketingTargetTypeOptions,
-        inferredProductOrService.length ? 'product_or_service' : 'whole_business',
-      );
+      (inferredProductOrService.length
+        ? normalizeStringOptionValue('product_or_service', marketingTargetTypeOptions)
+        : '');
     const inferredMarketScope =
       normalizeStringOptionValue(savedData.marketScope, marketScopeOptions) ||
       normalizeStringOptionValue(campaign?.marketScope, marketScopeOptions);
@@ -2591,10 +2591,9 @@ export function CampaignWizardModal({
       : industryCategoryCandidate;
     const normalizedAudienceModel =
       normalizeStringOptionValue(savedData.audienceModel, audienceModelOptions) ||
-      getDefaultStringOptionValue(audienceModelOptions, 'not_sure');
+      getDefaultStringOptionValue(audienceModelOptions, 'single_sided');
     const normalizedLifecycleStage =
-      normalizeStringOptionValue(savedData.lifecycleStage, lifecycleStageOptions) ||
-      getDefaultStringOptionValue(lifecycleStageOptions, 'growth');
+      normalizeStringOptionValue(savedData.lifecycleStage, lifecycleStageOptions) || '';
     const normalizedPrimaryConversionPath =
       normalizePrimaryConversionPath(savedChannelsData.primaryConversionPath, primaryConversionPathOptions) ||
       normalizePrimaryConversionPath(
@@ -2732,21 +2731,19 @@ export function CampaignWizardModal({
     const normalizedPrimaryGoal =
       normalizeStringOptionValue(savedGoalsData.primaryGoal, primaryGoalOptions) ||
       normalizeStringOptionValue(legacyStep2Data.primaryGoal, primaryGoalOptions) ||
-      getDefaultStringOptionValue(primaryGoalOptions);
+      '';
     const normalizedMarketingHandler =
       normalizeStringOptionValue(savedGoalsData.marketingHandler, marketingHandlerOptions) ||
       normalizeStringOptionValue(legacyStep2Data.marketingHandler, marketingHandlerOptions) ||
-      getDefaultStringOptionValue(marketingHandlerOptions);
+      '';
     const normalizedContentCapacity =
-      normalizeStringOptionValue(savedGoalsData.contentCapacity, contentCapacityOptions) ||
-      getDefaultStringOptionValue(contentCapacityOptions, 'not_sure');
+      normalizeStringOptionValue(savedGoalsData.contentCapacity, contentCapacityOptions) || '';
     const normalizedKnownCompetitors = normalizeListItems(savedGoalsData.knownCompetitors as string[] | undefined);
     const normalizedKnownCompetitorStatus =
       normalizeStringOptionValue(savedGoalsData.knownCompetitorStatus, knownCompetitorStatusOptions) ||
       (normalizedKnownCompetitors.length
-        ? normalizeStringOptionValue('provided', knownCompetitorStatusOptions) ||
-          getDefaultStringOptionValue(knownCompetitorStatusOptions, 'provided')
-        : getDefaultStringOptionValue(knownCompetitorStatusOptions, 'not_sure'));
+        ? normalizeStringOptionValue('provided', knownCompetitorStatusOptions)
+        : '');
     const normalizedDataConsentOptIn = getDefaultBooleanOptionValue(
       dataConsentOptInOptions,
       savedFinalData.dataConsentOptIn === false ? false : true,
@@ -3197,24 +3194,17 @@ export function CampaignWizardModal({
     const resolvedKnownCompetitorStatus =
       normalizeStringOptionValue(data.knownCompetitorStatus, knownCompetitorStatusOptions) ||
       (normalizedCompetitors.length
-        ? normalizeStringOptionValue('provided', knownCompetitorStatusOptions) ||
-          getDefaultStringOptionValue(knownCompetitorStatusOptions, 'provided')
-        : getDefaultStringOptionValue(knownCompetitorStatusOptions, 'not_sure'));
+        ? normalizeStringOptionValue('provided', knownCompetitorStatusOptions)
+        : '');
 
     return {
-      primaryGoal:
-        normalizeStringOptionValue(data.primaryGoal, primaryGoalOptions) ||
-        getDefaultStringOptionValue(primaryGoalOptions),
+      primaryGoal: normalizeStringOptionValue(data.primaryGoal, primaryGoalOptions),
       monthlyMarketingSpend: data.monthlyMarketingSpend,
       // Sent as chosen. It used to fall back to the monthly spend when blank,
       // which the backend then read as the paid-ads budget.
       paidMediaBudgetRange: normalizeStringOptionValue(data.paidMediaBudgetRange, paidMediaBudgetRangeOptions),
-      marketingHandler:
-        normalizeStringOptionValue(data.marketingHandler, marketingHandlerOptions) ||
-        getDefaultStringOptionValue(marketingHandlerOptions),
-      contentCapacity:
-        normalizeStringOptionValue(data.contentCapacity, contentCapacityOptions) ||
-        getDefaultStringOptionValue(contentCapacityOptions, 'not_sure'),
+      marketingHandler: normalizeStringOptionValue(data.marketingHandler, marketingHandlerOptions),
+      contentCapacity: normalizeStringOptionValue(data.contentCapacity, contentCapacityOptions),
       marketingHoursPerWeek:
         normalizeStringOptionValue(data.marketingHoursPerWeek, marketingHoursPerWeekOptions) || undefined,
       creativeCapabilities: normalizeListItems(data.creativeCapabilities),
@@ -3224,9 +3214,7 @@ export function CampaignWizardModal({
       currentMarketingActivity: (data.currentMarketingActivity ?? [])
         .map((activity) => ({
           channel: normalizeString(activity.channel),
-          status:
-            normalizeStringOptionValue(activity.status, currentMarketingActivityStatusOptions) ||
-            getDefaultStringOptionValue(currentMarketingActivityStatusOptions),
+          status: normalizeStringOptionValue(activity.status, currentMarketingActivityStatusOptions),
           workingAssessment:
             normalizeStringOptionValue(
               activity.workingAssessment,
@@ -5507,7 +5495,7 @@ export function CampaignWizardModal({
                         onClick={() =>
                           appendCurrentMarketingActivity({
                             channel: '',
-                            status: getDefaultStringOptionValue(currentMarketingActivityStatusOptions, 'active'),
+                            status: '',
                             workingAssessment: '',
                             evidence: '',
                             monthlySpend: '',
