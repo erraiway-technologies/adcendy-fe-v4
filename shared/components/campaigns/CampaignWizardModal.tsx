@@ -69,6 +69,12 @@ import {
   type ConsentToggleState,
 } from '@/shared/legal/legal-flow-utils';
 import { useConsentCatalogue } from '@/shared/legal/useLegalCatalogue';
+import { MoneyInput } from '@/shared/components/campaigns/MoneyInput';
+import {
+  amountTextFromSaved,
+  formatMoney,
+  toMoneyAnswer,
+} from '@/shared/types/money';
 import {
   economicsStepAnswersSchema,
   goalsStepAnswersSchema,
@@ -90,8 +96,6 @@ import {
   DIGITAL_PRESENCE_LINK_TYPE_OPTIONS,
   AVG_CUSTOMER_RETENTION_OPTIONS,
   EMAIL_LIST_SIZE_OPTIONS,
-  MONTHLY_MARKETING_SPEND_OPTIONS,
-  MONTHLY_REVENUE_OPTIONS,
   MONTHLY_WEBSITE_TRAFFIC_OPTIONS,
   REPEAT_PURCHASE_FREQUENCY_OPTIONS,
   SALES_CHANNEL_OPTIONS,
@@ -119,7 +123,6 @@ import {
   type WizardOptionsResponseV2,
   type WizardDerivedMetrics,
   CLOSE_RATE_BAND_OPTIONS,
-  DEAL_VALUE_BAND_OPTIONS,
   GROSS_MARGIN_BAND_OPTIONS,
   CREATIVE_CAPABILITY_LABELS,
   SENSITIVE_CATEGORY_FLAG_LABELS,
@@ -156,6 +159,31 @@ interface CampaignWizardModalProps {
 
 const OPTIONAL_SELECT_VALUE = '__empty__';
 
+/**
+ * The currency a country's businesses usually run in, offered first when the
+ * country is picked; the client can change it. Phase 4 serves this from the
+ * backend's countries list.
+ */
+const DEFAULT_CURRENCY_BY_COUNTRY: Record<string, string> = {
+  IN: 'INR',
+  US: 'USD',
+  GB: 'GBP',
+};
+
+const STEP1_CURRENCY_FALLBACK_OPTIONS: WizardStringOption[] = [
+  { value: 'INR', label: 'Indian rupee (INR)' },
+  { value: 'USD', label: 'US dollar (USD)' },
+  { value: 'GBP', label: 'British pound (GBP)' },
+];
+
+const STEP5_PAID_ADS_SHARE_FALLBACK_OPTIONS: WizardStringOption[] = [
+  { value: 'none', label: 'None' },
+  { value: 'under_quarter', label: 'Under a quarter' },
+  { value: 'about_half', label: 'About half' },
+  { value: 'most', label: 'Most of it' },
+  { value: 'all', label: 'All of it' },
+];
+
 const EMPTY_STEP_1_VALUES: Step1FormData = {
   title: '',
   marketingTargetType: '',
@@ -169,6 +197,7 @@ const EMPTY_STEP_1_VALUES: Step1FormData = {
   regionalLanguageExpansionEnabled: false,
   regionalLanguages: [],
   marketLocation: '',
+  currency: '',
 };
 
 const EMPTY_STEP_2_VALUES: Step2FormData = {
@@ -183,6 +212,8 @@ const EMPTY_STEP_2_VALUES: Step2FormData = {
   productOrService: [],
   offerSummary: '',
   priceRange: '',
+  priceRangeLow: '',
+  priceRangeHigh: '',
   differentiators: [],
   trustSignals: [],
   sensitiveCategoryFlags: [],
@@ -209,8 +240,10 @@ const EMPTY_STEP_3_VALUES: Step3FormData = {
   decisionProcess: '',
   buyerRoles: [],
   constraints: [],
-  monthlyMarketingSpend: undefined as never,
+  monthlyMarketingSpend: undefined,
   paidMediaBudgetRange: '',
+  monthlyMarketingBudget: '',
+  paidAdsShare: '',
   primaryGoal: '',
   marketingHandler: '',
   contentCapacity: '',
@@ -231,6 +264,9 @@ const EMPTY_STEP_3_VALUES: Step3FormData = {
   monthlyRevenue: '',
   averageOrderValue: '',
   averageContractValue: '',
+  averageOrderValueAmount: '',
+  typicalDealValue: '',
+  monthlyRevenueAmount: '',
   grossMarginPercentage: '',
   dealValueBand: undefined,
   grossMarginBand: undefined,
@@ -1678,6 +1714,7 @@ function normalizeCurrentMarketingActivityItems(
         workingAssessment,
         evidence: normalizeString(typeof entry.evidence === 'string' ? entry.evidence : ''),
         monthlySpend: normalizeString(typeof entry.monthlySpend === 'string' ? entry.monthlySpend : ''),
+        monthlySpendAmount: amountTextFromSaved(entry.monthlySpendAmount),
         timeRunning: normalizeString(typeof entry.timeRunning === 'string' ? entry.timeRunning : ''),
         reasonStopped: normalizeString(typeof entry.reasonStopped === 'string' ? entry.reasonStopped : ''),
       };
@@ -2321,6 +2358,14 @@ export function CampaignWizardModal({
   // The paid budget's bands are snake_case already, so the canonical token is
   // the value to send. The capacity and payback questions send the backend's
   // camelCase values, which their canonical tokens would turn into snake_case.
+  const currencyOptions = useMemo(
+    () => getStringFieldOptions(wizardOptions, 'currency', STEP1_CURRENCY_FALLBACK_OPTIONS, { valueFrom: 'value' }),
+    [wizardOptions],
+  );
+  const paidAdsShareOptions = useMemo(
+    () => getStringFieldOptions(wizardOptions, 'paidAdsShare', STEP5_PAID_ADS_SHARE_FALLBACK_OPTIONS),
+    [wizardOptions],
+  );
   const paidMediaBudgetRangeOptions = useMemo(
     () =>
       getStringFieldOptions(wizardOptions, 'paidMediaBudgetRange', STEP5_PAID_MEDIA_BUDGET_RANGE_FALLBACK_OPTIONS, {
@@ -2493,6 +2538,19 @@ export function CampaignWizardModal({
   const watchedSourceType = step1Form.watch('sourceType');
   const watchedTargetMarkets = step1Form.watch('targetMarkets') ?? [];
   const selectedCountryCode = toWizardCountryCode(watchedTargetMarkets[0], targetMarketOptions);
+  // Every amount in the wizard is in this currency, chosen on step 1.
+  const campaignCurrency = step1Form.watch('currency') || null;
+  // A money answer as the review shows it: a saved one carries its currency;
+  // one still being typed is in the campaign currency.
+  const showMoney = (value: unknown): string | null =>
+    typeof value === 'string'
+      ? formatMoney(toMoneyAnswer(value, campaignCurrency))
+      : formatMoney(value as { amount?: number; currency?: string } | null | undefined);
+  const showPriceRange = (step: { priceRange?: string; priceRangeLow?: unknown; priceRangeHigh?: unknown } | null | undefined) => {
+    const low = showMoney(step?.priceRangeLow);
+    const high = showMoney(step?.priceRangeHigh);
+    return low && high ? (low === high ? low : `${low} to ${high}`) : step?.priceRange;
+  };
   const selectedCountryLabel =
     targetMarketOptions.find((option) => option.value === selectedCountryCode)?.label ?? 'your country';
   const watchedOperationalLocations = step1Form.watch('operationalLocations') ?? [];
@@ -2602,6 +2660,10 @@ export function CampaignWizardModal({
       regionalLanguageExpansionEnabled: Boolean(savedData.regionalLanguageExpansionEnabled),
       regionalLanguages: normalizeListItems(savedData.regionalLanguages),
       marketLocation: normalizeString(savedData.marketLocation as string | undefined) || (isFreshAutoCreatedDraft ? '' : campaign?.city) || '',
+      currency:
+        normalizeString(savedData.currency as string | undefined) ||
+        DEFAULT_CURRENCY_BY_COUNTRY[savedCountryCode] ||
+        '',
     };
 
     step1SnapshotRef.current = nextValues;
@@ -2696,6 +2758,8 @@ export function CampaignWizardModal({
       priceRange:
         normalizeString(savedData.priceRange as string | undefined) ||
         normalizeString(legacyStep1Data.priceRange as string | undefined),
+      priceRangeLow: amountTextFromSaved(savedData.priceRangeLow),
+      priceRangeHigh: amountTextFromSaved(savedData.priceRangeHigh),
       differentiators: normalizeListItems(savedData.differentiators as string[] | undefined),
       trustSignals: normalizeListItems(
         (savedChannelsData.trustSignals as string[] | string | undefined) ??
@@ -2827,6 +2891,8 @@ export function CampaignWizardModal({
       // on their behalf - and never from the monthly spend, which is the whole
       // marketing budget rather than the paid-ads part.
       paidMediaBudgetRange: normalizeStringOptionValue(savedGoalsData.paidMediaBudgetRange, paidMediaBudgetRangeOptions),
+      monthlyMarketingBudget: amountTextFromSaved(savedGoalsData.monthlyMarketingBudget),
+      paidAdsShare: normalizeStringOptionValue(savedGoalsData.paidAdsShare, paidAdsShareOptions),
       primaryGoal: normalizedPrimaryGoal,
       marketingHandler: normalizedMarketingHandler,
       contentCapacity: normalizedContentCapacity,
@@ -2858,6 +2924,9 @@ export function CampaignWizardModal({
       monthlyRevenue: (savedEconomicsData.monthlyRevenue as Step3FormData['monthlyRevenue']) || '',
       averageOrderValue: normalizeString(savedEconomicsData.averageOrderValue as string | undefined),
       averageContractValue: normalizeString(savedEconomicsData.averageContractValue as string | undefined),
+      averageOrderValueAmount: amountTextFromSaved(savedEconomicsData.averageOrderValueAmount),
+      typicalDealValue: amountTextFromSaved(savedEconomicsData.typicalDealValue),
+      monthlyRevenueAmount: amountTextFromSaved(savedEconomicsData.monthlyRevenueAmount),
       grossMarginPercentage: normalizeString(savedEconomicsData.grossMarginPercentage as string | undefined),
       dealValueBand: savedEconomicsData.dealValueBand as Step3FormData['dealValueBand'],
       grossMarginBand: savedEconomicsData.grossMarginBand as Step3FormData['grossMarginBand'],
@@ -2917,6 +2986,7 @@ export function CampaignWizardModal({
     marketingHoursPerWeekOptions,
     open,
     paidMediaBudgetRangeOptions,
+    paidAdsShareOptions,
     paybackWindowOptions,
     primaryGoalOptions,
     reportLanguageOptions,
@@ -3075,6 +3145,7 @@ export function CampaignWizardModal({
         regionalLanguageExpansionEnabled: false,
         regionalLanguages: [],
         marketLocation: normalizedMarketLocation,
+        currency: data.currency,
       };
 
       step1SnapshotRef.current = {
@@ -3168,6 +3239,8 @@ export function CampaignWizardModal({
           productsServices: normalizeListItems(data.productOrService),
           offerSummary: normalizeString(data.offerSummary),
           priceRange: normalizeString(data.priceRange),
+          priceRangeLow: toMoneyAnswer(data.priceRangeLow, campaignCurrency),
+          priceRangeHigh: toMoneyAnswer(data.priceRangeHigh, campaignCurrency),
           differentiators: normalizeListItems(data.differentiators),
           sensitiveCategoryFlags: normalizeListItems(data.sensitiveCategoryFlags),
           complianceSensitiveClaims: normalizeListItems(data.complianceSensitiveClaims),
@@ -3250,10 +3323,10 @@ export function CampaignWizardModal({
 
     return {
       primaryGoal: normalizeStringOptionValue(data.primaryGoal, primaryGoalOptions),
-      monthlyMarketingSpend: data.monthlyMarketingSpend,
-      // Sent as chosen. It used to fall back to the monthly spend when blank,
-      // which the backend then read as the paid-ads budget.
-      paidMediaBudgetRange: normalizeStringOptionValue(data.paidMediaBudgetRange, paidMediaBudgetRangeOptions),
+      // v3: the budget as an amount with its paid-ads share; the band
+      // answers of an older draft are left as they are.
+      monthlyMarketingBudget: toMoneyAnswer(data.monthlyMarketingBudget, campaignCurrency),
+      paidAdsShare: normalizeStringOptionValue(data.paidAdsShare, paidAdsShareOptions) || undefined,
       marketingHandler: normalizeStringOptionValue(data.marketingHandler, marketingHandlerOptions),
       contentCapacity: normalizeStringOptionValue(data.contentCapacity, contentCapacityOptions),
       marketingHoursPerWeek:
@@ -3273,6 +3346,7 @@ export function CampaignWizardModal({
             ) || null,
           evidence: normalizeNullableString(activity.evidence),
           monthlySpend: normalizeNullableString(activity.monthlySpend),
+          monthlySpendAmount: toMoneyAnswer(activity.monthlySpendAmount, campaignCurrency),
           timeRunning: normalizeNullableString(activity.timeRunning),
           reasonStopped: normalizeNullableString(activity.reasonStopped),
         }))
@@ -3294,14 +3368,14 @@ export function CampaignWizardModal({
   };
 
   const buildEconomicsStepPayload = (data: Step3FormData) => ({
-    averageOrderValue: normalizeNullableString(data.averageOrderValue) ?? normalizeNullableString(data.monthlyRevenue),
-    averageContractValue: normalizeNullableString(data.averageContractValue),
+    // v3 amounts; the backend derives the deal value band from them.
+    averageOrderValueAmount: toMoneyAnswer(data.averageOrderValueAmount, campaignCurrency),
+    typicalDealValue: toMoneyAnswer(data.typicalDealValue, campaignCurrency),
+    monthlyRevenueAmount: toMoneyAnswer(data.monthlyRevenueAmount, campaignCurrency),
     grossMarginPercentage: normalizeNullableString(data.grossMarginPercentage),
-    dealValueBand: data.dealValueBand,
     grossMarginBand: data.grossMarginBand,
     closeRateBand: data.closeRateBand ?? 'not_tracked',
     paybackWindow: normalizeStringOptionValue(data.paybackWindow, paybackWindowOptions) || undefined,
-    monthlyRevenue: normalizeNullableString(data.monthlyRevenue),
     monthlyOrderVolume: normalizeNullableString(data.monthlyOrderVolume),
     productCost: normalizeNullableString(data.productCost),
     monthlyOrdersPerSubscriber: normalizeNullableString(data.monthlyOrdersPerSubscriber),
@@ -3578,7 +3652,8 @@ export function CampaignWizardModal({
       effectivePreviewStep2?.businessDescription &&
       effectivePreviewStep2?.productCategory &&
       normalizeListItems(effectivePreviewStep2?.productOrService as string[] | string | undefined).length > 0 &&
-      effectivePreviewStep2?.priceRange,
+      ((effectivePreviewStep2?.priceRangeLow && effectivePreviewStep2?.priceRangeHigh) ||
+        effectivePreviewStep2?.priceRange),
   );
   const audienceComplete = Boolean(
     effectivePreviewStep3?.primaryTargetSegment &&
@@ -3591,15 +3666,18 @@ export function CampaignWizardModal({
     effectivePreviewStep2?.salesChannels?.length,
   );
   const goalsComplete = Boolean(
-    effectivePreviewStep4?.monthlyMarketingSpend &&
-      effectivePreviewStep4?.paidMediaBudgetRange &&
+    ((effectivePreviewStep4?.monthlyMarketingBudget && effectivePreviewStep4?.paidAdsShare) ||
+      (effectivePreviewStep4?.monthlyMarketingSpend && effectivePreviewStep4?.paidMediaBudgetRange)) &&
       effectivePreviewStep4?.primaryGoal &&
       effectivePreviewStep4?.marketingHandler &&
       effectivePreviewStep4?.contentCapacity &&
       effectivePreviewStep4?.knownCompetitorStatus
   );
   const economicsComplete = Boolean(
-    effectivePreviewStep4?.averageOrderValue ||
+    effectivePreviewStep4?.averageOrderValueAmount ||
+      effectivePreviewStep4?.typicalDealValue ||
+      effectivePreviewStep4?.monthlyRevenueAmount ||
+      effectivePreviewStep4?.averageOrderValue ||
       effectivePreviewStep4?.averageContractValue ||
       effectivePreviewStep4?.monthlyRevenue ||
       effectivePreviewStep4?.monthlyOrderVolume ||
@@ -3712,11 +3790,14 @@ export function CampaignWizardModal({
 
       const step6Data = (wizardSteps?.step6 as Record<string, unknown> | null) ?? null;
       const hasAovOrAcvAtState = Boolean(
-        normalizeString((step6Data?.averageOrderValue as string | undefined) ?? '') ||
+        step6Data?.averageOrderValueAmount ||
+          step6Data?.typicalDealValue ||
+          step6Data?.dealValueBand ||
+          normalizeString((step6Data?.averageOrderValue as string | undefined) ?? '') ||
           normalizeString((step6Data?.averageContractValue as string | undefined) ?? ''),
       );
       if (!hasAovOrAcvAtState) {
-        setErrorMessage('Step 6 requires at least one of average order value or average contract value.');
+        setErrorMessage('Step 6 needs what a typical deal or order is worth.');
         setStep(6);
         if (activeCampaignId) {
           syncWizardUrl(activeCampaignId, 6);
@@ -3847,8 +3928,8 @@ export function CampaignWizardModal({
     effectivePreviewStep3?.buyerRoles,
   ]);
   const goalsFilledCount = countFilled([
-    effectivePreviewStep4?.monthlyMarketingSpend,
-    effectivePreviewStep4?.paidMediaBudgetRange,
+    showMoney(effectivePreviewStep4?.monthlyMarketingBudget) ?? effectivePreviewStep4?.monthlyMarketingSpend,
+    effectivePreviewStep4?.paidAdsShare ?? effectivePreviewStep4?.paidMediaBudgetRange,
     effectivePreviewStep4?.primaryGoal,
     effectivePreviewStep4?.marketingHandler,
     effectivePreviewStep4?.contentCapacity,
@@ -3888,7 +3969,7 @@ export function CampaignWizardModal({
     effectivePreviewStep2?.businessDescription,
     effectivePreviewStep2?.productCategory,
     normalizeListItems(effectivePreviewStep2?.productOrService as string[] | string | undefined),
-    effectivePreviewStep2?.priceRange,
+    showPriceRange(effectivePreviewStep2),
     effectivePreviewStep2?.offerSummary,
     effectivePreviewStep2?.differentiators,
     effectivePreviewStep2?.sensitiveCategoryFlags,
@@ -4072,6 +4153,16 @@ export function CampaignWizardModal({
                           shouldValidate: true,
                         });
                         step1Form.setValue('primaryMarket', value, { shouldDirty: true });
+                        // Offer the country's usual currency, unless the
+                        // client already chose another one.
+                        const currentCurrency = step1Form.getValues('currency');
+                        const nextDefault = DEFAULT_CURRENCY_BY_COUNTRY[value];
+                        if (
+                          nextDefault &&
+                          (!currentCurrency || currentCurrency === DEFAULT_CURRENCY_BY_COUNTRY[selectedCountryCode])
+                        ) {
+                          step1Form.setValue('currency', nextDefault, { shouldDirty: true, shouldValidate: true });
+                        }
                       }}
                     >
                       <SelectTrigger data-testid={wizardFieldTestId('targetMarkets')} className={wizardInputClassName}>
@@ -4086,6 +4177,33 @@ export function CampaignWizardModal({
                       </SelectContent>
                     </Select>
                     <FieldMeta error={getArrayFieldError(step1Form.formState.errors.targetMarkets)} />
+                  </div>
+
+                  <div className="space-y-2">
+                    <FieldLabel
+                      label="Which currency do you run your business in?"
+                      helper="Every amount in the next steps is in this currency."
+                      required
+                    />
+                    <Controller
+                      name="currency"
+                      control={step1Form.control}
+                      render={({ field }) => (
+                        <Select onValueChange={field.onChange} value={field.value || undefined}>
+                          <SelectTrigger data-testid={wizardFieldTestId('currency')} className={wizardInputClassName}>
+                            <SelectValue placeholder="Select currency" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {currencyOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    <FieldMeta error={step1Form.formState.errors.currency?.message} />
                   </div>
 
                   <InlineDivider />
@@ -4398,10 +4516,31 @@ export function CampaignWizardModal({
 
                   <InlineDivider />
 
-                  <div className="max-w-[360px] space-y-2">
-                    <FieldLabel label="Price range" required />
-                    <Input data-testid={wizardFieldTestId('priceRange')} className={wizardInputClassName} placeholder="e.g. INR 999-INR 2,999 or INR 2,500/month" {...step2Form.register('priceRange')} />
-                    <FieldMeta error={step2Form.formState.errors.priceRange?.message} />
+                  <div className="space-y-2">
+                    <FieldLabel label="What do your products cost?" helper="Your lowest and highest price." required />
+                    <div className="grid max-w-[480px] gap-3 sm:grid-cols-2">
+                      {(['priceRangeLow', 'priceRangeHigh'] as const).map((name) => (
+                        <div key={name} className="space-y-1">
+                          <Controller
+                            name={name}
+                            control={step2Form.control}
+                            render={({ field }) => (
+                              <MoneyInput
+                                testId={wizardFieldTestId(name)}
+                                className={wizardInputClassName}
+                                currency={campaignCurrency}
+                                placeholder={name === 'priceRangeLow' ? 'Lowest' : 'Highest'}
+                                value={field.value ?? ''}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                invalid={Boolean(step2Form.formState.errors[name])}
+                              />
+                            )}
+                          />
+                          <FieldMeta error={step2Form.formState.errors[name]?.message} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   <InlineDivider />
@@ -5249,26 +5388,28 @@ export function CampaignWizardModal({
                 >
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <FieldLabel label="Monthly marketing spend" required />
+                      <FieldLabel
+                        label="Total monthly marketing budget"
+                        helper="Everything you spend on marketing each month, ads included. 0 is fine."
+                        required
+                      />
                       <Controller
-                        name="monthlyMarketingSpend"
+                        name="monthlyMarketingBudget"
                         control={step3Form.control}
                         render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger data-testid={wizardFieldTestId('monthlyMarketingSpend')} className={wizardInputClassName}>
-                              <SelectValue placeholder="Select spend" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {MONTHLY_MARKETING_SPEND_OPTIONS.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <MoneyInput
+                            testId={wizardFieldTestId('monthlyMarketingBudget')}
+                            className={wizardInputClassName}
+                            currency={campaignCurrency}
+                            placeholder="e.g. 50000"
+                            value={field.value ?? ''}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            invalid={Boolean(step3Form.formState.errors.monthlyMarketingBudget)}
+                          />
                         )}
                       />
-                      <FieldMeta error={step3Form.formState.errors.monthlyMarketingSpend?.message} />
+                      <FieldMeta error={step3Form.formState.errors.monthlyMarketingBudget?.message} />
                     </div>
 
                     <div className="space-y-2">
@@ -5321,20 +5462,20 @@ export function CampaignWizardModal({
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <FieldLabel
-                        label="Paid media budget range"
-                        helper="What you spend each month on ads alone - not your whole marketing budget."
+                        label="Of which, paid ads"
+                        helper="How much of that budget goes to ads."
                         required
                       />
                       <Controller
-                        name="paidMediaBudgetRange"
+                        name="paidAdsShare"
                         control={step3Form.control}
                         render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value ?? ''}>
-                            <SelectTrigger data-testid={wizardFieldTestId('paidMediaBudgetRange')} className={wizardInputClassName}>
-                              <SelectValue placeholder="Select budget" />
+                          <Select onValueChange={field.onChange} value={field.value || undefined}>
+                            <SelectTrigger data-testid={wizardFieldTestId('paidAdsShare')} className={wizardInputClassName}>
+                              <SelectValue placeholder="Select share" />
                             </SelectTrigger>
                             <SelectContent>
-                              {paidMediaBudgetRangeOptions.map((option) => (
+                              {paidAdsShareOptions.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                   {option.label}
                                 </SelectItem>
@@ -5343,7 +5484,7 @@ export function CampaignWizardModal({
                           </Select>
                         )}
                       />
-                      <FieldMeta error={step3Form.formState.errors.paidMediaBudgetRange?.message} />
+                      <FieldMeta error={step3Form.formState.errors.paidAdsShare?.message} />
                     </div>
 
                     <div className="space-y-2">
@@ -5547,6 +5688,7 @@ export function CampaignWizardModal({
                             workingAssessment: '',
                             evidence: '',
                             monthlySpend: '',
+                            monthlySpendAmount: '',
                             timeRunning: '',
                             reasonStopped: '',
                           })
@@ -5627,11 +5769,20 @@ export function CampaignWizardModal({
                           />
 
                           <div className="grid gap-3 lg:grid-cols-3">
-                            <Input
-                              data-testid={wizardFieldTestId(`currentMarketingActivity.${index}.monthlySpend`)}
-                              className={wizardInputClassName}
-                              placeholder="Monthly spend (optional)"
-                              {...step3Form.register(`currentMarketingActivity.${index}.monthlySpend`)}
+                            <Controller
+                              name={`currentMarketingActivity.${index}.monthlySpendAmount`}
+                              control={step3Form.control}
+                              render={({ field }) => (
+                                <MoneyInput
+                                  testId={wizardFieldTestId(`currentMarketingActivity.${index}.monthlySpendAmount`)}
+                                  className={wizardInputClassName}
+                                  currency={campaignCurrency}
+                                  placeholder="Monthly spend (optional)"
+                                  value={field.value ?? ''}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                />
+                              )}
                             />
                             <Input
                               data-testid={wizardFieldTestId(`currentMarketingActivity.${index}.timeRunning`)}
@@ -5653,7 +5804,7 @@ export function CampaignWizardModal({
                               step3Form.formState.errors.currentMarketingActivity?.[index]?.status?.message ||
                               step3Form.formState.errors.currentMarketingActivity?.[index]?.workingAssessment?.message ||
                               step3Form.formState.errors.currentMarketingActivity?.[index]?.evidence?.message ||
-                              step3Form.formState.errors.currentMarketingActivity?.[index]?.monthlySpend?.message ||
+                              step3Form.formState.errors.currentMarketingActivity?.[index]?.monthlySpendAmount?.message ||
                               step3Form.formState.errors.currentMarketingActivity?.[index]?.timeRunning?.message ||
                               step3Form.formState.errors.currentMarketingActivity?.[index]?.reasonStopped?.message
                             }
@@ -5808,18 +5959,11 @@ export function CampaignWizardModal({
                   if (isDismissClosingRef.current) {
                     return;
                   }
-                  // The bands carry the economics now. The rule this replaces
-                  // asked for AOV or ACV as free text and was satisfied by
-                  // "not_sure", which is how the single number the plan is
-                  // built on arrived empty.
+                  // The margin band, and (below) a deal or order amount the
+                  // backend derives the deal value band from. The free-text
+                  // rule before them was satisfied by "not_sure", which is how
+                  // the number the plan is built on arrived empty.
                   let missingBand = false;
-                  if (!data.dealValueBand) {
-                    step3Form.setError('dealValueBand', {
-                      type: 'manual',
-                      message: 'Select the band your average deal or order value falls in.',
-                    });
-                    missingBand = true;
-                  }
                   if (!data.grossMarginBand) {
                     step3Form.setError('grossMarginBand', {
                       type: 'manual',
@@ -5839,10 +5983,10 @@ export function CampaignWizardModal({
                   }
                   if (missingBand || !economicsAnswers.success) {
                     const missing = [
-                      missingBand ? 'the deal value and gross margin bands' : null,
+                      missingBand ? 'the gross margin band' : null,
                       economicsAnswers.success
                         ? null
-                        : 'how long you can wait to earn back what it costs to win a customer',
+                        : 'what a typical deal or order is worth, and how long you can wait to earn back what it costs to win a customer',
                     ].filter(Boolean);
                     setErrorMessage(`Step 6 needs ${missing.join(' and ')}.`);
                     return;
@@ -5864,46 +6008,36 @@ export function CampaignWizardModal({
                   description="This step maps to backend economics inputs and helps downstream output calibration."
                 >
                   <div className="grid gap-4 lg:grid-cols-2">
-                    <div className="space-y-2">
-                      <FieldLabel label="Average order value (AOV)" />
-                      <Input data-testid={wizardFieldTestId('averageOrderValue')} className={wizardInputClassName} placeholder="e.g. INR 2,500" {...step3Form.register('averageOrderValue')} />
-                      <FieldMeta error={step3Form.formState.errors.averageOrderValue?.message} />
-                    </div>
-                    <div className="space-y-2">
-                      <FieldLabel label="Average contract value (ACV)" />
-                      <Input data-testid={wizardFieldTestId('averageContractValue')} className={wizardInputClassName} placeholder="e.g. INR 25,000" {...step3Form.register('averageContractValue')} />
-                      <FieldMeta error={step3Form.formState.errors.averageContractValue?.message} />
-                    </div>
+                    {(
+                      [
+                        ['averageOrderValueAmount', 'Average order value', 'What a typical order is worth.'],
+                        ['typicalDealValue', 'Typical deal value', 'What a typical closed deal is worth.'],
+                      ] as const
+                    ).map(([name, label, helper]) => (
+                      <div key={name} className="space-y-2">
+                        <FieldLabel label={label} helper={`${helper} Give this or the other.`} />
+                        <Controller
+                          name={name}
+                          control={step3Form.control}
+                          render={({ field }) => (
+                            <MoneyInput
+                              testId={wizardFieldTestId(name)}
+                              className={wizardInputClassName}
+                              currency={campaignCurrency}
+                              value={field.value ?? ''}
+                              onChange={field.onChange}
+                              onBlur={field.onBlur}
+                              invalid={Boolean(step3Form.formState.errors[name])}
+                            />
+                          )}
+                        />
+                        <FieldMeta error={step3Form.formState.errors[name]?.message} />
+                      </div>
+                    ))}
                     <div className="space-y-2">
                       <FieldLabel label="Gross margin percentage" />
                       <Input data-testid={wizardFieldTestId('grossMarginPercentage')} className={wizardInputClassName} placeholder="e.g. 42%" {...step3Form.register('grossMarginPercentage')} />
                       <FieldMeta error={step3Form.formState.errors.grossMarginPercentage?.message} />
-                    </div>
-                    <div className="space-y-2">
-                      <FieldLabel
-                        label="What is a typical deal or order worth?"
-                        helper="A band is fine. This is what the plan sizes budget and cost-per-customer against."
-                        required
-                      />
-                      <Controller
-                        name="dealValueBand"
-                        control={step3Form.control}
-                        render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value ?? ''}>
-                            <SelectTrigger data-testid={wizardFieldTestId('dealValueBand')} className={wizardInputClassName}>
-                              <SelectValue placeholder="Select a range" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {DEAL_VALUE_BAND_OPTIONS.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                      <FieldMeta error={step3Form.formState.errors.dealValueBand?.message} />
                     </div>
                     <div className="space-y-2">
                       <FieldLabel
@@ -5985,9 +6119,23 @@ export function CampaignWizardModal({
                       <FieldMeta error={step3Form.formState.errors.paybackWindow?.message} />
                     </div>
                     <div className="space-y-2">
-                      <FieldLabel label="Monthly revenue" helper={`Preset values accepted: ${MONTHLY_REVENUE_OPTIONS.map((option) => option.value).join(', ')}`} />
-                      <Input data-testid={wizardFieldTestId('monthlyRevenue')} className={wizardInputClassName} placeholder="e.g. 25k_1l or approx INR 3 lakh/month" {...step3Form.register('monthlyRevenue')} />
-                      <FieldMeta error={step3Form.formState.errors.monthlyRevenue?.message} />
+                      <FieldLabel label="Monthly revenue" helper="Roughly what the business makes a month. A rough figure is fine." />
+                      <Controller
+                        name="monthlyRevenueAmount"
+                        control={step3Form.control}
+                        render={({ field }) => (
+                          <MoneyInput
+                            testId={wizardFieldTestId('monthlyRevenueAmount')}
+                            className={wizardInputClassName}
+                            currency={campaignCurrency}
+                            value={field.value ?? ''}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            invalid={Boolean(step3Form.formState.errors.monthlyRevenueAmount)}
+                          />
+                        )}
+                      />
+                      <FieldMeta error={step3Form.formState.errors.monthlyRevenueAmount?.message} />
                     </div>
                     <div className="space-y-2">
                       <FieldLabel label="Monthly order volume" />
@@ -6124,7 +6272,7 @@ export function CampaignWizardModal({
                           <SummaryField label="Source URL" value={effectivePreviewStep1?.primaryUrl || null} />
                           <SummaryField label="Product category" value={effectivePreviewStep2?.productCategory} />
                           <SummaryField label="Product or service" value={formatStringOrList(effectivePreviewStep2?.productOrService as string[] | string | undefined)} />
-                          <SummaryField label="Price range" value={effectivePreviewStep2?.priceRange} />
+                          <SummaryField label="Price range" value={showPriceRange(effectivePreviewStep2)} />
                           <SummaryField label="Offer summary" value={effectivePreviewStep2?.offerSummary} />
                           <SummaryField label="Differentiators" value={formatStringList(effectivePreviewStep2?.differentiators)} />
                           <SummaryField label="Sensitive category flags" value={formatSensitiveCategoryFlags(effectivePreviewStep2?.sensitiveCategoryFlags)} />
@@ -6166,8 +6314,20 @@ export function CampaignWizardModal({
                         onCheckedChange={setConfirmGoals}
                       >
                         <ReviewGrid>
-                          <SummaryField label="Monthly marketing spend" value={formatMonthlyMarketingSpend(effectivePreviewStep4?.monthlyMarketingSpend)} />
-                          <SummaryField label="Paid media budget range" value={formatPaidMediaBudgetRange(effectivePreviewStep4?.paidMediaBudgetRange)} />
+                          <SummaryField
+                            label="Total monthly marketing budget"
+                            value={
+                              showMoney(effectivePreviewStep4?.monthlyMarketingBudget) ??
+                              formatMonthlyMarketingSpend(effectivePreviewStep4?.monthlyMarketingSpend)
+                            }
+                          />
+                          <SummaryField
+                            label="Of which, paid ads"
+                            value={
+                              paidAdsShareOptions.find((option) => option.value === effectivePreviewStep4?.paidAdsShare)?.label ??
+                              formatPaidMediaBudgetRange(effectivePreviewStep4?.paidMediaBudgetRange)
+                            }
+                          />
                           <SummaryField label="Primary goal" value={formatPrimaryGoal(effectivePreviewStep4?.primaryGoal)} />
                           <SummaryField label="Marketing owner" value={formatMarketingHandler(effectivePreviewStep4?.marketingHandler)} />
                           <SummaryField label="Content capacity" value={formatContentCapacity(effectivePreviewStep4?.contentCapacity)} />
@@ -6199,10 +6359,19 @@ export function CampaignWizardModal({
                         onCheckedChange={setConfirmEconomics}
                       >
                         <ReviewGrid>
-                          <SummaryField label="Average order value" value={effectivePreviewStep4?.averageOrderValue} />
-                          <SummaryField label="Average contract value" value={effectivePreviewStep4?.averageContractValue} />
+                          <SummaryField
+                            label="Average order value"
+                            value={showMoney(effectivePreviewStep4?.averageOrderValueAmount) ?? effectivePreviewStep4?.averageOrderValue}
+                          />
+                          <SummaryField
+                            label="Typical deal value"
+                            value={showMoney(effectivePreviewStep4?.typicalDealValue) ?? effectivePreviewStep4?.averageContractValue}
+                          />
                           <SummaryField label="Gross margin %" value={effectivePreviewStep4?.grossMarginPercentage} />
-                          <SummaryField label="Monthly revenue" value={formatMonthlyRevenue(effectivePreviewStep4?.monthlyRevenue)} />
+                          <SummaryField
+                            label="Monthly revenue"
+                            value={showMoney(effectivePreviewStep4?.monthlyRevenueAmount) ?? formatMonthlyRevenue(effectivePreviewStep4?.monthlyRevenue)}
+                          />
                           <SummaryField label="Monthly order volume" value={effectivePreviewStep4?.monthlyOrderVolume} />
                           <SummaryField label="Product cost" value={effectivePreviewStep4?.productCost} />
                           <SummaryField label="Orders per subscriber" value={effectivePreviewStep4?.monthlyOrdersPerSubscriber} />

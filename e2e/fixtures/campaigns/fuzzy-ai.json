@@ -13,7 +13,8 @@
       ],
       "primaryMarket": "IN",
       "marketScope": "national",
-      "primaryUrl": "https://getfuzzy.ai"
+      "primaryUrl": "https://getfuzzy.ai",
+      "currency": "USD"
     },
     "step2": {
       "businessName": "Fuzzy AI",
@@ -30,10 +31,11 @@
         "AI-generated sales content and personal-brand support",
         "Automated follow-ups and meeting-generation workflows"
       ],
-      "priceRange": "not_sure",
       "sensitiveCategoryFlags": [
         "none"
-      ]
+      ],
+      "priceRangeLow": 1800,
+      "priceRangeHigh": 1800
     },
     "step3": {
       "primaryTargetSegment": "Founder-led Indian B2B SaaS and professional-services companies with small sales teams using LinkedIn and outbound prospecting for qualified leads.",
@@ -69,8 +71,6 @@
     },
     "step5": {
       "primaryGoal": "leads",
-      "monthlyMarketingSpend": "nothing",
-      "paidMediaBudgetRange": "unknown",
       "marketingHandler": "unknown",
       "contentCapacity": "unknown",
       "marketingHoursPerWeek": "fiveToTen",
@@ -87,14 +87,15 @@
         "Expandi",
         "Dripify",
         "Lemlist"
-      ]
+      ],
+      "monthlyMarketingBudget": 0,
+      "paidAdsShare": "none"
     },
     "step6": {
-      "averageContractValue": "USD 1,800",
-      "dealValueBand": "from_50k_to_2l",
       "grossMarginBand": "from_60_to_80_percent",
       "closeRateBand": "from_15_to_30_percent",
-      "paybackWindow": "withinTwelveMonths"
+      "paybackWindow": "withinTwelveMonths",
+      "typicalDealValue": 1800
     },
     "step7": {
       "confirmFocus": true,

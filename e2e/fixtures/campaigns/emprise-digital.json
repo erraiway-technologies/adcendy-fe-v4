@@ -13,7 +13,8 @@
       ],
       "primaryMarket": "US",
       "marketScope": "national",
-      "primaryUrl": "https://emprisedigital.co"
+      "primaryUrl": "https://emprisedigital.co",
+      "currency": "USD"
     },
     "step2": {
       "businessName": "Emprise Digital",
@@ -35,10 +36,11 @@
         "AI-powered website chat and telephone lead-response services",
         "Free marketing assessment and customised growth-plan consultation"
       ],
-      "priceRange": "not_sure",
       "sensitiveCategoryFlags": [
         "none"
-      ]
+      ],
+      "priceRangeLow": 10000,
+      "priceRangeHigh": 10000
     },
     "step3": {
       "primaryTargetSegment": "United States SMBs, local service providers, ecommerce brands and nonprofits seeking measurable leads and able to fund an external agency.",
@@ -79,8 +81,6 @@
     },
     "step5": {
       "primaryGoal": "leads",
-      "monthlyMarketingSpend": "nothing",
-      "paidMediaBudgetRange": "unknown",
       "marketingHandler": "unknown",
       "contentCapacity": "unknown",
       "marketingHoursPerWeek": "tenToTwenty",
@@ -91,14 +91,15 @@
       ],
       "deliveryDeadline": "withinThreeMonths",
       "salesCapacity": "not_sure",
-      "knownCompetitorStatus": "unknown"
+      "knownCompetitorStatus": "unknown",
+      "monthlyMarketingBudget": 0,
+      "paidAdsShare": "none"
     },
     "step6": {
-      "averageContractValue": "USD 10,000",
-      "dealValueBand": "from_2l_to_10l",
       "grossMarginBand": "from_40_to_60_percent",
       "closeRateBand": "from_15_to_30_percent",
-      "paybackWindow": "withinThreeMonths"
+      "paybackWindow": "withinThreeMonths",
+      "typicalDealValue": 10000
     },
     "step7": {
       "confirmFocus": true,

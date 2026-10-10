@@ -1,5 +1,6 @@
 import type { ID, ISODateTime } from './common';
 import type { BusinessModel, BusinessType, CampaignStatus, MarketScope } from './campaign';
+import type { MoneyAnswer } from './money';
 
 export type WizardStepKey = 'STEP_1' | 'STEP_2' | 'STEP_3' | 'STEP_4' | 'STEP_5' | 'STEP_6' | 'STEP_7';
 
@@ -959,6 +960,8 @@ export interface WizardPreviewStep1 {
   regionalLanguageExpansionEnabled?: boolean;
   regionalLanguages?: string[];
   marketLocation?: string;
+  /** v3: the currency every amount is given in. */
+  currency?: string | null;
 }
 
 export interface WizardPreviewStep2 {
@@ -975,6 +978,8 @@ export interface WizardPreviewStep2 {
   productsServices?: string[];
   offerSummary?: string;
   priceRange?: string;
+  priceRangeLow?: MoneyAnswer | null;
+  priceRangeHigh?: MoneyAnswer | null;
   differentiators?: string[];
   sensitiveCategoryFlags?: string[];
   complianceSensitiveClaims?: string[];
@@ -1002,6 +1007,9 @@ export interface WizardPreviewStep4 {
   trustSignals?: string[];
   monthlyMarketingSpend?: MonthlyMarketingSpend;
   paidMediaBudgetRange?: string | null;
+  /** v3: the whole monthly budget, and how much of it goes to ads. */
+  monthlyMarketingBudget?: MoneyAnswer | null;
+  paidAdsShare?: string | null;
   pastMarketing?: string | null;
   primaryGoal?: PrimaryGoal;
   marketingHandler?: MarketingHandler;
@@ -1016,10 +1024,14 @@ export interface WizardPreviewStep4 {
     workingAssessment?: string | null;
     evidence?: string | null;
     monthlySpend?: string | null;
+    monthlySpendAmount?: MoneyAnswer | null;
     timeRunning?: string | null;
     reasonStopped?: string | null;
   }>;
   averageOrderValue?: string | null;
+  averageOrderValueAmount?: MoneyAnswer | null;
+  typicalDealValue?: MoneyAnswer | null;
+  monthlyRevenueAmount?: MoneyAnswer | null;
   averageContractValue?: string | null;
   grossMarginPercentage?: string | null;
   whatsWorking?: string | null;

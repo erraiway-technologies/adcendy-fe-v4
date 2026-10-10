@@ -13,7 +13,8 @@
       ],
       "primaryMarket": "IN",
       "marketScope": "national",
-      "primaryUrl": "https://www.ultrahuman.com/in/"
+      "primaryUrl": "https://www.ultrahuman.com/in/",
+      "currency": "INR"
     },
     "step2": {
       "businessName": "Ultrahuman",
@@ -31,7 +32,6 @@
         "Ultrahuman Blood Vision at-home blood testing across more than 100 biomarkers",
         "Ultrahuman app with sleep, recovery and movement scores and personalised guidance"
       ],
-      "priceRange": "not_sure",
       "differentiators": [
         "Core ring features are available without a mandatory monthly subscription",
         "Ring AIR weighs about 2.4 grams, among the lightest smart rings available",
@@ -39,7 +39,9 @@
       ],
       "sensitiveCategoryFlags": [
         "none"
-      ]
+      ],
+      "priceRangeLow": 28499,
+      "priceRangeHigh": 28499
     },
     "step3": {
       "primaryTargetSegment": "Health-conscious urban Indian adults who want discreet, continuous sleep, recovery and metabolic tracking without a mandatory subscription.",
@@ -122,8 +124,6 @@
     },
     "step5": {
       "primaryGoal": "revenue_growth",
-      "monthlyMarketingSpend": "50k_plus",
-      "paidMediaBudgetRange": "5k_15k",
       "marketingHandler": "in_house_team",
       "contentCapacity": "high",
       "marketingHoursPerWeek": "fortyPlus",
@@ -158,17 +158,18 @@
           "status": "active",
           "workingAssessment": "unknown"
         }
-      ]
+      ],
+      "monthlyMarketingBudget": 60000,
+      "paidAdsShare": "under_quarter"
     },
     "step6": {
-      "averageOrderValue": "INR 28,499",
-      "dealValueBand": "from_10k_to_50k",
       "grossMarginBand": "from_40_to_60_percent",
       "closeRateBand": "not_tracked",
       "paybackWindow": "firstOrder",
       "avgCustomerRetention": "some_repeat",
       "monthlyOrderVolume": "1000-2000",
-      "repeatPurchaseFrequency": "every_few_months"
+      "repeatPurchaseFrequency": "every_few_months",
+      "averageOrderValueAmount": 28499
     },
     "step7": {
       "confirmFocus": true,

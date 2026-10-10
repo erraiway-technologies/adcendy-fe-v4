@@ -15,6 +15,7 @@ const minimalFixture = {
       targetMarkets: ['IN'],
       primaryMarket: 'IN',
       marketScope: 'national',
+      currency: 'INR',
     },
     step2: {
       businessName: 'Schema Test',
@@ -25,7 +26,8 @@ const minimalFixture = {
       businessDescription: 'A test business description.',
       productCategory: 'Software',
       productsServices: ['Test service'],
-      priceRange: 'not_sure',
+      priceRangeLow: 999,
+      priceRangeHigh: 2999,
       sensitiveCategoryFlags: ['none'],
     },
     step3: {
@@ -44,8 +46,8 @@ const minimalFixture = {
     },
     step5: {
       primaryGoal: 'leads',
-      monthlyMarketingSpend: 'nothing',
-      paidMediaBudgetRange: 'unknown',
+      monthlyMarketingBudget: 0,
+      paidAdsShare: 'none',
       marketingHandler: 'unknown',
       contentCapacity: 'unknown',
       marketingHoursPerWeek: 'unknown',
@@ -55,8 +57,7 @@ const minimalFixture = {
       knownCompetitorStatus: 'unknown',
     },
     step6: {
-      averageContractValue: 'not_sure',
-      dealValueBand: 'from_10k_to_50k',
+      typicalDealValue: 25000,
       grossMarginBand: 'from_40_to_60_percent',
       paybackWindow: 'unknown',
     },
@@ -108,27 +109,33 @@ test('reports conditional fixture failures with the field path', () => {
   );
 });
 
-test('requires the deal value and gross margin bands', () => {
+test('requires the gross margin band', () => {
   const invalid = structuredClone(minimalFixture);
-  delete invalid.wizard.step6.dealValueBand;
   delete invalid.wizard.step6.grossMarginBand;
   const result = campaignFixtureSchema.safeParse(invalid);
   assert.equal(result.success, false);
-  const paths = issuePaths(result);
-  assert.ok(paths.includes('wizard.step6.dealValueBand'));
-  assert.ok(paths.includes('wizard.step6.grossMarginBand'));
+  assert.ok(issuePaths(result).includes('wizard.step6.grossMarginBand'));
 });
 
-test('requires an order or contract value so the wizard can be committed', () => {
+test('requires a deal or order amount so the wizard can be committed', () => {
   const invalid = structuredClone(minimalFixture);
-  invalid.wizard.step6.averageContractValue = '';
+  delete invalid.wizard.step6.typicalDealValue;
   const result = campaignFixtureSchema.safeParse(invalid);
   assert.equal(result.success, false);
-  assert.ok(
-    result.error.issues.some(
-      (issue) => issue.path.join('.') === 'wizard.step6.averageOrderValue',
-    ),
-  );
+  assert.ok(issuePaths(result).includes('wizard.step6.typicalDealValue'));
+
+  const byOrder = structuredClone(minimalFixture);
+  delete byOrder.wizard.step6.typicalDealValue;
+  byOrder.wizard.step6.averageOrderValueAmount = 1500;
+  assert.equal(campaignFixtureSchema.safeParse(byOrder).success, true);
+});
+
+test('refuses a price range whose highest price is below its lowest', () => {
+  const invalid = structuredClone(minimalFixture);
+  invalid.wizard.step2.priceRangeHigh = 10;
+  const result = campaignFixtureSchema.safeParse(invalid);
+  assert.equal(result.success, false);
+  assert.ok(issuePaths(result).includes('wizard.step2.priceRangeHigh'));
 });
 
 test('requires every answer the wizard form asks before saving steps 5 and 6', () => {
@@ -158,16 +165,16 @@ test('takes the backend camelCase values, not their snake_case tokens', () => {
   assert.ok(issuePaths(result).includes('wizard.step5.deliveryDeadline'));
 });
 
-test('requires a paid media budget band rather than free text', () => {
-  const invalid = structuredClone(minimalFixture);
-  invalid.wizard.step5.paidMediaBudgetRange = 'INR 5,000 to INR 15,000';
-  const result = campaignFixtureSchema.safeParse(invalid);
-  assert.equal(result.success, false);
-  assert.ok(issuePaths(result).includes('wizard.step5.paidMediaBudgetRange'));
+test('takes the budget as an amount and the paid-ads share as an option', () => {
+  const asText = structuredClone(minimalFixture);
+  asText.wizard.step5.monthlyMarketingBudget = 'INR 5,000';
+  const textResult = campaignFixtureSchema.safeParse(asText);
+  assert.equal(textResult.success, false);
+  assert.ok(issuePaths(textResult).includes('wizard.step5.monthlyMarketingBudget'));
 
-  const banded = structuredClone(minimalFixture);
-  banded.wizard.step5.paidMediaBudgetRange = '5k_15k';
-  assert.equal(campaignFixtureSchema.safeParse(banded).success, true);
+  const unlisted = structuredClone(minimalFixture);
+  unlisted.wizard.step5.paidAdsShare = 'some';
+  assert.ok(issuePaths(campaignFixtureSchema.safeParse(unlisted)).includes('wizard.step5.paidAdsShare'));
 });
 
 test('requires at least one creative capability, and keeps "none" on its own', () => {

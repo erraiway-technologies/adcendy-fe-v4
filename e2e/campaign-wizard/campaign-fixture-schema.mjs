@@ -20,6 +20,8 @@ const step1Schema = z
     sourceType: z.enum(['website', 'digital_presence_only', 'manual_only']),
     primaryUrl: optionalTextMax(500),
     targetMarkets: boundedStringList(12).min(1).max(4),
+    // v3: every amount in the fixture is in this currency.
+    currency: z.enum(['INR', 'USD', 'GBP', 'EUR', 'AED', 'SAR', 'SGD', 'AUD', 'CAD', 'NZD']),
     primaryMarket: optionalTextMax(12),
     marketScope: z.enum(['local', 'regional', 'national', 'international', 'global']),
     operationalLocations: boundedStringList(160).default([]),
@@ -94,7 +96,9 @@ const step2Schema = z
     productCategory: boundedText(160),
     productsServices: boundedStringList(200).min(1).max(10),
     offerSummary: optionalTextMax(500),
-    priceRange: boundedText(120),
+    // v3: the lowest and highest price, as amounts.
+    priceRangeLow: z.number().nonnegative(),
+    priceRangeHigh: z.number().nonnegative(),
     differentiators: boundedStringList(200).max(10).default([]),
     sensitiveCategoryFlags: boundedStringList(120).min(1).max(20),
     complianceSensitiveClaims: boundedStringList(200).max(20).default([]),
@@ -193,7 +197,7 @@ const activitySchema = z
     status: z.enum(['active', 'paused', 'discontinued']),
     workingAssessment: z.enum(['', 'clearly_working', 'unclear', 'not_working', 'unknown']).default(''),
     evidence: optionalTextMax(500),
-    monthlySpend: optionalTextMax(120),
+    monthlySpendAmount: z.number().nonnegative().optional(),
     timeRunning: optionalTextMax(120),
     reasonStopped: optionalTextMax(500),
   })
@@ -212,10 +216,9 @@ const step5Schema = z
       'market_expansion',
       'other',
     ]),
-    monthlyMarketingSpend: z.enum(['nothing', 'under_5k', '5k_15k', '15k_50k', '50k_plus']),
-    // A dropdown of the monthly-spend bands plus Don't know. Free text no longer
-    // reaches the wizard, so a free-text fixture value could not be selected.
-    paidMediaBudgetRange: z.enum(['nothing', 'under_5k', '5k_15k', '15k_50k', '50k_plus', 'unknown']),
+    // v3: the whole monthly budget as an amount, and the share on paid ads.
+    monthlyMarketingBudget: z.number().nonnegative(),
+    paidAdsShare: z.enum(['none', 'under_quarter', 'about_half', 'most', 'all']),
     marketingHandler: z.enum(['founder_led', 'internal_marketer', 'agency', 'in_house_team', 'unknown']),
     contentCapacity: z.enum(['none', 'low', 'medium', 'high', 'unknown']),
     // Wizard v2.1. Optional on the backend, but the wizard form will not save
@@ -264,10 +267,11 @@ const step5Schema = z
 
 const step6Schema = z
   .object({
-    averageOrderValue: optionalTextMax(120),
-    averageContractValue: optionalTextMax(120),
+    // v3 amounts; the backend derives the deal value band from them.
+    averageOrderValueAmount: z.number().nonnegative().optional(),
+    typicalDealValue: z.number().nonnegative().optional(),
+    monthlyRevenueAmount: z.number().nonnegative().optional(),
     grossMarginPercentage: optionalTextMax(120),
-    monthlyRevenue: optionalTextMax(120),
     monthlyOrderVolume: optionalTextMax(120),
     productCost: optionalTextMax(120),
     monthlyOrdersPerSubscriber: optionalTextMax(120),
@@ -275,17 +279,9 @@ const step6Schema = z
     avgCustomerRetention: z.enum(['', 'one_time_buyers', 'some_repeat', 'mostly_repeat', 'subscription']).default(''),
     repeatPurchaseFrequency: z.enum(['', 'never', 'every_few_months', 'monthly', 'weekly']).default(''),
     salesCycleLength: optionalTextMax(120),
-    // The economics the unit economics section is built on. Bands rather than
-    // free text, and no opt-out on the first two - the rule this replaces read
-    // "use not_sure when unknown", and every fixture duly answered not_sure.
-    dealValueBand: z.enum([
-      'under_10k',
-      'from_10k_to_50k',
-      'from_50k_to_2l',
-      'from_2l_to_10l',
-      'from_10l_to_50l',
-      'above_50l',
-    ]),
+    // The margin band the unit economics are built on, with no opt-out - the
+    // rule this replaces read "use not_sure when unknown", and every fixture
+    // duly answered not_sure.
     grossMarginBand: z.enum([
       'under_20_percent',
       'from_20_to_40_percent',
@@ -358,12 +354,19 @@ export const campaignFixtureSchema = z
     // of these two, and bounces the wizard back to step 6 instead. Catch it
     // here: a fixture that reaches the browser fails ~40s in, on a missing
     // dialog heading that never names the actual cause.
-    if (!step6.averageOrderValue && !step6.averageContractValue) {
+    if (step6.typicalDealValue === undefined && step6.averageOrderValueAmount === undefined) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['wizard', 'step6', 'averageOrderValue'],
+        path: ['wizard', 'step6', 'typicalDealValue'],
         message:
-          'step6 requires at least one of averageOrderValue or averageContractValue; the wizard cannot be committed without one',
+          'step6 requires typicalDealValue or averageOrderValueAmount; the wizard cannot be committed without one',
+      });
+    }
+    if (step2.priceRangeHigh < step2.priceRangeLow) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['wizard', 'step2', 'priceRangeHigh'],
+        message: 'priceRangeHigh cannot be below priceRangeLow',
       });
     }
     // "none" means none of these. The wizard clears it when another capability

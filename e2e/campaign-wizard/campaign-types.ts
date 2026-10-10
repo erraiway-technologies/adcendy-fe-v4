@@ -11,6 +11,7 @@ export interface CampaignFixture {
       sourceType: string;
       primaryUrl?: string;
       targetMarkets: string[];
+      currency: string;
       primaryMarket?: string;
       marketScope: string;
       operationalLocations?: string[];
@@ -27,7 +28,8 @@ export interface CampaignFixture {
       productCategory: string;
       productsServices: string[];
       offerSummary?: string;
-      priceRange: string;
+      priceRangeLow: number;
+      priceRangeHigh: number;
       differentiators?: string[];
       sensitiveCategoryFlags: string[];
       complianceSensitiveClaims?: string[];
@@ -56,8 +58,8 @@ export interface CampaignFixture {
     };
     step5: Record<string, unknown> & {
       primaryGoal: string;
-      monthlyMarketingSpend: string;
-      paidMediaBudgetRange: string;
+      monthlyMarketingBudget: number;
+      paidAdsShare: string;
       marketingHandler: string;
       contentCapacity: string;
       marketingHoursPerWeek: string;
@@ -69,7 +71,7 @@ export interface CampaignFixture {
         status: string;
         workingAssessment?: string;
         evidence?: string;
-        monthlySpend?: string;
+        monthlySpendAmount?: number;
         timeRunning?: string;
         reasonStopped?: string;
       }>;
@@ -85,14 +87,13 @@ export interface CampaignFixture {
       additionalContext?: string;
     };
     step6: Record<string, unknown> & {
-      averageOrderValue?: string;
-      averageContractValue?: string;
+      averageOrderValueAmount?: number;
+      typicalDealValue?: number;
+      monthlyRevenueAmount?: number;
       grossMarginPercentage?: string;
-      dealValueBand?: string;
       grossMarginBand?: string;
       closeRateBand?: string;
       paybackWindow: string;
-      monthlyRevenue?: string;
       monthlyOrderVolume?: string;
       productCost?: string;
       monthlyOrdersPerSubscriber?: string;

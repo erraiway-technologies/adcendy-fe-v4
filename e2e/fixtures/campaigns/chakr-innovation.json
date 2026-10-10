@@ -13,7 +13,8 @@
       ],
       "primaryMarket": "IN",
       "marketScope": "national",
-      "primaryUrl": "https://chakr.in"
+      "primaryUrl": "https://chakr.in",
+      "currency": "INR"
     },
     "step2": {
       "businessName": "Chakr Innovation",
@@ -32,10 +33,11 @@
         "Chakr Aluminium-Air clean-energy technology for mobility and stationary energy applications",
         "Site assessment, installation, commissioning, compliance support and ongoing maintenance for emission-control systems"
       ],
-      "priceRange": "not_sure",
       "sensitiveCategoryFlags": [
         "none"
-      ]
+      ],
+      "priceRangeLow": 1300000,
+      "priceRangeHigh": 1300000
     },
     "step3": {
       "primaryTargetSegment": "Indian organisations operating diesel or gas generators or emission-intensive facilities, especially manufacturing, data centres, hospitals and infrastructure.",
@@ -78,8 +80,6 @@
     },
     "step5": {
       "primaryGoal": "leads",
-      "monthlyMarketingSpend": "nothing",
-      "paidMediaBudgetRange": "unknown",
       "marketingHandler": "unknown",
       "contentCapacity": "unknown",
       "marketingHoursPerWeek": "underFive",
@@ -94,14 +94,15 @@
         "PI Green Innovations",
         "Cummins Technologies India",
         "Automoto Genset Solutions"
-      ]
+      ],
+      "monthlyMarketingBudget": 0,
+      "paidAdsShare": "none"
     },
     "step6": {
-      "averageContractValue": "INR 13,00,000",
-      "dealValueBand": "from_10l_to_50l",
       "grossMarginBand": "from_20_to_40_percent",
       "closeRateBand": "from_5_to_15_percent",
-      "paybackWindow": "firstOrder"
+      "paybackWindow": "firstOrder",
+      "typicalDealValue": 1300000
     },
     "step7": {
       "confirmFocus": true,

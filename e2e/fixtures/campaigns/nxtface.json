@@ -13,7 +13,8 @@
       ],
       "primaryMarket": "IN",
       "marketScope": "national",
-      "primaryUrl": "https://nxtface.com"
+      "primaryUrl": "https://nxtface.com",
+      "currency": "INR"
     },
     "step2": {
       "businessName": "NXTFACE",
@@ -31,10 +32,11 @@
         "AI-powered skin analysis and personalised product recommendations",
         "Skincare routines and product bundles designed for specific skin concerns"
       ],
-      "priceRange": "not_sure",
       "sensitiveCategoryFlags": [
         "none"
-      ]
+      ],
+      "priceRangeLow": 1150,
+      "priceRangeHigh": 1150
     },
     "step3": {
       "primaryTargetSegment": "Gen Z and young adults in Indian markets seeking affordable, simple, science-led skincare for Indian climates and diverse skin tones.",
@@ -73,8 +75,6 @@
     },
     "step5": {
       "primaryGoal": "leads",
-      "monthlyMarketingSpend": "nothing",
-      "paidMediaBudgetRange": "nothing",
       "marketingHandler": "unknown",
       "contentCapacity": "unknown",
       "marketingHoursPerWeek": "tenToTwenty",
@@ -85,14 +85,15 @@
       ],
       "deliveryDeadline": "withinThreeMonths",
       "salesCapacity": "not_sure",
-      "knownCompetitorStatus": "unknown"
+      "knownCompetitorStatus": "unknown",
+      "monthlyMarketingBudget": 0,
+      "paidAdsShare": "none"
     },
     "step6": {
-      "averageOrderValue": "INR 1,150",
-      "dealValueBand": "under_10k",
       "grossMarginBand": "from_60_to_80_percent",
       "closeRateBand": "from_30_to_50_percent",
-      "paybackWindow": "withinSixMonths"
+      "paybackWindow": "withinSixMonths",
+      "averageOrderValueAmount": 1150
     },
     "step7": {
       "confirmFocus": true,

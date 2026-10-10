@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { expect, type Locator, type Page, type Response } from '@playwright/test';
 import type { CampaignExecutionReport, CampaignFixture } from './campaign-types';
+import { formatMoney } from '../../shared/types/money';
 
 // The wizard asks for one country by name, and says where the client sells
 // inside it in words that name that country.
@@ -78,6 +79,13 @@ const STATIC_OPTION_LABELS: Record<string, string> = {
   b2b_security_compliance: 'B2B security and compliance',
   alcohol_tobacco_restricted: 'Alcohol, tobacco and restricted goods',
   healthcare_wellness: 'Healthcare and wellness',
+  INR: 'Indian rupee (INR)',
+  USD: 'US dollar (USD)',
+  GBP: 'British pound (GBP)',
+  under_quarter: 'Under a quarter',
+  about_half: 'About half',
+  most: 'Most of it',
+  all: 'All of it',
 };
 
 const EMAIL_LIST_OPTION_LABELS: Record<string, string> = {
@@ -275,6 +283,7 @@ export class CampaignWizardPage {
     await this.fill('focusName', step.focusName);
     const countryCode = step.targetMarkets[0] ?? '';
     await this.chooseSelect('targetMarkets', COUNTRY_LABELS[countryCode] ?? countryCode);
+    await this.chooseSelect('currency', step.currency);
     // "local" fixtures target the same question as regional.
     const marketScope = step.marketScope === 'local' ? 'regional' : step.marketScope;
     await this.chooseSelect('marketScope', marketScopeLabel(marketScope, countryCode));
@@ -322,7 +331,8 @@ export class CampaignWizardPage {
     await this.fill('businessDescription', step.businessDescription);
     await this.fill('productCategory', step.productCategory);
     await this.addTags('productsServices', step.productsServices);
-    await this.fill('priceRange', step.priceRange);
+    await this.fill('priceRangeLow', String(step.priceRangeLow));
+    await this.fill('priceRangeHigh', String(step.priceRangeHigh));
     await this.fill('offerSummary', step.offerSummary);
     await this.addTags('differentiators', step.differentiators);
     for (const flag of step.sensitiveCategoryFlags) {
@@ -395,10 +405,10 @@ export class CampaignWizardPage {
 
   async populateStep5() {
     const step = this.fixture.wizard.step5;
-    await this.chooseSelect('monthlyMarketingSpend', step.monthlyMarketingSpend);
+    await this.fill('monthlyMarketingBudget', String(step.monthlyMarketingBudget));
     await this.chooseSelect('primaryGoal', step.primaryGoal);
     await this.chooseSelect('marketingHandler', step.marketingHandler);
-    await this.chooseSelect('paidMediaBudgetRange', step.paidMediaBudgetRange);
+    await this.chooseSelect('paidAdsShare', step.paidAdsShare);
     await this.chooseSelect('contentCapacity', step.contentCapacity);
     await this.chooseSelect('marketingHoursPerWeek', step.marketingHoursPerWeek);
     await this.chooseSelect('deliveryDeadline', step.deliveryDeadline);
@@ -423,7 +433,12 @@ export class CampaignWizardPage {
         );
       }
       await this.fill(`currentMarketingActivity.${index}.evidence`, activity.evidence);
-      await this.fill(`currentMarketingActivity.${index}.monthlySpend`, activity.monthlySpend);
+      if (activity.monthlySpendAmount !== undefined) {
+        await this.fill(
+          `currentMarketingActivity.${index}.monthlySpendAmount`,
+          String(activity.monthlySpendAmount),
+        );
+      }
       await this.fill(`currentMarketingActivity.${index}.timeRunning`, activity.timeRunning);
       await this.fill(`currentMarketingActivity.${index}.reasonStopped`, activity.reasonStopped);
     }
@@ -442,11 +457,13 @@ export class CampaignWizardPage {
 
   async populateStep6() {
     const step = this.fixture.wizard.step6;
+    for (const fieldPath of ['averageOrderValueAmount', 'typicalDealValue', 'monthlyRevenueAmount'] as const) {
+      if (step[fieldPath] !== undefined) {
+        await this.fill(fieldPath, String(step[fieldPath]));
+      }
+    }
     for (const fieldPath of [
-      'averageOrderValue',
-      'averageContractValue',
       'grossMarginPercentage',
-      'monthlyRevenue',
       'monthlyOrderVolume',
       'productCost',
       'monthlyOrdersPerSubscriber',
@@ -455,17 +472,12 @@ export class CampaignWizardPage {
     ] as const) {
       await this.fill(fieldPath, step[fieldPath]);
     }
-    // Deal value and gross margin have no opt-out, so the wizard cannot be
-    // saved without them - unlike every other field on this step. They come
-    // from the fixture rather than a default here: a single default would mean
-    // every campaign exercised the same economics, and a capital-equipment
-    // deal and a skincare order size the plan very differently.
-    if (!step.dealValueBand || !step.grossMarginBand) {
-      throw new Error(
-        'Fixture is missing dealValueBand or grossMarginBand; step 6 cannot be saved without them.',
-      );
+    // Gross margin has no opt-out, so the wizard cannot be saved without it.
+    // It comes from the fixture rather than a default here: a single default
+    // would mean every campaign exercised the same economics.
+    if (!step.grossMarginBand) {
+      throw new Error('Fixture is missing grossMarginBand; step 6 cannot be saved without it.');
     }
-    await this.chooseSelect('dealValueBand', step.dealValueBand);
     await this.chooseSelect('grossMarginBand', step.grossMarginBand);
     if (step.closeRateBand) {
       await this.chooseSelect('closeRateBand', step.closeRateBand);
@@ -500,6 +512,9 @@ export class CampaignWizardPage {
 
   async validateReview() {
     const { step1, step2, step3, step5, step6 } = this.fixture.wizard;
+    // Amounts read as the review shows them: "£2,500", "₹15,00,000".
+    const money = (amount: number | undefined) =>
+      amount === undefined ? undefined : (formatMoney({ amount, currency: step1.currency }) ?? undefined);
     await this.assertReviewContains(this.reviewSection('Focus'), [
       step1.title,
       step1.focusName,
@@ -509,7 +524,7 @@ export class CampaignWizardPage {
       step2.businessName,
       step2.productCategory,
       ...step2.productsServices,
-      step2.priceRange,
+      money(step2.priceRangeLow),
     ]);
     await this.assertReviewContains(this.reviewSection('Audience'), [
       step3.primaryTargetSegment,
@@ -527,7 +542,8 @@ export class CampaignWizardPage {
       none: 'None of these',
     };
     await this.assertReviewContains(this.reviewSection('Goals & Context'), [
-      optionLabel(step5.paidMediaBudgetRange),
+      money(step5.monthlyMarketingBudget),
+      optionLabel(step5.paidAdsShare),
       optionLabel(step5.marketingHoursPerWeek),
       ...step5.creativeCapabilities.map((value) => creativeCapabilityLabels[value] ?? value),
       optionLabel(step5.deliveryDeadline),
@@ -535,9 +551,9 @@ export class CampaignWizardPage {
       ...(step5.knownCompetitors ?? []),
     ]);
     await this.assertReviewContains(this.reviewSection('Economics'), [
-      step6.averageOrderValue,
-      step6.averageContractValue,
-      step6.monthlyRevenue,
+      money(step6.averageOrderValueAmount),
+      money(step6.typicalDealValue),
+      money(step6.monthlyRevenueAmount),
       optionLabel(step6.paybackWindow),
     ]);
   }

@@ -16,6 +16,7 @@ import {
   SALES_CHANNEL_VALUES,
   SOCIAL_PLATFORM_VALUES,
 } from '@/shared/types/wizard';
+import { parseAmountText } from '@/shared/types/money';
 
 const tagItemSchema = z.string().trim().min(1, 'Value cannot be empty').max(200, 'Keep each item under 200 characters');
 
@@ -45,12 +46,28 @@ const digitalPresenceLinkSchema = z.object({
   label: z.string().trim().max(120, 'Keep labels under 120 characters').optional().or(z.literal('')),
 });
 
+/**
+ * An amount as typed, in the campaign currency (v3 P1): digits with optional
+ * grouping and up to two decimals, or empty. Whether one is required is up to
+ * the step that asks for it.
+ */
+const amountTextSchema = z
+  .string()
+  .trim()
+  .max(24, 'Keep the amount under 24 characters')
+  .refine((value) => value === '' || parseAmountText(value) !== null, 'Enter the amount in digits, e.g. 25000')
+  .optional()
+  .or(z.literal(''));
+
+const hasAmount = (value: string | undefined) => parseAmountText(value) !== null;
+
 const currentMarketingActivitySchema = z.object({
   channel: z.string().trim().min(1, 'Channel is required').max(120, 'Keep channel under 120 characters'),
   status: z.string().trim().min(1, 'Status is required').max(80, 'Keep status under 80 characters'),
   workingAssessment: z.string().trim().max(80, 'Keep assessment under 80 characters').optional().or(z.literal('')),
   evidence: z.string().trim().max(500, 'Keep evidence under 500 characters').optional().or(z.literal('')),
   monthlySpend: z.string().trim().max(120, 'Keep monthly spend under 120 characters').optional().or(z.literal('')),
+  monthlySpendAmount: amountTextSchema,
   timeRunning: z.string().trim().max(120, 'Keep time running under 120 characters').optional().or(z.literal('')),
   reasonStopped: z.string().trim().max(500, 'Keep reason under 500 characters').optional().or(z.literal('')),
 });
@@ -68,6 +85,7 @@ const monthlyRevenueSchema = z
   ])
   .optional()
   .or(z.literal(''));
+
 
 // A single choice from a backend-served option list. The list is DB-managed,
 // so membership is left to the dropdown that offers it rather than pinned here.
@@ -91,6 +109,8 @@ export const step1Schema = z.object({
   regionalLanguageExpansionEnabled: z.boolean().default(false),
   regionalLanguages: z.array(tagItemSchema).default([]),
   marketLocation: z.string().trim().max(300, 'Keep the location under 300 characters').optional().or(z.literal('')),
+  // v3: every amount in the wizard is in this currency.
+  currency: z.string().trim().regex(/^[A-Z]{3}$/, 'Choose the currency you run your business in'),
 }).superRefine((value, ctx) => {
   const sourceType = value.sourceType;
   const primaryUrl = value.primaryUrl?.trim() ?? '';
@@ -143,7 +163,11 @@ export const step2Schema = z.object({
   productCategory: z.string().trim().min(1, 'Product category is required').max(160, 'Keep the category under 160 characters'),
   productOrService: z.array(tagItemSchema).min(1, 'Add at least one product or service').max(10, 'Add up to 10 items').default([]),
   offerSummary: z.string().trim().max(500, 'Keep the offer summary under 500 characters').optional().or(z.literal('')),
-  priceRange: z.string().trim().min(1, 'Price range is required').max(120, 'Keep the price range under 120 characters'),
+  // v3: two amounts. A draft from before them keeps its free-text range,
+  // which still saves; the step asks for the amounts instead.
+  priceRange: z.string().trim().max(120, 'Keep the price range under 120 characters').optional().or(z.literal('')),
+  priceRangeLow: amountTextSchema,
+  priceRangeHigh: amountTextSchema,
   differentiators: z.array(tagItemSchema).max(10, 'Add up to 10 differentiators').default([]),
   trustSignals: z.array(tagItemSchema).max(20, 'Add up to 20 trust signals').default([]),
   sensitiveCategoryFlags: z.array(tagItemSchema).min(1, 'Add at least one sensitive category flag').max(20, 'Add up to 20 flags').default([]),
@@ -153,6 +177,24 @@ export const step2Schema = z.object({
   socialHandles: z.array(socialHandleSchema).default([]),
   digitalPresenceLinks: z.array(digitalPresenceLinkSchema).default([]),
 }).superRefine((value, ctx) => {
+  // This form backs steps 2 and 4, so a draft with only its older free-text
+  // range still saves step 4; step 2 asks for the two amounts.
+  const hasRangeAmounts = hasAmount(value.priceRangeLow) && hasAmount(value.priceRangeHigh);
+  if (!hasRangeAmounts && !value.priceRange?.trim()) {
+    for (const path of ['priceRangeLow', 'priceRangeHigh'] as const) {
+      if (!hasAmount(value[path])) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: [path], message: 'Enter your lowest and highest price' });
+      }
+    }
+  }
+  if (hasRangeAmounts && parseAmountText(value.priceRangeHigh)! < parseAmountText(value.priceRangeLow)!) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['priceRangeHigh'],
+      message: 'The highest price cannot be below the lowest',
+    });
+  }
+
   const regulatedFlags = [
     'health',
     'wellness',
@@ -220,9 +262,12 @@ export const step3Schema = z.object({
   decisionProcess: z.string().trim().min(1, 'Decision process is required').max(500, 'Keep this under 500 characters'),
   buyerRoles: z.array(tagItemSchema).max(10, 'Add up to 10 buyer roles').default([]),
   constraints: z.array(tagItemSchema).default([]),
-  monthlyMarketingSpend: z.enum(MONTHLY_MARKETING_SPEND_VALUES, {
-    required_error: 'Monthly marketing spend is required',
-  }),
+  // The band answer before v3; the budget below replaces it.
+  monthlyMarketingSpend: z.enum(MONTHLY_MARKETING_SPEND_VALUES).optional(),
+  // v3: everything spent on marketing a month, and the share that goes to
+  // ads. Required by the step 5 submit handler, for the reason given below.
+  monthlyMarketingBudget: amountTextSchema,
+  paidAdsShare: optionAnswerSchema,
   // A band now, required by the step 5 submit handler through
   // `goalsStepAnswersSchema` rather than here. A draft from before the dropdown
   // loads its free text as unselected, and a requirement in this schema would
@@ -251,6 +296,11 @@ export const step3Schema = z.object({
   monthlyRevenue: monthlyRevenueSchema,
   averageOrderValue: z.string().trim().max(120, 'Keep this under 120 characters').optional().or(z.literal('')),
   averageContractValue: z.string().trim().max(120, 'Keep this under 120 characters').optional().or(z.literal('')),
+  // v3 amounts. One of the deal or order value is required by the step 6
+  // handler; the deal value band is derived from it by the backend.
+  averageOrderValueAmount: amountTextSchema,
+  typicalDealValue: amountTextSchema,
+  monthlyRevenueAmount: amountTextSchema,
   grossMarginPercentage: z.string().trim().max(120, 'Keep this under 120 characters').optional().or(z.literal('')),
   // Bands, asked at the end of intake. Deal value and margin carry no opt-out:
   // the free-text fields above shipped `not_sure` on the last run, and the
@@ -299,7 +349,10 @@ const requiredAnswerSchema = (message: string) =>
  * `step3Schema`, which also runs when step 6 is submitted.
  */
 export const goalsStepAnswersSchema = z.object({
-  paidMediaBudgetRange: requiredAnswerSchema('Choose the paid media budget range that fits.'),
+  monthlyMarketingBudget: z
+    .string({ required_error: 'Enter your total monthly marketing budget; 0 is fine.' })
+    .refine(hasAmount, 'Enter your total monthly marketing budget; 0 is fine.'),
+  paidAdsShare: requiredAnswerSchema('Choose how much of the budget goes to paid ads.'),
   marketingHoursPerWeek: requiredAnswerSchema('Choose how many hours a week you can give marketing.'),
   creativeCapabilities: z
     .array(z.string(), { required_error: 'Choose what your team can make, or "None of these".' })
@@ -312,11 +365,18 @@ export const goalsStepAnswersSchema = z.object({
 });
 
 /** Step 6 answers the form requires before it saves - see `goalsStepAnswersSchema`. */
-export const economicsStepAnswersSchema = z.object({
-  paybackWindow: requiredAnswerSchema(
-    'Choose how long you can wait to earn back what it costs to win a customer.',
-  ),
-});
+export const economicsStepAnswersSchema = z
+  .object({
+    paybackWindow: requiredAnswerSchema(
+      'Choose how long you can wait to earn back what it costs to win a customer.',
+    ),
+    typicalDealValue: z.string().optional(),
+    averageOrderValueAmount: z.string().optional(),
+  })
+  .refine((value) => hasAmount(value.typicalDealValue) || hasAmount(value.averageOrderValueAmount), {
+    path: ['typicalDealValue'],
+    message: 'Enter what a typical deal or order is worth.',
+  });
 
 export const step4Schema = z.object({
   confirmFocus: z.boolean().optional(),

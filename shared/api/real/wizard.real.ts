@@ -351,6 +351,21 @@ function isProductsServicesKeyRejected(error: unknown) {
   );
 }
 
+/**
+ * A money answer as `{ amount, currency }`, or undefined. Only the amount and
+ * currency go to the backend, which converts them; whatever else a saved
+ * answer carries (the dollar value, the rate) comes back for display.
+ */
+function normalizeMoney(value: unknown): { amount: number; currency: string } | undefined {
+  const record = ensureObject(value);
+  const amount = record.amount;
+  const currency = record.currency;
+  return typeof amount === 'number' && Number.isFinite(amount) && amount >= 0 &&
+    typeof currency === 'string' && /^[A-Z]{3}$/.test(currency)
+    ? { amount, currency }
+    : undefined;
+}
+
 function normalizeCurrentMarketingActivity(value: unknown) {
   if (!Array.isArray(value)) {
     return [];
@@ -374,6 +389,7 @@ function normalizeCurrentMarketingActivity(value: unknown) {
         workingAssessment: workingAssessment ?? null,
         evidence: normalizeNullableString(item.evidence),
         monthlySpend: normalizeNullableString(item.monthlySpend),
+        monthlySpendAmount: normalizeMoney(item.monthlySpendAmount),
         timeRunning: normalizeNullableString(item.timeRunning),
         reasonStopped: normalizeNullableString(item.reasonStopped),
       });
@@ -604,6 +620,7 @@ function buildLegacyStepDataFromState(
       operationalLocations: normalizeStringList(step1.operationalLocations),
       regionalLanguageExpansionEnabled: normalizeBoolean(step1.regionalLanguageExpansionEnabled),
       regionalLanguages: normalizeStringList(step1.regionalLanguages),
+      currency: normalizeNullableString(step1.currency),
     });
   }
 
@@ -626,6 +643,8 @@ function buildLegacyStepDataFromState(
       productsServices: normalizedProductsServices,
       offerSummary: normalizeNullableString(step2.offerSummary),
       priceRange: normalizeNullableString(step2.priceRange),
+      priceRangeLow: normalizeMoney(step2.priceRangeLow),
+      priceRangeHigh: normalizeMoney(step2.priceRangeHigh),
       differentiators: normalizeStringList(step2.differentiators),
       sensitiveCategoryFlags: normalizeStringList(step2.sensitiveCategoryFlags),
       complianceSensitiveClaims: normalizeStringOrList(step2.complianceSensitiveClaims),
@@ -665,6 +684,8 @@ function buildLegacyStepDataFromState(
       constraints: normalizeStringList(step5.constraints),
       monthlyMarketingSpend: normalizeNullableString(step5.monthlyMarketingSpend),
       paidMediaBudgetRange: normalizeNullableString(step5.paidMediaBudgetRange),
+      monthlyMarketingBudget: normalizeMoney(step5.monthlyMarketingBudget),
+      paidAdsShare: normalizeNullableString(step5.paidAdsShare),
       // Read back as saved. They used to be turned into the v1 values, which
       // no option matches, so a reopened step lost the client's answer.
       primaryGoal: normalizeNullableString(step5.primaryGoal),
@@ -693,6 +714,9 @@ function buildLegacyStepDataFromState(
     return stripUndefined({
       averageOrderValue: normalizeNullableString(step6.averageOrderValue),
       averageContractValue: normalizeNullableString(step6.averageContractValue),
+      averageOrderValueAmount: normalizeMoney(step6.averageOrderValueAmount),
+      typicalDealValue: normalizeMoney(step6.typicalDealValue),
+      monthlyRevenueAmount: normalizeMoney(step6.monthlyRevenueAmount),
       grossMarginPercentage: normalizeNullableString(step6.grossMarginPercentage),
       dealValueBand: step6.dealValueBand,
       grossMarginBand: step6.grossMarginBand,
@@ -732,6 +756,8 @@ function buildPreviewStep4FromState(state: WizardStateResponseV2) {
     constraints: normalizeStringList(step5.constraints),
     monthlyMarketingSpend: normalizeNullableString(step5.monthlyMarketingSpend),
     paidMediaBudgetRange: normalizeNullableString(step5.paidMediaBudgetRange),
+    monthlyMarketingBudget: normalizeMoney(step5.monthlyMarketingBudget),
+    paidAdsShare: normalizeNullableString(step5.paidAdsShare),
     primaryGoal: normalizeNullableString(step5.primaryGoal),
     marketingHandler: normalizeNullableString(step5.marketingHandler),
     contentCapacity: normalizeNullableString(step5.contentCapacity),
@@ -744,6 +770,9 @@ function buildPreviewStep4FromState(state: WizardStateResponseV2) {
       : undefined,
     averageOrderValue: normalizeNullableString(step6.averageOrderValue),
     averageContractValue: normalizeNullableString(step6.averageContractValue),
+    averageOrderValueAmount: normalizeMoney(step6.averageOrderValueAmount),
+    typicalDealValue: normalizeMoney(step6.typicalDealValue),
+    monthlyRevenueAmount: normalizeMoney(step6.monthlyRevenueAmount),
     grossMarginPercentage: normalizeNullableString(step6.grossMarginPercentage),
     pastMarketing: normalizeNullableString(step5.pastMarketing),
     whatsWorking: normalizeNullableString(step5.whatsWorking),
@@ -849,6 +878,8 @@ function buildStep2Payload(data: Record<string, unknown>) {
     productsServices: normalizedProductsServices.length ? normalizedProductsServices : undefined,
     offerSummary: normalizeNullableString(data.offerSummary),
     priceRange: normalizeNullableString(data.priceRange),
+    priceRangeLow: normalizeMoney(data.priceRangeLow),
+    priceRangeHigh: normalizeMoney(data.priceRangeHigh),
     differentiators: normalizeStringOrList(data.differentiators),
     sensitiveCategoryFlags: sensitiveCategoryFlags.length ? sensitiveCategoryFlags : undefined,
     complianceSensitiveClaims,
@@ -937,6 +968,8 @@ function buildStep5Payload(data: Record<string, unknown>) {
     // spend, which is the whole marketing budget rather than the paid-ads part,
     // and the backend took it as the paid budget.
     paidMediaBudgetRange: normalizeNullableString(data.paidMediaBudgetRange),
+    monthlyMarketingBudget: normalizeMoney(data.monthlyMarketingBudget),
+    paidAdsShare: normalizeNullableString(data.paidAdsShare),
     marketingHandler: pickAllowedValue(
       mapWithFallback(data.marketingHandler, MARKETING_HANDLER_TO_V2),
       MARKETING_HANDLER_VALUES_V2,
@@ -1006,6 +1039,9 @@ function buildStep6Payload(data: Record<string, unknown>) {
     dealValueBand,
     grossMarginBand,
     closeRateBand,
+    averageOrderValueAmount: normalizeMoney(data.averageOrderValueAmount),
+    typicalDealValue: normalizeMoney(data.typicalDealValue),
+    monthlyRevenueAmount: normalizeMoney(data.monthlyRevenueAmount),
     // Wizard v2.1, camelCase as the backend lists it; unknown values dropped.
     paybackWindow: pickAllowedValue(data.paybackWindow, PAYBACK_WINDOW_VALUES),
   });
@@ -1083,6 +1119,7 @@ async function saveAgainstV2State(
         : undefined,
       regionalLanguages: regionalLanguages.length ? regionalLanguages : undefined,
       marketLocation,
+      currency: normalizeNullableString(stepData.currency)?.toUpperCase(),
     });
   } else if (stepKey === 'STEP_2') {
     await applyPatch(1, {

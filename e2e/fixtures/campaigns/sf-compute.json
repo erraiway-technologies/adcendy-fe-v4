@@ -13,7 +13,8 @@
       ],
       "primaryMarket": "US",
       "marketScope": "national",
-      "primaryUrl": "https://sfcompute.com"
+      "primaryUrl": "https://sfcompute.com",
+      "currency": "USD"
     },
     "step2": {
       "businessName": "SF Compute",
@@ -32,10 +33,11 @@
         "GPU capacity procurement and marketplace-based purchasing through a web dashboard, command-line interface and API",
         "Cluster deployment, infrastructure management, technical support and hardware-failure remediation"
       ],
-      "priceRange": "not_sure",
       "sensitiveCategoryFlags": [
         "none"
-      ]
+      ],
+      "priceRangeLow": 13500,
+      "priceRangeHigh": 13500
     },
     "step3": {
       "primaryTargetSegment": "US AI startups, research organisations, technology companies and enterprise teams needing flexible access to medium- or large-scale GPU clusters.",
@@ -79,8 +81,6 @@
     },
     "step5": {
       "primaryGoal": "leads",
-      "monthlyMarketingSpend": "nothing",
-      "paidMediaBudgetRange": "unknown",
       "marketingHandler": "unknown",
       "contentCapacity": "unknown",
       "marketingHoursPerWeek": "unknown",
@@ -94,14 +94,15 @@
         "CoreWeave",
         "Lambda Labs",
         "Spheron"
-      ]
+      ],
+      "monthlyMarketingBudget": 0,
+      "paidAdsShare": "none"
     },
     "step6": {
-      "averageContractValue": "USD 13,500",
-      "dealValueBand": "from_10l_to_50l",
       "grossMarginBand": "from_20_to_40_percent",
       "closeRateBand": "from_5_to_15_percent",
-      "paybackWindow": "firstOrder"
+      "paybackWindow": "firstOrder",
+      "typicalDealValue": 13500
     },
     "step7": {
       "confirmFocus": true,
