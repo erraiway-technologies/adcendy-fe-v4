@@ -98,16 +98,6 @@ const PRIMARY_GOAL_TO_V2: Record<string, string> = {
   beat_competitor: 'market_expansion',
 };
 
-const PRIMARY_GOAL_FROM_V2: Record<string, string> = {
-  revenue_growth: 'more_sales',
-  lead_generation: 'more_customers',
-  awareness: 'brand_awareness',
-  launch_readiness: 'launch_product',
-  retention: 'reduce_channel_dependence',
-  market_expansion: 'new_market',
-  other: 'beat_competitor',
-};
-
 const MARKETING_HANDLER_TO_V2: Record<string, string> = {
   self: 'founder_led',
   team_member: 'internal_marketer',
@@ -118,14 +108,6 @@ const MARKETING_HANDLER_TO_V2: Record<string, string> = {
   agency: 'agency',
   in_house_team: 'in_house_team',
   not_sure: 'not_sure',
-};
-
-const MARKETING_HANDLER_FROM_V2: Record<string, string> = {
-  founder_led: 'self',
-  internal_marketer: 'team_member',
-  agency: 'freelancer_agency',
-  in_house_team: 'team_member',
-  not_sure: 'nobody',
 };
 
 const CAMPAIGN_STATUS_BY_WIZARD_STATUS: Record<WizardStateResponseV2['status'], CampaignStatus> = {
@@ -672,8 +654,10 @@ function buildLegacyStepDataFromState(
       constraints: normalizeStringList(step5.constraints),
       monthlyMarketingSpend: normalizeNullableString(step5.monthlyMarketingSpend),
       paidMediaBudgetRange: normalizeNullableString(step5.paidMediaBudgetRange),
-      primaryGoal: mapWithFallback(step5.primaryGoal, PRIMARY_GOAL_FROM_V2),
-      marketingHandler: mapWithFallback(step5.marketingHandler, MARKETING_HANDLER_FROM_V2),
+      // Read back as saved. They used to be turned into the v1 values, which
+      // no option matches, so a reopened step lost the client's answer.
+      primaryGoal: normalizeNullableString(step5.primaryGoal),
+      marketingHandler: normalizeNullableString(step5.marketingHandler),
       contentCapacity: normalizeNullableString(step5.contentCapacity),
       marketingHoursPerWeek: normalizeNullableString(step5.marketingHoursPerWeek),
       creativeCapabilities: normalizeStringList(step5.creativeCapabilities),
@@ -737,8 +721,8 @@ function buildPreviewStep4FromState(state: WizardStateResponseV2) {
     constraints: normalizeStringList(step5.constraints),
     monthlyMarketingSpend: normalizeNullableString(step5.monthlyMarketingSpend),
     paidMediaBudgetRange: normalizeNullableString(step5.paidMediaBudgetRange),
-    primaryGoal: mapWithFallback(step5.primaryGoal, PRIMARY_GOAL_FROM_V2),
-    marketingHandler: mapWithFallback(step5.marketingHandler, MARKETING_HANDLER_FROM_V2),
+    primaryGoal: normalizeNullableString(step5.primaryGoal),
+    marketingHandler: normalizeNullableString(step5.marketingHandler),
     contentCapacity: normalizeNullableString(step5.contentCapacity),
     marketingHoursPerWeek: normalizeNullableString(step5.marketingHoursPerWeek),
     creativeCapabilities: normalizeStringList(step5.creativeCapabilities),

@@ -88,3 +88,16 @@ test('the wizard v2.1 answers reach the backend under their contract names, unco
   }
   assert.match(economicsStepPayload, /\bpaybackWindow:/, 'Step 6 payload should send paybackWindow');
 });
+
+test('a reopened goals step reads the goal and owner as saved', () => {
+  // Mapped to the v1 values on read, they matched no option, so the form
+  // replaced them with its first option and the next save overwrote them.
+  const legacyStep5 = extract(
+    adapterSource,
+    /if \(stepKey === 'STEP_5'\) \{[\s\S]*?\n  \}\n/,
+    'the step 5 read',
+  );
+  assert.match(legacyStep5, /primaryGoal: normalizeNullableString\(step5\.primaryGoal\)/);
+  assert.match(legacyStep5, /marketingHandler: normalizeNullableString\(step5\.marketingHandler\)/);
+  assert.doesNotMatch(adapterSource, /(PRIMARY_GOAL|MARKETING_HANDLER)_FROM_V2/);
+});
