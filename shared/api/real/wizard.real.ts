@@ -711,7 +711,7 @@ function buildLegacyStepDataFromState(
     confirmEconomics: normalizeBoolean(step7.confirmEconomics),
     readyToGenerate: normalizeBoolean(step7.readyToGenerate),
     dataConsentOptIn: Object.prototype.hasOwnProperty.call(step7, 'dataConsentOptIn')
-      ? normalizeBoolean(step7.dataConsentOptIn, true)
+      ? normalizeBoolean(step7.dataConsentOptIn, false)
       : undefined,
   });
 }
@@ -762,7 +762,7 @@ function buildPreviewStep4FromState(state: WizardStateResponseV2) {
     executionConstraints: normalizeStringList(step5.executionConstraints),
     additionalContext: normalizeNullableString(step5.additionalContext),
     dataConsentOptIn: Object.prototype.hasOwnProperty.call(step7, 'dataConsentOptIn')
-      ? normalizeBoolean(step7.dataConsentOptIn, true)
+      ? normalizeBoolean(step7.dataConsentOptIn, false)
       : undefined,
   });
 }
@@ -1014,7 +1014,7 @@ function buildStep7PayloadFromGoals(data: Record<string, unknown>) {
     confirmGoals: normalizeBoolean(data.confirmGoals),
     confirmEconomics: normalizeBoolean(data.confirmEconomics),
     readyToGenerate: normalizeBoolean(data.readyToGenerate),
-    dataConsentOptIn: normalizeBoolean(data.dataConsentOptIn, true),
+    dataConsentOptIn: normalizeBoolean(data.dataConsentOptIn, false),
   });
 }
 

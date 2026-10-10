@@ -226,7 +226,8 @@ const EMPTY_STEP_3_VALUES: Step3FormData = {
   channelsToAvoid: [],
   channelsStronglyPreferred: [],
   executionConstraints: [],
-  dataConsentOptIn: true,
+  // An optional consent is given only by ticking it.
+  dataConsentOptIn: false,
   monthlyRevenue: '',
   averageOrderValue: '',
   averageContractValue: '',
@@ -855,19 +856,65 @@ function FixedCheckboxRow({
   checked,
   onCheckedChange,
   label,
+  tone = 'default',
 }: {
   id: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
-  label: string;
+  label: ReactNode;
+  /** Consents sit on a lighter row, apart from the confirmations. */
+  tone?: 'default' | 'consent';
 }) {
   return (
-    <div className="flex w-full items-start gap-4 rounded-2xl border border-white/15 bg-[#2A2A2A] p-4">
+    <div
+      className={cn(
+        'flex w-full items-start gap-4 rounded-2xl border p-4',
+        tone === 'consent' ? 'border-white/20 bg-white/[0.08]' : 'border-white/15 bg-[#2A2A2A]',
+      )}
+    >
       <Checkbox data-testid={id} id={id} checked={checked} onCheckedChange={(next) => onCheckedChange(next === true)} className="mt-1" />
       <label htmlFor={id} className="cursor-pointer text-sm font-medium text-white/90">
         {label}
       </label>
     </div>
+  );
+}
+
+/**
+ * A consent's name, linked to its details when the backend gives a page for
+ * them. It opens in a new tab so the wizard stays as it is; a link inside the
+ * label does not tick the box.
+ */
+function ConsentLabel({
+  label,
+  required,
+  detailsUrl,
+}: {
+  label: string;
+  required: boolean;
+  detailsUrl?: string | null;
+}) {
+  const suffix = ` consent (${required ? 'required' : 'optional'})`;
+  if (!detailsUrl) {
+    return (
+      <>
+        {label}
+        {suffix}
+      </>
+    );
+  }
+  return (
+    <>
+      <a
+        href={detailsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline decoration-white/40 underline-offset-4 hover:decoration-white"
+      >
+        {label}
+      </a>
+      {suffix}
+    </>
   );
 }
 
@@ -947,13 +994,15 @@ function ReviewConfirmCard({
   checked,
   onCheckedChange,
   label,
+  tone,
 }: {
   id: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
-  label: string;
+  label: ReactNode;
+  tone?: 'default' | 'consent';
 }) {
-  return <FixedCheckboxRow id={id} checked={checked} onCheckedChange={onCheckedChange} label={label} />;
+  return <FixedCheckboxRow id={id} checked={checked} onCheckedChange={onCheckedChange} label={label} tone={tone} />;
 }
 
 function FinalConfirmationCard({
@@ -2746,7 +2795,7 @@ export function CampaignWizardModal({
         : '');
     const normalizedDataConsentOptIn = getDefaultBooleanOptionValue(
       dataConsentOptInOptions,
-      savedFinalData.dataConsentOptIn === false ? false : true,
+      savedFinalData.dataConsentOptIn === true,
     );
     const nextValues: Step3FormData = {
       primaryTargetSegment: normalizeString(savedAudienceData.primaryTargetSegment as string | undefined),
@@ -6215,7 +6264,14 @@ export function CampaignWizardModal({
                               id={wizardConsentTestId(consent.consentType)}
                               checked={wizardConsentState[consent.consentType] === true}
                               onCheckedChange={(checked) => handleWizardConsentToggle(consent.consentType, checked)}
-                              label={`${consent.label} consent (${consent.required ? 'required' : 'optional'})`}
+                              tone="consent"
+                              label={
+                                <ConsentLabel
+                                  label={consent.label}
+                                  required={consent.required}
+                                  detailsUrl={consent.detailsUrl}
+                                />
+                              }
                             />
                           ))}
                           {isSyncingConsent ? (

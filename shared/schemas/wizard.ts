@@ -247,7 +247,7 @@ export const step3Schema = z.object({
   channelsToAvoid: z.array(tagItemSchema).default([]),
   channelsStronglyPreferred: z.array(tagItemSchema).default([]),
   executionConstraints: z.array(tagItemSchema).default([]),
-  dataConsentOptIn: z.boolean().default(true),
+  dataConsentOptIn: z.boolean().default(false),
   monthlyRevenue: monthlyRevenueSchema,
   averageOrderValue: z.string().trim().max(120, 'Keep this under 120 characters').optional().or(z.literal('')),
   averageContractValue: z.string().trim().max(120, 'Keep this under 120 characters').optional().or(z.literal('')),
