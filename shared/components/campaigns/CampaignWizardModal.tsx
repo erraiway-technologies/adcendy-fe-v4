@@ -9,7 +9,6 @@ import {
   ArrowRight,
   AlertTriangle,
   Check,
-  ChevronDown,
   CircleHelp,
   Plus,
   ShieldCheck,
@@ -43,11 +42,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -2062,7 +2056,6 @@ export function CampaignWizardModal({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showConflictDialog, setShowConflictDialog] = useState(false);
   const [showCommitConfirmDialog, setShowCommitConfirmDialog] = useState(false);
-  const [showOptionalDetails, setShowOptionalDetails] = useState(false);
 
   const [confirmFocus, setConfirmFocus] = useState(false);
   const [confirmBusiness, setConfirmBusiness] = useState(false);
@@ -2845,35 +2838,6 @@ export function CampaignWizardModal({
 
     step3SnapshotRef.current = nextValues;
     step3Form.reset(nextValues);
-    setShowOptionalDetails(
-      Boolean(
-        nextValues.monthlyRevenue ||
-          nextValues.averageOrderValue ||
-          nextValues.averageContractValue ||
-          nextValues.grossMarginPercentage ||
-          nextValues.monthlyOrderVolume ||
-          nextValues.productCost ||
-          nextValues.monthlyOrdersPerSubscriber ||
-          nextValues.monthlyChurnRate ||
-          nextValues.avgCustomerRetention ||
-          nextValues.repeatPurchaseFrequency ||
-          nextValues.salesCycleLength ||
-          nextValues.googleAnalyticsConnected === true ||
-          nextValues.googleAnalyticsConnected === 'unknown' ||
-          nextValues.monthlyWebsiteTraffic ||
-          nextValues.emailListSize ||
-          nextValues.knownCompetitors.length ||
-          nextValues.channelsToAvoid.length ||
-          nextValues.channelsStronglyPreferred.length ||
-          nextValues.executionConstraints.length ||
-          nextValues.constraints.length ||
-          nextValues.pastMarketing ||
-          nextValues.whatsWorking ||
-          nextValues.biggestFrustration ||
-          nextValues.additionalContext ||
-          nextValues.dataConsentOptIn !== true,
-      ),
-    );
 
     if (step3Data?.version !== undefined) {
       step3VersionRef.current = step3Data.version;
@@ -3901,24 +3865,6 @@ export function CampaignWizardModal({
     'decisionProcess',
     'buyerRoles',
   ];
-  const optionalContextFieldNames: Array<keyof Step3FormData> = [
-    'monthlyRevenue',
-    'averageOrderValue',
-    'averageContractValue',
-    'grossMarginPercentage',
-    'monthlyOrderVolume',
-    'productCost',
-    'monthlyOrdersPerSubscriber',
-    'monthlyChurnRate',
-    'avgCustomerRetention',
-    'repeatPurchaseFrequency',
-    'salesCycleLength',
-    'googleAnalyticsConnected',
-    'monthlyWebsiteTraffic',
-    'emailListSize',
-    'additionalContext',
-  ];
-  const showGoalsOptionalSection = false;
 
   const handleStep4Invalid = (errors: FieldErrors<Step3FormData>) => {
     const invalidFields = getTopLevelErrorFields(errors);
@@ -3930,10 +3876,6 @@ export function CampaignWizardModal({
         syncWizardUrl(activeCampaignId, 3);
       }
       return;
-    }
-
-    if (invalidFields.some((fieldName) => optionalContextFieldNames.includes(fieldName))) {
-      setShowOptionalDetails(true);
     }
 
     setErrorMessage('Fix the highlighted fields before continuing to review.');
@@ -5819,180 +5761,6 @@ export function CampaignWizardModal({
                     <FieldMeta error={step3Form.formState.errors.additionalContext?.message} />
                   </div>
                 </WizardSectionCard>
-
-                {showGoalsOptionalSection ? (
-                <Collapsible open={showOptionalDetails} onOpenChange={setShowOptionalDetails}>
-                  <div className="rounded-2xl border border-border/80 bg-card/95">
-                    <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left sm:px-5">
-                      <div className="space-y-1">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/75">Optional context</p>
-                        <p className="text-sm font-medium text-foreground/90">Add commercial and operating detail</p>
-                        <p className="text-sm leading-5 text-foreground/75">These fields help sharpen estimates, but they are not required.</p>
-                      </div>
-                      <ChevronDown className={cn('h-4 w-4 text-foreground/75 transition-transform', showOptionalDetails && 'rotate-180')} />
-                    </CollapsibleTrigger>
-
-                    <CollapsibleContent className="border-t border-border/60 px-4 py-4 sm:px-5">
-                      <div className="grid gap-4 lg:grid-cols-2">
-                        <div className="space-y-2">
-                          <FieldLabel label="Monthly revenue" helper={`Preset values accepted: ${MONTHLY_REVENUE_OPTIONS.map((option) => option.value).join(', ')}`} />
-                          <Input className={wizardInputClassName} placeholder="e.g. 25k_1l or approx INR 3 lakh/month" {...step3Form.register('monthlyRevenue')} />
-                          <FieldMeta error={step3Form.formState.errors.monthlyRevenue?.message} />
-                        </div>
-                        <div className="space-y-2">
-                          <FieldLabel label="Monthly order volume" />
-                          <Input
-                            className={wizardInputClassName}
-                            placeholder="e.g. 80-140 orders per month"
-                            {...step3Form.register('monthlyOrderVolume')}
-                          />
-                          <FieldMeta error={step3Form.formState.errors.monthlyOrderVolume?.message} />
-                        </div>
-                        <div className="space-y-2">
-                          <FieldLabel label="Product cost" />
-                          <Input
-                            className={wizardInputClassName}
-                            placeholder="e.g. INR 250-450 per unit"
-                            {...step3Form.register('productCost')}
-                          />
-                          <FieldMeta error={step3Form.formState.errors.productCost?.message} />
-                        </div>
-                        <div className="space-y-2">
-                          <FieldLabel label="Customer retention pattern" />
-                          <Controller
-                            name="avgCustomerRetention"
-                            control={step3Form.control}
-                            render={({ field }) => (
-                              <Select onValueChange={(value) => field.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)} value={field.value || OPTIONAL_SELECT_VALUE}>
-                                <SelectTrigger className={wizardInputClassName}>
-                                  <SelectValue placeholder="Select pattern" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value={OPTIONAL_SELECT_VALUE}>Prefer not to say</SelectItem>
-                                  {AVG_CUSTOMER_RETENTION_OPTIONS.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                      {option.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          <FieldMeta error={step3Form.formState.errors.avgCustomerRetention?.message} />
-                        </div>
-                        <div className="space-y-2">
-                          <FieldLabel label="Repeat purchase frequency" />
-                          <Controller
-                            name="repeatPurchaseFrequency"
-                            control={step3Form.control}
-                            render={({ field }) => (
-                              <Select onValueChange={(value) => field.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)} value={field.value || OPTIONAL_SELECT_VALUE}>
-                                <SelectTrigger className={wizardInputClassName}>
-                                  <SelectValue placeholder="Select frequency" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value={OPTIONAL_SELECT_VALUE}>Prefer not to say</SelectItem>
-                                  {REPEAT_PURCHASE_FREQUENCY_OPTIONS.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                      {option.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          <FieldMeta error={step3Form.formState.errors.repeatPurchaseFrequency?.message} />
-                        </div>
-                        <div className="space-y-2">
-                          <FieldLabel label="Monthly website traffic" />
-                          <Controller
-                            name="monthlyWebsiteTraffic"
-                            control={step3Form.control}
-                            render={({ field }) => (
-                              <Select onValueChange={(value) => field.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)} value={field.value || OPTIONAL_SELECT_VALUE}>
-                                <SelectTrigger className={wizardInputClassName}>
-                                  <SelectValue placeholder="Select traffic" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value={OPTIONAL_SELECT_VALUE}>Prefer not to say</SelectItem>
-                                  {MONTHLY_WEBSITE_TRAFFIC_OPTIONS.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                      {option.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          <FieldMeta error={step3Form.formState.errors.monthlyWebsiteTraffic?.message} />
-                        </div>
-                        <div className="space-y-2">
-                          <FieldLabel label="Email list size" />
-                          <Controller
-                            name="emailListSize"
-                            control={step3Form.control}
-                            render={({ field }) => (
-                              <Select onValueChange={(value) => field.onChange(value === OPTIONAL_SELECT_VALUE ? '' : value)} value={field.value || OPTIONAL_SELECT_VALUE}>
-                                <SelectTrigger className={wizardInputClassName}>
-                                  <SelectValue placeholder="Select size" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value={OPTIONAL_SELECT_VALUE}>Prefer not to say</SelectItem>
-                                  {EMAIL_LIST_SIZE_OPTIONS.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                      {option.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          <FieldMeta error={step3Form.formState.errors.emailListSize?.message} />
-                        </div>
-                      </div>
-
-                      <div className="mt-4 space-y-4">
-                        <div className="flex items-start justify-between gap-4 rounded-xl border border-border/80 bg-muted/60 p-4">
-                          <div className="space-y-1">
-                            <p className="text-sm font-medium text-foreground/90">Google Analytics connected</p>
-                            <p className="text-xs leading-5 text-foreground/75">Turn this on only if analytics is already set up.</p>
-                          </div>
-                          <Controller
-                            name="googleAnalyticsConnected"
-                            control={step3Form.control}
-                            render={({ field }) => (
-                              <Select
-                                onValueChange={(value) => field.onChange(fromGoogleAnalyticsSelectValue(value))}
-                                value={toGoogleAnalyticsSelectValue(field.value)}
-                              >
-                                <SelectTrigger className="h-11 min-w-[190px] rounded-xl border-border/80 bg-card/95 text-sm text-foreground">
-                                  <SelectValue placeholder="Select status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value={OPTIONAL_SELECT_VALUE}>Prefer not to say</SelectItem>
-                                  <SelectItem value="true">Connected</SelectItem>
-                                  <SelectItem value="false">Not connected</SelectItem>
-                                  <SelectItem value="unknown">Unknown</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="mt-4 space-y-2">
-                        <FieldLabel label="Additional context" />
-                          <Textarea
-                            placeholder="Share seasonality, offline context, team constraints, or anything else that matters."
-                            {...step3Form.register('additionalContext')}
-                          className={wizardTextareaClassName}
-                        />
-                        <FieldMeta error={step3Form.formState.errors.additionalContext?.message} />
-                      </div>
-                    </CollapsibleContent>
-                  </div>
-                </Collapsible>
-                ) : null}
 
                 </form>
               ) : null}
