@@ -129,6 +129,7 @@ import {
   formatKnownCompetitorStatus,
   formatSensitiveCategoryFlags,
   CREATIVE_CAPABILITY_OPTIONS,
+  CONTENT_CAPACITY_LABELS,
   DELIVERY_DEADLINE_LABELS,
   DELIVERY_DEADLINE_OPTIONS,
   MARKETING_HOURS_PER_WEEK_LABELS,
@@ -442,13 +443,9 @@ const STEP5_MARKETING_HANDLER_FALLBACK_OPTIONS: WizardStringOption[] = [
   { value: 'unknown', label: "Don't know" },
 ];
 
-const STEP5_CONTENT_CAPACITY_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'none', label: 'None' },
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-  { value: 'unknown', label: "Don't know" },
-];
+const STEP5_CONTENT_CAPACITY_FALLBACK_OPTIONS: WizardStringOption[] = Object.entries(CONTENT_CAPACITY_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
 
 // Wizard v2.1 answers, used when the backend option list is unavailable. The
 // values match the backend's lists exactly.

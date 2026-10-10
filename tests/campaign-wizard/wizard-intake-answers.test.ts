@@ -39,7 +39,6 @@ test('option values match the backend wizard contract exactly', () => {
     'none',
   ]);
   assert.deepEqual([...DELIVERY_DEADLINE_VALUES], [
-    'withinOneMonth',
     'withinThreeMonths',
     'withinSixMonths',
     'noFixedDeadline',

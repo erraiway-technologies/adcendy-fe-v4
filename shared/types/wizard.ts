@@ -556,7 +556,12 @@ export const SOCIAL_PLATFORM_OPTIONS = SOCIAL_PLATFORM_VALUES.map((value) => ({
   label: SOCIAL_PLATFORM_LABELS[value],
 }));
 
-export const DIGITAL_PRESENCE_LINK_TYPE_OPTIONS = DIGITAL_PRESENCE_LINK_TYPE_VALUES.map((value) => ({
+// v3 (A7): social profiles are asked as social handles, so a new presence
+// link is not offered their types. Saved ones are still read: the backend
+// moves them into the handles.
+export const DIGITAL_PRESENCE_LINK_TYPE_OPTIONS = DIGITAL_PRESENCE_LINK_TYPE_VALUES.filter(
+  (value) => !(SOCIAL_PLATFORM_VALUES as readonly string[]).includes(value),
+).map((value) => ({
   value,
   label: DIGITAL_PRESENCE_LINK_TYPE_LABELS[value],
 }));
@@ -608,11 +613,12 @@ function withAlias(value: string | null | undefined, aliases: Record<string, str
   return aliases[toWizardToken(value)] ?? value;
 }
 
+// v3 (A3): what each capacity means, not a size.
 export const CONTENT_CAPACITY_LABELS: Record<string, string> = {
-  none: 'None',
-  low: 'Low',
-  medium: 'Medium',
-  high: 'High',
+  none: 'Nothing yet',
+  low: 'A post or two a week',
+  medium: 'Several a week',
+  high: 'Daily with a team',
   unknown: "Don't know",
 };
 
@@ -817,8 +823,9 @@ export const CREATIVE_CAPABILITY_OPTIONS = CREATIVE_CAPABILITY_VALUES.map((value
   label: CREATIVE_CAPABILITY_LABELS[value],
 }));
 
+// v3 (A6): no one-month deadline; the backend reads one saved earlier as
+// three months.
 export const DELIVERY_DEADLINE_VALUES = [
-  'withinOneMonth',
   'withinThreeMonths',
   'withinSixMonths',
   'noFixedDeadline',
@@ -828,7 +835,6 @@ export const DELIVERY_DEADLINE_VALUES = [
 export type DeliveryDeadline = (typeof DELIVERY_DEADLINE_VALUES)[number];
 
 export const DELIVERY_DEADLINE_LABELS: Record<DeliveryDeadline, string> = {
-  withinOneMonth: 'Within 1 month',
   withinThreeMonths: 'Within 3 months',
   withinSixMonths: 'Within 6 months',
   noFixedDeadline: 'No fixed deadline',

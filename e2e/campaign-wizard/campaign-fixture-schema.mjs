@@ -237,7 +237,6 @@ const step5Schema = z
       .array(z.enum(['video', 'photography', 'copywriting', 'design', 'none']))
       .min(1),
     deliveryDeadline: z.enum([
-      'withinOneMonth',
       'withinThreeMonths',
       'withinSixMonths',
       'noFixedDeadline',
