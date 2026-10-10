@@ -1,3 +1,5 @@
+import brandMark from '@/shared/brand/adcendy-mark.svg';
+
 /**
  * The breathing AdCendy mark as an in-page loading state - the same mark and
  * animation as the first-load splash (.brand-splash__logo in globals.css), for
@@ -7,7 +9,7 @@ export function BrandLoadingMark({ label = 'Loading' }: { label?: string }) {
   return (
     <div className="flex min-h-screen items-center justify-center" role="status" aria-label={label}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="brand-splash__logo" src="/Adcendy-logo-no-name-tight.svg" alt="" width={96} height={96} />
+      <img className="brand-splash__logo" src={brandMark.src} alt="" width={96} height={96} />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import brandLogo from '@/shared/brand/adcendy-logo.svg';
 
-/** public/Adcendy-logo-tight.svg is cropped to the artwork: 717 × 307. */
+/** shared/brand/adcendy-logo.svg is cropped to the artwork: 717 × 307. */
 const LOGO_RATIO = 717 / 307;
 
 /**
@@ -19,7 +20,7 @@ export function BrandLogo({
 }) {
   return (
     <Image
-      src="/Adcendy-logo-tight.svg"
+      src={brandLogo}
       alt="AdCendy"
       width={Math.round(height * LOGO_RATIO)}
       height={height}

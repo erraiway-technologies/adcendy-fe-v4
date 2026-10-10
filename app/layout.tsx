@@ -30,20 +30,10 @@ const SITE_METADATA: Metadata = {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
-  // The tab icon. Its file name must survive a URL as written: a '+' in the
-  // old name ("Adcendy icon + bg 48x48.svg") reached the server as a space
-  // and 404'd, so browsers showed no icon at all.
-  icons: {
-    icon: [
-      {
-        url: '/favicon.svg',
-        type: 'image/svg+xml',
-        sizes: 'any',
-      },
-    ],
-    shortcut: '/favicon.svg',
-    apple: '/apple-icon.png',
-  },
+  // The tab and home-screen icons are app/icon.svg and app/apple-icon.png:
+  // Next.js links each with a hash of its contents, so a changed icon reaches
+  // browsers despite the CDN's caching. An `icons` entry here would override
+  // them, so there is none.
 };
 
 export async function generateMetadata(): Promise<Metadata> {

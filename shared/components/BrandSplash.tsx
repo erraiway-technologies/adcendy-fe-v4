@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import brandMark from '@/shared/brand/adcendy-mark.svg';
 
 /** Reveal the page even if something is slow; nobody waits longer than this. */
 const MAX_WAIT_MS = 4000;
@@ -85,7 +86,7 @@ export function BrandSplash() {
     >
       {/* A plain <img>: it must load from the HTML alone, before any script. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="brand-splash__logo" src="/Adcendy-logo-no-name-tight.svg" alt="" width={96} height={96} />
+      <img className="brand-splash__logo" src={brandMark.src} alt="" width={96} height={96} />
     </div>
   );
 }
