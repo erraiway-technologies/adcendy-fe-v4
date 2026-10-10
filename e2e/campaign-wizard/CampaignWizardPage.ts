@@ -67,6 +67,17 @@ const STATIC_OPTION_LABELS: Record<string, string> = {
   true: 'Connected',
   false: 'Not connected',
   unknown: "Don't know",
+  // The backend's written labels (wizard seed 1.1.0) where the label is not
+  // the value read as words.
+  single_sided: 'One audience',
+  b2b2c: 'Business + end customer (B2B2C)',
+  marketplace_platform: 'Marketplace / two-sided platform',
+  regional_other: 'Regional language (other)',
+  book_call: 'Book a call',
+  book_demo: 'Book a demo',
+  b2b_security_compliance: 'B2B security and compliance',
+  alcohol_tobacco_restricted: 'Alcohol, tobacco and restricted goods',
+  healthcare_wellness: 'Healthcare and wellness',
 };
 
 const EMAIL_LIST_OPTION_LABELS: Record<string, string> = {
