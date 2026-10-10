@@ -366,10 +366,12 @@ const STEP4_PRIMARY_CONVERSION_FALLBACK_OPTIONS: WizardStringOption[] = [
 
 const STEP5_PRIMARY_GOAL_FALLBACK_OPTIONS: WizardStringOption[] = [
   { value: 'revenue_growth', label: 'Revenue growth' },
-  { value: 'lead_generation', label: 'Lead generation' },
+  { value: 'new_customers', label: 'New customers' },
+  { value: 'leads', label: 'Leads' },
   { value: 'awareness', label: 'Awareness' },
-  { value: 'launch_readiness', label: 'Launch readiness' },
-  { value: 'retention', label: 'Retention' },
+  { value: 'launch', label: 'Launch' },
+  { value: 'repeat_purchase_retention', label: 'Repeat purchase & retention' },
+  { value: 'footfall', label: 'Footfall' },
   { value: 'market_expansion', label: 'Market expansion' },
   { value: 'other', label: 'Other' },
 ];

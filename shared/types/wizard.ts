@@ -329,17 +329,22 @@ export const PRIMARY_CONVERSION_PATH_LABELS: Record<PrimaryConversionPath, strin
 
 /**
  * Goal labels: first the values the wizard asks today (the backend's
- * `primaryGoal` list, as the dropdown sends them), then the v1 values older
- * campaigns may still hold.
+ * `primaryGoal` list, as the dropdown sends them), then the v2 names v3
+ * renamed and the v1 values older campaigns may still hold.
  */
 export const PRIMARY_GOAL_LABELS: Record<string, string> = {
   revenue_growth: 'Revenue growth',
-  lead_generation: 'Lead generation',
+  new_customers: 'New customers',
+  leads: 'Leads',
   awareness: 'Awareness',
-  launch_readiness: 'Launch readiness',
-  retention: 'Retention',
+  launch: 'Launch',
+  repeat_purchase_retention: 'Repeat purchase & retention',
+  footfall: 'Footfall',
   market_expansion: 'Market expansion',
   other: 'Other',
+  lead_generation: 'Leads',
+  launch_readiness: 'Launch',
+  retention: 'Repeat purchase & retention',
   more_sales: 'Get more sales',
   more_customers: 'Get more customers',
   new_market: 'Enter a new market',

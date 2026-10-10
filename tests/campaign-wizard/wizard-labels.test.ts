@@ -19,7 +19,7 @@ import {
 // config/pipeline-v2/wizard-v2.seed.v2.json and system-config.seed.v2.json),
 // as the dropdown sends it: each must read in words, not as its value.
 const SERVED = {
-  primaryGoal: ['revenue_growth', 'lead_generation', 'awareness', 'launch_readiness', 'retention', 'market_expansion', 'other'],
+  primaryGoal: ['revenue_growth', 'new_customers', 'leads', 'awareness', 'launch', 'repeat_purchase_retention', 'footfall', 'market_expansion', 'other'],
   marketingHandler: ['founder_led', 'internal_marketer', 'agency', 'in_house_team', 'unknown'],
   contentCapacity: ['none', 'low', 'medium', 'high', 'unknown'],
   knownCompetitorStatus: ['provided', 'none_known', 'unknown'],
@@ -53,6 +53,9 @@ test('the review reads the goal and owner the dropdown sent', () => {
 
 test('older campaigns keep their v1 labels', () => {
   assert.equal(formatPrimaryGoal('more_sales'), 'Get more sales');
+  // ... and goals v3 renamed read as their new names.
+  assert.equal(formatPrimaryGoal('lead_generation'), 'Leads');
+  assert.equal(formatPrimaryGoal('retention'), 'Repeat purchase & retention');
   assert.equal(formatMarketingHandler('self'), 'I handle it myself');
 });
 

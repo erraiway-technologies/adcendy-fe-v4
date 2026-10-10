@@ -203,10 +203,12 @@ const step5Schema = z
   .object({
     primaryGoal: z.enum([
       'revenue_growth',
-      'lead_generation',
+      'new_customers',
+      'leads',
       'awareness',
-      'launch_readiness',
-      'retention',
+      'launch',
+      'repeat_purchase_retention',
+      'footfall',
       'market_expansion',
       'other',
     ]),

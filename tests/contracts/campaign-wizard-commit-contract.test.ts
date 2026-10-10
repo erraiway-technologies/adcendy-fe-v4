@@ -101,3 +101,15 @@ test('a reopened goals step reads the goal and owner as saved', () => {
   assert.match(legacyStep5, /marketingHandler: normalizeNullableString\(step5\.marketingHandler\)/);
   assert.doesNotMatch(adapterSource, /(PRIMARY_GOAL|MARKETING_HANDLER)_FROM_V2/);
 });
+
+test('the adapter lets every v3 goal through, and renames the older ones', () => {
+  // A goal missing here would be saved as "other" without a word.
+  const allowed = extract(adapterSource, /const PRIMARY_GOAL_VALUES_V2 = \[[\s\S]*?\] as const;/, 'PRIMARY_GOAL_VALUES_V2');
+  for (const goal of ['revenue_growth', 'new_customers', 'leads', 'awareness', 'launch', 'repeat_purchase_retention', 'footfall', 'market_expansion', 'other']) {
+    assert.match(allowed, new RegExp(`'${goal}'`));
+  }
+  const renames = extract(adapterSource, /const PRIMARY_GOAL_TO_V2[\s\S]*?\n};/, 'PRIMARY_GOAL_TO_V2');
+  assert.match(renames, /lead_generation: 'leads'/);
+  assert.match(renames, /retention: 'repeat_purchase_retention'/);
+  assert.match(renames, /launch_readiness: 'launch'/);
+});

@@ -88,14 +88,18 @@ const MARKET_SCOPE_FROM_V2: Record<string, string> = {
   global: 'GLOBAL',
 };
 
+// Older goals (v1, and the v2 names v3 renamed) as the current ones.
 const PRIMARY_GOAL_TO_V2: Record<string, string> = {
   more_sales: 'revenue_growth',
-  more_customers: 'lead_generation',
+  more_customers: 'leads',
   new_market: 'market_expansion',
-  launch_product: 'launch_readiness',
-  reduce_channel_dependence: 'retention',
+  launch_product: 'launch',
+  reduce_channel_dependence: 'repeat_purchase_retention',
   brand_awareness: 'awareness',
   beat_competitor: 'market_expansion',
+  lead_generation: 'leads',
+  retention: 'repeat_purchase_retention',
+  launch_readiness: 'launch',
 };
 
 const MARKETING_HANDLER_TO_V2: Record<string, string> = {
@@ -175,10 +179,12 @@ const PRIMARY_CONVERSION_PATH_VALUES_V2 = [
 
 const PRIMARY_GOAL_VALUES_V2 = [
   'revenue_growth',
-  'lead_generation',
+  'new_customers',
+  'leads',
   'awareness',
-  'launch_readiness',
-  'retention',
+  'launch',
+  'repeat_purchase_retention',
+  'footfall',
   'market_expansion',
   'other',
 ] as const;

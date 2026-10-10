@@ -43,7 +43,7 @@ const minimalFixture = {
       trustSignals: ['Verified test signal'],
     },
     step5: {
-      primaryGoal: 'lead_generation',
+      primaryGoal: 'leads',
       monthlyMarketingSpend: 'nothing',
       paidMediaBudgetRange: 'unknown',
       marketingHandler: 'unknown',
