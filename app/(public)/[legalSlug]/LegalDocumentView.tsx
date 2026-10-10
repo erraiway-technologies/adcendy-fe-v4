@@ -1,22 +1,21 @@
 'use client';
 
-import { notFound, useParams } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { legalRepository } from '@/shared/api/repositories';
 import { queryKeys } from '@/shared/api/queryKeys';
 import { LegalMarkdown } from '@/shared/legal/LegalMarkdown';
 
-const LEGAL_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const LEGAL_PATH_PATTERN = /^(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)+$/;
 
 /**
- * A published policy. Only the paths in LEGAL_PAGES get here (page.tsx 404s
- * the rest on the server); this shows whatever the Backend has active at the
- * path, and 404s if the Backend does not publish it.
+ * A published policy or consent page. Only the paths in LEGAL_PAGES and
+ * CONSENT_PAGES get here (their page.tsx 404s the rest on the server); this
+ * shows whatever the Backend has active at the path, and 404s if the Backend
+ * does not publish it.
  */
-export function LegalDocumentView() {
-  const { legalSlug } = useParams<{ legalSlug: string }>();
-  const validSlug = typeof legalSlug === 'string' && LEGAL_SLUG_PATTERN.test(legalSlug);
-  const path = `/${legalSlug}`;
+export function LegalDocumentView({ path }: { path: string }) {
+  const validSlug = LEGAL_PATH_PATTERN.test(path);
 
   const documentQuery = useQuery({
     queryKey: queryKeys.legal.documentByPath(path),

@@ -142,6 +142,12 @@ function toDocumentWithContent(payload: unknown): LegalDocumentWithContent | nul
   return document && content ? { ...document, content } : null;
 }
 
+/** A path on this site ("/consents/ai-processing"), or nothing: never another origin. */
+function toSitePath(value: unknown): string | null {
+  const path = normalizeNullableString(value);
+  return path && path.startsWith('/') && !path.startsWith('//') ? path : null;
+}
+
 function toConsentCatalogueItem(record: Record<string, unknown>): LegalConsentCatalogueItem | null {
   const consentType = normalizeConsentType(record.consentType ?? record.type);
   const label = normalizeNullableString(record.label);
@@ -150,6 +156,7 @@ function toConsentCatalogueItem(record: Record<string, unknown>): LegalConsentCa
     consentType,
     label,
     description: normalizeNullableString(record.description),
+    detailsUrl: toSitePath(record.detailsUrl),
     requiredAt: normalizeConsentContexts(record.requiredAt),
     optionalAt: normalizeConsentContexts(record.optionalAt),
   };

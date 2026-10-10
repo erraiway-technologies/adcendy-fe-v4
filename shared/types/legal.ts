@@ -52,6 +52,8 @@ export interface LegalConsentCatalogueItem {
   consentType: LegalConsentType;
   label: string;
   description: string | null;
+  /** The site page that explains this consent, when the backend publishes one. */
+  detailsUrl: string | null;
   requiredAt: LegalConsentContext[];
   optionalAt: LegalConsentContext[];
 }

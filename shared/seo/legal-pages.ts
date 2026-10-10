@@ -11,3 +11,16 @@ export const LEGAL_PAGES: Record<string, string> = {
   '/disclaimer': 'Disclaimer',
   '/delivery-policy': 'Digital Delivery Policy',
 };
+
+/**
+ * The pages that explain each consent, by public path (the manifest's
+ * documents with a `consentType`). They are linked from the consent wherever
+ * it is asked for, not listed with the policies.
+ */
+export const CONSENT_PAGES: Record<string, string> = {
+  '/consents/privacy-processing': 'Privacy Processing consent',
+  '/consents/ai-processing': 'AI Processing consent',
+  '/consents/benchmark-data': 'Benchmark Data consent',
+  '/consents/marketing-emails': 'Marketing Emails consent',
+  '/consents/ads-integration': 'Ads Integration consent',
+};

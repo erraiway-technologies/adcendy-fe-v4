@@ -21,6 +21,5 @@ export async function generateMetadata(props: Params): Promise<Metadata> {
 }
 
 export default async function LegalDocumentPage(props: Params) {
-  await legalPath(props);
-  return <LegalDocumentView />;
+  return <LegalDocumentView path={await legalPath(props)} />;
 }

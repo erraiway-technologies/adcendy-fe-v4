@@ -50,10 +50,10 @@ const activeDocumentsFixture: LegalDocumentVersion[] = [
 
 // Shaped like GET /api/v2/legal/public/consents/catalogue.
 const catalogueFixture: LegalConsentCatalogueItem[] = [
-  { consentType: 'PRIVACY_PROCESSING', label: 'Privacy Processing', description: null, requiredAt: ['WIZARD'], optionalAt: [] },
-  { consentType: 'AI_PROCESSING', label: 'AI Processing', description: null, requiredAt: ['WIZARD'], optionalAt: [] },
-  { consentType: 'BENCHMARK_DATA', label: 'Benchmark Data', description: null, requiredAt: [], optionalAt: ['WIZARD', 'ACCOUNT'] },
-  { consentType: 'MARKETING_EMAILS', label: 'Marketing Emails', description: null, requiredAt: [], optionalAt: ['ACCOUNT'] },
+  { consentType: 'PRIVACY_PROCESSING', label: 'Privacy Processing', description: null, detailsUrl: null, requiredAt: ['WIZARD'], optionalAt: [] },
+  { consentType: 'AI_PROCESSING', label: 'AI Processing', description: null, detailsUrl: null, requiredAt: ['WIZARD'], optionalAt: [] },
+  { consentType: 'BENCHMARK_DATA', label: 'Benchmark Data', description: null, detailsUrl: null, requiredAt: [], optionalAt: ['WIZARD', 'ACCOUNT'] },
+  { consentType: 'MARKETING_EMAILS', label: 'Marketing Emails', description: null, detailsUrl: null, requiredAt: [], optionalAt: ['ACCOUNT'] },
 ];
 
 test('1. the signup checklist is exactly what the Backend marks required at SIGNUP, labelled by its titles', () => {
