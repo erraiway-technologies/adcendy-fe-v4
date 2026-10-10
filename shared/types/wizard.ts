@@ -323,7 +323,19 @@ export const PRIMARY_CONVERSION_PATH_LABELS: Record<PrimaryConversionPath, strin
   other: 'Other',
 };
 
-export const PRIMARY_GOAL_LABELS: Record<PrimaryGoal, string> = {
+/**
+ * Goal labels: first the values the wizard asks today (the backend's
+ * `primaryGoal` list, as the dropdown sends them), then the v1 values older
+ * campaigns may still hold.
+ */
+export const PRIMARY_GOAL_LABELS: Record<string, string> = {
+  revenue_growth: 'Revenue growth',
+  lead_generation: 'Lead generation',
+  awareness: 'Awareness',
+  launch_readiness: 'Launch readiness',
+  retention: 'Retention',
+  market_expansion: 'Market expansion',
+  other: 'Other',
   more_sales: 'Get more sales',
   more_customers: 'Get more customers',
   new_market: 'Enter a new market',
@@ -333,7 +345,13 @@ export const PRIMARY_GOAL_LABELS: Record<PrimaryGoal, string> = {
   beat_competitor: 'Beat a competitor',
 };
 
-export const MARKETING_HANDLER_LABELS: Record<MarketingHandler, string> = {
+/** Who handles marketing: today's values first, then the v1 ones older campaigns may hold. */
+export const MARKETING_HANDLER_LABELS: Record<string, string> = {
+  founder_led: 'Founder-led',
+  internal_marketer: 'Internal marketer',
+  agency: 'Agency',
+  in_house_team: 'In-house team',
+  not_sure: 'Not sure',
   self: 'I handle it myself',
   team_member: 'A team member handles it',
   freelancer_agency: 'A freelancer or agency handles it',
@@ -531,6 +549,16 @@ export const EMAIL_LIST_SIZE_OPTIONS = EMAIL_LIST_SIZE_VALUES.map((value) => ({
   label: EMAIL_LIST_SIZE_LABELS[value],
 }));
 
+/** `revenueGrowth` and `revenue-growth` -> `revenue_growth`: the form the label maps are keyed by. */
+export function toWizardToken(value: string): string {
+  return value
+    .trim()
+    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+    .replace(/[^A-Za-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .toLowerCase();
+}
+
 function formatWizardEnumValue<T extends string>(
   value: T | null | undefined,
   labels: Record<string, string>,
@@ -539,11 +567,79 @@ function formatWizardEnumValue<T extends string>(
     return null;
   }
 
-  return labels[value] ?? value;
+  // A value saved in another spelling (camelCase from the backend) still finds its label.
+  return labels[value] ?? labels[toWizardToken(value)] ?? value;
+}
+
+/**
+ * What the backend saves some answers as (wizard-v2.service.ts maps them on
+ * save), so a saved campaign reads the same as the dropdown did.
+ */
+const SAVED_MARKETING_TARGET_ALIASES: Record<string, string> = {
+  product_service: 'product_or_service',
+};
+const SAVED_AUDIENCE_MODEL_ALIASES: Record<string, string> = {
+  single_audience: 'single_sided',
+  business_and_end_customer: 'b2b2c',
+  marketplace_two_sided: 'marketplace_platform',
+};
+
+function withAlias(value: string | null | undefined, aliases: Record<string, string>) {
+  if (!value) return value;
+  return aliases[toWizardToken(value)] ?? value;
+}
+
+export const CONTENT_CAPACITY_LABELS: Record<string, string> = {
+  none: 'None',
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+  not_sure: 'Not sure',
+};
+
+export const KNOWN_COMPETITOR_STATUS_LABELS: Record<string, string> = {
+  provided: 'Provided',
+  none_known: 'None known',
+  not_sure: 'Not sure',
+};
+
+/**
+ * The backend's sensitive category flags (`fieldOptions.sensitiveCategoryFlags`).
+ * The list itself is the backend's - an admin can add a flag - so one missing
+ * here still shows, with the backend's own label.
+ */
+export const SENSITIVE_CATEGORY_FLAG_LABELS: Record<string, string> = {
+  none: 'None',
+  not_sure: 'Not sure',
+  healthcare: 'Healthcare',
+  wellness: 'Wellness',
+  supplements: 'Supplements',
+  finance: 'Finance',
+  legal: 'Legal',
+  education_claims: 'Education claims',
+  b2b_security_compliance: 'B2B security and compliance',
+  alcohol_tobacco_restricted: 'Alcohol, tobacco and restricted goods',
+  healthcare_wellness: 'Healthcare and wellness',
+  restricted_products: 'Restricted products',
+};
+
+export function formatContentCapacity(value: string | null | undefined) {
+  return formatWizardEnumValue(value, CONTENT_CAPACITY_LABELS);
+}
+
+export function formatKnownCompetitorStatus(value: string | null | undefined) {
+  return formatWizardEnumValue(value, KNOWN_COMPETITOR_STATUS_LABELS);
+}
+
+export function formatSensitiveCategoryFlags(values: string[] | null | undefined) {
+  const labels = (values ?? [])
+    .map((value) => formatWizardEnumValue(value, SENSITIVE_CATEGORY_FLAG_LABELS))
+    .filter((label): label is string => Boolean(label));
+  return labels.length ? labels.join(', ') : null;
 }
 
 export function formatMarketingTargetType(value: MarketingTargetType | string | null | undefined) {
-  return formatWizardEnumValue(value, MARKETING_TARGET_TYPE_LABELS);
+  return formatWizardEnumValue(withAlias(value, SAVED_MARKETING_TARGET_ALIASES), MARKETING_TARGET_TYPE_LABELS);
 }
 
 export function formatSourceType(value: SourceType | string | null | undefined) {
@@ -551,7 +647,7 @@ export function formatSourceType(value: SourceType | string | null | undefined) 
 }
 
 export function formatAudienceModel(value: AudienceModel | string | null | undefined) {
-  return formatWizardEnumValue(value, AUDIENCE_MODEL_LABELS);
+  return formatWizardEnumValue(withAlias(value, SAVED_AUDIENCE_MODEL_ALIASES), AUDIENCE_MODEL_LABELS);
 }
 
 export function formatLifecycleStage(value: LifecycleStage | string | null | undefined) {

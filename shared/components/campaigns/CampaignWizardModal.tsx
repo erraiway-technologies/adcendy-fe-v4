@@ -128,6 +128,10 @@ import {
   DEAL_VALUE_BAND_OPTIONS,
   GROSS_MARGIN_BAND_OPTIONS,
   CREATIVE_CAPABILITY_LABELS,
+  SENSITIVE_CATEGORY_FLAG_LABELS,
+  formatContentCapacity,
+  formatKnownCompetitorStatus,
+  formatSensitiveCategoryFlags,
   CREATIVE_CAPABILITY_OPTIONS,
   DELIVERY_DEADLINE_LABELS,
   DELIVERY_DEADLINE_OPTIONS,
@@ -283,7 +287,7 @@ type WizardStringOption = {
 
 const STEP1_MARKETING_TARGET_FALLBACK_OPTIONS: WizardStringOption[] = [
   { value: 'whole_business', label: 'Whole business' },
-  { value: 'product_or_service', label: 'Product / service' },
+  { value: 'product_or_service', label: 'Product or service' },
   { value: 'launch', label: 'Launch' },
   { value: 'market_expansion', label: 'Market expansion' },
   { value: 'specific_audience', label: 'Specific audience' },
@@ -1453,7 +1457,8 @@ type StringFieldOptionsConfig = {
   /**
    * Plain-language labels by option value. The backend label is generated from
    * the value ("Under Five"), so a known value reads better from here; an
-   * unknown one falls back to the backend label.
+   * unknown one falls back to the backend label. The fallback list's labels
+   * count too, so these are only needed where it has none.
    */
   labels?: Record<string, string>;
 };
@@ -1464,13 +1469,16 @@ function getStringFieldOptions(
   fallbackOptions: WizardStringOption[],
   { valueFrom = 'canonicalToken', labels }: StringFieldOptionsConfig = {},
 ) {
+  // The backend builds its labels from the values ("Founder Led", "Pre
+  // Launch"); the frontend's own wording wins wherever it has one.
+  const fallbackLabels = new Map(fallbackOptions.map((option) => [option.value, option.label]));
   const options = getFieldOptions(wizardOptions, fieldKey)
     .filter((option): option is WizardFieldOptionV2 & { value: string } => typeof option.value === 'string')
     .map((option) => {
       const value = valueFrom === 'value' ? option.value : option.canonicalToken || option.value;
       return {
         value,
-        label: labels?.[value] || option.label || option.value,
+        label: labels?.[value] || fallbackLabels.get(value) || option.label || option.value,
         canonicalToken: option.canonicalToken,
         sourceValue: option.value,
       };
@@ -2236,7 +2244,10 @@ export function CampaignWizardModal({
     [wizardOptions],
   );
   const sensitiveCategoryFlagOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'sensitiveCategoryFlags', []),
+    () =>
+      getStringFieldOptions(wizardOptions, 'sensitiveCategoryFlags', [], {
+        labels: SENSITIVE_CATEGORY_FLAG_LABELS,
+      }),
     [wizardOptions],
   );
   const languageOptions = useMemo(
@@ -6315,7 +6326,7 @@ export function CampaignWizardModal({
                           <SummaryField label="Price range" value={effectivePreviewStep2?.priceRange} />
                           <SummaryField label="Offer summary" value={effectivePreviewStep2?.offerSummary} />
                           <SummaryField label="Differentiators" value={formatStringList(effectivePreviewStep2?.differentiators)} />
-                          <SummaryField label="Sensitive category flags" value={formatStringList(effectivePreviewStep2?.sensitiveCategoryFlags)} />
+                          <SummaryField label="Sensitive category flags" value={formatSensitiveCategoryFlags(effectivePreviewStep2?.sensitiveCategoryFlags)} />
                           <SummaryField label="Compliance-sensitive claims" value={formatStringList(effectivePreviewStep2?.complianceSensitiveClaims)} className="md:col-span-2" />
                           <SummaryField label="Business description" value={effectivePreviewStep2?.businessDescription} className="md:col-span-2" />
                         </ReviewGrid>
@@ -6358,14 +6369,14 @@ export function CampaignWizardModal({
                           <SummaryField label="Paid media budget range" value={formatPaidMediaBudgetRange(effectivePreviewStep4?.paidMediaBudgetRange)} />
                           <SummaryField label="Primary goal" value={formatPrimaryGoal(effectivePreviewStep4?.primaryGoal)} />
                           <SummaryField label="Marketing owner" value={formatMarketingHandler(effectivePreviewStep4?.marketingHandler)} />
-                          <SummaryField label="Content capacity" value={effectivePreviewStep4?.contentCapacity} />
+                          <SummaryField label="Content capacity" value={formatContentCapacity(effectivePreviewStep4?.contentCapacity)} />
                           <SummaryField label="Hours a week for marketing" value={formatMarketingHoursPerWeek(effectivePreviewStep4?.marketingHoursPerWeek)} />
                           <SummaryField label="Made in-house" value={formatCreativeCapabilities(effectivePreviewStep4?.creativeCapabilities)} />
                           <SummaryField label="Results needed" value={formatDeliveryDeadline(effectivePreviewStep4?.deliveryDeadline)} />
                           <SummaryField label="Sales capacity" value={effectivePreviewStep4?.salesCapacity} />
                           <SummaryField label="Current marketing activity" value={formatCurrentMarketingActivity(effectivePreviewStep4?.currentMarketingActivity)} className="md:col-span-2" />
                           <SummaryField label="Past marketing" value={effectivePreviewStep4?.pastMarketing} className="md:col-span-2" />
-                          <SummaryField label="Known competitor status" value={effectivePreviewStep4?.knownCompetitorStatus} />
+                          <SummaryField label="Known competitor status" value={formatKnownCompetitorStatus(effectivePreviewStep4?.knownCompetitorStatus)} />
                           <SummaryField label="Constraints" value={formatStringList(effectivePreviewStep4?.constraints)} />
                           <SummaryField label="Channels to avoid" value={formatStringList(effectivePreviewStep4?.channelsToAvoid)} />
                           <SummaryField label="Channels strongly preferred" value={formatStringList(effectivePreviewStep4?.channelsStronglyPreferred)} />
