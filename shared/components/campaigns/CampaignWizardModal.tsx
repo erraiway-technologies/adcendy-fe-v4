@@ -55,6 +55,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils';
 import { useLastCampaign } from '@/hooks/useLastCampaign';
 import { useToast } from '@/hooks/use-toast';
+import { SearchableSelect } from '@/shared/components/campaigns/SearchableSelect';
 import { ApiError } from '@/shared/api/errors';
 import { queryKeys } from '@/shared/api/queryKeys';
 import { campaignsRepository, legalRepository, wizardRepository } from '@/shared/api/repositories';
@@ -158,17 +159,6 @@ interface CampaignWizardModalProps {
 }
 
 const OPTIONAL_SELECT_VALUE = '__empty__';
-
-/**
- * The currency a country's businesses usually run in, offered first when the
- * country is picked; the client can change it. Phase 4 serves this from the
- * backend's countries list.
- */
-const DEFAULT_CURRENCY_BY_COUNTRY: Record<string, string> = {
-  IN: 'INR',
-  US: 'USD',
-  GB: 'GBP',
-};
 
 /**
  * Conversion paths that end in a conversation (v3 P2). Sales capacity, the
@@ -362,7 +352,9 @@ const STEP1_MARKET_SCOPE_FALLBACK_OPTIONS: WizardStringOption[] = [
 // One strategy covers one country, and research runs for the whole of it.
 // Which countries can be chosen is the Backend's to say: it serves them as
 // `fieldOptions.targetMarkets` (ISO 3166-1 alpha-2 codes, e.g. GB).
-type WizardCountryOption = { value: string; label: string };
+// Each carries the currency its businesses usually run in (v3 P4), offered
+// first when the country is picked; the client can change it.
+type WizardCountryOption = { value: string; label: string; defaultCurrency?: string };
 
 /** The served country a saved value names, matched by code or by name; '' when none. */
 function toWizardCountryCode(value: string | null | undefined, options: WizardCountryOption[]): string {
@@ -2335,7 +2327,14 @@ export function CampaignWizardModal({
   );
   // No local fallback: a country the Backend does not serve cannot be chosen.
   const targetMarketOptions = useMemo<WizardCountryOption[]>(
-    () => getStringFieldOptions(wizardOptions, 'targetMarkets', [], { valueFrom: 'value' }),
+    () =>
+      getFieldOptions(wizardOptions, 'targetMarkets')
+        .filter((option): option is WizardFieldOptionV2 & { value: string } => typeof option.value === 'string')
+        .map((option) => ({
+          value: option.value,
+          label: option.label || option.value,
+          defaultCurrency: option.defaultCurrency,
+        })),
     [wizardOptions],
   );
   const industryCategoryOptions = useMemo(
@@ -2570,6 +2569,8 @@ export function CampaignWizardModal({
 
   const watchedMarketingTargetType = step1Form.watch('marketingTargetType');
   const watchedSourceType = step1Form.watch('sourceType');
+  const [countryChangeNotice, setCountryChangeNotice] = useState<string | null>(null);
+  const [currencyChangeNotice, setCurrencyChangeNotice] = useState<string | null>(null);
   const watchedTargetMarkets = step1Form.watch('targetMarkets') ?? [];
   const selectedCountryCode = toWizardCountryCode(watchedTargetMarkets[0], targetMarketOptions);
   // Every amount in the wizard is in this currency, chosen on step 1.
@@ -2707,7 +2708,7 @@ export function CampaignWizardModal({
       marketLocation: normalizeString(savedData.marketLocation as string | undefined) || (isFreshAutoCreatedDraft ? '' : campaign?.city) || '',
       currency:
         normalizeString(savedData.currency as string | undefined) ||
-        DEFAULT_CURRENCY_BY_COUNTRY[savedCountryCode] ||
+        targetMarketOptions.find((option) => option.value === savedCountryCode)?.defaultCurrency ||
         '',
     };
 
@@ -4191,9 +4192,20 @@ export function CampaignWizardModal({
                 >
                   <div className="space-y-2">
                     <FieldLabel label="Which country are your customers in?" required />
-                    <Select
-                      value={selectedCountryCode || undefined}
-                      onValueChange={(value) => {
+                    <SearchableSelect
+                      value={selectedCountryCode}
+                      options={targetMarketOptions}
+                      placeholder="Select country"
+                      searchPlaceholder="Search countries"
+                      emptyText="No country by that name."
+                      testId={wizardFieldTestId('targetMarkets')}
+                      className={wizardInputClassName}
+                      onChange={(value) => {
+                        if (value === selectedCountryCode) {
+                          return;
+                        }
+                        const defaultCurrencyOf = (code: string) =>
+                          targetMarketOptions.find((option) => option.value === code)?.defaultCurrency;
                         step1Form.setValue('targetMarkets', [value], {
                           shouldDirty: true,
                           shouldValidate: true,
@@ -4202,26 +4214,30 @@ export function CampaignWizardModal({
                         // Offer the country's usual currency, unless the
                         // client already chose another one.
                         const currentCurrency = step1Form.getValues('currency');
-                        const nextDefault = DEFAULT_CURRENCY_BY_COUNTRY[value];
+                        const nextDefault = defaultCurrencyOf(value);
                         if (
                           nextDefault &&
-                          (!currentCurrency || currentCurrency === DEFAULT_CURRENCY_BY_COUNTRY[selectedCountryCode])
+                          (!currentCurrency || currentCurrency === defaultCurrencyOf(selectedCountryCode))
                         ) {
                           step1Form.setValue('currency', nextDefault, { shouldDirty: true, shouldValidate: true });
                         }
+                        // V3-32: what the later steps hold was given for the
+                        // country before.
+                        const previousLabel = targetMarketOptions.find(
+                          (option) => option.value === selectedCountryCode,
+                        )?.label;
+                        setCountryChangeNotice(
+                          previousLabel
+                            ? `Your later answers were given for ${previousLabel}: check the sales channels, social profiles, links and competitors on the next steps.`
+                            : null,
+                        );
                       }}
-                    >
-                      <SelectTrigger data-testid={wizardFieldTestId('targetMarkets')} className={wizardInputClassName}>
-                        <SelectValue placeholder="Select country" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {targetMarketOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    />
+                    {countryChangeNotice ? (
+                      <p className="text-sm text-amber-700 dark:text-amber-400" role="status" data-testid="wizard-country-change-notice">
+                        {countryChangeNotice}
+                      </p>
+                    ) : null}
                     <FieldMeta error={getArrayFieldError(step1Form.formState.errors.targetMarkets)} />
                   </div>
 
@@ -4235,20 +4251,31 @@ export function CampaignWizardModal({
                       name="currency"
                       control={step1Form.control}
                       render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value || undefined}>
-                          <SelectTrigger data-testid={wizardFieldTestId('currency')} className={wizardInputClassName}>
-                            <SelectValue placeholder="Select currency" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {currencyOptions.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                          value={field.value}
+                          options={currencyOptions}
+                          placeholder="Select currency"
+                          searchPlaceholder="Search currencies"
+                          emptyText="No currency by that name."
+                          testId={wizardFieldTestId('currency')}
+                          className={wizardInputClassName}
+                          onChange={(value) => {
+                            // V3-32: amounts already given keep their numbers.
+                            if (field.value && value !== field.value) {
+                              setCurrencyChangeNotice(
+                                `Amounts you have already entered keep their numbers and are read in ${value} when you save.`,
+                              );
+                            }
+                            field.onChange(value);
+                          }}
+                        />
                       )}
                     />
+                    {currencyChangeNotice ? (
+                      <p className="text-sm text-amber-700 dark:text-amber-400" role="status" data-testid="wizard-currency-change-notice">
+                        {currencyChangeNotice}
+                      </p>
+                    ) : null}
                     <FieldMeta error={step1Form.formState.errors.currency?.message} />
                   </div>
 

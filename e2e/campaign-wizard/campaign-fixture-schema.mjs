@@ -21,7 +21,8 @@ const step1Schema = z
     primaryUrl: optionalTextMax(500),
     targetMarkets: boundedStringList(12).min(1).max(4),
     // v3: every amount in the fixture is in this currency.
-    currency: z.enum(['INR', 'USD', 'GBP', 'EUR', 'AED', 'SAR', 'SGD', 'AUD', 'CAD', 'NZD']),
+    // Any ISO 4217 currency the backend lists (v3 P4).
+    currency: z.string().regex(/^[A-Z]{3}$/),
     primaryMarket: optionalTextMax(12),
     marketScope: z.enum(['local', 'regional', 'national', 'international', 'global']),
     operationalLocations: boundedStringList(160).default([]),

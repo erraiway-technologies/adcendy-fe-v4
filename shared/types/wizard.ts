@@ -1135,6 +1135,10 @@ export interface WizardFieldOptionV2 {
   value: string | boolean;
   label: string;
   canonicalToken?: string;
+  /** A market's usual currency (v3 P4). */
+  defaultCurrency?: string;
+  /** A market's tier: curated or global (v3 P4). */
+  marketTier?: string;
 }
 
 export interface WizardStepDefinitionV2 {

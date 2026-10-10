@@ -5,16 +5,14 @@ import type { CampaignExecutionReport, CampaignFixture } from './campaign-types'
 import { formatMoney } from '../../shared/types/money';
 
 // The wizard asks for one country by name, and says where the client sells
-// inside it in words that name that country.
-const COUNTRY_LABELS: Record<string, string> = {
-  IN: 'India',
-  US: 'United States',
-  GB: 'United Kingdom',
-};
+// inside it in words that name that country. Any ISO country (v3 P4): the
+// backend's names are the platform's English region names, as these are.
+const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
+const countryLabel = (code: string) => regionNames.of(code) ?? code;
 
 const marketScopeLabel = (scope: string, countryCode: string) =>
   scope === 'national'
-    ? `National — across ${COUNTRY_LABELS[countryCode] ?? countryCode}`
+    ? `National — across ${countryLabel(countryCode)}`
     : 'Regional — specific cities or states';
 
 const STATIC_OPTION_LABELS: Record<string, string> = {
@@ -179,6 +177,32 @@ export class CampaignWizardPage {
     throw new Error(`Unsupported card value "${desiredValue}" for ${fieldPath}`);
   }
 
+  /**
+   * A searchable picker (country, currency; v3 P4): types the name or code,
+   * then picks the option named so, or the one carrying the code - "Kenyan
+   * Shilling (KES)" for KES.
+   */
+  private async chooseSearchable(fieldPath: string, query: string) {
+    const trigger = this.field(fieldPath);
+    await expect(trigger, `Picker ${fieldPath} should be visible`).toBeVisible();
+    await trigger.click();
+    await this.page.getByTestId(`campaign-wizard-${fieldPath}-search`).fill(query);
+    const desiredLabel = STATIC_OPTION_LABELS[query];
+    const options = this.page.getByRole('option');
+    await expect(options.first()).toBeVisible();
+    const texts = (await options.allTextContents()).map((text) => text.trim());
+    const index = texts.findIndex(
+      (text) =>
+        text === desiredLabel ||
+        normalizeToken(text) === normalizeToken(query) ||
+        text.endsWith(`(${query})`),
+    );
+    expect(index, `${fieldPath} should offer ${query}; offered: ${texts.join(', ')}`).toBeGreaterThanOrEqual(0);
+    const text = texts[index];
+    await options.nth(index).click();
+    await expect(trigger).toContainText(text);
+  }
+
   private async chooseSelect(fieldPath: string, desiredValue: string) {
     const trigger = this.field(fieldPath);
     await expect(trigger, `Select ${fieldPath} should be visible`).toBeVisible();
@@ -292,8 +316,8 @@ export class CampaignWizardPage {
     await this.chooseCard('marketingTargetType', step.marketingTargetType);
     await this.fill('focusName', step.focusName);
     const countryCode = step.targetMarkets[0] ?? '';
-    await this.chooseSelect('targetMarkets', COUNTRY_LABELS[countryCode] ?? countryCode);
-    await this.chooseSelect('currency', step.currency);
+    await this.chooseSearchable('targetMarkets', countryLabel(countryCode));
+    await this.chooseSearchable('currency', step.currency);
     // "local" fixtures target the same question as regional.
     const marketScope = step.marketScope === 'local' ? 'regional' : step.marketScope;
     await this.chooseSelect('marketScope', marketScopeLabel(marketScope, countryCode));
@@ -546,7 +570,7 @@ export class CampaignWizardPage {
     await this.assertReviewContains(this.reviewSection('Focus'), [
       step1.title,
       step1.focusName,
-      ...step1.targetMarkets.map((code) => COUNTRY_LABELS[code] ?? code),
+      ...step1.targetMarkets.map((code) => countryLabel(code)),
     ]);
     await this.assertReviewContains(this.reviewSection('Business'), [
       step2.businessName,
