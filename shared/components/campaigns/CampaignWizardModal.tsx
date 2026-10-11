@@ -66,7 +66,7 @@ import { resolveLegalErrorMessage } from '@/shared/legal/legal-error';
 import {
   areWizardRequiredConsentsSatisfied,
   buildConsentToggleState,
-  getConsentsForContext,
+  getWizardConsents,
   resolveConsentAction,
   type ConsentToggleState,
 } from '@/shared/legal/legal-flow-utils';
@@ -2334,8 +2334,6 @@ export function CampaignWizardModal({
 
   const consentCatalogueQuery = useConsentCatalogue();
   const consentCatalogue = useMemo(() => consentCatalogueQuery.data ?? [], [consentCatalogueQuery.data]);
-  const wizardConsents = useMemo(() => getConsentsForContext(consentCatalogue, 'WIZARD'), [consentCatalogue]);
-
   const { data: consentRecords } = useQuery({
     queryKey: queryKeys.legal.consentsMe(),
     queryFn: () => legalRepository.getMyConsents(),
@@ -2343,6 +2341,13 @@ export function CampaignWizardModal({
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
   });
+  // V3-63: the consents the product needs were given at sign-up; the last
+  // step shows its optional ones, and a required one only to an account that
+  // has not given it.
+  const wizardConsents = useMemo(
+    () => getWizardConsents(consentCatalogue, consentRecords),
+    [consentCatalogue, consentRecords],
+  );
 
   const marketingTargetTypeOptions = useMemo(
     () => getStringFieldOptions(wizardOptions, 'marketingTargetType', STEP1_MARKETING_TARGET_FALLBACK_OPTIONS),

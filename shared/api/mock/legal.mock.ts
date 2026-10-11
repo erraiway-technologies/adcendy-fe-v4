@@ -2,6 +2,7 @@ import { ApiError } from '../errors';
 import type {
   LegalAcceptDocumentsPayload,
   LegalAcceptDocumentsResult,
+  LegalCheckoutRequirements,
   LegalConsentCatalogueItem,
   LegalConsentMutationPayload,
   LegalConsentRecord,
@@ -25,7 +26,7 @@ const mockActiveDocuments: LegalDocumentVersion[] = [
     effectiveFrom: '2026-01-01T00:00:00.000Z',
     publishedAt: '2026-01-01T00:00:00.000Z',
     contentHash: null,
-    requiredAt: ['SIGNUP', 'CHECKOUT'],
+    requiredAt: ['SIGNUP'],
   },
   {
     id: 'legal-privacy-v2',
@@ -36,7 +37,7 @@ const mockActiveDocuments: LegalDocumentVersion[] = [
     effectiveFrom: '2026-01-01T00:00:00.000Z',
     publishedAt: '2026-01-01T00:00:00.000Z',
     contentHash: null,
-    requiredAt: ['SIGNUP', 'CHECKOUT'],
+    requiredAt: ['SIGNUP'],
   },
   {
     id: 'legal-refund-v2',
@@ -74,8 +75,8 @@ const mockActiveDocuments: LegalDocumentVersion[] = [
 ];
 
 const mockConsentCatalogue: LegalConsentCatalogueItem[] = [
-  { consentType: 'PRIVACY_PROCESSING', label: 'Privacy Processing', description: null, detailsUrl: '/consents/privacy-processing', requiredAt: ['WIZARD'], optionalAt: [] },
-  { consentType: 'AI_PROCESSING', label: 'AI Processing', description: null, detailsUrl: '/consents/ai-processing', requiredAt: ['WIZARD'], optionalAt: [] },
+  { consentType: 'PRIVACY_PROCESSING', label: 'Privacy Processing', description: null, detailsUrl: '/consents/privacy-processing', requiredAt: ['SIGNUP'], optionalAt: [] },
+  { consentType: 'AI_PROCESSING', label: 'AI Processing', description: null, detailsUrl: '/consents/ai-processing', requiredAt: ['SIGNUP'], optionalAt: [] },
   { consentType: 'BENCHMARK_DATA', label: 'Benchmark Data', description: null, detailsUrl: '/consents/benchmark-data', requiredAt: [], optionalAt: ['WIZARD', 'ACCOUNT'] },
   { consentType: 'MARKETING_EMAILS', label: 'Marketing Emails', description: null, detailsUrl: '/consents/marketing-emails', requiredAt: [], optionalAt: ['ACCOUNT'] },
   { consentType: 'ADS_INTEGRATION', label: 'Ads Integration', description: null, detailsUrl: '/consents/ads-integration', requiredAt: [], optionalAt: ['ACCOUNT'] },
@@ -153,6 +154,17 @@ Mock ${document.title} text. The real text is served by the Backend.
   async getConsentCatalogue(): Promise<LegalConsentCatalogueItem[]> {
     await delay(60);
     return mockConsentCatalogue;
+  },
+
+  /** The mock buyer has accepted the sign-up policies and given every consent. */
+  async getCheckoutRequirements(): Promise<LegalCheckoutRequirements> {
+    await delay(60);
+    return {
+      documents: mockActiveDocuments
+        .filter((document) => document.requiredAt.includes('CHECKOUT'))
+        .map((document) => ({ ...document, requiredAt: ['CHECKOUT'] })),
+      consents: [],
+    };
   },
 
   async acceptDocuments(payload: LegalAcceptDocumentsPayload): Promise<LegalAcceptDocumentsResult> {

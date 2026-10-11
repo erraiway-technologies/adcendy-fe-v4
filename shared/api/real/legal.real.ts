@@ -6,6 +6,7 @@ import {
   type LegalAcceptDocumentsPayload,
   type LegalAcceptDocumentsResult,
   type LegalAcceptanceSource,
+  type LegalCheckoutRequirements,
   type LegalConsentCatalogueItem,
   type LegalConsentContext,
   type LegalConsentMutationPayload,
@@ -91,7 +92,9 @@ function normalizeSourceList(value: unknown): LegalAcceptanceSource[] {
 
 function normalizeConsentContexts(value: unknown): LegalConsentContext[] {
   return Array.isArray(value)
-    ? value.filter((item): item is LegalConsentContext => item === 'WIZARD' || item === 'ACCOUNT')
+    ? value.filter(
+        (item): item is LegalConsentContext => item === 'SIGNUP' || item === 'WIZARD' || item === 'ACCOUNT',
+      )
     : [];
 }
 
@@ -368,5 +371,22 @@ export const legalRealAdapter = {
   async getMyConsents(): Promise<LegalConsentRecord[]> {
     const response = await http<ApiResponse<unknown> | unknown>('/api/v2/legal/consents/me');
     return extractConsents(unwrapData(response));
+  },
+
+  /** What this client must still accept and consent to before paying (V3-63). */
+  async getCheckoutRequirements(): Promise<LegalCheckoutRequirements> {
+    const response = await http<ApiResponse<unknown> | unknown>('/api/v2/legal/requirements/checkout');
+    const payload = unwrapData(response);
+    const record = isRecord(payload) ? payload : {};
+    return {
+      documents: (Array.isArray(record.documents) ? record.documents : [])
+        .map((item) => (isRecord(item) ? toDocument(item) : null))
+        .filter((item): item is LegalDocumentVersion => item !== null)
+        // Each is required at checkout, whatever flow it was first asked in.
+        .map((document) => ({ ...document, requiredAt: ['CHECKOUT'] })),
+      consents: (Array.isArray(record.consents) ? record.consents : [])
+        .map(normalizeConsentType)
+        .filter((item): item is LegalConsentType => item !== null),
+    };
   },
 };

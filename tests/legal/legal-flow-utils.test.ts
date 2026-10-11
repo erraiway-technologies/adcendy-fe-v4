@@ -11,6 +11,8 @@ import {
   buildSignupAcceptPayload,
   getCheckoutRequiredDocumentIds,
   getConsentsForContext,
+  getSignupConsents,
+  getWizardConsents,
   getSignupRequiredDocumentIds,
   resolveConsentAction,
   resolveConsentMutationEndpoint,
@@ -50,8 +52,8 @@ const activeDocumentsFixture: LegalDocumentVersion[] = [
 
 // Shaped like GET /api/v2/legal/public/consents/catalogue.
 const catalogueFixture: LegalConsentCatalogueItem[] = [
-  { consentType: 'PRIVACY_PROCESSING', label: 'Privacy Processing', description: null, detailsUrl: null, requiredAt: ['WIZARD'], optionalAt: [] },
-  { consentType: 'AI_PROCESSING', label: 'AI Processing', description: null, detailsUrl: null, requiredAt: ['WIZARD'], optionalAt: [] },
+  { consentType: 'PRIVACY_PROCESSING', label: 'Privacy Processing', description: null, detailsUrl: null, requiredAt: ['SIGNUP'], optionalAt: [] },
+  { consentType: 'AI_PROCESSING', label: 'AI Processing', description: null, detailsUrl: null, requiredAt: ['SIGNUP'], optionalAt: [] },
   { consentType: 'BENCHMARK_DATA', label: 'Benchmark Data', description: null, detailsUrl: null, requiredAt: [], optionalAt: ['WIZARD', 'ACCOUNT'] },
   { consentType: 'MARKETING_EMAILS', label: 'Marketing Emails', description: null, detailsUrl: null, requiredAt: [], optionalAt: ['ACCOUNT'] },
 ];
@@ -108,9 +110,28 @@ test('8. an unloaded catalogue never counts as consent given', () => {
 });
 
 test('9. consents per context: required first, then optional, with Backend labels', () => {
+  // V3-63: the consents the product needs are asked at sign-up.
   assert.deepEqual(
-    getConsentsForContext(catalogueFixture, 'WIZARD').map((item) => [item.consentType, item.required]),
-    [['PRIVACY_PROCESSING', true], ['AI_PROCESSING', true], ['BENCHMARK_DATA', false]],
+    getSignupConsents(catalogueFixture).map((item) => item.consentType),
+    ['PRIVACY_PROCESSING', 'AI_PROCESSING'],
+  );
+  // The wizard offers its optional consent; a required one only to an
+  // account that has not given it, and nothing required before records load.
+  const given: LegalConsentRecord[] = [
+    { consentType: 'PRIVACY_PROCESSING', status: 'GIVEN', source: 'SIGNUP', campaignId: null, updatedAt: null, metadata: null },
+    { consentType: 'AI_PROCESSING', status: 'GIVEN', source: 'SIGNUP', campaignId: null, updatedAt: null, metadata: null },
+  ];
+  assert.deepEqual(
+    getWizardConsents(catalogueFixture, given).map((item) => [item.consentType, item.required]),
+    [['BENCHMARK_DATA', false]],
+  );
+  assert.deepEqual(
+    getWizardConsents(catalogueFixture, [given[0]]).map((item) => [item.consentType, item.required]),
+    [['AI_PROCESSING', true], ['BENCHMARK_DATA', false]],
+  );
+  assert.deepEqual(
+    getWizardConsents(catalogueFixture, undefined).map((item) => item.consentType),
+    ['BENCHMARK_DATA'],
   );
   assert.deepEqual(
     getConsentsForContext(catalogueFixture, 'ACCOUNT').map((item) => item.consentType),

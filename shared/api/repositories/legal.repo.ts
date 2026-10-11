@@ -4,6 +4,7 @@ import { legalRealAdapter } from '../real/legal.real';
 import type {
   LegalAcceptDocumentsPayload,
   LegalAcceptDocumentsResult,
+  LegalCheckoutRequirements,
   LegalConsentCatalogueItem,
   LegalConsentMutationPayload,
   LegalConsentRecord,
@@ -51,5 +52,10 @@ export const legalRepository = {
 
   async getMyConsents(): Promise<LegalConsentRecord[]> {
     return adapter.getMyConsents();
+  },
+
+  /** What this client must still accept and consent to before paying (V3-63). */
+  async getCheckoutRequirements(): Promise<LegalCheckoutRequirements> {
+    return adapter.getCheckoutRequirements();
   },
 };

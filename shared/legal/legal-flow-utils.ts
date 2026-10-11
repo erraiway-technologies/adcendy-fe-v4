@@ -135,13 +135,42 @@ export function isConsentRequiredAt(
   return catalogue.some((item) => item.consentType === consentType && item.requiredAt.includes(context));
 }
 
+/**
+ * The consents the product needs, given at sign-up (V3-63). The wizard and
+ * a strategy run check them; neither is where they are asked first.
+ */
+export function getSignupConsents(catalogue: LegalConsentCatalogueItem[]): LegalConsentCatalogueItem[] {
+  return catalogue.filter((item) => item.requiredAt.includes('SIGNUP'));
+}
+
+/**
+ * What the wizard's last step shows (V3-63): its optional consents, and a
+ * consent the product needs only for an account that has not given it - one
+ * from before sign-up asked. `records` are the client's saved consents; until
+ * they load, only the optional ones show.
+ */
+export function getWizardConsents(
+  catalogue: LegalConsentCatalogueItem[],
+  records: LegalConsentRecord[] | undefined,
+): Array<LegalConsentCatalogueItem & { required: boolean }> {
+  const given = new Set((records ?? []).filter((record) => record.status === 'GIVEN').map((record) => record.consentType));
+  const missingRequired = records
+    ? getSignupConsents(catalogue)
+        .filter((item) => !given.has(item.consentType))
+        .map((item) => ({ ...item, required: true }))
+    : [];
+  const optional = catalogue
+    .filter((item) => !item.requiredAt.includes('SIGNUP') && item.optionalAt.includes('WIZARD'))
+    .map((item) => ({ ...item, required: false }));
+  return [...missingRequired, ...optional];
+}
+
 /** False until the catalogue has loaded: an unknown requirement is never assumed met. */
 export function areWizardRequiredConsentsSatisfied(
   state: ConsentToggleState,
   catalogue: LegalConsentCatalogueItem[],
 ): boolean {
-  const required = catalogue.filter((item) => item.requiredAt.includes('WIZARD'));
-  return catalogue.length > 0 && required.every((item) => state[item.consentType] === true);
+  return catalogue.length > 0 && getSignupConsents(catalogue).every((item) => state[item.consentType] === true);
 }
 
 export function resolveConsentAction(

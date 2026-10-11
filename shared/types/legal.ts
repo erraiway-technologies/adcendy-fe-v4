@@ -23,8 +23,12 @@ export const LEGAL_ACCEPTANCE_SOURCE_VALUES = [
 
 export type LegalAcceptanceSource = (typeof LEGAL_ACCEPTANCE_SOURCE_VALUES)[number];
 
-/** Where a consent is asked for. */
-export type LegalConsentContext = 'WIZARD' | 'ACCOUNT';
+/**
+ * Where a consent is asked for. A consent the product needs is required at
+ * SIGNUP - before anything can be paid for (V3-63); optional ones are offered
+ * in the wizard and on the account page.
+ */
+export type LegalConsentContext = 'SIGNUP' | 'WIZARD' | 'ACCOUNT';
 
 export const LEGAL_CONSENT_STATUS_VALUES = ['GIVEN', 'WITHDRAWN'] as const;
 export type LegalConsentStatus = (typeof LEGAL_CONSENT_STATUS_VALUES)[number];
@@ -56,6 +60,16 @@ export interface LegalConsentCatalogueItem {
   detailsUrl: string | null;
   requiredAt: LegalConsentContext[];
   optionalAt: LegalConsentContext[];
+}
+
+/**
+ * What one client still owes before paying (V3-63): checkout's documents,
+ * any sign-up policy updated since they accepted it, and any required consent
+ * they have not given. From GET /api/v2/legal/requirements/checkout.
+ */
+export interface LegalCheckoutRequirements {
+  documents: LegalDocumentVersion[];
+  consents: LegalConsentType[];
 }
 
 export interface LegalAcceptDocumentsPayload {

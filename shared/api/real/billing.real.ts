@@ -36,6 +36,7 @@ export const billingRealAdapter = {
     idempotencyKey: string,
     acceptedLegalDocumentVersionIdsV2: string[],
     couponCode?: string | null,
+    givenConsentTypesV2: string[] = [],
   ): Promise<BillingOrder> {
     const response = await http<ApiResponse<BillingOrder> | BillingOrder>(
       "/v1/billing/orders",
@@ -47,6 +48,8 @@ export const billingRealAdapter = {
         body: {
           sku,
           acceptedLegalDocumentVersionIdsV2,
+          // A required consent this buyer has not given yet (V3-63).
+          ...(givenConsentTypesV2.length ? { givenConsentTypesV2 } : {}),
           ...(couponCode ? { couponCode } : {}),
         },
         headers: { "Idempotency-Key": idempotencyKey },

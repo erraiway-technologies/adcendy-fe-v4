@@ -108,6 +108,7 @@ export const billingMockAdapter = {
     _idempotencyKey: string,
     _acceptedLegalDocumentVersionIdsV2?: string[],
     couponCode?: string | null,
+    _givenConsentTypesV2?: string[],
     countryCode?: string,
   ): Promise<BillingOrder> {
     const catalogue = await this.listBundles(countryCode);

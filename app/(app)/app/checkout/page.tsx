@@ -20,9 +20,11 @@ import { queryKeys } from "@/shared/api/queryKeys";
 import { resolveLegalErrorMessage } from "@/shared/legal/legal-error";
 import {
   areAllRequiredDocumentsAccepted,
+  buildConsentLabel,
   buildLegalChecklistItems,
   getCheckoutRequiredDocumentIds,
 } from "@/shared/legal/legal-flow-utils";
+import { useConsentCatalogue } from "@/shared/legal/useLegalCatalogue";
 import type { BillingBundle, BillingOrder } from "@/shared/types/billing";
 import type { CouponPreview } from "@/shared/types/coupons";
 import {
@@ -150,11 +152,16 @@ export default function CheckoutPage() {
   );
   const [couponError, setCouponError] = useState<string | null>(null);
 
+  // V3-63: what this buyer still owes - the purchase documents, any policy
+  // updated since sign-up, any required consent never given - and no more:
+  // the terms and privacy policy accepted at sign-up are not asked again.
   const documentsQuery = useQuery({
-    queryKey: queryKeys.legal.activeDocuments(),
-    queryFn: () => legalRepository.getActiveDocuments(),
+    queryKey: queryKeys.legal.checkoutRequirements(),
+    queryFn: () => legalRepository.getCheckoutRequirements(),
     refetchOnWindowFocus: false,
   });
+  const consentCatalogueQuery = useConsentCatalogue();
+  const [givenConsents, setGivenConsents] = useState<string[]>([]);
   const orderQuery = useQuery({
     queryKey: queryKeys.billing.order(currentOrder?.orderId ?? "none"),
     queryFn: () => billingRepository.getOrder(currentOrder!.orderId),
@@ -199,8 +206,15 @@ export default function CheckoutPage() {
   });
 
   const activeDocuments = useMemo(
-    () => documentsQuery.data ?? [],
+    () => documentsQuery.data?.documents ?? [],
     [documentsQuery.data],
+  );
+  const outstandingConsents = useMemo(
+    () => documentsQuery.data?.consents ?? [],
+    [documentsQuery.data],
+  );
+  const hasGivenOutstandingConsents = outstandingConsents.every((consentType) =>
+    givenConsents.includes(consentType),
   );
   const bundles = useMemo(
     () => bundlesQuery.data?.items ?? [],
@@ -235,8 +249,9 @@ export default function CheckoutPage() {
   );
   const hasAcceptedAllRequiredDocuments = useMemo(
     () =>
-      areAllRequiredDocumentsAccepted(requiredDocumentIds, acceptedDocumentIds),
-    [acceptedDocumentIds, requiredDocumentIds],
+      areAllRequiredDocumentsAccepted(requiredDocumentIds, acceptedDocumentIds) &&
+      hasGivenOutstandingConsents,
+    [acceptedDocumentIds, requiredDocumentIds, hasGivenOutstandingConsents],
   );
 
   useEffect(() => {
@@ -339,6 +354,7 @@ export default function CheckoutPage() {
         crypto.randomUUID(),
         requiredDocumentIds,
         couponForSelection?.couponCode ?? null,
+        outstandingConsents,
       );
       if (!order.providerOrderId)
         throw new Error("Razorpay did not return an order ID.");
@@ -457,9 +473,10 @@ export default function CheckoutPage() {
   // The Backend says which policies checkout requires; none listed means
   // they are not published, and no payment starts without them.
   const policiesReady = requiredDocumentIds.length > 0;
-  const policiesLeftToAccept = requiredDocumentIds.filter(
-    (id) => !acceptedDocumentIds.includes(id),
-  ).length;
+  const policiesLeftToAccept =
+    requiredDocumentIds.filter((id) => !acceptedDocumentIds.includes(id))
+      .length +
+    outstandingConsents.filter((type) => !givenConsents.includes(type)).length;
   const isWaitingOnPolicies =
     policiesReady && !hasAcceptedAllRequiredDocuments && !isBusy;
 
@@ -639,6 +656,51 @@ export default function CheckoutPage() {
                   </span>
                 </label>
               ))}
+              {outstandingConsents.map((consentType) => {
+                const detailsUrl =
+                  consentCatalogueQuery.data?.find(
+                    (item) => item.consentType === consentType,
+                  )?.detailsUrl ?? null;
+                const label = buildConsentLabel(
+                  consentType,
+                  consentCatalogueQuery.data ?? [],
+                );
+                return (
+                  <label
+                    key={consentType}
+                    data-testid={`checkout-consent-${consentType}`}
+                    className="flex items-start gap-3 rounded-md border border-border px-3 py-3"
+                  >
+                    <Checkbox
+                      checked={givenConsents.includes(consentType)}
+                      onCheckedChange={(checked) =>
+                        setGivenConsents((previous) =>
+                          checked === true
+                            ? [...new Set([...previous, consentType])]
+                            : previous.filter((entry) => entry !== consentType),
+                        )
+                      }
+                      className="mt-0.5"
+                    />
+                    <span className="text-sm text-foreground/90">
+                      I consent to{" "}
+                      {detailsUrl ? (
+                        <a
+                          className="text-primary hover:underline"
+                          href={detailsUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {label}
+                        </a>
+                      ) : (
+                        label
+                      )}{" "}
+                      - needed to build your strategy.
+                    </span>
+                  </label>
+                );
+              })}
               <Button
                 type="button"
                 variant="outline"

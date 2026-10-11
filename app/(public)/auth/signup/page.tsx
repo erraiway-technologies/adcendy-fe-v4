@@ -22,8 +22,10 @@ import { resolveLegalErrorMessage } from '@/shared/legal/legal-error';
 import {
   areAllRequiredDocumentsAccepted,
   buildLegalChecklistItems,
+  getSignupConsents,
   getSignupRequiredDocumentIds,
 } from '@/shared/legal/legal-flow-utils';
+import { useConsentCatalogue } from '@/shared/legal/useLegalCatalogue';
 import type { LegalDocumentVersion } from '@/shared/types/legal';
 
 type SignupStep = 'credentials' | 'verify-otp' | 'legal';
@@ -70,6 +72,26 @@ function SignupContent() {
     () => getSignupRequiredDocumentIds(activeLegalDocuments),
     [activeLegalDocuments],
   );
+  // V3-63: the consents the product needs are given here, with the policies,
+  // so nobody pays and then finds a campaign asks for something they refuse.
+  const consentCatalogueQuery = useConsentCatalogue();
+  const signupConsents = useMemo(
+    () => getSignupConsents(consentCatalogueQuery.data ?? []),
+    [consentCatalogueQuery.data],
+  );
+  const [givenSignupConsents, setGivenSignupConsents] = useState<string[]>([]);
+  const hasGivenAllSignupConsents =
+    Boolean(consentCatalogueQuery.data) &&
+    signupConsents.every((consent) => givenSignupConsents.includes(consent.consentType));
+  const handleSignupConsentToggle = (consentType: string, checked: boolean) => {
+    setGivenSignupConsents((previous) =>
+      checked
+        ? previous.includes(consentType)
+          ? previous
+          : [...previous, consentType]
+        : previous.filter((entry) => entry !== consentType),
+    );
+  };
   const hasAcceptedAllSignupDocuments = useMemo(
     () =>
       areAllRequiredDocumentsAccepted(
@@ -174,6 +196,11 @@ function SignupContent() {
         verificationId: verificationState.verificationId,
         otp: otpCode,
         acceptedLegalDocumentVersionIdsV2: signupRequiredDocumentIds,
+        // The consents ticked below; the catalogue names them, so the values
+        // are the Backend's own.
+        givenConsentTypesV2: signupConsents.map(
+          (consent) => consent.consentType,
+        ) as Parameters<typeof authApi.signupVerify>[0]['givenConsentTypesV2'],
       });
 
       // The Backend stores the refresh token in its HttpOnly cookie.
@@ -249,6 +276,10 @@ function SignupContent() {
   const handleSignupLegalContinue = async () => {
     if (!hasAcceptedAllSignupDocuments) {
       setError('Please accept Terms of Service and Privacy Policy to continue.');
+      return;
+    }
+    if (!hasGivenAllSignupConsents) {
+      setError('Please give the consents below to continue: AdCendy cannot build a strategy without them.');
       return;
     }
 
@@ -535,6 +566,34 @@ function SignupContent() {
                       </span>
                     </label>
                   ))}
+                  {signupConsents.map((consent) => (
+                    <label
+                      key={consent.consentType}
+                      data-testid={`signup-consent-${consent.consentType}`}
+                      className="flex items-start gap-3 rounded-md border border-border bg-card px-3 py-3"
+                    >
+                      <Checkbox
+                        checked={givenSignupConsents.includes(consent.consentType)}
+                        onCheckedChange={(nextChecked) =>
+                          handleSignupConsentToggle(consent.consentType, nextChecked === true)
+                        }
+                        className="mt-0.5"
+                      />
+                      <span className="text-sm text-foreground/90">
+                        I consent to{' '}
+                        {consent.detailsUrl ? (
+                          <Link className="text-primary hover:underline" href={consent.detailsUrl}>
+                            {consent.label}
+                          </Link>
+                        ) : (
+                          consent.label
+                        )}
+                      </span>
+                    </label>
+                  ))}
+                  {consentCatalogueQuery.isError ? (
+                    <p className="text-xs text-destructive">Consents could not be loaded. Please refresh.</p>
+                  ) : null}
                 </div>
               )}
 
@@ -545,7 +604,8 @@ function SignupContent() {
                   isLoading ||
                   isLoadingLegalDocuments ||
                   signupRequiredDocumentIds.length === 0 ||
-                  !hasAcceptedAllSignupDocuments
+                  !hasAcceptedAllSignupDocuments ||
+                  !hasGivenAllSignupConsents
                 }
                 onClick={handleSignupLegalContinue}
               >

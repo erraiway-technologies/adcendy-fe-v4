@@ -16,12 +16,14 @@ export const billingRepository = {
     idempotencyKey: string,
     acceptedLegalDocumentVersionIdsV2: string[],
     couponCode?: string | null,
+    givenConsentTypesV2: string[] = [],
   ) =>
     adapter.createOrder(
       sku,
       idempotencyKey,
       acceptedLegalDocumentVersionIdsV2,
       couponCode,
+      givenConsentTypesV2,
     ),
   /** What a coupon does to one bundle's price; nothing is held. */
   previewCoupon: (couponCode: string, sku: string) =>

@@ -188,6 +188,7 @@ export const queryKeys = {
     publicDocuments: () => [...queryKeys.legal.all, 'publicDocuments'] as const,
     documentByPath: (path: string) => [...queryKeys.legal.all, 'documentByPath', path] as const,
     consentCatalogue: () => [...queryKeys.legal.all, 'consentCatalogue'] as const,
+    checkoutRequirements: () => [...queryKeys.legal.all, 'checkoutRequirements'] as const,
   },
   wizard: {
     all: ['wizard'] as const,

@@ -111,6 +111,7 @@ test("mock checkout charges the price after the coupon", async () => {
     "coupon-test-idempotency",
     ["doc-terms"],
     "WELCOME10",
+    [],
     "IN",
   );
   assert.equal(order.amountMinor, 1791000);
