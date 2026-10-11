@@ -1,9 +1,9 @@
 {
-  "backendRevision": "master@5bf22da48f6cc617fd412b916485caa33f7eefbb",
+  "backendRevision": "master@68a6d9832a09b666001095ed8d84c6031e3aacf1",
   "openApiVersion": "2.5.0",
   "openApiFormat": "3.0.3",
-  "openApiSha256": "0ecc8d84704fdfd9c813a9f28e11d64c2d1c89be3ab6e7bc59f2e67e2a28e2f1",
+  "openApiSha256": "622895b4610183cbd8ea8138a188488023476546bc2501a945b8677e77d3543f",
   "vendoredContract": "contracts/backend/api-v2/2.5.0/adcendy-api.openapi.json",
   "generatedClient": "src/generated/openapi.ts",
-  "generatedClientSha256": "86d8cace50f5d1b36e18d8eb9aa2751c9182d5c47b42b4dddf137df10e16965c"
+  "generatedClientSha256": "b49159b56f12f2d41c5a8ce9af93d6ad207749f214a83d8959a6a697f64ea617"
 }

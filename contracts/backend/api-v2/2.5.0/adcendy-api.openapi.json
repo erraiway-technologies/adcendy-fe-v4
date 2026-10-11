@@ -2827,6 +2827,21 @@
             "type": "array",
             "uniqueItems": true
           },
+          "givenConsentTypesV2": {
+            "description": "The consents given at sign-up: every consent the catalogue (GET /api/v2/legal/public/consents/catalogue) requires at SIGNUP. The account is created with them or not at all.",
+            "items": {
+              "enum": [
+                "PRIVACY_PROCESSING",
+                "AI_PROCESSING",
+                "BENCHMARK_DATA",
+                "MARKETING_EMAILS",
+                "ADS_INTEGRATION"
+              ],
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
           "otp": {
             "type": "string"
           },
@@ -2837,7 +2852,8 @@
         "required": [
           "verificationId",
           "otp",
-          "acceptedLegalDocumentVersionIdsV2"
+          "acceptedLegalDocumentVersionIdsV2",
+          "givenConsentTypesV2"
         ],
         "type": "object"
       },
@@ -10580,6 +10596,138 @@
         "security": [],
         "tags": [
           "LegalPublicV2Controller"
+        ]
+      }
+    },
+    "/api/v2/legal/requirements/checkout": {
+      "get": {
+        "operationId": "checkoutRequirementsV2",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "LegalV2Controller"
         ]
       }
     },
