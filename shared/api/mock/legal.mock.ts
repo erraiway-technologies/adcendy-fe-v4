@@ -78,8 +78,8 @@ const mockConsentCatalogue: LegalConsentCatalogueItem[] = [
   { consentType: 'PRIVACY_PROCESSING', label: 'Privacy Processing', description: null, detailsUrl: '/consents/privacy-processing', requiredAt: ['SIGNUP'], optionalAt: [] },
   { consentType: 'AI_PROCESSING', label: 'AI Processing', description: null, detailsUrl: '/consents/ai-processing', requiredAt: ['SIGNUP'], optionalAt: [] },
   { consentType: 'BENCHMARK_DATA', label: 'Benchmark Data', description: null, detailsUrl: '/consents/benchmark-data', requiredAt: [], optionalAt: ['WIZARD', 'ACCOUNT'] },
-  { consentType: 'MARKETING_EMAILS', label: 'Marketing Emails', description: null, detailsUrl: '/consents/marketing-emails', requiredAt: [], optionalAt: ['ACCOUNT'] },
-  { consentType: 'ADS_INTEGRATION', label: 'Ads Integration', description: null, detailsUrl: '/consents/ads-integration', requiredAt: [], optionalAt: ['ACCOUNT'] },
+  { consentType: 'MARKETING_EMAILS', label: 'Marketing Emails', description: null, detailsUrl: '/consents/marketing-emails', requiredAt: [], optionalAt: ['SIGNUP', 'ACCOUNT'] },
+  { consentType: 'ADS_INTEGRATION', label: 'Ads Integration', description: null, detailsUrl: null, requiredAt: [], optionalAt: [] },
 ];
 
 const consentState = new Map<LegalConsentType, LegalConsentRecord>();

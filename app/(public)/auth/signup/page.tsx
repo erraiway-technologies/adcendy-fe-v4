@@ -79,6 +79,14 @@ function SignupContent() {
     () => getSignupConsents(consentCatalogueQuery.data ?? []),
     [consentCatalogueQuery.data],
   );
+  // Offered here without being required - marketing emails - and unticked.
+  const optionalSignupConsents = useMemo(
+    () =>
+      (consentCatalogueQuery.data ?? []).filter(
+        (item) => !item.requiredAt.includes('SIGNUP') && item.optionalAt.includes('SIGNUP'),
+      ),
+    [consentCatalogueQuery.data],
+  );
   const [givenSignupConsents, setGivenSignupConsents] = useState<string[]>([]);
   const hasGivenAllSignupConsents =
     Boolean(consentCatalogueQuery.data) &&
@@ -198,9 +206,12 @@ function SignupContent() {
         acceptedLegalDocumentVersionIdsV2: signupRequiredDocumentIds,
         // The consents ticked below; the catalogue names them, so the values
         // are the Backend's own.
-        givenConsentTypesV2: signupConsents.map(
-          (consent) => consent.consentType,
-        ) as Parameters<typeof authApi.signupVerify>[0]['givenConsentTypesV2'],
+        givenConsentTypesV2: [
+          ...signupConsents.map((consent) => consent.consentType),
+          ...optionalSignupConsents
+            .map((consent) => consent.consentType)
+            .filter((consentType) => givenSignupConsents.includes(consentType)),
+        ] as Parameters<typeof authApi.signupVerify>[0]['givenConsentTypesV2'],
       });
 
       // The Backend stores the refresh token in its HttpOnly cookie.
@@ -588,6 +599,31 @@ function SignupContent() {
                         ) : (
                           consent.label
                         )}
+                      </span>
+                    </label>
+                  ))}
+                  {optionalSignupConsents.map((consent) => (
+                    <label
+                      key={consent.consentType}
+                      data-testid={`signup-consent-${consent.consentType}`}
+                      className="flex items-start gap-3 rounded-md border border-border bg-card px-3 py-3"
+                    >
+                      <Checkbox
+                        checked={givenSignupConsents.includes(consent.consentType)}
+                        onCheckedChange={(nextChecked) =>
+                          handleSignupConsentToggle(consent.consentType, nextChecked === true)
+                        }
+                        className="mt-0.5"
+                      />
+                      <span className="text-sm text-foreground/90">
+                        {consent.detailsUrl ? (
+                          <Link className="text-primary hover:underline" href={consent.detailsUrl}>
+                            {consent.label}
+                          </Link>
+                        ) : (
+                          consent.label
+                        )}{' '}
+                        (optional) - you can change this any time in your account.
                       </span>
                     </label>
                   ))}

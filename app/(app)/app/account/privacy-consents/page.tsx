@@ -117,11 +117,16 @@ export default function PrivacyConsentsPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {catalogue.map(({ consentType, label, description, optionalAt }) => {
+              {/* Only the consents in use: the ones the product needs, given at
+                  sign-up, and the optional ones offered here (V3-63). One
+                  offered nowhere - ads integration - is not shown. */}
+              {catalogue
+                .filter((item) => item.requiredAt.includes('SIGNUP') || item.optionalAt.includes('ACCOUNT'))
+                .map(({ consentType, label, description, optionalAt }) => {
                 const checked = consentState[consentType] === true;
                 const record = consentRecordByType[consentType];
                 const isOptional = optionalAt.includes('ACCOUNT');
-                const isRequired = isConsentRequiredAt(catalogue, consentType, 'WIZARD');
+                const isRequired = isConsentRequiredAt(catalogue, consentType, 'SIGNUP');
 
                 return (
                   <div
@@ -149,7 +154,7 @@ export default function PrivacyConsentsPage() {
                         disabled={toggleOptionalConsentMutation.isPending}
                       />
                     ) : (
-                      <span className="text-xs text-muted-foreground">Manage in wizard flow</span>
+                      <span className="text-xs text-muted-foreground">Given at sign-up; needed to use AdCendy</span>
                     )}
                   </div>
                 );
