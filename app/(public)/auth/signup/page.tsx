@@ -530,10 +530,10 @@ function SignupContent() {
 
             <div className="space-y-2">
               <h2 className={inShell ? 'text-xl font-semibold text-white/90' : 'font-space-grotesk text-2xl font-bold'}>
-                Accept Required Policies
+                Before you sign up
               </h2>
               <p className={inShell ? 'text-sm text-white/65' : 'text-sm text-muted-foreground'}>
-                Please review and accept Terms of Service and Privacy Policy to complete signup.
+                Accept the Terms of Service to create your account. The rest is optional.
               </p>
             </div>
 
@@ -686,7 +686,7 @@ function SignupContent() {
             ? 'Start your intelligence journey'
             : step === 'verify-otp'
               ? 'Confirm your account to continue'
-              : 'Review and accept required policies'
+              : 'Accept the terms, and choose what else you are happy with'
         }
         modal
       >
