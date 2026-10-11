@@ -26,6 +26,7 @@ import {
   getSignupRequiredDocumentIds,
 } from '@/shared/legal/legal-flow-utils';
 import { useConsentCatalogue } from '@/shared/legal/useLegalCatalogue';
+import { AiProcessingNotice } from '@/shared/legal/AiProcessingNotice';
 import type { LegalDocumentVersion } from '@/shared/types/legal';
 
 type SignupStep = 'credentials' | 'verify-otp' | 'legal';
@@ -100,6 +101,9 @@ function SignupContent() {
         : previous.filter((entry) => entry !== consentType),
     );
   };
+  // V3-63: the privacy policy is shown and linked, not accepted.
+  const privacyPolicyUrl =
+    activeLegalDocuments.find((document) => document.documentType === 'PRIVACY_POLICY')?.url ?? null;
   const hasAcceptedAllSignupDocuments = useMemo(
     () =>
       areAllRequiredDocumentsAccepted(
@@ -286,7 +290,7 @@ function SignupContent() {
 
   const handleSignupLegalContinue = async () => {
     if (!hasAcceptedAllSignupDocuments) {
-      setError('Please accept Terms of Service and Privacy Policy to continue.');
+      setError('Please accept the Terms of Service to continue.');
       return;
     }
     if (!hasGivenAllSignupConsents) {
@@ -602,6 +606,21 @@ function SignupContent() {
                       </span>
                     </label>
                   ))}
+                  <p className="text-sm text-foreground/90" data-testid="signup-privacy-policy-notice">
+                    {privacyPolicyUrl ? (
+                      <>
+                        Read our{' '}
+                        <Link className="text-primary hover:underline" href={privacyPolicyUrl}>
+                          Privacy Policy
+                        </Link>{' '}
+                        to see what we collect and why.
+                      </>
+                    ) : null}
+                  </p>
+                  <AiProcessingNotice privacyPolicyUrl={null} />
+                  {optionalSignupConsents.length > 0 ? (
+                    <p className="pt-1 text-xs font-medium text-muted-foreground">Optional - you can change these any time in your account.</p>
+                  ) : null}
                   {optionalSignupConsents.map((consent) => (
                     <label
                       key={consent.consentType}
@@ -622,8 +641,7 @@ function SignupContent() {
                           </Link>
                         ) : (
                           consent.label
-                        )}{' '}
-                        (optional) - you can change this any time in your account.
+                        )}
                       </span>
                     </label>
                   ))}

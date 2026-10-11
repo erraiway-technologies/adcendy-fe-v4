@@ -37,7 +37,8 @@ const mockActiveDocuments: LegalDocumentVersion[] = [
     effectiveFrom: '2026-01-01T00:00:00.000Z',
     publishedAt: '2026-01-01T00:00:00.000Z',
     contentHash: null,
-    requiredAt: ['SIGNUP'],
+    // Shown and linked, not accepted (V3-63).
+    requiredAt: [],
   },
   {
     id: 'legal-refund-v2',
@@ -75,11 +76,12 @@ const mockActiveDocuments: LegalDocumentVersion[] = [
 ];
 
 const mockConsentCatalogue: LegalConsentCatalogueItem[] = [
-  { consentType: 'PRIVACY_PROCESSING', label: 'Privacy Processing', description: null, detailsUrl: '/consents/privacy-processing', requiredAt: ['SIGNUP'], optionalAt: [] },
-  { consentType: 'AI_PROCESSING', label: 'AI Processing', description: null, detailsUrl: '/consents/ai-processing', requiredAt: ['SIGNUP'], optionalAt: [] },
-  { consentType: 'BENCHMARK_DATA', label: 'Benchmark Data', description: null, detailsUrl: '/consents/benchmark-data', requiredAt: [], optionalAt: ['WIZARD', 'ACCOUNT'] },
+{ consentType: 'PRIVACY_PROCESSING', label: 'Privacy Processing', description: null, detailsUrl: null, requiredAt: [], optionalAt: [] },
+  { consentType: 'AI_PROCESSING', label: 'AI Processing', description: null, detailsUrl: null, requiredAt: [], optionalAt: [] },
+  { consentType: 'BENCHMARK_DATA', label: 'Product Improvement', description: null, detailsUrl: '/consents/benchmark-data', requiredAt: [], optionalAt: ['SIGNUP', 'ACCOUNT'] },
   { consentType: 'MARKETING_EMAILS', label: 'Marketing Emails', description: null, detailsUrl: '/consents/marketing-emails', requiredAt: [], optionalAt: ['SIGNUP', 'ACCOUNT'] },
   { consentType: 'ADS_INTEGRATION', label: 'Ads Integration', description: null, detailsUrl: null, requiredAt: [], optionalAt: [] },
+  { consentType: 'CASE_STUDY', label: 'Case Study', description: null, detailsUrl: '/consents/case-study', requiredAt: [], optionalAt: ['SIGNUP', 'ACCOUNT'] },
 ];
 
 const consentState = new Map<LegalConsentType, LegalConsentRecord>();

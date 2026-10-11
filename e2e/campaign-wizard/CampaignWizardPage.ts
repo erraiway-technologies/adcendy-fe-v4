@@ -725,17 +725,17 @@ export class CampaignWizardPage {
     await this.setReviewCheckbox('wizard-confirm-economics', step.confirmEconomics);
     await this.setReviewCheckbox('wizard-ready-to-generate', step.readyToGenerate);
 
-    // V3-63: the required consents are given at sign-up; the last step shows
-    // them only to an account that has not. The optional one always shows,
-    // so once it is there the list is complete.
-    await expect(this.page.getByTestId('wizard-consent-benchmark-data')).toBeVisible();
+    // V3-63: consents are given at sign-up and changed on the account page;
+    // the last step states how AI is used and asks for none. A consent row
+    // is ticked only if one is shown.
+    await expect(this.page.getByTestId('ai-processing-notice')).toBeVisible();
     for (const [testId, desired] of [
       ['wizard-consent-privacy-processing', step.privacyProcessingConsent],
       ['wizard-consent-ai-processing', step.aiProcessingConsent],
       ['wizard-consent-benchmark-data', step.dataConsentOptIn],
     ] as const) {
       const checkbox = this.page.getByTestId(testId);
-      if (testId !== 'wizard-consent-benchmark-data' && !(await checkbox.isVisible())) {
+      if (!(await checkbox.isVisible())) {
         continue;
       }
       const current = await checkbox.isChecked();

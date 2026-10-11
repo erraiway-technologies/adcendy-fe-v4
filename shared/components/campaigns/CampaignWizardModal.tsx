@@ -56,6 +56,8 @@ import { cn } from '@/lib/utils';
 import { useLastCampaign } from '@/hooks/useLastCampaign';
 import { useToast } from '@/hooks/use-toast';
 import { SearchableSelect } from '@/shared/components/campaigns/SearchableSelect';
+import { AiProcessingNotice } from '@/shared/legal/AiProcessingNotice';
+import { usePublicLegalDocuments } from '@/shared/legal/useLegalCatalogue';
 import { ChipToggleGroup, OptionSelect } from '@/shared/components/campaigns/WizardChoiceFields';
 import { ApiError } from '@/shared/api/errors';
 import { queryKeys } from '@/shared/api/queryKeys';
@@ -2333,6 +2335,10 @@ export function CampaignWizardModal({
   });
 
   const consentCatalogueQuery = useConsentCatalogue();
+  // V3-63: AI processing is stated before generating, with the policy link.
+  const publicLegalDocumentsQuery = usePublicLegalDocuments();
+  const privacyPolicyUrl =
+    publicLegalDocumentsQuery.data?.find((document) => document.documentType === 'PRIVACY_POLICY')?.url ?? null;
   const consentCatalogue = useMemo(() => consentCatalogueQuery.data ?? [], [consentCatalogueQuery.data]);
   const { data: consentRecords } = useQuery({
     queryKey: queryKeys.legal.consentsMe(),
@@ -7057,6 +7063,7 @@ export function CampaignWizardModal({
                             onCheckedChange={setReadyToGenerate}
                             label="I have reviewed the setup and am ready to generate strategy"
                           />
+                          <AiProcessingNotice privacyPolicyUrl={privacyPolicyUrl} />
                           {consentCatalogueQuery.isLoading ? (
                             <p className="text-xs text-muted-foreground">Loading consents...</p>
                           ) : null}
