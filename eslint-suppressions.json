@@ -240,7 +240,7 @@
   },
   "shared/components/campaigns/CampaignWizardModal.tsx": {
     "@typescript-eslint/no-unused-vars": {
-      "count": 39
+      "count": 38
     },
     "react-hooks/exhaustive-deps": {
       "count": 3
