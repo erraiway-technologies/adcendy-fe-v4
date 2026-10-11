@@ -212,12 +212,18 @@ export const REPEAT_PURCHASE_FREQUENCY_VALUES = [
 
 export type RepeatPurchaseFrequency = (typeof REPEAT_PURCHASE_FREQUENCY_VALUES)[number];
 
+// V3-65: bands that follow what each size allows - retargeting from about
+// 10k visits, A/B testing from about 50k, conversion work its own programme
+// above 1M. The backend reads an answer saved as the old "50000_plus" as
+// 50k-250k.
 export const MONTHLY_WEBSITE_TRAFFIC_VALUES = [
   'under_500',
   '500_2000',
   '2000_10000',
   '10000_50000',
-  '50000_plus',
+  '50000_250000',
+  '250000_1000000',
+  '1000000_plus',
   'unknown',
 ] as const;
 
@@ -261,12 +267,17 @@ export const DIGITAL_PRESENCE_LINK_TYPE_VALUES = [
 
 export type DigitalPresenceLinkType = (typeof DIGITAL_PRESENCE_LINK_TYPE_VALUES)[number];
 
+// V3-65: still building below about 2k contacts, segments from 10k,
+// lifecycle (CRM) work from 50k. The backend reads an answer saved as the old
+// "10000_plus" as 10k-50k.
 export const EMAIL_LIST_SIZE_VALUES = [
   'none',
   'under_500',
   '500_2000',
   '2000_10000',
-  '10000_plus',
+  '10000_50000',
+  '50000_250000',
+  '250000_plus',
   'unknown',
 ] as const;
 
@@ -450,11 +461,13 @@ export const REPEAT_PURCHASE_FREQUENCY_LABELS: Record<RepeatPurchaseFrequency, s
 };
 
 export const MONTHLY_WEBSITE_TRAFFIC_LABELS: Record<MonthlyWebsiteTraffic, string> = {
-  under_500: 'Under 500 visits',
-  '500_2000': '500 to 2,000 visits',
-  '2000_10000': '2,000 to 10,000 visits',
-  '10000_50000': '10,000 to 50,000 visits',
-  '50000_plus': 'Above 50,000 visits',
+  under_500: 'Under 500',
+  '500_2000': '500–2,000',
+  '2000_10000': '2,000–10,000',
+  '10000_50000': '10,000–50,000',
+  '50000_250000': '50,000–250,000',
+  '250000_1000000': '250,000–1M',
+  '1000000_plus': 'Over 1M',
   unknown: "Don't know",
 };
 
@@ -492,10 +505,12 @@ export const DIGITAL_PRESENCE_LINK_TYPE_LABELS: Record<DigitalPresenceLinkType, 
 
 export const EMAIL_LIST_SIZE_LABELS: Record<EmailListSize, string> = {
   none: 'No email list',
-  under_500: 'Under 500 contacts',
-  '500_2000': '500 to 2,000 contacts',
-  '2000_10000': '2,000 to 10,000 contacts',
-  '10000_plus': 'Above 10,000 contacts',
+  under_500: 'Under 500',
+  '500_2000': '500–2,000',
+  '2000_10000': '2,000–10,000',
+  '10000_50000': '10,000–50,000',
+  '50000_250000': '50,000–250,000',
+  '250000_plus': 'Over 250,000',
   unknown: "Don't know",
 };
 

@@ -213,9 +213,11 @@ const step4Schema = z
     digitalPresenceLinks: z.array(digitalPresenceSchema).default([]),
     googleAnalyticsConnected: z.union([z.boolean(), z.literal('unknown'), z.literal('')]).default(''),
     monthlyWebsiteTraffic: z
-      .enum(['', 'under_500', '500_2000', '2000_10000', '10000_50000', '50000_plus'])
+      .enum(['', 'under_500', '500_2000', '2000_10000', '10000_50000', '50000_250000', '250000_1000000', '1000000_plus'])
       .default(''),
-    emailListSize: z.enum(['', 'none', 'under_500', '500_2000', '2000_10000', '10000_plus']).default(''),
+    emailListSize: z
+      .enum(['', 'none', 'under_500', '500_2000', '2000_10000', '10000_50000', '50000_250000', '250000_plus'])
+      .default(''),
     whatsappListSize: z.enum(['none', 'under_500', '500_2000', '2000_10000', '10000_plus', 'unknown']).optional(),
     existingAssets: z
       .array(z.enum(['creators', 'community', 'email_automation', 'referral_programme', 'loyalty_programme', 'none']))

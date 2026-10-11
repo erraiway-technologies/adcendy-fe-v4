@@ -52,11 +52,14 @@ const STATIC_OPTION_LABELS: Record<string, string> = {
   longerThanTwelveMonths: 'Longer than 12 months',
   noFixedDeadline: 'No fixed deadline',
   firstOrder: 'On the first order',
-  under_500: 'Under 500 visits',
-  '500_2000': '500 to 2,000 visits',
-  '2000_10000': '2,000 to 10,000 visits',
-  '10000_50000': '10,000 to 50,000 visits',
-  '50000_plus': 'Above 50,000 visits',
+  // Website traffic (V3-65).
+  under_500: 'Under 500',
+  '500_2000': '500–2,000',
+  '2000_10000': '2,000–10,000',
+  '10000_50000': '10,000–50,000',
+  '50000_250000': '50,000–250,000',
+  '250000_1000000': '250,000–1M',
+  '1000000_plus': 'Over 1M',
   one_time_buyers: 'Mostly one-time buyers',
   some_repeat: 'Some customers come back',
   mostly_repeat: 'Many customers come back',
@@ -142,10 +145,12 @@ const CONTENT_CAPACITY_OPTION_LABELS: Record<string, string> = {
 
 const EMAIL_LIST_OPTION_LABELS: Record<string, string> = {
   none: 'No email list',
-  under_500: 'Under 500 contacts',
-  '500_2000': '500 to 2,000 contacts',
-  '2000_10000': '2,000 to 10,000 contacts',
-  '10000_plus': 'Above 10,000 contacts',
+  under_500: 'Under 500',
+  '500_2000': '500–2,000',
+  '2000_10000': '2,000–10,000',
+  '10000_50000': '10,000–50,000',
+  '50000_250000': '50,000–250,000',
+  '250000_plus': 'Over 250,000',
 };
 
 const WHATSAPP_LIST_OPTION_LABELS: Record<string, string> = {
