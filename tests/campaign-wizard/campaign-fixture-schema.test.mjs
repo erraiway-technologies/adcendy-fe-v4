@@ -19,7 +19,7 @@ const minimalFixture = {
     },
     step2: {
       businessName: 'Schema Test',
-      industryCategory: 'SaaS',
+      industryCategory: 'saas_digital',
       sellsTo: 'businesses',
       sellsVia: 'own_channel',
       audienceModel: 'single_sided',

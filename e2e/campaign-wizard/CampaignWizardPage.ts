@@ -98,6 +98,28 @@ const STATIC_OPTION_LABELS: Record<string, string> = {
   all: 'All of it',
 };
 
+// v3 (V3-40): the industries, searched by their names.
+const INDUSTRY_LABELS: Record<string, string> = {
+  local_retail: 'Local retail',
+  ecommerce_d2c: 'E-commerce & D2C brands',
+  beauty_personal_care: 'Beauty & personal care',
+  fashion_apparel: 'Fashion & apparel',
+  food_beverage_brands: 'Food & beverage brands',
+  restaurants_cafes: 'Restaurants & cafes',
+  healthcare_clinics: 'Healthcare & clinics',
+  wellness_fitness: 'Wellness & fitness',
+  education_edtech: 'Education & EdTech',
+  real_estate: 'Real estate',
+  financial_services_fintech: 'Financial services & fintech',
+  saas_digital: 'SaaS & digital',
+  professional_services: 'Professional services',
+  coaching_consulting: 'Coaching & consulting',
+  travel_hospitality: 'Travel & hospitality',
+  home_services: 'Home services',
+  manufacturing_b2b: 'Manufacturing & B2B',
+  other: 'Other',
+};
+
 // v3 (A3): content capacity by what it means.
 const CONTENT_CAPACITY_OPTION_LABELS: Record<string, string> = {
   none: 'Nothing yet',
@@ -202,16 +224,19 @@ export class CampaignWizardPage {
     const options = this.page.getByRole('option');
     await expect(options.first()).toBeVisible();
     const texts = (await options.allTextContents()).map((text) => text.trim());
+    // An option with a hint reads its label first, then the hint.
     const index = texts.findIndex(
       (text) =>
         text === desiredLabel ||
+        text === query ||
+        (text.startsWith(query) && /^[A-Z]/.test(query)) ||
         normalizeToken(text) === normalizeToken(query) ||
         text.endsWith(`(${query})`),
     );
     expect(index, `${fieldPath} should offer ${query}; offered: ${texts.join(', ')}`).toBeGreaterThanOrEqual(0);
     const text = texts[index];
     await options.nth(index).click();
-    await expect(trigger).toContainText(text);
+    await expect(trigger).toContainText(desiredLabel ?? (text.startsWith(query) ? query : text));
   }
 
   private async chooseSelect(fieldPath: string, desiredValue: string) {
@@ -371,7 +396,7 @@ export class CampaignWizardPage {
   async populateStep2() {
     const step = this.fixture.wizard.step2;
     await this.fill('businessName', step.businessName);
-    await this.chooseSelect('industryCategory', step.industryCategory);
+    await this.chooseSearchable('industryCategory', INDUSTRY_LABELS[step.industryCategory] ?? step.industryCategory);
     await this.chooseSelect('sellsTo', step.sellsTo);
     await this.chooseSelect('sellsVia', step.sellsVia);
     await this.chooseSelect('audienceModel', step.audienceModel);

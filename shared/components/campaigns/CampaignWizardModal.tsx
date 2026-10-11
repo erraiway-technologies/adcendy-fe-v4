@@ -2337,10 +2337,19 @@ export function CampaignWizardModal({
         })),
     [wizardOptions],
   );
-  const industryCategoryOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'industryCategory', []),
-    [wizardOptions],
-  );
+  // v3 V3-40: eighteen industries, each with a hint; no local fallback.
+  const industryCategoryOptions = useMemo(() => {
+    const hints = new Map(
+      getFieldOptions(wizardOptions, 'industryCategory').map((option) => [
+        option.canonicalToken || String(option.value),
+        option.hint,
+      ]),
+    );
+    return getStringFieldOptions(wizardOptions, 'industryCategory', []).map((option) => ({
+      ...option,
+      hint: hints.get(option.value),
+    }));
+  }, [wizardOptions]);
   const audienceModelOptions = useMemo(
     () => getStringFieldOptions(wizardOptions, 'audienceModel', STEP2_AUDIENCE_MODEL_FALLBACK_OPTIONS),
     [wizardOptions],
@@ -4472,27 +4481,22 @@ export function CampaignWizardModal({
                         name="industryCategory"
                         control={step2Form.control}
                         render={({ field }) => (
-                          <Select
-                            onValueChange={(value) => {
+                          <SearchableSelect
+                            value={field.value}
+                            options={industryCategoryOptions}
+                            placeholder="Select industry"
+                            searchPlaceholder="Search industries"
+                            emptyText="No industry by that name. Pick Other."
+                            testId={wizardFieldTestId('industryCategory')}
+                            className={wizardInputClassName}
+                            onChange={(value) => {
                               field.onChange(value);
                               step2Form.setValue('businessType', value as Step2FormData['businessType'], {
                                 shouldDirty: true,
                                 shouldValidate: true,
                               });
                             }}
-                            value={field.value}
-                          >
-                            <SelectTrigger data-testid={wizardFieldTestId('industryCategory')} className={wizardInputClassName}>
-                              <SelectValue placeholder="Select industry category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {industryCategoryOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          />
                         )}
                       />
                       <FieldMeta error={step2Form.formState.errors.industryCategory?.message} />

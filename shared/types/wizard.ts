@@ -1142,6 +1142,8 @@ export interface WizardFieldOptionV2 {
   defaultCurrency?: string;
   /** A market's tier: curated or global (v3 P4). */
   marketTier?: string;
+  /** A line saying what the option covers (v3 V3-40). */
+  hint?: string;
 }
 
 export interface WizardStepDefinitionV2 {

@@ -18,7 +18,7 @@
     },
     "step2": {
       "businessName": "Ultrahuman",
-      "industryCategory": "healthcare_wellness",
+      "industryCategory": "wellness_fitness",
       "sellsTo": "consumers",
       "sellsVia": "own_channel",
       "audienceModel": "single_sided",

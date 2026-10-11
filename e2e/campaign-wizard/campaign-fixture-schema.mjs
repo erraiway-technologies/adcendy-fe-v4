@@ -89,7 +89,14 @@ const step1Schema = z
 const step2Schema = z
   .object({
     businessName: optionalTextMax(240),
-    industryCategory: boundedText(200),
+    // v3 (V3-40): one of the eighteen industries.
+    industryCategory: z.enum([
+      'local_retail', 'ecommerce_d2c', 'beauty_personal_care', 'fashion_apparel',
+      'food_beverage_brands', 'restaurants_cafes', 'healthcare_clinics', 'wellness_fitness',
+      'education_edtech', 'real_estate', 'financial_services_fintech', 'saas_digital',
+      'professional_services', 'coaching_consulting', 'travel_hospitality', 'home_services',
+      'manufacturing_b2b', 'other',
+    ]),
     // v3: who the business sells to and how; the backend derives the model.
     sellsTo: z.enum(['consumers', 'businesses', 'both']),
     sellsVia: z.enum(['own_channel', 'marketplaces', 'partners', 'mix']),

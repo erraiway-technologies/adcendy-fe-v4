@@ -14,7 +14,8 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
-export type SearchableSelectOption = { value: string; label: string };
+/** `hint` is a line under the label saying what the option covers. */
+export type SearchableSelectOption = { value: string; label: string; hint?: string };
 
 /**
  * A select for long lists (every country, every currency; v3 P4): the
@@ -70,15 +71,23 @@ export function SearchableSelect({
             {options.map((option) => (
               <CommandItem
                 key={option.value}
-                // Matched on the label and the code: "Kenya", "KE", "shilling", "KES".
-                value={`${option.label} ${option.value}`}
+                // Matched on the label, the code and the hint: "Kenya", "KE",
+                // "shilling", "KES", "skincare".
+                value={`${option.label} ${option.value} ${option.hint ?? ''}`}
                 onSelect={() => {
                   onChange(option.value);
                   setOpen(false);
                 }}
               >
                 <Check className={cn('h-4 w-4', option.value === value ? 'opacity-100' : 'opacity-0')} />
-                {option.label}
+                {option.hint ? (
+                  <span className="flex flex-col">
+                    <span>{option.label}</span>
+                    <span className="text-xs text-muted-foreground">{option.hint}</span>
+                  </span>
+                ) : (
+                  option.label
+                )}
               </CommandItem>
             ))}
           </CommandList>
