@@ -1084,6 +1084,8 @@ export interface WizardPreviewStep4 {
     monthlySpendAmount?: MoneyAnswer | null;
     timeRunning?: string | null;
     reasonStopped?: string | null;
+    /** v3 P6: this channel's share of the spend (a band). */
+    shareOfSpend?: string | null;
   }>;
   averageOrderValue?: string | null;
   averageOrderValueAmount?: MoneyAnswer | null;

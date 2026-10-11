@@ -1961,14 +1961,26 @@ function coerceDigitalPresenceLinks(value: unknown): DigitalPresenceLink[] {
     .filter(Boolean) as DigitalPresenceLink[];
 }
 
-function formatRankedSalesChannels(channels?: RankedSalesChannel[]) {
+/** The channels in rank order, each with its share of sales when given (v3 P6). */
+function formatRankedSalesChannels(
+  channels: RankedSalesChannel[] | undefined,
+  channelOptions: { value: string; label: string }[],
+  shareOptions: { value: string; label: string }[],
+) {
   const normalizedChannels = normalizeSalesChannels(channels);
   if (!normalizedChannels.length) {
     return null;
   }
 
   return normalizedChannels
-    .map((item) => `${item.rank}. ${item.channel === 'other' ? item.customName || 'Other' : formatSalesChannel(item.channel)}`)
+    .map((item) => {
+      const name =
+        item.channel === 'other'
+          ? item.customName || 'Other'
+          : (channelOptions.find((option) => option.value === item.channel)?.label ?? formatSalesChannel(item.channel));
+      const share = labelOfOption(shareOptions, item.salesShare);
+      return `${item.rank}. ${name}${share ? ` (${share} of sales)` : ''}`;
+    })
     .join(' | ');
 }
 
@@ -1983,13 +1995,16 @@ function formatStringOrList(value?: string | string[] | null) {
 }
 
 function formatCurrentMarketingActivity(
-  activities?:
+  activities:
     | Array<{
         channel?: string | null;
         status?: string | null;
         workingAssessment?: string | null;
+        shareOfSpend?: string | null;
       }>
-    | null,
+    | null
+    | undefined,
+  shareOptions: { value: string; label: string }[],
 ) {
   if (!activities?.length) {
     return null;
@@ -2000,12 +2015,13 @@ function formatCurrentMarketingActivity(
       const channel = normalizeString(activity.channel ?? '');
       const status = normalizeString(activity.status ?? '');
       const assessment = normalizeString(activity.workingAssessment ?? '');
+      const share = labelOfOption(shareOptions, activity.shareOfSpend);
 
       if (!channel) {
         return '';
       }
 
-      return `${channel}${status ? ` (${status})` : ''}${assessment ? ` - ${assessment}` : ''}`;
+      return `${channel}${status ? ` (${status})` : ''}${assessment ? ` - ${assessment}` : ''}${share ? `, ${share} of spend` : ''}`;
     })
     .filter(Boolean);
 
@@ -6852,6 +6868,7 @@ export function CampaignWizardModal({
                           <SummaryField label="Product or service" value={formatStringOrList(effectivePreviewStep2?.productOrService as string[] | string | undefined)} />
                           <SummaryField label="Price range" value={showPriceRange(effectivePreviewStep2)} />
                           <SummaryField label="Price position" value={labelOfOption(pricePositionOptions, previewValue(effectivePreviewStep2, 'pricePosition'))} />
+                          <SummaryField label="Sales channels" value={formatRankedSalesChannels(effectivePreviewStep2?.salesChannels, salesChannelOptions, salesShareOptions)} className="md:col-span-2" />
                           <SummaryField label="Offer summary" value={effectivePreviewStep2?.offerSummary} />
                           <SummaryField label="Differentiators" value={formatStringList(effectivePreviewStep2?.differentiators)} />
                           <SummaryField label="Sensitive category flags" value={formatSensitiveCategoryFlags(effectivePreviewStep2?.sensitiveCategoryFlags)} />
@@ -6919,7 +6936,7 @@ export function CampaignWizardModal({
                           <SummaryField label="Sales capacity" value={effectivePreviewStep4?.salesCapacity} />
                           <SummaryField label="Peak seasons" value={labelsOfOptions(marketList?.peakSeasons ?? [], previewValue(effectivePreviewStep4, 'peakSeasons'))} />
                           <SummaryField label="Offers running now" value={formatStringList(previewValue(effectivePreviewStep4, 'currentOffers') as string[] | undefined)} />
-                          <SummaryField label="Current marketing activity" value={formatCurrentMarketingActivity(effectivePreviewStep4?.currentMarketingActivity)} className="md:col-span-2" />
+                          <SummaryField label="Current marketing activity" value={formatCurrentMarketingActivity(effectivePreviewStep4?.currentMarketingActivity, shareOfSpendOptions)} className="md:col-span-2" />
                           <SummaryField label="Past marketing" value={effectivePreviewStep4?.pastMarketing} className="md:col-span-2" />
                           <SummaryField label="Known competitor status" value={formatKnownCompetitorStatus(effectivePreviewStep4?.knownCompetitorStatus)} />
                           <SummaryField label="Constraints" value={formatStringList(effectivePreviewStep4?.constraints)} />
