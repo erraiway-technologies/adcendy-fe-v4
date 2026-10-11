@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useCampaigns } from '@/hooks/useCampaigns';
 import { useLastCampaign } from '@/hooks/useLastCampaign';
 import { CampaignListItem } from '@/shared/components/campaigns/CampaignListItem';
+import { useWizardOptionLabels } from '@/shared/components/campaigns/useWizardOptionLabels';
 import { CampaignWizardModal, resolveWizardResumeStep, resolveWizardStep } from '@/shared/components/campaigns/CampaignWizardModal';
 import { wizardRepository } from '@/shared/api/repositories';
 import { useCampaignEntitlement } from '@/hooks/useCampaignEntitlement';
@@ -29,6 +30,7 @@ export default function CampaignsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { campaigns, isLoading, error } = useCampaigns();
+  const optionLabels = useWizardOptionLabels();
   const {
     canStartCampaign,
     isLoading: isEntitlementLoading,
@@ -59,6 +61,8 @@ export default function CampaignsPage() {
         ...(campaign.v2TargetMarkets ?? []),
         campaign.v2BusinessName,
         campaign.v2IndustryCategory,
+        optionLabels.industry(campaign.v2IndustryCategory),
+        ...(campaign.v2TargetMarkets ?? []).map((code) => optionLabels.country(code)),
         ...(campaign.v2PrimaryOfferings ?? []),
         campaign.v2PrimaryGoal,
         campaign.city,
@@ -73,7 +77,7 @@ export default function CampaignsPage() {
         .filter((value): value is string => typeof value === 'string' && value.length > 0)
         .some((value) => value.toLowerCase().includes(query)),
     );
-  }, [campaigns, searchQuery]);
+  }, [campaigns, searchQuery, optionLabels]);
 
   const openCreateWizard = () => {
     if (isEntitlementLoading) {
@@ -304,6 +308,7 @@ export default function CampaignsPage() {
               campaign={campaign}
               onOpen={(campaignId) => setLastCampaignId(campaignId)}
               onOpenDraftWizard={openDraftWizard}
+              labels={optionLabels}
             />
           ))}
         </div>

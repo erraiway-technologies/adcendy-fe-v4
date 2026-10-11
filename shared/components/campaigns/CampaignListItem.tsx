@@ -2,18 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
-import { type Campaign } from '@/shared/types/campaign';
-
-function formatTokenLabel(value?: string | null) {
-  if (!value) {
-    return null;
-  }
-
-  return value
-    .split('_')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
+import { formatCampaignStatus, type Campaign } from '@/shared/types/campaign';
+import { formatSourceType } from '@/shared/types/wizard';
+import type { WizardOptionLabels } from '@/shared/components/campaigns/useWizardOptionLabels';
 
 function formatListLabel(values?: string[]) {
   if (!values?.length) {
@@ -37,8 +28,11 @@ export function CampaignListItem({
   campaign,
   onOpen,
   onOpenDraftWizard,
+  labels,
 }: {
   campaign: Campaign;
+  /** The backend's labels for the wizard answers the card shows. */
+  labels: WizardOptionLabels;
   onOpen?: (campaignId: string) => void;
   onOpenDraftWizard?: (campaign: Campaign) => void;
 }) {
@@ -54,21 +48,22 @@ export function CampaignListItem({
     router.push(entryHref);
   };
 
+  // Shown by name, never the stored code or token (V3-01).
   const targetMarkets =
-    formatListLabel(campaign.v2TargetMarkets) ||
-    campaign.v2PrimaryMarket ||
+    formatListLabel((campaign.v2TargetMarkets ?? []).map((code) => labels.country(code) ?? code)) ||
+    labels.country(campaign.v2PrimaryMarket) ||
     campaign.city ||
     null;
 
   const topRowValues = [
-    formatTokenLabel(campaign.status),
+    formatCampaignStatus(campaign.status),
     `Step ${campaign.currentStep}`,
     targetMarkets,
   ];
 
   const secondRowValues = [
-    formatTokenLabel(campaign.v2SourceType),
-    campaign.v2IndustryCategory || campaign.niche || null,
+    formatSourceType(campaign.v2SourceType),
+    labels.industry(campaign.v2IndustryCategory) || campaign.niche || null,
     formatListLabel(campaign.v2PrimaryOfferings),
   ];
 
