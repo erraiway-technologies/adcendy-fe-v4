@@ -2569,7 +2569,15 @@ export function CampaignWizardModal({
 
   const watchedMarketingTargetType = step1Form.watch('marketingTargetType');
   const watchedSourceType = step1Form.watch('sourceType');
-  const [countryChangeNotice, setCountryChangeNotice] = useState<string | null>(null);
+  // V3-32: the country was changed after it was saved. Later answers are
+  // kept as given, and the client is told so here and on the steps that hold
+  // them - for this campaign only.
+  const [countryChangeState, setCountryChangeState] = useState<{
+    campaignId: string | null;
+    from: string;
+    to: string;
+  } | null>(null);
+  const countryChange = countryChangeState?.campaignId === activeCampaignId ? countryChangeState : null;
   const [currencyChangeNotice, setCurrencyChangeNotice] = useState<string | null>(null);
   const watchedTargetMarkets = step1Form.watch('targetMarkets') ?? [];
   const selectedCountryCode = toWizardCountryCode(watchedTargetMarkets[0], targetMarketOptions);
@@ -4094,6 +4102,19 @@ export function CampaignWizardModal({
               className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-7 pb-6 relative z-10"
             >
               <div className={shellInnerClassName}>
+                {countryChange && (step === 4 || step === 5) ? (
+                  <div
+                    className="mb-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-300"
+                    role="status"
+                    data-testid="wizard-country-change-reminder"
+                  >
+                    These answers were given for {countryChange.from}. Check that each still applies to{' '}
+                    {countryChange.to}
+                    {step === 4
+                      ? ': your sales channels, social handles and links.'
+                      : ': your known competitors.'}
+                  </div>
+                ) : null}
                 {step === 1 ? (
               <form
                 id="campaign-wizard-step-1"
@@ -4221,22 +4242,36 @@ export function CampaignWizardModal({
                         ) {
                           step1Form.setValue('currency', nextDefault, { shouldDirty: true, shouldValidate: true });
                         }
-                        // V3-32: what the later steps hold was given for the
-                        // country before.
-                        const previousLabel = targetMarketOptions.find(
-                          (option) => option.value === selectedCountryCode,
-                        )?.label;
-                        setCountryChangeNotice(
-                          previousLabel
-                            ? `Your later answers were given for ${previousLabel}: check the sales channels, social profiles, links and competitors on the next steps.`
+                        // V3-32: against the country saved before, not the
+                        // one picked a moment ago; back to it, no notice.
+                        const savedCode = toWizardCountryCode(
+                          step1SnapshotRef.current.targetMarkets?.[0],
+                          targetMarketOptions,
+                        );
+                        const labelOf = (code: string) =>
+                          targetMarketOptions.find((option) => option.value === code)?.label ?? code;
+                        setCountryChangeState(
+                          savedCode && savedCode !== value
+                            ? { campaignId: activeCampaignId, from: labelOf(savedCode), to: labelOf(value) }
                             : null,
                         );
                       }}
                     />
-                    {countryChangeNotice ? (
-                      <p className="text-sm text-amber-700 dark:text-amber-400" role="status" data-testid="wizard-country-change-notice">
-                        {countryChangeNotice}
-                      </p>
+                    {countryChange ? (
+                      <div
+                        className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-300"
+                        role="status"
+                        data-testid="wizard-country-change-notice"
+                      >
+                        <p className="font-medium">
+                          You changed the country from {countryChange.from} to {countryChange.to}.
+                        </p>
+                        <p className="mt-1">
+                          Your answers on the next steps were given for {countryChange.from} and have not been changed.
+                          Please check and update them for {countryChange.to}: sales channels, social handles and links
+                          (step 4), and known competitors (step 5).
+                        </p>
+                      </div>
                     ) : null}
                     <FieldMeta error={getArrayFieldError(step1Form.formState.errors.targetMarkets)} />
                   </div>
