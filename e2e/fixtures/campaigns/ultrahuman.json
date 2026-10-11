@@ -42,7 +42,8 @@
         "none"
       ],
       "priceRangeLow": 28499,
-      "priceRangeHigh": 28499
+      "priceRangeHigh": 28499,
+      "pricePosition": "premium"
     },
     "step3": {
       "primaryTargetSegment": "Health-conscious urban Indian adults who want discreet, continuous sleep, recovery and metabolic tracking without a mandatory subscription.",
@@ -60,13 +61,23 @@
         "Self-purchasing consumer",
         "Partner or family member buying the ring as a gift",
         "Fitness coach or creator influencing the purchase"
+      ],
+      "ageRanges": [
+        "25_34",
+        "35_44"
+      ],
+      "genderSkew": "even",
+      "buyingTriggers": [
+        "New Year fitness goals",
+        "Festive gifting"
       ]
     },
     "step4": {
       "salesChannels": [
         {
           "channel": "own_website",
-          "rank": 1
+          "rank": 1,
+          "salesShare": "30_60"
         },
         {
           "channel": "amazon",
@@ -117,7 +128,11 @@
         }
       ],
       "monthlyWebsiteTraffic": "50000_plus",
-      "emailListSize": "10000_plus"
+      "emailListSize": "10000_plus",
+      "existingAssets": [
+        "creators",
+        "community"
+      ]
     },
     "step5": {
       "primaryGoal": "revenue_growth",
@@ -157,7 +172,14 @@
         }
       ],
       "monthlyMarketingBudget": 60000,
-      "paidAdsShare": "under_quarter"
+      "paidAdsShare": "under_quarter",
+      "peakSeasons": [
+        "diwali",
+        "new_year"
+      ],
+      "currentOffers": [
+        "No-cost EMI on the ring"
+      ]
     },
     "step6": {
       "grossMarginBand": "from_40_to_60_percent",
@@ -166,7 +188,8 @@
       "avgCustomerRetention": "some_repeat",
       "monthlyOrderVolume": "1000-2000",
       "repeatPurchaseFrequency": "every_few_months",
-      "averageOrderValueAmount": 28499
+      "averageOrderValueAmount": 28499,
+      "subscriptionOffered": false
     },
     "step7": {
       "confirmFocus": true,

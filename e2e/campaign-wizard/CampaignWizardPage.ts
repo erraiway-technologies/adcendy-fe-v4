@@ -63,6 +63,8 @@ const STATIC_OPTION_LABELS: Record<string, string> = {
   subscription: 'Subscription-based',
   never: 'Rarely or never',
   twitter: 'X (Twitter)',
+  about_same: 'About the same',
+  even: 'About even',
   marketplace_listing: 'Marketplace listing',
   true: 'Connected',
   false: 'Not connected',
@@ -420,6 +422,9 @@ export class CampaignWizardPage {
       await this.chooseSensitiveFlag(flag);
     }
     await this.addTags('complianceSensitiveClaims', step.complianceSensitiveClaims);
+    if (step.pricePosition) {
+      await this.chooseSelect('pricePosition', step.pricePosition);
+    }
     await this.saveStep(2, 'Continue');
   }
 
@@ -437,6 +442,16 @@ export class CampaignWizardPage {
     if (this.fixture.wizard.step2.sellsTo !== 'consumers') {
       await this.addTags('buyerRoles', step.buyerRoles);
     }
+    // v3 P6: age and who buys more are asked of consumer businesses.
+    if (this.fixture.wizard.step2.sellsTo !== 'businesses') {
+      for (const ageRange of step.ageRanges ?? []) {
+        await this.chooseCard('ageRanges', ageRange);
+      }
+      if (step.genderSkew) {
+        await this.chooseSelect('genderSkew', step.genderSkew);
+      }
+    }
+    await this.addTags('buyingTriggers', step.buyingTriggers);
     await this.saveStep(3, 'Continue');
   }
 
@@ -450,6 +465,9 @@ export class CampaignWizardPage {
       await expect(this.field(`salesChannels.${index}.rank`)).toHaveValue(String(channel.rank));
       if (channel.channel === 'other') {
         await this.fill(`salesChannels.${index}.customName`, channel.customName);
+      }
+      if (channel.salesShare) {
+        await this.chooseSelect(`salesChannels.${index}.salesShare`, channel.salesShare);
       }
     }
   }
@@ -484,6 +502,13 @@ export class CampaignWizardPage {
     if (step.googleAnalyticsConnected !== undefined && step.googleAnalyticsConnected !== '') {
       await this.chooseSelect('googleAnalyticsConnected', String(step.googleAnalyticsConnected));
     }
+    // v3 P6: the WhatsApp list is asked in India only.
+    if (step.whatsappListSize && this.fixture.wizard.step1.targetMarkets[0] === 'IN') {
+      await this.chooseSelect('whatsappListSize', step.whatsappListSize);
+    }
+    for (const asset of step.existingAssets ?? []) {
+      await this.chooseCard('existingAssets', asset);
+    }
     await this.saveStep(4, 'Continue');
   }
 
@@ -501,6 +526,11 @@ export class CampaignWizardPage {
     for (const capability of step.creativeCapabilities) {
       await this.chooseCard('creativeCapabilities', capability);
     }
+    // v3 P6: peak seasons from the market's list, and offers running now.
+    for (const season of step.peakSeasons ?? []) {
+      await this.chooseCard('peakSeasons', season);
+    }
+    await this.addTags('currentOffers', step.currentOffers);
     if (this.isLeadGenerationPath()) {
       await this.fill('salesCapacity', step.salesCapacity);
     }
@@ -583,6 +613,16 @@ export class CampaignWizardPage {
     }
     if (step.repeatPurchaseFrequency) {
       await this.chooseSelect('repeatPurchaseFrequency', step.repeatPurchaseFrequency);
+    }
+    // v3 P6.
+    if (step.customerAcquisitionCost !== undefined) {
+      await this.fill('customerAcquisitionCost', String(step.customerAcquisitionCost));
+    }
+    if (step.subscriptionOffered !== undefined) {
+      await this.chooseSelect('subscriptionOffered', step.subscriptionOffered ? 'yes' : 'no');
+      if (step.subscriptionOffered && step.subscriberMonths !== undefined) {
+        await this.fill('subscriberMonths', String(step.subscriberMonths));
+      }
     }
     await this.saveStep(6, 'Review');
   }

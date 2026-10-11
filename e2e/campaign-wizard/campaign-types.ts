@@ -34,6 +34,7 @@ export interface CampaignFixture {
       differentiators?: string[];
       sensitiveCategoryFlags: string[];
       complianceSensitiveClaims?: string[];
+      pricePosition?: string;
     };
     step3: Record<string, unknown> & {
       primaryTargetSegment: string;
@@ -46,9 +47,12 @@ export interface CampaignFixture {
       desiredOutcome: string;
       decisionProcess: string;
       buyerRoles?: string[];
+      ageRanges?: string[];
+      genderSkew?: string;
+      buyingTriggers?: string[];
     };
     step4: Record<string, unknown> & {
-      salesChannels: Array<{ channel: string; rank: number; customName?: string }>;
+      salesChannels: Array<{ channel: string; rank: number; customName?: string; salesShare?: string }>;
       primaryConversionPath: string;
       trustSignals?: string[];
       socialHandles?: Array<{ platform: string; handle: string }>;
@@ -56,6 +60,8 @@ export interface CampaignFixture {
       googleAnalyticsConnected?: boolean | 'unknown' | '';
       monthlyWebsiteTraffic?: string;
       emailListSize?: string;
+      whatsappListSize?: string;
+      existingAssets?: string[];
     };
     step5: Record<string, unknown> & {
       primaryGoal: string;
@@ -86,6 +92,8 @@ export interface CampaignFixture {
       channelsStronglyPreferred?: string[];
       executionConstraints?: string[];
       additionalContext?: string;
+      peakSeasons?: string[];
+      currentOffers?: string[];
     };
     step6: Record<string, unknown> & {
       averageOrderValueAmount?: number;
@@ -102,6 +110,9 @@ export interface CampaignFixture {
       avgCustomerRetention?: string;
       repeatPurchaseFrequency?: string;
       salesCycleLength?: string;
+      customerAcquisitionCost?: number;
+      subscriptionOffered?: boolean;
+      subscriberMonths?: number;
     };
     step7: {
       confirmFocus: true;

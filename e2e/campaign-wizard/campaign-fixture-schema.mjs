@@ -112,6 +112,8 @@ const step2Schema = z
     differentiators: boundedStringList(200).max(10).default([]),
     sensitiveCategoryFlags: boundedStringList(120).min(1).max(20),
     complianceSensitiveClaims: boundedStringList(200).max(20).default([]),
+    // v3 P6, optional: the newer questions a fixture may answer.
+    pricePosition: z.enum(['cheaper', 'about_same', 'premium', 'unknown']).optional(),
   })
   .strict();
 
@@ -127,6 +129,9 @@ const step3Schema = z
     desiredOutcome: boundedText(300),
     decisionProcess: boundedText(500),
     buyerRoles: boundedStringList(120).max(10).default([]),
+    ageRanges: z.array(z.enum(['under_18', '18_24', '25_34', '35_44', '45_54', '55_plus'])).optional(),
+    genderSkew: z.enum(['mostly_women', 'mostly_men', 'even', 'unknown']).optional(),
+    buyingTriggers: boundedStringList(200).max(10).optional(),
   })
   .strict();
 
@@ -148,6 +153,7 @@ const salesChannelSchema = z
     ]),
     rank: z.number().int().positive(),
     customName: optionalTextMax(120),
+    salesShare: z.enum(['under_10', '10_30', '30_60', 'over_60']).optional(),
   })
   .strict();
 
@@ -201,6 +207,10 @@ const step4Schema = z
       .enum(['', 'under_500', '500_2000', '2000_10000', '10000_50000', '50000_plus'])
       .default(''),
     emailListSize: z.enum(['', 'none', 'under_500', '500_2000', '2000_10000', '10000_plus']).default(''),
+    whatsappListSize: z.enum(['none', 'under_500', '500_2000', '2000_10000', '10000_plus']).optional(),
+    existingAssets: z
+      .array(z.enum(['creators', 'community', 'email_automation', 'referral_programme', 'loyalty_programme', 'none']))
+      .optional(),
   })
   .strict();
 
@@ -265,6 +275,8 @@ const step5Schema = z
     channelsStronglyPreferred: boundedStringList(100).default([]),
     executionConstraints: boundedStringList(200).default([]),
     additionalContext: optionalTextMax(1200),
+    peakSeasons: boundedStringList(40).max(12).optional(),
+    currentOffers: boundedStringList(200).max(10).optional(),
   })
   .strict()
   .superRefine((value, context) => {
@@ -288,7 +300,10 @@ const step6Schema = z
     productCost: optionalTextMax(120),
     monthlyOrdersPerSubscriber: optionalTextMax(120),
     monthlyChurnRate: optionalTextMax(120),
-    avgCustomerRetention: z.enum(['', 'one_time_buyers', 'some_repeat', 'mostly_repeat', 'subscription']).default(''),
+    avgCustomerRetention: z.enum(['', 'one_time_buyers', 'some_repeat', 'mostly_repeat']).default(''),
+    customerAcquisitionCost: z.number().nonnegative().optional(),
+    subscriptionOffered: z.boolean().optional(),
+    subscriberMonths: z.number().int().positive().max(240).optional(),
     repeatPurchaseFrequency: z.enum(['', 'never', 'every_few_months', 'monthly', 'weekly']).default(''),
     salesCycleLength: optionalTextMax(120),
     // The margin band the unit economics are built on, with no opt-out - the
