@@ -635,13 +635,16 @@ function SignupContent() {
                         className="mt-0.5"
                       />
                       <span className="text-sm text-foreground/90">
+                        {/* "Product improvement. Allow us to ..." - the label, then
+                            what the box allows, both from the Backend. */}
                         {consent.detailsUrl ? (
-                          <Link className="text-primary hover:underline" href={consent.detailsUrl}>
+                          <Link className="font-medium text-primary hover:underline" href={consent.detailsUrl}>
                             {consent.label}
                           </Link>
                         ) : (
-                          consent.label
+                          <span className="font-medium">{consent.label}</span>
                         )}
+                        {consent.description ? <span className="text-foreground/75">. {consent.description}</span> : null}
                       </span>
                     </label>
                   ))}
