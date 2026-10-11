@@ -2835,7 +2835,8 @@
                 "AI_PROCESSING",
                 "BENCHMARK_DATA",
                 "MARKETING_EMAILS",
-                "ADS_INTEGRATION"
+                "ADS_INTEGRATION",
+                "CASE_STUDY"
               ],
               "type": "string"
             },
