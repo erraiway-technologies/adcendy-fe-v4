@@ -589,7 +589,7 @@ export default function AdminCampaignDetailPage() {
       toast({
         title: 'Complete deliverable kit queued',
         description: notifyOwner
-          ? `Generation ${result.kitGenerationId} will email the campaign owner after all four documents succeed.`
+          ? `Generation ${result.kitGenerationId} will email the campaign owner after all five documents succeed.`
           : `Generation ${result.kitGenerationId} was queued without an owner email.`,
       });
     } catch (error) {
@@ -1002,7 +1002,7 @@ export default function AdminCampaignDetailPage() {
                         tooltip="Queue the internal output preview from approved sections. This does not publish the official four-document deliverable kit."
                         tooltipTitle="Internal Output Preview"
                         badge="Preview"
-                        description="Queue a draft strategy preview for internal validation."
+                        description="Draft all five deliverables for internal checking. Nothing is published or emailed."
                         onClick={() => void handleTriggerCampaign('output', 'Assemble Output Preview')}
                         disabled={triggerCampaignMutation.isPending}
                         pending={triggerCampaignMutation.isPending}
@@ -1011,10 +1011,10 @@ export default function AdminCampaignDetailPage() {
                       />
                       <ActionButton
                         label="Generate Complete Kit"
-                        tooltip="Generate the four official deliverables from approved V2 sections. The job remains blocked until every selected section is approved."
+                        tooltip="Generate the five official deliverables from approved V2 sections. The job remains blocked until every selected section is approved."
                         tooltipTitle="Approval-gated Deliverable Kit"
-                        badge="4 documents"
-                        description="Launch Brief, Tracking Guide, Strategy Document, and Execution Kit."
+                        badge="5 documents"
+                        description="Strategy Document, Action Plan, Setup Guide, Messaging Guide and Asset Pack."
                         onClick={() => setIsDeliverableKitDialogOpen(true)}
                         disabled={generateDeliverableKitMutation.isPending || !latestRunId}
                         pending={generateDeliverableKitMutation.isPending}
@@ -1293,7 +1293,7 @@ export default function AdminCampaignDetailPage() {
             <DialogTitle>Notify the campaign owner?</DialogTitle>
             <DialogDescription>
               The complete kit requires every selected section to be approved. Choose whether to send the owner one
-              email after all four documents finish successfully.
+              email after all five documents finish successfully.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3 py-2">

@@ -38,7 +38,7 @@ test('complete-kit action posts the generated request contract to the run-scoped
 
 test('admin UI exposes approval-gated kit generation and explicit owner notification control', () => {
   assert.match(adminCampaignSource, /label="Generate Complete Kit"/);
-  assert.match(adminCampaignSource, /badge="4 documents"/);
+  assert.match(adminCampaignSource, /badge="5 documents"/);
   assert.match(adminCampaignSource, /Notify the campaign owner\?/);
   assert.match(adminCampaignSource, /handleGenerateDeliverableKit\(true\)/);
   assert.match(adminCampaignSource, /handleGenerateDeliverableKit\(false\)/);

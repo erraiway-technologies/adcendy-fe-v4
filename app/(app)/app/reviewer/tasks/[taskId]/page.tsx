@@ -1873,7 +1873,7 @@ export default function ReviewerTaskDetailPage() {
                         tooltip="Queue the internal output preview from approved sections. This does not publish the official four-document deliverable kit."
                         tooltipTitle="Internal Output Preview"
                         badge="Preview"
-                        description="Queue a draft strategy preview for internal validation."
+                        description="Draft all five deliverables for internal checking. Nothing is published or emailed."
                         onClick={() => void handleTriggerCampaign('output', 'Assemble Output Preview')}
                         disabled={triggerCampaignMutation.isPending}
                         pending={triggerCampaignMutation.isPending}
