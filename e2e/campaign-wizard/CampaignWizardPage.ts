@@ -101,6 +101,14 @@ const STATIC_OPTION_LABELS: Record<string, string> = {
   all: 'All of it',
 };
 
+// Values the market lists name by where they appear (v3 P5): "Another
+// marketplace" in India, "A marketplace" on the global list; a Google
+// Business sales channel, a Google Business profile link.
+const MARKET_OPTION_LABELS: Record<string, string[]> = {
+  other_marketplace: ['Another marketplace', 'A marketplace'],
+  google_business: ['Google Business', 'Google Business profile'],
+};
+
 // v3 (V3-40): the industries, searched by their names.
 const INDUSTRY_LABELS: Record<string, string> = {
   local_retail: 'Local retail',
@@ -138,6 +146,71 @@ const EMAIL_LIST_OPTION_LABELS: Record<string, string> = {
   '500_2000': '500 to 2,000 contacts',
   '2000_10000': '2,000 to 10,000 contacts',
   '10000_plus': 'Above 10,000 contacts',
+};
+
+const WHATSAPP_LIST_OPTION_LABELS: Record<string, string> = {
+  none: 'No WhatsApp list',
+  under_500: 'Under 500 contacts',
+  '500_2000': '500 to 2,000 contacts',
+  '2000_10000': '2,000 to 10,000 contacts',
+  '10000_plus': 'Above 10,000 contacts',
+  unknown: "Don't know",
+};
+
+// v3 P6: the labels the review shows for the newer answers.
+const SHARE_BAND_LABELS: Record<string, string> = {
+  under_10: 'Under 10%',
+  '10_30': '10–30%',
+  '30_60': '30–60%',
+  over_60: 'Over 60%',
+};
+
+const PRICE_POSITION_LABELS: Record<string, string> = {
+  cheaper: 'Cheaper',
+  about_same: 'About the same',
+  premium: 'Premium',
+  unknown: "Don't know",
+};
+
+const AGE_RANGE_LABELS: Record<string, string> = {
+  under_18: 'Under 18',
+  '18_24': '18–24',
+  '25_34': '25–34',
+  '35_44': '35–44',
+  '45_54': '45–54',
+  '55_plus': '55+',
+};
+
+const GENDER_SKEW_LABELS: Record<string, string> = {
+  mostly_women: 'Mostly women',
+  mostly_men: 'Mostly men',
+  even: 'About even',
+  unknown: "Don't know",
+};
+
+const EXISTING_ASSET_LABELS: Record<string, string> = {
+  creators: 'Creators or influencers',
+  community: 'Community or group',
+  email_automation: 'Email automation',
+  referral_programme: 'Referral programme',
+  loyalty_programme: 'Loyalty programme',
+  none: 'None',
+};
+
+// Every market's peak seasons (the backend's market lists).
+const PEAK_SEASON_LABELS: Record<string, string> = {
+  diwali: 'Diwali',
+  wedding_season: 'Wedding season',
+  new_year: 'New Year',
+  summer: 'Summer',
+  monsoon: 'Monsoon',
+  back_to_school: 'Back to school',
+  year_end_sales: 'Year-end sales',
+  black_friday: 'Black Friday',
+  christmas: 'Christmas',
+  valentines: "Valentine's Day",
+  year_end_holidays: 'Year-end holidays',
+  none: 'None',
 };
 
 function normalizeToken(value: string) {
@@ -251,15 +324,18 @@ export class CampaignWizardPage {
     const desiredLabel =
       fieldPath === 'emailListSize'
         ? EMAIL_LIST_OPTION_LABELS[desiredValue]
-        : fieldPath === 'contentCapacity'
-          ? CONTENT_CAPACITY_OPTION_LABELS[desiredValue]
-          : STATIC_OPTION_LABELS[desiredValue];
+        : fieldPath === 'whatsappListSize'
+          ? WHATSAPP_LIST_OPTION_LABELS[desiredValue]
+          : fieldPath === 'contentCapacity'
+            ? CONTENT_CAPACITY_OPTION_LABELS[desiredValue]
+            : STATIC_OPTION_LABELS[desiredValue];
     const count = await options.count();
     for (let index = 0; index < count; index += 1) {
       const option = options.nth(index);
       const text = (await option.textContent())?.trim() ?? '';
       if (
         (desiredLabel && text === desiredLabel) ||
+        MARKET_OPTION_LABELS[desiredValue]?.includes(text) ||
         normalizeToken(text) === normalizeToken(desiredValue)
       ) {
         await option.click();
@@ -398,6 +474,9 @@ export class CampaignWizardPage {
 
   async populateStep2() {
     const step = this.fixture.wizard.step2;
+    // Step 2 prefills the business name once its saved answers load; typing
+    // before then is overwritten.
+    await this.page.waitForLoadState('networkidle');
     await this.fill('businessName', step.businessName);
     await this.chooseSearchable('industryCategory', INDUSTRY_LABELS[step.industryCategory] ?? step.industryCategory);
     await this.chooseSelect('sellsTo', step.sellsTo);
@@ -555,6 +634,9 @@ export class CampaignWizardPage {
           String(activity.monthlySpendAmount),
         );
       }
+      if (activity.shareOfSpend) {
+        await this.chooseSelect(`currentMarketingActivity.${index}.shareOfSpend`, activity.shareOfSpend);
+      }
       await this.fill(`currentMarketingActivity.${index}.timeRunning`, activity.timeRunning);
       await this.fill(`currentMarketingActivity.${index}.reasonStopped`, activity.reasonStopped);
     }
@@ -641,6 +723,12 @@ export class CampaignWizardPage {
     }
   }
 
+  /** One answer on the review, read under its label. */
+  private async assertReviewField(section: Locator, label: string, expected: string) {
+    const value = section.locator(`xpath=.//p[normalize-space()="${label}"]/following-sibling::p[1]`);
+    await expect(value, `Review "${label}"`).toContainText(expected);
+  }
+
   /** Whether the fixture's conversion path ends in a conversation (v3 P2). */
   private isLeadGenerationPath() {
     return ['lead_form', 'book_call', 'book_demo', 'whatsapp'].includes(
@@ -700,6 +788,127 @@ export class CampaignWizardPage {
       money(step6.monthlyRevenueAmount),
       optionLabel(step6.paybackWindow),
     ]);
+    await this.validateNewAnswersOnReview(money);
+  }
+
+  /** v3 P6: each newer answer the fixture gives is on the review, under its label. */
+  private async validateNewAnswersOnReview(money: (amount: number | undefined) => string | undefined) {
+    const { step1, step2, step3, step4, step5, step6 } = this.fixture.wizard;
+    const business = this.reviewSection('Business');
+    const audience = this.reviewSection('Audience');
+    const goals = this.reviewSection('Goals & Context');
+    const economics = this.reviewSection('Economics');
+
+    if (step2.pricePosition) {
+      await this.assertReviewField(business, 'Price position', PRICE_POSITION_LABELS[step2.pricePosition]);
+    }
+    for (const channel of step4.salesChannels) {
+      if (channel.salesShare) {
+        await this.assertReviewField(business, 'Sales channels', `(${SHARE_BAND_LABELS[channel.salesShare]} of sales)`);
+      }
+    }
+    if (step2.sellsTo !== 'businesses') {
+      for (const ageRange of step3.ageRanges ?? []) {
+        await this.assertReviewField(audience, 'Age groups', AGE_RANGE_LABELS[ageRange]);
+      }
+      if (step3.genderSkew) {
+        await this.assertReviewField(audience, 'Who buys more', GENDER_SKEW_LABELS[step3.genderSkew]);
+      }
+    }
+    for (const trigger of step3.buyingTriggers ?? []) {
+      await this.assertReviewField(audience, 'Buying triggers', trigger);
+    }
+    for (const season of step5.peakSeasons ?? []) {
+      await this.assertReviewField(goals, 'Peak seasons', PEAK_SEASON_LABELS[season] ?? season);
+    }
+    for (const offer of step5.currentOffers ?? []) {
+      await this.assertReviewField(goals, 'Offers running now', offer);
+    }
+    for (const activity of step5.currentMarketingActivity ?? []) {
+      if (activity.shareOfSpend) {
+        await this.assertReviewField(
+          goals,
+          'Current marketing activity',
+          `${activity.channel} (${activity.status})`,
+        );
+        await this.assertReviewField(
+          goals,
+          'Current marketing activity',
+          `${SHARE_BAND_LABELS[activity.shareOfSpend]} of spend`,
+        );
+      }
+    }
+    // The WhatsApp list is asked, and shown, in India only.
+    if (step1.targetMarkets[0] === 'IN') {
+      if (step4.whatsappListSize) {
+        await this.assertReviewField(
+          economics,
+          'WhatsApp list size',
+          WHATSAPP_LIST_OPTION_LABELS[step4.whatsappListSize],
+        );
+      }
+    } else {
+      await expect(economics.getByText('WhatsApp list size', { exact: true })).toHaveCount(0);
+    }
+    for (const asset of step4.existingAssets ?? []) {
+      await this.assertReviewField(economics, 'Already running', EXISTING_ASSET_LABELS[asset]);
+    }
+    const acquisitionCost = money(step6.customerAcquisitionCost);
+    if (acquisitionCost) {
+      await this.assertReviewField(economics, 'Cost to win a customer', acquisitionCost);
+    }
+    if (step6.subscriptionOffered !== undefined) {
+      await this.assertReviewField(
+        economics,
+        'Customers subscribe',
+        step6.subscriptionOffered
+          ? step6.subscriberMonths !== undefined
+            ? `Yes, for about ${step6.subscriberMonths} months`
+            : 'Yes'
+          : 'No',
+      );
+    }
+  }
+
+  /**
+   * V3-32: back on step 1 of a saved campaign, picks another country and
+   * currency. The country notice names both countries and goes when the
+   * saved one is picked again; the currency notice says typed amounts keep
+   * their numbers. Saves step 1 with the new answers.
+   */
+  async changeCountryAndCurrency(countryCode: string, currency: string) {
+    const savedCountry = countryLabel(this.fixture.wizard.step1.targetMarkets[0] ?? '');
+    const nextCountry = countryLabel(countryCode);
+    await this.page.getByRole('button', { name: 'Back', exact: true }).click();
+    await this.assertStep(1);
+    const countryNotice = this.page.getByTestId('wizard-country-change-notice');
+    await expect(countryNotice).toHaveCount(0);
+
+    await this.chooseSearchable('targetMarkets', nextCountry);
+    await expect(countryNotice).toContainText(`You changed the country from ${savedCountry} to ${nextCountry}.`);
+    // Back to the saved country, no notice; then the new one again.
+    await this.chooseSearchable('targetMarkets', savedCountry);
+    await expect(countryNotice).toHaveCount(0);
+    await this.chooseSearchable('targetMarkets', nextCountry);
+    await expect(countryNotice).toBeVisible();
+
+    await this.chooseSearchable('currency', currency);
+    await expect(this.page.getByTestId('wizard-currency-change-notice')).toHaveText(
+      `Amounts you have already entered keep their numbers and are read in ${currency} when you save.`,
+    );
+    // A national scope names the country, so it is picked again for the new one.
+    if (this.fixture.wizard.step1.marketScope === 'national') {
+      await this.chooseSelect('marketScope', marketScopeLabel('national', countryCode));
+    }
+    await this.saveStep(1, 'Continue');
+    return { savedCountry, nextCountry };
+  }
+
+  /** On steps 4 and 5, the reminder that their answers were given for the old country. */
+  async expectCountryChangeReminder(savedCountry: string, nextCountry: string) {
+    const reminder = this.page.getByTestId('wizard-country-change-reminder');
+    await expect(reminder).toContainText(`These answers were given for ${savedCountry}.`);
+    await expect(reminder).toContainText(nextCountry);
   }
 
   private async setReviewCheckbox(testId: string, desired: boolean) {

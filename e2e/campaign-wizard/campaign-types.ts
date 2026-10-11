@@ -79,6 +79,7 @@ export interface CampaignFixture {
         workingAssessment?: string;
         evidence?: string;
         monthlySpendAmount?: number;
+        shareOfSpend?: string;
         timeRunning?: string;
         reasonStopped?: string;
       }>;

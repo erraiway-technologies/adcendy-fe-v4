@@ -1,0 +1,184 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "hearth-and-loaf-uk",
+  "displayName": "Hearth & Loaf (UK, fictional)",
+  "wizard": {
+    "step1": {
+      "title": "Hearth & Loaf subscription growth",
+      "marketingTargetType": "whole_business",
+      "focusName": "Hearth & Loaf",
+      "sourceType": "manual_only",
+      "primaryUrl": "",
+      "targetMarkets": [
+        "GB"
+      ],
+      "primaryMarket": "GB",
+      "marketScope": "national",
+      "currency": "GBP"
+    },
+    "step2": {
+      "businessName": "Hearth & Loaf",
+      "industryCategory": "food_beverage_brands",
+      "sellsTo": "consumers",
+      "sellsVia": "mix",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "growth",
+      "businessDescription": "Hearth & Loaf is a fictional artisan bakery in Manchester that posts slow-fermented sourdough, pastries and starter kits across Great Britain. Most customers buy a weekly or fortnightly bread subscription on its own website; it also sells gift boxes on Etsy and supplies two delis in Manchester.",
+      "productCategory": "Artisan sourdough bread and bakery subscriptions delivered by post",
+      "productsServices": [
+        "Weekly sourdough subscription box",
+        "Fortnightly bread and pastry subscription box",
+        "Sourdough starter kit with a video course",
+        "Bakery gift box"
+      ],
+      "offerSummary": "Fresh sourdough baked to order and posted the same day, on a subscription that can be paused or skipped any week.",
+      "differentiators": [
+        "Baked to order and posted the same day",
+        "Subscriptions can be paused or skipped any week",
+        "48-hour slow fermentation with British heritage flour"
+      ],
+      "sensitiveCategoryFlags": [
+        "none"
+      ],
+      "priceRangeLow": 12,
+      "priceRangeHigh": 45,
+      "pricePosition": "premium"
+    },
+    "step3": {
+      "primaryTargetSegment": "Home cooks across Great Britain who want bakery-quality sourdough every week without a local artisan bakery nearby.",
+      "targetPersona": "A food-loving professional aged 30 to 55, living outside a big city centre, who buys from farmers' markets when they can, cares where flour comes from and will pay more for bread that keeps for days.",
+      "language": "english",
+      "painPoints": [
+        "Supermarket sourdough is often sourdough in name only.",
+        "There is no artisan bakery within easy reach.",
+        "Fresh bread goes stale before it is eaten."
+      ],
+      "desiredOutcome": "Grow active subscriptions while keeping subscribers for longer.",
+      "decisionProcess": "They find Hearth & Loaf through Instagram, TikTok baking videos or a gift, try a single box, then move to a subscription if the first loaves arrive fresh.",
+      "ageRanges": [
+        "25_34",
+        "35_44",
+        "45_54"
+      ],
+      "genderSkew": "mostly_women",
+      "buyingTriggers": [
+        "Receiving a gift box",
+        "Seeing a bake on TikTok"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "own_website",
+          "rank": 1,
+          "salesShare": "over_60"
+        },
+        {
+          "channel": "etsy",
+          "rank": 2,
+          "salesShare": "10_30"
+        },
+        {
+          "channel": "retail_store",
+          "rank": 3,
+          "salesShare": "under_10"
+        }
+      ],
+      "primaryConversionPath": "buy_online",
+      "trustSignals": [
+        "Rated 4.8 out of 5 by subscribers",
+        "Stocked by two Manchester delis"
+      ],
+      "socialHandles": [
+        {
+          "platform": "instagram",
+          "handle": "hearthandloaf"
+        },
+        {
+          "platform": "tiktok",
+          "handle": "hearthandloaf"
+        }
+      ],
+      "digitalPresenceLinks": [
+        {
+          "type": "trustpilot",
+          "url": "https://uk.trustpilot.com/review/hearthandloaf.example",
+          "label": "Trustpilot reviews"
+        }
+      ],
+      "monthlyWebsiteTraffic": "2000_10000",
+      "emailListSize": "2000_10000",
+      "googleAnalyticsConnected": true,
+      "existingAssets": [
+        "email_automation",
+        "referral_programme"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "repeat_purchase_retention",
+      "monthlyMarketingBudget": 2500,
+      "paidAdsShare": "about_half",
+      "marketingHandler": "founder_led",
+      "contentCapacity": "medium",
+      "marketingHoursPerWeek": "tenToTwenty",
+      "creativeCapabilities": [
+        "photography",
+        "copywriting"
+      ],
+      "deliveryDeadline": "withinSixMonths",
+      "knownCompetitorStatus": "provided",
+      "knownCompetitors": [
+        "Bread Ahead",
+        "Gail's"
+      ],
+      "currentMarketingActivity": [
+        {
+          "channel": "Meta ads",
+          "status": "active",
+          "workingAssessment": "clearly_working",
+          "monthlySpendAmount": 1200,
+          "shareOfSpend": "30_60"
+        },
+        {
+          "channel": "TikTok creator posts",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "shareOfSpend": "10_30"
+        }
+      ],
+      "peakSeasons": [
+        "christmas",
+        "black_friday"
+      ],
+      "currentOffers": [
+        "First box half price"
+      ],
+      "constraints": [
+        "Baking capacity of about 600 loaves a week"
+      ]
+    },
+    "step6": {
+      "averageOrderValueAmount": 28,
+      "monthlyOrderVolume": "1200",
+      "grossMarginBand": "from_40_to_60_percent",
+      "paybackWindow": "withinThreeMonths",
+      "avgCustomerRetention": "mostly_repeat",
+      "repeatPurchaseFrequency": "monthly",
+      "customerAcquisitionCost": 18,
+      "subscriptionOffered": true,
+      "subscriberMonths": 7
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}

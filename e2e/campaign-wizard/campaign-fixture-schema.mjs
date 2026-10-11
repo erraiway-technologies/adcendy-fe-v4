@@ -137,10 +137,19 @@ const step3Schema = z
 
 const salesChannelSchema = z
   .object({
+    // v3 (V3-43): every channel any market lists; the market's own list
+    // decides which the wizard offers.
     channel: z.enum([
       'own_website',
       'amazon',
       'flipkart',
+      'meesho',
+      'myntra',
+      'nykaa',
+      'quick_commerce',
+      'ebay',
+      'etsy',
+      'tiktok_shop',
       'instagram',
       'whatsapp',
       'retail_store',
@@ -207,7 +216,7 @@ const step4Schema = z
       .enum(['', 'under_500', '500_2000', '2000_10000', '10000_50000', '50000_plus'])
       .default(''),
     emailListSize: z.enum(['', 'none', 'under_500', '500_2000', '2000_10000', '10000_plus']).default(''),
-    whatsappListSize: z.enum(['none', 'under_500', '500_2000', '2000_10000', '10000_plus']).optional(),
+    whatsappListSize: z.enum(['none', 'under_500', '500_2000', '2000_10000', '10000_plus', 'unknown']).optional(),
     existingAssets: z
       .array(z.enum(['creators', 'community', 'email_automation', 'referral_programme', 'loyalty_programme', 'none']))
       .optional(),
@@ -221,6 +230,7 @@ const activitySchema = z
     workingAssessment: z.enum(['', 'clearly_working', 'unclear', 'not_working', 'unknown']).default(''),
     evidence: optionalTextMax(500),
     monthlySpendAmount: z.number().nonnegative().optional(),
+    shareOfSpend: z.enum(['under_10', '10_30', '30_60', 'over_60']).optional(),
     timeRunning: optionalTextMax(120),
     reasonStopped: optionalTextMax(500),
   })

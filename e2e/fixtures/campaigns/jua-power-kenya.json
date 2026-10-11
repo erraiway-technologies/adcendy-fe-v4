@@ -1,0 +1,189 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "jua-power-kenya",
+  "displayName": "Jua Power (Kenya, fictional)",
+  "wizard": {
+    "step1": {
+      "title": "Jua Power solar kit enquiries",
+      "marketingTargetType": "whole_business",
+      "focusName": "Jua Power",
+      "sourceType": "website",
+      "primaryUrl": "https://www.juapower.example",
+      "targetMarkets": [
+        "KE"
+      ],
+      "primaryMarket": "KE",
+      "marketScope": "regional",
+      "operationalLocations": [
+        "Nairobi",
+        "Kisumu",
+        "Nakuru"
+      ],
+      "currency": "KES"
+    },
+    "step2": {
+      "businessName": "Jua Power",
+      "industryCategory": "home_services",
+      "sellsTo": "both",
+      "sellsVia": "mix",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "growth",
+      "businessDescription": "Jua Power is a fictional Nairobi company that sells and installs solar home kits and backup systems for households and small shops in Nairobi, Kisumu and Nakuru. Most sales start as a WhatsApp enquiry, followed by a site visit and a quote.",
+      "productCategory": "Solar home kits, backup batteries and installation",
+      "productsServices": [
+        "Solar home kit for lights and phone charging",
+        "Solar backup system for small shops",
+        "Installation and annual servicing"
+      ],
+      "offerSummary": "Solar kits sized for the home or shop, installed within a week, with payment in instalments.",
+      "differentiators": [
+        "Installed within a week of the site visit",
+        "Payment in instalments",
+        "Local technicians in every city served"
+      ],
+      "sensitiveCategoryFlags": [
+        "none"
+      ],
+      "priceRangeLow": 12000,
+      "priceRangeHigh": 85000,
+      "pricePosition": "cheaper"
+    },
+    "step3": {
+      "primaryTargetSegment": "Households and small shop owners in Nairobi, Kisumu and Nakuru who lose money and comfort to power cuts.",
+      "targetPersona": "A homeowner or shop owner aged 25 to 55 who runs a generator or loses stock during power cuts and wants a reliable, affordable alternative paid in instalments.",
+      "language": "english",
+      "painPoints": [
+        "Frequent power cuts disrupt the home and the shop.",
+        "Generators are noisy and fuel is expensive.",
+        "Solar systems seem too costly to pay for at once."
+      ],
+      "desiredOutcome": "Turn more WhatsApp enquiries into site visits and installed kits.",
+      "decisionProcess": "They see an advert or a neighbour's installation, ask on WhatsApp for a price, book a site visit, compare a quote with one or two installers and decide within about two weeks.",
+      "buyerRoles": [
+        "Shop owner",
+        "Head of household"
+      ],
+      "ageRanges": [
+        "25_34",
+        "35_44",
+        "45_54"
+      ],
+      "genderSkew": "mostly_men",
+      "buyingTriggers": [
+        "A long power cut",
+        "Rising fuel prices"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "whatsapp",
+          "rank": 1,
+          "salesShare": "30_60"
+        },
+        {
+          "channel": "own_website",
+          "rank": 2,
+          "salesShare": "10_30"
+        },
+        {
+          "channel": "retail_store",
+          "rank": 3,
+          "salesShare": "10_30"
+        },
+        {
+          "channel": "other_marketplace",
+          "rank": 4,
+          "salesShare": "under_10"
+        }
+      ],
+      "primaryConversionPath": "whatsapp",
+      "trustSignals": [
+        "More than 1,500 kits installed",
+        "Two-year warranty on every kit"
+      ],
+      "socialHandles": [
+        {
+          "platform": "facebook",
+          "handle": "juapowerke"
+        },
+        {
+          "platform": "tiktok",
+          "handle": "juapowerke"
+        }
+      ],
+      "digitalPresenceLinks": [
+        {
+          "type": "google_business",
+          "url": "https://maps.google.com/?cid=1234567890",
+          "label": "Google Business profile"
+        }
+      ],
+      "monthlyWebsiteTraffic": "500_2000",
+      "emailListSize": "none",
+      "googleAnalyticsConnected": "unknown",
+      "existingAssets": [
+        "referral_programme"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "leads",
+      "monthlyMarketingBudget": 150000,
+      "paidAdsShare": "most",
+      "marketingHandler": "in_house_marketer",
+      "contentCapacity": "low",
+      "marketingHoursPerWeek": "twentyToForty",
+      "creativeCapabilities": [
+        "photography"
+      ],
+      "deliveryDeadline": "withinThreeMonths",
+      "salesCapacity": "Three sales staff, about 60 site visits a month",
+      "knownCompetitorStatus": "none_known",
+      "currentMarketingActivity": [
+        {
+          "channel": "Facebook ads",
+          "status": "active",
+          "workingAssessment": "clearly_working",
+          "monthlySpendAmount": 90000,
+          "shareOfSpend": "over_60"
+        },
+        {
+          "channel": "Radio adverts",
+          "status": "paused",
+          "workingAssessment": "not_working",
+          "shareOfSpend": "under_10",
+          "reasonStopped": "Few enquiries named the radio advert"
+        }
+      ],
+      "peakSeasons": [
+        "year_end_holidays"
+      ],
+      "currentOffers": [
+        "Free installation in December"
+      ]
+    },
+    "step6": {
+      "typicalDealValue": 45000,
+      "salesCycleLength": "About two weeks",
+      "grossMarginBand": "from_20_to_40_percent",
+      "closeRateBand": "from_15_to_30_percent",
+      "paybackWindow": "firstOrder",
+      "avgCustomerRetention": "one_time_buyers",
+      "repeatPurchaseFrequency": "never",
+      "customerAcquisitionCost": 1800,
+      "subscriptionOffered": false
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}

@@ -10,6 +10,7 @@ import {
   resolveCampaignTarget,
   shouldSubmitCampaign,
 } from '../../e2e/campaign-wizard/environment';
+import { campaignAuthStatePath } from '../../e2e/campaign-wizard/global-setup';
 // The validator is shared with the pre-browser runner and intentionally remains
 // plain ESM so `node scripts/validate-campaign-fixtures.mjs` can run without a TS loader.
 import { campaignFixtureSchema } from '../../e2e/campaign-wizard/campaign-fixture-schema.mjs';
@@ -40,6 +41,41 @@ if (requestedFixtureSlug && fixtures.length === 0) {
 
 const { baseURL, environment } = resolveCampaignTarget();
 const submitEnabled = shouldSubmitCampaign();
+
+// Each session refresh rotates the refresh cookie, so the one saved at login
+// is spent after the first test. Keep the latest for the next test.
+test.afterEach(async ({ context }) => {
+  await context.storageState({ path: campaignAuthStatePath });
+});
+
+// V3-32: changing a saved country and currency. Uses the UK fixture, moved
+// to Kenya and US dollars; review-only, it never submits.
+const countryChangeFixture = fixtures.find((fixture) => fixture.slug === 'hearth-and-loaf-uk');
+if (countryChangeFixture) {
+  test('changing a saved country and currency shows both notices', async ({ page }) => {
+    const report: CampaignExecutionReport = {
+      fixture: `${countryChangeFixture.slug}-country-change`,
+      displayName: `${countryChangeFixture.displayName}: country change`,
+      environment,
+      baseURL,
+      submitEnabled: false,
+      status: 'running',
+      startedAt: new Date().toISOString(),
+      validationFailures: [],
+      unsupportedFields: [],
+    };
+    const wizard = new CampaignWizardPage(page, countryChangeFixture, report);
+
+    await wizard.openNewCampaign();
+    await wizard.populateStep1();
+    const { savedCountry, nextCountry } = await wizard.changeCountryAndCurrency('KE', 'USD');
+    // Steps 2 and 3 do not depend on the country; step 4 reminds the client
+    // that its answers were given for the old one.
+    await wizard.populateStep2();
+    await wizard.populateStep3();
+    await wizard.expectCountryChangeReminder(savedCountry, nextCountry);
+  });
+}
 
 for (const fixture of fixtures) {
   test(`populate campaign wizard: ${fixture.displayName}`, async ({ page }, testInfo) => {
