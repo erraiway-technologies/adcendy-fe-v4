@@ -2648,8 +2648,23 @@ export function CampaignWizardModal({
   const [currencyChangeNotice, setCurrencyChangeNotice] = useState<string | null>(null);
   const watchedTargetMarkets = step1Form.watch('targetMarkets') ?? [];
   const selectedCountryCode = toWizardCountryCode(watchedTargetMarkets[0], targetMarketOptions);
-  // Every amount in the wizard is in this currency, chosen on step 1.
-  const campaignCurrency = step1Form.watch('currency') || null;
+  // Every amount in the wizard is in this currency, chosen on step 1. The
+  // step 1 form is filled only on step 1, so a draft resumed on a later step
+  // reads the saved currency - or, for a draft saved before it was asked, the
+  // saved country's - as step 1 itself would. Without this every amount field
+  // was disabled, and saving dropped the amounts.
+  const savedStep1 = (step1Data?.data ?? {}) as Record<string, unknown>;
+  const savedCurrency = normalizeString(savedStep1.currency as string | undefined).toUpperCase();
+  const savedCountryCode = toWizardCountryCode(
+    normalizeString(savedStep1.primaryMarket as string | undefined) ||
+      normalizeListItems(savedStep1.targetMarkets)[0],
+    targetMarketOptions,
+  );
+  const campaignCurrency =
+    step1Form.watch('currency') ||
+    savedCurrency ||
+    targetMarketOptions.find((option) => option.value === savedCountryCode)?.defaultCurrency ||
+    null;
   // A money answer as the review shows it: a saved one carries its currency;
   // one still being typed is in the campaign currency.
   const showMoney = (value: unknown): string | null =>
