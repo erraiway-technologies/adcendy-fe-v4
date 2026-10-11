@@ -2828,7 +2828,7 @@
             "uniqueItems": true
           },
           "givenConsentTypesV2": {
-            "description": "The consents given at sign-up: every consent the catalogue (GET /api/v2/legal/public/consents/catalogue) requires at SIGNUP. The account is created with them or not at all.",
+            "description": "The consents given at sign-up: every consent the catalogue (GET /api/v2/legal/public/consents/catalogue) requires at SIGNUP, and any it offers there (optionalAt SIGNUP) that the visitor ticked. The account is created with them or not at all.",
             "items": {
               "enum": [
                 "PRIVACY_PROCESSING",

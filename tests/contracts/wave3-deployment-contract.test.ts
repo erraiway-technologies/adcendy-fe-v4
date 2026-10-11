@@ -16,12 +16,12 @@ test('pins the current Backend working tree and OpenAPI checksum', () => {
   );
   assert.equal(
     backendContract.backendRevision,
-    'master@68a6d9832a09b666001095ed8d84c6031e3aacf1',
+    'master@e460a23ad9c67895d7bfec21c59e547fea2c1e00',
   );
   assert.equal(backendContract.openApiVersion, '2.5.0');
   assert.equal(
     backendContract.openApiSha256,
-    '622895b4610183cbd8ea8138a188488023476546bc2501a945b8677e77d3543f',
+    '5ecfc247675a03caefec625c9eb88e15b2148cc737765e9220d3fd7822b904ee',
   );
   // V3-62: the spec is vendored beside the client, as the files contract is.
   assert.equal(

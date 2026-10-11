@@ -2,7 +2,7 @@
  * AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
  *
  * Generated from: contracts/backend/api-v2/2.5.0/adcendy-api.openapi.json
- * Source SHA-256: 622895b4610183cbd8ea8138a188488023476546bc2501a945b8677e77d3543f
+ * Source SHA-256: 5ecfc247675a03caefec625c9eb88e15b2148cc737765e9220d3fd7822b904ee
  *
  * To regenerate, run: npm run gen:api -- <openapi-source> <output-path>
  */
@@ -2240,7 +2240,7 @@ export interface components {
         SignupVerifyRequest: {
             /** @description Ids of the active legal document versions accepted at sign-up, from GET /api/v2/legal/documents/active. The account is created with these acceptances or not at all. */
             acceptedLegalDocumentVersionIdsV2: string[];
-            /** @description The consents given at sign-up: every consent the catalogue (GET /api/v2/legal/public/consents/catalogue) requires at SIGNUP. The account is created with them or not at all. */
+            /** @description The consents given at sign-up: every consent the catalogue (GET /api/v2/legal/public/consents/catalogue) requires at SIGNUP, and any it offers there (optionalAt SIGNUP) that the visitor ticked. The account is created with them or not at all. */
             givenConsentTypesV2: ("PRIVACY_PROCESSING" | "AI_PROCESSING" | "BENCHMARK_DATA" | "MARKETING_EMAILS" | "ADS_INTEGRATION")[];
             otp: string;
             verificationId: string;
