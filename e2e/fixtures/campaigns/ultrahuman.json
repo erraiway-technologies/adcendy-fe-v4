@@ -100,17 +100,13 @@
           "handle": "UltrahumanOfficial"
         },
         {
-          "platform": "linkedin",
-          "handle": "ultrahumanhq"
-        },
-        {
           "platform": "twitter",
           "handle": "ultrahumanhq"
         }
       ],
       "digitalPresenceLinks": [
         {
-          "type": "flipkart",
+          "type": "marketplace_listing",
           "url": "https://www.flipkart.com/ultrahuman-ring-air-smart/p/itm84a128948dde1",
           "label": "Ring AIR on Flipkart"
         },

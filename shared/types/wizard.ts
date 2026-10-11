@@ -69,10 +69,19 @@ export const REPORT_LANGUAGE_VALUES = [
 
 export type ReportLanguage = (typeof REPORT_LANGUAGE_VALUES)[number];
 
+// Every channel any market offers (v3 V3-43); which ones a campaign is
+// offered is its market's list, served by the backend.
 export const SALES_CHANNEL_VALUES = [
   'own_website',
   'amazon',
   'flipkart',
+  'meesho',
+  'myntra',
+  'nykaa',
+  'quick_commerce',
+  'ebay',
+  'etsy',
+  'tiktok_shop',
   'instagram',
   'whatsapp',
   'retail_store',
@@ -218,23 +227,35 @@ export const SOCIAL_PLATFORM_VALUES = [
   'facebook',
   'youtube',
   'twitter',
+  'tiktok',
+  'pinterest',
+  'threads',
+  'snapchat',
   'linkedin',
 ] as const;
 
 export type SocialPlatform = (typeof SOCIAL_PLATFORM_VALUES)[number];
 
+// v3 (V3-43): the presence-link types, with the social and older ones kept
+// so a saved link still reads; a new link is offered its market's list.
 export const DIGITAL_PRESENCE_LINK_TYPE_VALUES = [
+  'amazon',
+  'marketplace_listing',
+  'google_business',
+  'google_reviews',
+  'trustpilot',
+  'zomato_swiggy',
+  'practo',
+  'app_store',
+  'other',
   'instagram',
   'facebook',
   'youtube',
   'twitter',
   'linkedin',
-  'amazon',
   'flipkart',
-  'google_business',
   'whatsapp',
   'other_marketplace',
-  'other',
 ] as const;
 
 export type DigitalPresenceLinkType = (typeof DIGITAL_PRESENCE_LINK_TYPE_VALUES)[number];
@@ -299,13 +320,20 @@ export const SALES_CHANNEL_LABELS: Record<SalesChannel, string> = {
   own_website: 'Own website',
   amazon: 'Amazon',
   flipkart: 'Flipkart',
+  meesho: 'Meesho',
+  myntra: 'Myntra',
+  nykaa: 'Nykaa',
+  quick_commerce: 'Quick commerce (Blinkit, Zepto, Instamart)',
+  ebay: 'eBay',
+  etsy: 'Etsy',
+  tiktok_shop: 'TikTok Shop',
   instagram: 'Instagram',
   whatsapp: 'WhatsApp',
   retail_store: 'Retail store',
   justdial: 'Justdial',
   google_business: 'Google Business',
   facebook: 'Facebook',
-  other_marketplace: 'Other marketplace',
+  other_marketplace: 'Another marketplace',
   direct_sales: 'Direct sales',
   other: 'Other',
 };
@@ -434,22 +462,32 @@ export const SOCIAL_PLATFORM_LABELS: Record<SocialPlatform, string> = {
   instagram: 'Instagram',
   facebook: 'Facebook',
   youtube: 'YouTube',
-  twitter: 'Twitter / X',
+  twitter: 'X (Twitter)',
+  tiktok: 'TikTok',
+  pinterest: 'Pinterest',
+  threads: 'Threads',
+  snapchat: 'Snapchat',
   linkedin: 'LinkedIn',
 };
 
 export const DIGITAL_PRESENCE_LINK_TYPE_LABELS: Record<DigitalPresenceLinkType, string> = {
+  amazon: 'Amazon store',
+  marketplace_listing: 'Marketplace listing',
+  google_business: 'Google Business profile',
+  google_reviews: 'Google Reviews',
+  trustpilot: 'Trustpilot',
+  zomato_swiggy: 'Zomato / Swiggy',
+  practo: 'Practo',
+  app_store: 'App Store / Play Store',
+  other: 'Other',
   instagram: 'Instagram',
   facebook: 'Facebook',
   youtube: 'YouTube',
-  twitter: 'Twitter / X',
+  twitter: 'X (Twitter)',
   linkedin: 'LinkedIn',
-  amazon: 'Amazon',
   flipkart: 'Flipkart',
-  google_business: 'Google Business',
   whatsapp: 'WhatsApp',
-  other_marketplace: 'Other marketplace',
-  other: 'Other',
+  other_marketplace: 'Marketplace listing',
 };
 
 export const EMAIL_LIST_SIZE_LABELS: Record<EmailListSize, string> = {
@@ -560,7 +598,9 @@ export const SOCIAL_PLATFORM_OPTIONS = SOCIAL_PLATFORM_VALUES.map((value) => ({
 // link is not offered their types. Saved ones are still read: the backend
 // moves them into the handles.
 export const DIGITAL_PRESENCE_LINK_TYPE_OPTIONS = DIGITAL_PRESENCE_LINK_TYPE_VALUES.filter(
-  (value) => !(SOCIAL_PLATFORM_VALUES as readonly string[]).includes(value),
+  (value) =>
+    !(SOCIAL_PLATFORM_VALUES as readonly string[]).includes(value) &&
+    !['flipkart', 'whatsapp', 'other_marketplace'].includes(value),
 ).map((value) => ({
   value,
   label: DIGITAL_PRESENCE_LINK_TYPE_LABELS[value],
@@ -1154,10 +1194,22 @@ export interface WizardStepDefinitionV2 {
   examples: string[];
 }
 
+/** A market's own lists (v3 V3-43): a curated market's, or the global ones. */
+export interface WizardMarketListV2 {
+  salesChannels: { value: string; label: string }[];
+  socialPlatforms: { value: string; label: string; businessOnly?: boolean }[];
+  presenceLinkTypes: { value: string; label: string }[];
+  peakSeasons: { value: string; label: string }[];
+  competitorPlaceholder: string;
+  complianceRegime: string | null;
+}
+
 export interface WizardOptionsResponseV2 {
   wizardVersion: string;
   stepDefinitions: WizardStepDefinitionV2[];
   fieldOptions: Record<string, WizardFieldOptionV2[]>;
+  /** Keyed by curated market code and `global` (v3 V3-43). */
+  marketLists?: Record<string, WizardMarketListV2>;
 }
 
 export interface WizardStateResponseV2 {

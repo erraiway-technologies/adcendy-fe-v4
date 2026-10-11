@@ -153,24 +153,27 @@ const salesChannelSchema = z
 
 const socialHandleSchema = z
   .object({
-    platform: z.enum(['instagram', 'facebook', 'youtube', 'twitter', 'linkedin']),
+    // v3 (V3-43): every platform any market offers; LinkedIn only when
+    // selling to businesses.
+    platform: z.enum([
+      'instagram', 'facebook', 'youtube', 'twitter', 'tiktok', 'pinterest', 'threads', 'snapchat', 'linkedin',
+    ]),
     handle: boundedText(120),
   })
   .strict();
 
 const digitalPresenceSchema = z
   .object({
+    // v3 (V3-43): the presence-link types, social profiles being handles.
     type: z.enum([
-      'instagram',
-      'facebook',
-      'youtube',
-      'twitter',
-      'linkedin',
       'amazon',
-      'flipkart',
+      'marketplace_listing',
       'google_business',
-      'whatsapp',
-      'other_marketplace',
+      'google_reviews',
+      'trustpilot',
+      'zomato_swiggy',
+      'practo',
+      'app_store',
       'other',
     ]),
     url: z.string().trim().url().max(500),

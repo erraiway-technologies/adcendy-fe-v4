@@ -2620,6 +2620,25 @@ export function CampaignWizardModal({
   const watchedAudienceModel = step2Form.watch('audienceModel');
   const watchedBusinessModel = step2Form.watch('businessModel');
   const watchedSellsTo = step2Form.watch('sellsTo');
+  // v3 V3-43: the campaign market's own lists - a curated market's, or the
+  // global ones - falling back to the full lists before the backend serves
+  // them. The market is the one picked on step 1, or the saved one when the
+  // wizard resumes on a later step.
+  const campaignMarketCode =
+    selectedCountryCode ||
+    toWizardCountryCode(
+      normalizeString((step1Data?.data as Record<string, unknown> | undefined)?.primaryMarket as string | undefined),
+      targetMarketOptions,
+    );
+  const marketList =
+    wizardOptions?.marketLists?.[campaignMarketCode] ?? wizardOptions?.marketLists?.global ?? null;
+  const salesChannelOptions = marketList?.salesChannels ?? SALES_CHANNEL_OPTIONS;
+  // LinkedIn only for a business that sells to businesses.
+  const socialPlatformOptions = (marketList?.socialPlatforms ?? SOCIAL_PLATFORM_OPTIONS).filter(
+    (option) => !('businessOnly' in option && option.businessOnly) || watchedSellsTo !== 'consumers',
+  );
+  const presenceLinkTypeOptions = marketList?.presenceLinkTypes ?? DIGITAL_PRESENCE_LINK_TYPE_OPTIONS;
+  const competitorPlaceholder = marketList?.competitorPlaceholder ?? 'e.g. Mamaearth, Practo, Zoho';
   const watchedConversionPath = step2Form.watch('primaryConversionPath');
   // What this client is asked follows its shape (v3 P2): business-buyer
   // questions unless it sells only to consumers, lead-generation questions on
@@ -5165,7 +5184,7 @@ export function CampaignWizardModal({
                                     <SelectValue placeholder="Select channel" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {SALES_CHANNEL_OPTIONS.map((option) => (
+                                    {salesChannelOptions.map((option) => (
                                       <SelectItem key={option.value} value={option.value}>
                                         {option.label}
                                       </SelectItem>
@@ -5278,7 +5297,7 @@ export function CampaignWizardModal({
                                   <SelectValue placeholder="Platform" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {SOCIAL_PLATFORM_OPTIONS.map((option) => (
+                                  {socialPlatformOptions.map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
                                       {option.label}
                                     </SelectItem>
@@ -5340,7 +5359,7 @@ export function CampaignWizardModal({
                                   <SelectValue placeholder="Type" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {DIGITAL_PRESENCE_LINK_TYPE_OPTIONS.map((option) => (
+                                  {presenceLinkTypeOptions.map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
                                       {option.label}
                                     </SelectItem>
@@ -6007,7 +6026,7 @@ export function CampaignWizardModal({
                     label="Known competitors"
                     helper="Add one competitor at a time."
                     footnote="Press Enter or click Add after each competitor"
-                    placeholder="e.g. Mamaearth, Practo, Zoho"
+                    placeholder={competitorPlaceholder}
                     values={watchedCompetitors}
                     pendingValue={competitorDraft}
                     onPendingChange={setCompetitorDraft}
