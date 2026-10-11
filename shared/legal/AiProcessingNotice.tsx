@@ -16,7 +16,8 @@ export function AiProcessingNotice({
   return (
     <p className={className ?? 'text-xs leading-5 text-muted-foreground'} data-testid="ai-processing-notice">
       AdCendy uses AI models (from OpenAI, Anthropic and Google) to write your strategy from your answers and public
-      market data, and a person reviews every strategy before it is delivered. Your data is not used to train AI models.{' '}
+      market data, and a person reviews every strategy before it is delivered. These providers do not train their models
+      on your data.{' '}
       {privacyPolicyUrl ? (
         <>
           See the{' '}
