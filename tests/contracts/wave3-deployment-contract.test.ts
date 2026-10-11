@@ -16,12 +16,17 @@ test('pins the current Backend working tree and OpenAPI checksum', () => {
   );
   assert.equal(
     backendContract.backendRevision,
-    'working-tree@69a3fabe61a64979478971b6c7501622bc381213',
+    'master@5bf22da48f6cc617fd412b916485caa33f7eefbb',
   );
   assert.equal(backendContract.openApiVersion, '2.5.0');
   assert.equal(
     backendContract.openApiSha256,
-    '47562440e21a0a7d0434ab1b6f03cfc74b0e761368345c90e64c3c193394c6a4',
+    '0ecc8d84704fdfd9c813a9f28e11d64c2d1c89be3ab6e7bc59f2e67e2a28e2f1',
+  );
+  // V3-62: the spec is vendored beside the client, as the files contract is.
+  assert.equal(
+    backendContract.vendoredContract,
+    'contracts/backend/api-v2/2.5.0/adcendy-api.openapi.json',
   );
   assert.match(
     read('src/generated/openapi.ts'),

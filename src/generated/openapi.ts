@@ -1,8 +1,8 @@
 /**
  * AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
  *
- * Generated from: ..\adcendy-be-v4\docs\openapi\v2\adcendy-api.openapi.json
- * Source SHA-256: 47562440e21a0a7d0434ab1b6f03cfc74b0e761368345c90e64c3c193394c6a4
+ * Generated from: contracts/backend/api-v2/2.5.0/adcendy-api.openapi.json
+ * Source SHA-256: 0ecc8d84704fdfd9c813a9f28e11d64c2d1c89be3ab6e7bc59f2e67e2a28e2f1
  *
  * To regenerate, run: npm run gen:api -- <openapi-source> <output-path>
  */
@@ -18,6 +18,70 @@ export interface paths {
         get: operations["listAnomaliesV2"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/admin/billing/coupons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listCouponsV2"];
+        put?: never;
+        post: operations["createCouponV2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/admin/billing/coupons/{couponId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["updateCouponV2"];
+        trace?: never;
+    };
+    "/api/v2/admin/billing/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listOrdersV2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/admin/billing/orders/{orderId}/refunds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["requestRefundV2"];
         delete?: never;
         options?: never;
         head?: never;
@@ -194,6 +258,70 @@ export interface paths {
         get: operations["listSignedDocumentsV2"];
         put?: never;
         post: operations["createSignedDocumentMetadataV2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/admin/pipeline-v2/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listSettingsV2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/admin/pipeline-v2/config/changes/{changeId}/revert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["revertChangeV2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/admin/pipeline-v2/config/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listHistoryV2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v2/admin/pipeline-v2/config/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["updateSettingV2"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1547,6 +1675,8 @@ export interface components {
         LegalConsentCatalogueEntryV2: {
             consentType: components["schemas"]["LegalConsentTypeV2"];
             description?: string;
+            /** @description Site path of the page explaining this consent, e.g. /consents/ai-processing. Absent when there is none. */
+            detailsUrl?: string;
             label: string;
             optionalAt: ("WIZARD" | "ACCOUNT")[];
             /** @description Places this consent must be given. Strategy runs refuse without it. */
@@ -2391,6 +2521,337 @@ export interface operations {
             };
         };
     };
+    listCouponsV2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericSuccessEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            400: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    createCouponV2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenericRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            201: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericSuccessEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            400: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    updateCouponV2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                couponId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenericRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericSuccessEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            400: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    listOrdersV2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericSuccessEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            400: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    requestRefundV2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenericRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            201: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericSuccessEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            400: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     getCampaignV2: {
         parameters: {
             query?: never;
@@ -3153,6 +3614,270 @@ export interface operations {
         responses: {
             /** @description Successful response */
             201: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericSuccessEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            400: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    listSettingsV2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericSuccessEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            400: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    revertChangeV2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                changeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenericRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            201: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericSuccessEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            400: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    listHistoryV2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenericSuccessEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            400: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Request correlation identifier generated or validated by Backend. */
+                    "X-Request-Id"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    updateSettingV2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenericRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful response */
+            200: {
                 headers: {
                     /** @description Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs. */
                     "Cache-Control"?: "no-store";
