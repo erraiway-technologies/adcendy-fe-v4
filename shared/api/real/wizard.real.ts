@@ -397,6 +397,8 @@ function normalizeCurrentMarketingActivity(value: unknown) {
         monthlySpendAmount: normalizeMoney(item.monthlySpendAmount),
         timeRunning: normalizeNullableString(item.timeRunning),
         reasonStopped: normalizeNullableString(item.reasonStopped),
+        // v3 P6: this channel's share of the spend, as a band.
+        shareOfSpend: normalizeNullableString(item.shareOfSpend),
       });
     })
     .filter((item) => normalizeString(item.channel) && normalizeString(item.status));
@@ -442,6 +444,8 @@ function normalizeSalesChannels(value: unknown) {
       channel: normalizeString(item.channel),
       rank: normalizeNumber(item.rank) ?? 0,
       customName: normalizeNullableString(item.customName),
+      // v3 P6: roughly what share of sales the channel brings, as a band.
+      salesShare: normalizeNullableString(item.salesShare),
     }))
     .filter((item) => item.channel && item.rank > 0)
     .sort((left, right) => left.rank - right.rank);
@@ -629,6 +633,7 @@ function buildLegacyStepDataFromState(
       differentiators: normalizeStringList(step2.differentiators),
       sensitiveCategoryFlags: normalizeStringList(step2.sensitiveCategoryFlags),
       complianceSensitiveClaims: normalizeStringOrList(step2.complianceSensitiveClaims),
+      pricePosition: normalizeNullableString(step2.pricePosition),
     });
   }
 
@@ -644,6 +649,9 @@ function buildLegacyStepDataFromState(
       desiredOutcome: normalizeNullableString(step3.desiredOutcome),
       decisionProcess: normalizeNullableString(step3.decisionProcess),
       buyerRoles: normalizeStringList(step3.buyerRoles),
+      ageRanges: normalizeStringList(step3.ageRanges),
+      genderSkew: normalizeNullableString(step3.genderSkew),
+      buyingTriggers: normalizeStringList(step3.buyingTriggers),
     });
   }
 
@@ -657,6 +665,8 @@ function buildLegacyStepDataFromState(
       googleAnalyticsConnected: normalizeGoogleAnalyticsConnected(step4.googleAnalyticsConnected),
       monthlyWebsiteTraffic: normalizeNullableString(step4.monthlyWebsiteTraffic),
       emailListSize: normalizeNullableString(step4.emailListSize),
+      whatsappListSize: normalizeNullableString(step4.whatsappListSize),
+      existingAssets: normalizeStringList(step4.existingAssets),
     });
   }
 
@@ -688,6 +698,8 @@ function buildLegacyStepDataFromState(
       channelsStronglyPreferred: normalizeStringList(step5.channelsStronglyPreferred),
       executionConstraints: normalizeStringList(step5.executionConstraints),
       additionalContext: normalizeNullableString(step5.additionalContext),
+      peakSeasons: normalizeStringList(step5.peakSeasons),
+      currentOffers: normalizeStringList(step5.currentOffers),
     });
   }
 
@@ -711,6 +723,10 @@ function buildLegacyStepDataFromState(
       avgCustomerRetention: normalizeNullableString(step6.avgCustomerRetention),
       repeatPurchaseFrequency: normalizeNullableString(step6.repeatPurchaseFrequency),
       salesCycleLength: normalizeNullableString(step6.salesCycleLength),
+      customerAcquisitionCost: normalizeMoney(step6.customerAcquisitionCost),
+      subscriptionOffered:
+        typeof step6.subscriptionOffered === 'boolean' ? step6.subscriptionOffered : undefined,
+      subscriberMonths: normalizeNumber(step6.subscriberMonths),
     });
   }
 
@@ -777,6 +793,15 @@ function buildPreviewStep4FromState(state: WizardStateResponseV2) {
     channelsStronglyPreferred: normalizeStringList(step5.channelsStronglyPreferred),
     executionConstraints: normalizeStringList(step5.executionConstraints),
     additionalContext: normalizeNullableString(step5.additionalContext),
+    // v3 P6.
+    peakSeasons: normalizeStringList(step5.peakSeasons),
+    currentOffers: normalizeStringList(step5.currentOffers),
+    whatsappListSize: normalizeNullableString(step4.whatsappListSize),
+    existingAssets: normalizeStringList(step4.existingAssets),
+    customerAcquisitionCost: normalizeMoney(step6.customerAcquisitionCost),
+    subscriptionOffered:
+      typeof step6.subscriptionOffered === 'boolean' ? step6.subscriptionOffered : undefined,
+    subscriberMonths: normalizeNumber(step6.subscriberMonths),
     dataConsentOptIn: Object.prototype.hasOwnProperty.call(step7, 'dataConsentOptIn')
       ? normalizeBoolean(step7.dataConsentOptIn, false)
       : undefined,
@@ -867,6 +892,8 @@ function buildStep2Payload(data: Record<string, unknown>) {
     differentiators: normalizeStringOrList(data.differentiators),
     sensitiveCategoryFlags: sensitiveCategoryFlags.length ? sensitiveCategoryFlags : undefined,
     complianceSensitiveClaims,
+    // v3 P6.
+    pricePosition: normalizeNullableString(data.pricePosition),
   });
 }
 
@@ -911,6 +938,10 @@ function buildStep3Payload(data: Record<string, unknown>) {
     desiredOutcome: normalizeNullableString(data.desiredOutcome),
     decisionProcess: normalizeNullableString(data.decisionProcess) ?? 'not_sure',
     buyerRoles: buyerRoles.length ? buyerRoles : undefined,
+    // v3 P6. Sent as an empty list too, so clearing an answer clears it.
+    ageRanges: normalizeStringList(data.ageRanges),
+    genderSkew: normalizeNullableString(data.genderSkew),
+    buyingTriggers: normalizeStringList(data.buyingTriggers),
   });
 }
 
@@ -932,6 +963,9 @@ function buildStep4Payload(data: Record<string, unknown>) {
     googleAnalyticsConnected: normalizeGoogleAnalyticsConnected(data.googleAnalyticsConnected),
     monthlyWebsiteTraffic: normalizeNullableString(data.monthlyWebsiteTraffic),
     emailListSize: normalizeNullableString(data.emailListSize),
+    // v3 P6.
+    whatsappListSize: normalizeNullableString(data.whatsappListSize),
+    existingAssets: normalizeStringList(data.existingAssets),
   });
 }
 
@@ -987,6 +1021,9 @@ function buildStep5Payload(data: Record<string, unknown>) {
     channelsStronglyPreferred: channelsStronglyPreferred.length ? channelsStronglyPreferred : undefined,
     executionConstraints: executionConstraints.length ? executionConstraints : undefined,
     additionalContext: normalizeNullableString(data.additionalContext),
+    // v3 P6.
+    peakSeasons: normalizeStringList(data.peakSeasons),
+    currentOffers: normalizeStringList(data.currentOffers),
   });
 }
 
@@ -1029,6 +1066,11 @@ function buildStep6Payload(data: Record<string, unknown>) {
     monthlyRevenueAmount: normalizeMoney(data.monthlyRevenueAmount),
     // Wizard v2.1, camelCase as the backend lists it; unknown values dropped.
     paybackWindow: pickAllowedValue(data.paybackWindow, PAYBACK_WINDOW_VALUES),
+    // v3 P6: today's cost to win a customer; subscriber months only when
+    // customers subscribe.
+    customerAcquisitionCost: normalizeMoney(data.customerAcquisitionCost),
+    subscriptionOffered: typeof data.subscriptionOffered === 'boolean' ? data.subscriptionOffered : null,
+    subscriberMonths: data.subscriptionOffered === true ? normalizeNumber(data.subscriberMonths) ?? null : null,
   });
 }
 

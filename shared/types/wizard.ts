@@ -191,11 +191,12 @@ export const CLOSE_RATE_BAND_VALUES = [
 
 export type CloseRateBand = (typeof CLOSE_RATE_BAND_VALUES)[number];
 
+// v3 (A5): a subscription is its own question; an answer saved as one is
+// read by the backend as most customers coming back.
 export const AVG_CUSTOMER_RETENTION_VALUES = [
   'one_time_buyers',
   'some_repeat',
   'mostly_repeat',
-  'subscription',
   'unknown',
 ] as const;
 
@@ -437,7 +438,6 @@ export const AVG_CUSTOMER_RETENTION_LABELS: Record<AvgCustomerRetention, string>
   one_time_buyers: 'Mostly one-time buyers',
   some_repeat: 'Some customers come back',
   mostly_repeat: 'Many customers come back',
-  subscription: 'Subscription-based',
   unknown: "Don't know",
 };
 
@@ -979,6 +979,8 @@ export interface RankedSalesChannel {
   channel: SalesChannel;
   rank: number;
   customName?: string | null;
+  /** v3 P6: roughly what share of sales the channel brings (a band). */
+  salesShare?: string | null;
 }
 
 export interface SocialHandle {

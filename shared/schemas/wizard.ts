@@ -29,6 +29,8 @@ const rankedSalesChannelSchema = z.object({
     z.number().int('Rank must be a whole number').positive('Rank must be positive'),
   ),
   customName: z.string().trim().max(120, 'Keep custom names under 120 characters').optional().or(z.literal('')),
+  // v3 P6: roughly what share of sales this channel brings. Optional.
+  salesShare: z.string().trim().max(40).optional().or(z.literal('')),
 });
 
 const socialHandleSchema = z.object({
@@ -70,6 +72,8 @@ const currentMarketingActivitySchema = z.object({
   monthlySpendAmount: amountTextSchema,
   timeRunning: z.string().trim().max(120, 'Keep time running under 120 characters').optional().or(z.literal('')),
   reasonStopped: z.string().trim().max(500, 'Keep reason under 500 characters').optional().or(z.literal('')),
+  // v3 P6: this channel's share of the marketing spend, as a band.
+  shareOfSpend: z.string().trim().max(40).optional().or(z.literal('')),
 });
 
 const googleAnalyticsConnectedSchema = z.union([
@@ -173,6 +177,8 @@ export const step2Schema = z.object({
   trustSignals: z.array(tagItemSchema).max(20, 'Add up to 20 trust signals').default([]),
   sensitiveCategoryFlags: z.array(tagItemSchema).min(1, 'Add at least one sensitive category flag').max(20, 'Add up to 20 flags').default([]),
   complianceSensitiveClaims: z.array(tagItemSchema).max(20, 'Add up to 20 compliance claims').default([]),
+  // v3 P6: cheaper, about the same or premium against competitors.
+  pricePosition: z.string().trim().max(40).optional().or(z.literal('')),
   salesChannels: z.array(rankedSalesChannelSchema).default([]),
   // Required by the step 4 submit handler, not here: this form backs step 2
   // too, which would then refuse to save over a step 4 question.
@@ -264,6 +270,22 @@ export const step3Schema = z.object({
   desiredOutcome: z.string().trim().min(1, 'Desired outcome is required').max(300, 'Keep the desired outcome under 300 characters'),
   decisionProcess: z.string().trim().min(1, 'Decision process is required').max(500, 'Keep this under 500 characters'),
   buyerRoles: z.array(tagItemSchema).max(10, 'Add up to 10 buyer roles').default([]),
+  // v3 P6. Age and who buys more are asked of consumer businesses.
+  ageRanges: z.array(tagItemSchema).max(6).default([]),
+  genderSkew: z.string().trim().max(40).optional().or(z.literal('')),
+  buyingTriggers: z.array(tagItemSchema).max(10, 'Add up to 10 buying triggers').default([]),
+  peakSeasons: z.array(tagItemSchema).max(12).default([]),
+  currentOffers: z.array(tagItemSchema).max(10, 'Add up to 10 offers').default([]),
+  existingAssets: z.array(tagItemSchema).max(6).default([]),
+  whatsappListSize: z.string().trim().max(40).optional().or(z.literal('')),
+  customerAcquisitionCost: amountTextSchema,
+  subscriptionOffered: z.enum(['yes', 'no']).optional().or(z.literal('')),
+  subscriberMonths: z
+    .string()
+    .trim()
+    .regex(/^\d{0,3}$/, 'Enter whole months, e.g. 8')
+    .optional()
+    .or(z.literal('')),
   constraints: z.array(tagItemSchema).default([]),
   // The band answer before v3; the budget below replaces it.
   monthlyMarketingSpend: z.enum(MONTHLY_MARKETING_SPEND_VALUES).optional(),

@@ -56,6 +56,7 @@ import { cn } from '@/lib/utils';
 import { useLastCampaign } from '@/hooks/useLastCampaign';
 import { useToast } from '@/hooks/use-toast';
 import { SearchableSelect } from '@/shared/components/campaigns/SearchableSelect';
+import { ChipToggleGroup, OptionSelect } from '@/shared/components/campaigns/WizardChoiceFields';
 import { ApiError } from '@/shared/api/errors';
 import { queryKeys } from '@/shared/api/queryKeys';
 import { campaignsRepository, legalRepository, wizardRepository } from '@/shared/api/repositories';
@@ -297,6 +298,16 @@ const EMPTY_STEP_3_VALUES: Step3FormData = {
   emailListSize: '',
   knownCompetitors: [],
   additionalContext: '',
+  ageRanges: [],
+  genderSkew: '',
+  buyingTriggers: [],
+  peakSeasons: [],
+  currentOffers: [],
+  existingAssets: [],
+  whatsappListSize: '',
+  customerAcquisitionCost: '',
+  subscriptionOffered: '',
+  subscriberMonths: '',
 };
 
 const WIZARD_STEPS: Array<{ step: WizardModalStep; label: string; hint: string }> = [
@@ -1555,6 +1566,24 @@ type StringFieldOptionsConfig = {
   labels?: Record<string, string>;
 };
 
+/** A preview step's field, for the answers its type does not list yet. */
+function previewValue(step: unknown, key: string): unknown {
+  return step && typeof step === 'object' ? (step as Record<string, unknown>)[key] : undefined;
+}
+
+/** The label of a picked option; the value itself when no option has it. */
+function labelOfOption(options: { value: string; label: string }[], value: unknown): string | null {
+  if (typeof value !== 'string' || !value) return null;
+  const token = value.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+  return options.find((option) => option.value === value || option.value === token)?.label ?? value;
+}
+
+/** The labels of picked options, joined. */
+function labelsOfOptions(options: { value: string; label: string }[], values: unknown): string | null {
+  if (!Array.isArray(values) || values.length === 0) return null;
+  return values.map((value) => labelOfOption(options, value)).filter(Boolean).join(', ');
+}
+
 function getStringFieldOptions(
   wizardOptions: WizardOptionsResponseV2 | undefined,
   fieldKey: string,
@@ -1728,6 +1757,7 @@ function normalizeCurrentMarketingActivityItems(
         monthlySpendAmount: amountTextFromSaved(entry.monthlySpendAmount),
         timeRunning: normalizeString(typeof entry.timeRunning === 'string' ? entry.timeRunning : ''),
         reasonStopped: normalizeString(typeof entry.reasonStopped === 'string' ? entry.reasonStopped : ''),
+        shareOfSpend: normalizeString(typeof entry.shareOfSpend === 'string' ? entry.shareOfSpend : ''),
       };
     })
     .filter((item): item is NonNullable<typeof item> => Boolean(item));
@@ -1870,6 +1900,7 @@ function normalizeSalesChannels(channels?: RankedSalesChannel[]) {
       channel: item.channel,
       rank: typeof item.rank === 'number' ? item.rank : Number(item.rank),
       customName: normalizeString(item.customName),
+      salesShare: normalizeString(item.salesShare) || null,
     }))
     .filter((item) => item.channel);
 }
@@ -2616,6 +2647,61 @@ export function CampaignWizardModal({
   const watchedAudienceSegments = step3Form.watch('audienceSegments') ?? [];
   const watchedPainPoints = step3Form.watch('painPoints') ?? [];
   const watchedBuyerRoles = step3Form.watch('buyerRoles') ?? [];
+  // v3 P6: the new questions' lists, served with their labels; the fallbacks
+  // carry the same values.
+  const pricePositionOptions = getStringFieldOptions(wizardOptions, 'pricePosition', [
+    { value: 'cheaper', label: 'Cheaper' },
+    { value: 'about_same', label: 'About the same' },
+    { value: 'premium', label: 'Premium' },
+    { value: 'unknown', label: "Don't know" },
+  ]);
+  const ageRangeOptions = getStringFieldOptions(wizardOptions, 'ageRanges', [
+    { value: 'under_18', label: 'Under 18' },
+    { value: '18_24', label: '18–24' },
+    { value: '25_34', label: '25–34' },
+    { value: '35_44', label: '35–44' },
+    { value: '45_54', label: '45–54' },
+    { value: '55_plus', label: '55+' },
+  ]);
+  const genderSkewOptions = getStringFieldOptions(wizardOptions, 'genderSkew', [
+    { value: 'mostly_women', label: 'Mostly women' },
+    { value: 'mostly_men', label: 'Mostly men' },
+    { value: 'even', label: 'About even' },
+    { value: 'unknown', label: "Don't know" },
+  ]);
+  const shareBandFallback = [
+    { value: 'under_10', label: 'Under 10%' },
+    { value: '10_30', label: '10–30%' },
+    { value: '30_60', label: '30–60%' },
+    { value: 'over_60', label: 'Over 60%' },
+  ];
+  const salesShareOptions = getStringFieldOptions(wizardOptions, 'salesShare', shareBandFallback);
+  const shareOfSpendOptions = getStringFieldOptions(wizardOptions, 'shareOfSpend', shareBandFallback);
+  const whatsappListSizeOptions = getStringFieldOptions(wizardOptions, 'whatsappListSize', []);
+  const existingAssetOptions = getStringFieldOptions(wizardOptions, 'existingAssets', [
+    { value: 'creators', label: 'Creators or influencers' },
+    { value: 'community', label: 'Community or group' },
+    { value: 'email_automation', label: 'Email automation' },
+    { value: 'referral_programme', label: 'Referral programme' },
+    { value: 'loyalty_programme', label: 'Loyalty programme' },
+    { value: 'none', label: 'None' },
+  ]);
+  const [buyingTriggerDraft, setBuyingTriggerDraft] = useState('');
+  const [currentOfferDraft, setCurrentOfferDraft] = useState('');
+  const watchedBuyingTriggers = step3Form.watch('buyingTriggers') ?? [];
+  const watchedCurrentOffers = step3Form.watch('currentOffers') ?? [];
+  const watchedSubscriptionOffered = step3Form.watch('subscriptionOffered');
+  // V3-52: the shares need not add up to 100%; a total whose bands' lower
+  // ends already pass it gets a word, never a block.
+  const shareLowerEnd: Record<string, number> = { under_10: 0, '10_30': 10, '30_60': 30, over_60: 60 };
+  const salesShareTotal = (step2Form.watch('salesChannels') ?? []).reduce(
+    (sum, row) => sum + (shareLowerEnd[row.salesShare ?? ''] ?? 0),
+    0,
+  );
+  const shareOfSpendTotal = (step3Form.watch('currentMarketingActivity') ?? []).reduce(
+    (sum, row) => sum + (shareLowerEnd[row.shareOfSpend ?? ''] ?? 0),
+    0,
+  );
   const watchedDecisionProcess = step3Form.watch('decisionProcess') ?? '';
   const watchedAudienceModel = step2Form.watch('audienceModel');
   const watchedBusinessModel = step2Form.watch('businessModel');
@@ -2645,6 +2731,10 @@ export function CampaignWizardModal({
   // the paths that end in a conversation, purchase questions on the rest.
   // Before the path is chosen every question shows.
   const asksBusinessBuyerQuestions = watchedSellsTo !== 'consumers';
+  // v3 P6: age and who buys more are asked of a business selling to
+  // consumers, alone or beside businesses; the WhatsApp list in India.
+  const asksConsumerQuestions = watchedSellsTo !== 'businesses';
+  const asksWhatsappListSize = campaignMarketCode === 'IN';
   const isLeadGenerationPath = LEAD_GENERATION_PATHS.has(watchedConversionPath ?? '');
   const asksLeadGenerationQuestions = !watchedConversionPath || isLeadGenerationPath;
   const asksPurchaseQuestions = !watchedConversionPath || !isLeadGenerationPath;
@@ -2849,7 +2939,10 @@ export function CampaignWizardModal({
       ),
       sensitiveCategoryFlags: normalizeListItems(savedData.sensitiveCategoryFlags as string[] | undefined),
       complianceSensitiveClaims: normalizeListItems(savedData.complianceSensitiveClaims as string[] | undefined),
-      salesChannels: normalizeSalesChannels(savedChannelsData.salesChannels as RankedSalesChannel[] | undefined) as Step2FormData['salesChannels'],
+      pricePosition: normalizeString(savedData.pricePosition as string | undefined),
+      salesChannels: normalizeSalesChannels(savedChannelsData.salesChannels as RankedSalesChannel[] | undefined).map(
+        (row) => ({ ...row, salesShare: row.salesShare ?? '' }),
+      ) as Step2FormData['salesChannels'],
       primaryConversionPath: normalizedPrimaryConversionPath,
       socialHandles: nextSocialHandles as Step2FormData['socialHandles'],
       digitalPresenceLinks: nextDigitalPresenceLinks as Step2FormData['digitalPresenceLinks'],
@@ -3035,6 +3128,23 @@ export function CampaignWizardModal({
       emailListSize: (savedChannelsData.emailListSize as Step3FormData['emailListSize']) || '',
       knownCompetitors: normalizedKnownCompetitors,
       additionalContext: normalizeString(savedGoalsData.additionalContext as string | undefined),
+      // v3 P6.
+      ageRanges: normalizeListItems(savedAudienceData.ageRanges as string[] | undefined),
+      genderSkew: normalizeString(savedAudienceData.genderSkew as string | undefined),
+      buyingTriggers: normalizeListItems(savedAudienceData.buyingTriggers as string[] | undefined),
+      peakSeasons: normalizeListItems(savedGoalsData.peakSeasons as string[] | undefined),
+      currentOffers: normalizeListItems(savedGoalsData.currentOffers as string[] | undefined),
+      existingAssets: normalizeListItems(savedChannelsData.existingAssets as string[] | undefined),
+      whatsappListSize: normalizeString(savedChannelsData.whatsappListSize as string | undefined),
+      customerAcquisitionCost: amountTextFromSaved(savedEconomicsData.customerAcquisitionCost),
+      subscriptionOffered:
+        savedEconomicsData.subscriptionOffered === true
+          ? 'yes'
+          : savedEconomicsData.subscriptionOffered === false
+            ? 'no'
+            : '',
+      subscriberMonths:
+        typeof savedEconomicsData.subscriberMonths === 'number' ? String(savedEconomicsData.subscriberMonths) : '',
     };
 
     step3SnapshotRef.current = nextValues;
@@ -3330,6 +3440,7 @@ export function CampaignWizardModal({
           differentiators: normalizeListItems(data.differentiators),
           sensitiveCategoryFlags: normalizeListItems(data.sensitiveCategoryFlags),
           complianceSensitiveClaims: normalizeListItems(data.complianceSensitiveClaims),
+          pricePosition: normalizeNullableString(data.pricePosition),
         },
         version: step2VersionRef.current,
       });
@@ -3366,6 +3477,10 @@ export function CampaignWizardModal({
     desiredOutcome: normalizeString(data.desiredOutcome),
     decisionProcess: normalizeString(data.decisionProcess),
     buyerRoles: normalizeListItems(data.buyerRoles),
+    // v3 P6: age and who buys more only where they were asked.
+    ageRanges: asksConsumerQuestions ? normalizeListItems(data.ageRanges) : [],
+    genderSkew: asksConsumerQuestions ? normalizeNullableString(data.genderSkew) : null,
+    buyingTriggers: normalizeListItems(data.buyingTriggers),
   });
 
   const buildChannelsStepPayload = (step2Values: Step2FormData, step3Values: Step3FormData) => ({
@@ -3392,6 +3507,9 @@ export function CampaignWizardModal({
         : step3Values.googleAnalyticsConnected,
     monthlyWebsiteTraffic: step3Values.monthlyWebsiteTraffic || null,
     emailListSize: step3Values.emailListSize || null,
+    // v3 P6: the WhatsApp list is asked in India only.
+    whatsappListSize: asksWhatsappListSize ? step3Values.whatsappListSize || null : null,
+    existingAssets: normalizeListItems(step3Values.existingAssets),
   });
 
   const buildGoalsStepPayload = (data: Step3FormData) => {
@@ -3430,6 +3548,7 @@ export function CampaignWizardModal({
           monthlySpendAmount: toMoneyAnswer(activity.monthlySpendAmount, campaignCurrency),
           timeRunning: normalizeNullableString(activity.timeRunning),
           reasonStopped: normalizeNullableString(activity.reasonStopped),
+          shareOfSpend: normalizeNullableString(activity.shareOfSpend),
         }))
         .filter((activity) => activity.channel && activity.status),
       pastMarketing: normalizeNullableString(data.pastMarketing),
@@ -3445,6 +3564,9 @@ export function CampaignWizardModal({
       channelsStronglyPreferred: normalizeListItems(data.channelsStronglyPreferred),
       executionConstraints: [],
       additionalContext: normalizeNullableString(data.additionalContext),
+      // v3 P6.
+      peakSeasons: normalizeListItems(data.peakSeasons),
+      currentOffers: normalizeListItems(data.currentOffers),
     };
   };
 
@@ -3464,6 +3586,13 @@ export function CampaignWizardModal({
     avgCustomerRetention: data.avgCustomerRetention || null,
     repeatPurchaseFrequency: data.repeatPurchaseFrequency || null,
     salesCycleLength: normalizeNullableString(data.salesCycleLength),
+    // v3 P6: today's cost to win a customer, and how long subscribers stay.
+    customerAcquisitionCost: toMoneyAnswer(data.customerAcquisitionCost, campaignCurrency),
+    subscriptionOffered: data.subscriptionOffered === 'yes' ? true : data.subscriptionOffered === 'no' ? false : undefined,
+    subscriberMonths:
+      data.subscriptionOffered === 'yes' && /^\d+$/.test(data.subscriberMonths ?? '')
+        ? Number(data.subscriberMonths)
+        : undefined,
   });
 
   const saveAudienceStepMutation = useMutation({
@@ -4681,6 +4810,27 @@ export function CampaignWizardModal({
                     </div>
                   </div>
 
+                  <div className="space-y-2">
+                    <FieldLabel
+                      label="How do your prices compare with competitors?"
+                      helper="We fetch their prices; this is the position you mean to hold."
+                    />
+                    <Controller
+                      name="pricePosition"
+                      control={step2Form.control}
+                      render={({ field }) => (
+                        <OptionSelect
+                          testId={wizardFieldTestId('pricePosition')}
+                          className={cn(wizardInputClassName, 'max-w-[480px]')}
+                          placeholder="Select position"
+                          options={pricePositionOptions}
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      )}
+                    />
+                  </div>
+
                   <InlineDivider />
 
                   <div className="space-y-2">
@@ -5043,6 +5193,67 @@ export function CampaignWizardModal({
                     error={getArrayFieldError(step3Form.formState.errors.painPoints)}
                   />
 
+                  {asksConsumerQuestions ? (
+                  <>
+                  <InlineDivider />
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2 sm:col-span-2">
+                      <FieldLabel label="How old are your buyers?" helper="Pick every age group that buys." />
+                      <Controller
+                        name="ageRanges"
+                        control={step3Form.control}
+                        render={({ field }) => (
+                          <ChipToggleGroup
+                            testId={wizardFieldTestId('ageRanges')}
+                            options={ageRangeOptions}
+                            value={field.value ?? []}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <FieldLabel label="Who buys more?" />
+                      <Controller
+                        name="genderSkew"
+                        control={step3Form.control}
+                        render={({ field }) => (
+                          <OptionSelect
+                            testId={wizardFieldTestId('genderSkew')}
+                            className={wizardInputClassName}
+                            placeholder="Select"
+                            options={genderSkewOptions}
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </div>
+                  </div>
+                  </>
+                  ) : null}
+
+                  <InlineDivider />
+
+                  <TagInputField
+                    fieldKey="buyingTriggers"
+                    label="What makes them buy now?"
+                    helper="Moments that tip a buyer: a season, payday, a festival, a life event."
+                    footnote="Press Enter or click Add after each one"
+                    placeholder="e.g. Wedding season, payday, new job"
+                    values={watchedBuyingTriggers}
+                    pendingValue={buyingTriggerDraft}
+                    onPendingChange={setBuyingTriggerDraft}
+                    onAdd={() => addListItem(watchedBuyingTriggers, buyingTriggerDraft, setBuyingTriggerDraft, (nextValues) => {
+                      step3Form.setValue('buyingTriggers', nextValues, { shouldDirty: true, shouldValidate: true });
+                    })}
+                    onRemove={(index) => removeListItem(watchedBuyingTriggers, index, (nextValues) => {
+                      step3Form.setValue('buyingTriggers', nextValues, { shouldDirty: true, shouldValidate: true });
+                    })}
+                    error={getArrayFieldError(step3Form.formState.errors.buyingTriggers)}
+                  />
+
                   {asksBusinessBuyerQuestions ? (
                   <>
                   <InlineDivider />
@@ -5216,6 +5427,23 @@ export function CampaignWizardModal({
                               </div>
                             ) : null}
 
+                            <div className="lg:col-span-3 max-w-[280px]">
+                              <Controller
+                                name={`salesChannels.${index}.salesShare`}
+                                control={step2Form.control}
+                                render={({ field: shareField }) => (
+                                  <OptionSelect
+                                    testId={wizardFieldTestId(`salesChannels.${index}.salesShare`)}
+                                    className={wizardInputClassName}
+                                    placeholder="Share of sales (optional)"
+                                    options={salesShareOptions}
+                                    value={shareField.value}
+                                    onChange={shareField.onChange}
+                                  />
+                                )}
+                              />
+                            </div>
+
                             <div className="lg:col-span-3">
                               <FieldMeta
                                 error={
@@ -5234,6 +5462,11 @@ export function CampaignWizardModal({
                         Add channel
                       </EmptyActionButton>
                     )}
+                    {salesShareTotal > 100 ? (
+                      <p className="text-sm text-amber-700 dark:text-amber-400" role="status" data-testid="wizard-sales-share-warning">
+                        These shares add up to more than 100%. Rough is fine, but check they make sense together.
+                      </p>
+                    ) : null}
                   </div>
 
                   <InlineDivider />
@@ -5464,6 +5697,45 @@ export function CampaignWizardModal({
                       />
                       <FieldMeta error={step3Form.formState.errors.emailListSize?.message} />
                     </div>
+                    {asksWhatsappListSize ? (
+                    <div className="space-y-2">
+                      <FieldLabel label="WhatsApp list size" helper="Customers you can message on WhatsApp." />
+                      <Controller
+                        name="whatsappListSize"
+                        control={step3Form.control}
+                        render={({ field }) => (
+                          <OptionSelect
+                            testId={wizardFieldTestId('whatsappListSize')}
+                            className={wizardInputClassName}
+                            placeholder="Select size"
+                            options={whatsappListSizeOptions}
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </div>
+                    ) : null}
+                  </div>
+
+                  <div className="space-y-2">
+                    <FieldLabel
+                      label="What do you already have running?"
+                      helper="We build on these rather than recommend them from scratch."
+                    />
+                    <Controller
+                      name="existingAssets"
+                      control={step3Form.control}
+                      render={({ field }) => (
+                        <ChipToggleGroup
+                          testId={wizardFieldTestId('existingAssets')}
+                          options={existingAssetOptions}
+                          exclusiveValue="none"
+                          value={field.value ?? []}
+                          onChange={field.onChange}
+                        />
+                      )}
+                    />
                   </div>
 
                   <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-border/80 bg-muted/60 p-4">
@@ -5768,6 +6040,43 @@ export function CampaignWizardModal({
                       />
                     </div>
 
+                    <div className="space-y-2 sm:col-span-2">
+                      <FieldLabel label="When is your business busiest?" helper="Pick every peak season, or None." />
+                      <Controller
+                        name="peakSeasons"
+                        control={step3Form.control}
+                        render={({ field }) => (
+                          <ChipToggleGroup
+                            testId={wizardFieldTestId('peakSeasons')}
+                            options={marketList?.peakSeasons ?? []}
+                            exclusiveValue="none"
+                            value={field.value ?? []}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <TagInputField
+                        fieldKey="currentOffers"
+                        label="Offers and promotions running now"
+                        helper="Discounts, bundles, trials, subscription deals - including ones only on WhatsApp."
+                        footnote="Press Enter or click Add after each one"
+                        placeholder="e.g. 10% off the first order"
+                        values={watchedCurrentOffers}
+                        pendingValue={currentOfferDraft}
+                        onPendingChange={setCurrentOfferDraft}
+                        onAdd={() => addListItem(watchedCurrentOffers, currentOfferDraft, setCurrentOfferDraft, (nextValues) => {
+                          step3Form.setValue('currentOffers', nextValues, { shouldDirty: true, shouldValidate: true });
+                        })}
+                        onRemove={(index) => removeListItem(watchedCurrentOffers, index, (nextValues) => {
+                          step3Form.setValue('currentOffers', nextValues, { shouldDirty: true, shouldValidate: true });
+                        })}
+                        error={getArrayFieldError(step3Form.formState.errors.currentOffers)}
+                      />
+                    </div>
+
                     {isLeadGenerationPath ? (
                     <div className="space-y-2">
                       <FieldLabel label="Sales capacity" helper="How many leads your team can handle." required />
@@ -5855,6 +6164,7 @@ export function CampaignWizardModal({
                             monthlySpendAmount: '',
                             timeRunning: '',
                             reasonStopped: '',
+                            shareOfSpend: '',
                           })
                         }
                       >
@@ -5862,6 +6172,12 @@ export function CampaignWizardModal({
                         Add activity
                       </Button>
                     </div>
+
+                    {shareOfSpendTotal > 100 ? (
+                      <p className="text-sm text-amber-700 dark:text-amber-400" role="status" data-testid="wizard-share-of-spend-warning">
+                        These shares of spend add up to more than 100%. Rough is fine, but check they make sense together.
+                      </p>
+                    ) : null}
 
                     {currentMarketingActivityFields.length ? (
                       currentMarketingActivityFields.map((field, index) => (
@@ -5959,6 +6275,20 @@ export function CampaignWizardModal({
                               className={wizardInputClassName}
                               placeholder="Reason stopped (optional)"
                               {...step3Form.register(`currentMarketingActivity.${index}.reasonStopped`)}
+                            />
+                            <Controller
+                              name={`currentMarketingActivity.${index}.shareOfSpend`}
+                              control={step3Form.control}
+                              render={({ field: shareField }) => (
+                                <OptionSelect
+                                  testId={wizardFieldTestId(`currentMarketingActivity.${index}.shareOfSpend`)}
+                                  className={wizardInputClassName}
+                                  placeholder="Share of spend (optional)"
+                                  options={shareOfSpendOptions}
+                                  value={shareField.value}
+                                  onChange={shareField.onChange}
+                                />
+                              )}
                             />
                           </div>
 
@@ -6307,6 +6637,28 @@ export function CampaignWizardModal({
                       />
                       <FieldMeta error={step3Form.formState.errors.monthlyRevenueAmount?.message} />
                     </div>
+                    <div className="space-y-2">
+                      <FieldLabel
+                        label="What does a new customer cost you today?"
+                        helper="Marketing spend per new customer, if you know it. Leave it blank if not."
+                      />
+                      <Controller
+                        name="customerAcquisitionCost"
+                        control={step3Form.control}
+                        render={({ field }) => (
+                          <MoneyInput
+                            testId={wizardFieldTestId('customerAcquisitionCost')}
+                            className={wizardInputClassName}
+                            currency={campaignCurrency}
+                            value={field.value ?? ''}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            invalid={Boolean(step3Form.formState.errors.customerAcquisitionCost)}
+                          />
+                        )}
+                      />
+                      <FieldMeta error={step3Form.formState.errors.customerAcquisitionCost?.message} />
+                    </div>
                     {asksPurchaseQuestions ? (
                     <div className="space-y-2">
                       <FieldLabel label="Monthly order volume" />
@@ -6361,6 +6713,39 @@ export function CampaignWizardModal({
                       />
                       <FieldMeta error={step3Form.formState.errors.avgCustomerRetention?.message} />
                     </div>
+                    <div className="space-y-2">
+                      <FieldLabel label="Do customers subscribe?" helper="A plan they pay for every month or year." />
+                      <Controller
+                        name="subscriptionOffered"
+                        control={step3Form.control}
+                        render={({ field }) => (
+                          <OptionSelect
+                            testId={wizardFieldTestId('subscriptionOffered')}
+                            className={wizardInputClassName}
+                            placeholder="Select"
+                            options={[
+                              { value: 'yes', label: 'Yes' },
+                              { value: 'no', label: 'No' },
+                            ]}
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </div>
+                    {watchedSubscriptionOffered === 'yes' ? (
+                    <div className="space-y-2">
+                      <FieldLabel label="How many months does a subscriber stay?" helper="A typical subscriber, in whole months." />
+                      <Input
+                        data-testid={wizardFieldTestId('subscriberMonths')}
+                        className={wizardInputClassName}
+                        inputMode="numeric"
+                        placeholder="e.g. 8"
+                        {...step3Form.register('subscriberMonths')}
+                      />
+                      <FieldMeta error={step3Form.formState.errors.subscriberMonths?.message} />
+                    </div>
+                    ) : null}
                     <div className="space-y-2">
                       <FieldLabel label="Repeat purchase frequency" />
                       <Controller
@@ -6455,6 +6840,7 @@ export function CampaignWizardModal({
                           <SummaryField label="Product category" value={effectivePreviewStep2?.productCategory} />
                           <SummaryField label="Product or service" value={formatStringOrList(effectivePreviewStep2?.productOrService as string[] | string | undefined)} />
                           <SummaryField label="Price range" value={showPriceRange(effectivePreviewStep2)} />
+                          <SummaryField label="Price position" value={labelOfOption(pricePositionOptions, previewValue(effectivePreviewStep2, 'pricePosition'))} />
                           <SummaryField label="Offer summary" value={effectivePreviewStep2?.offerSummary} />
                           <SummaryField label="Differentiators" value={formatStringList(effectivePreviewStep2?.differentiators)} />
                           <SummaryField label="Sensitive category flags" value={formatSensitiveCategoryFlags(effectivePreviewStep2?.sensitiveCategoryFlags)} />
@@ -6482,6 +6868,9 @@ export function CampaignWizardModal({
                           <SummaryField label="Pain points" value={formatStringList(effectivePreviewStep3?.painPoints)} />
                           <SummaryField label="Decision process" value={effectivePreviewStep3?.decisionProcess} />
                           <SummaryField label="Buyer roles" value={formatStringList(effectivePreviewStep3?.buyerRoles)} />
+                          <SummaryField label="Age groups" value={labelsOfOptions(ageRangeOptions, previewValue(effectivePreviewStep3, 'ageRanges'))} />
+                          <SummaryField label="Who buys more" value={labelOfOption(genderSkewOptions, previewValue(effectivePreviewStep3, 'genderSkew'))} />
+                          <SummaryField label="Buying triggers" value={formatStringList(previewValue(effectivePreviewStep3, 'buyingTriggers') as string[] | undefined)} />
                         </ReviewGrid>
                       </ReviewSection>
 
@@ -6517,6 +6906,8 @@ export function CampaignWizardModal({
                           <SummaryField label="Made in-house" value={formatCreativeCapabilities(effectivePreviewStep4?.creativeCapabilities)} />
                           <SummaryField label="Results needed" value={formatDeliveryDeadline(effectivePreviewStep4?.deliveryDeadline)} />
                           <SummaryField label="Sales capacity" value={effectivePreviewStep4?.salesCapacity} />
+                          <SummaryField label="Peak seasons" value={labelsOfOptions(marketList?.peakSeasons ?? [], previewValue(effectivePreviewStep4, 'peakSeasons'))} />
+                          <SummaryField label="Offers running now" value={formatStringList(previewValue(effectivePreviewStep4, 'currentOffers') as string[] | undefined)} />
                           <SummaryField label="Current marketing activity" value={formatCurrentMarketingActivity(effectivePreviewStep4?.currentMarketingActivity)} className="md:col-span-2" />
                           <SummaryField label="Past marketing" value={effectivePreviewStep4?.pastMarketing} className="md:col-span-2" />
                           <SummaryField label="Known competitor status" value={formatKnownCompetitorStatus(effectivePreviewStep4?.knownCompetitorStatus)} />
@@ -6564,6 +6955,22 @@ export function CampaignWizardModal({
                           <SummaryField label="Time to earn back a customer's cost" value={formatPaybackWindow(effectivePreviewStep4?.paybackWindow)} />
                           <SummaryField label="Website traffic" value={formatMonthlyWebsiteTraffic(effectivePreviewStep4?.monthlyWebsiteTraffic)} />
                           <SummaryField label="Email list size" value={formatEmailListSize(effectivePreviewStep4?.emailListSize)} />
+                          {asksWhatsappListSize ? (
+                            <SummaryField label="WhatsApp list size" value={labelOfOption(whatsappListSizeOptions, previewValue(effectivePreviewStep4, 'whatsappListSize'))} />
+                          ) : null}
+                          <SummaryField label="Already running" value={labelsOfOptions(existingAssetOptions, previewValue(effectivePreviewStep4, 'existingAssets'))} />
+                          <SummaryField label="Cost to win a customer" value={showMoney(previewValue(effectivePreviewStep4, 'customerAcquisitionCost'))} />
+                          <SummaryField
+                            label="Customers subscribe"
+                            value={(() => {
+                              const offered = previewValue(effectivePreviewStep4, 'subscriptionOffered');
+                              const months = previewValue(effectivePreviewStep4, 'subscriberMonths');
+                              if (offered === true) {
+                                return typeof months === 'number' ? `Yes, for about ${months} months` : 'Yes';
+                              }
+                              return offered === false ? 'No' : null;
+                            })()}
+                          />
                           <SummaryField label="Google Analytics" value={formatGoogleAnalyticsConnected(effectivePreviewStep4?.googleAnalyticsConnected as boolean | 'unknown' | undefined)} />
                         </ReviewGrid>
                       </ReviewSection>
