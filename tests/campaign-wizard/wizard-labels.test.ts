@@ -25,7 +25,7 @@ const SERVED = {
   knownCompetitorStatus: ['provided', 'none_known', 'unknown'],
   sensitiveCategoryFlags: [
     'none', 'unknown', 'healthcare', 'wellness', 'supplements', 'finance', 'legal', 'education_claims',
-    'b2b_security_compliance', 'alcohol_tobacco_restricted', 'healthcare_wellness', 'restricted_products',
+    'b2b_security_compliance', 'alcohol_tobacco_restricted', 'restricted_products', 'children_minors', 'gambling_rmg',
   ],
 };
 

@@ -77,6 +77,8 @@ const STATIC_OPTION_LABELS: Record<string, string> = {
   b2b_security_compliance: 'B2B security and compliance',
   alcohol_tobacco_restricted: 'Alcohol, tobacco and restricted goods',
   healthcare_wellness: 'Healthcare and wellness',
+  children_minors: 'Children & minors',
+  gambling_rmg: 'Gambling & real-money gaming',
   own_channel: 'Own website or store',
   partners: 'Through partners or distributors',
   mix: 'A mix',

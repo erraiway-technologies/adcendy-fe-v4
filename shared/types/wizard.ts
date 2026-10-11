@@ -644,8 +644,11 @@ export const SENSITIVE_CATEGORY_FLAG_LABELS: Record<string, string> = {
   education_claims: 'Education claims',
   b2b_security_compliance: 'B2B security and compliance',
   alcohol_tobacco_restricted: 'Alcohol, tobacco and restricted goods',
-  healthcare_wellness: 'Healthcare and wellness',
   restricted_products: 'Restricted products',
+  // v3 (V3-42): two flags added; "Healthcare and wellness" retired, the
+  // backend reading an old answer as both flags.
+  children_minors: 'Children & minors',
+  gambling_rmg: 'Gambling & real-money gaming',
 };
 
 export function formatContentCapacity(value: string | null | undefined) {
