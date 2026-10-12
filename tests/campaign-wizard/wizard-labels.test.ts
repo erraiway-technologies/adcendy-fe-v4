@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { createWizardOptionLabels, type WizardOptionsResponseV2 } from '../../shared/types/wizard.ts';
+import {
+  createWizardOptionLabels,
+  toCurrentWizardValue,
+  withCurrentPresenceLinks,
+  type WizardOptionsResponseV2,
+} from '../../shared/types/wizard.ts';
 
 // GET /api/v2/wizard/options as the backend serves it (adcendy-be-v4,
 // config/pipeline-v2/wizard-v2.seed.v2.json v1.12.0 through
@@ -25,6 +30,10 @@ const SERVED: Pick<WizardOptionsResponseV2, 'fieldOptions' | 'marketLists'> = {
     ],
     primaryGoal: [
       option('revenueGrowth', 'Revenue growth'),
+      option('newCustomers', 'New customers'),
+      option('awareness', 'Awareness'),
+      option('marketExpansion', 'Market expansion'),
+      option('other', 'Other'),
       option('leads', 'Leads'),
       option('launch', 'Launch'),
       option('repeatPurchaseRetention', 'Repeat purchase & retention'),
@@ -33,6 +42,8 @@ const SERVED: Pick<WizardOptionsResponseV2, 'fieldOptions' | 'marketLists'> = {
       option('founderLed', 'Founder'),
       option('inHouseMarketer', 'One in-house marketer'),
       option('inHouseTeam', 'In-house team'),
+      option('agency', 'Agency'),
+      option('nobodyYet', 'Nobody yet'),
     ],
     contentCapacity: [option('none', 'Nothing yet'), option('low', 'A post or two a week'), dontKnow],
     marketingHoursPerWeek: [option('fortyPlus', '40+ hours (full-time or more)'), dontKnow],
@@ -60,7 +71,11 @@ const SERVED: Pick<WizardOptionsResponseV2, 'fieldOptions' | 'marketLists'> = {
         { value: 'other_marketplace', label: 'A marketplace' },
       ],
       socialPlatforms: [{ value: 'instagram', label: 'Instagram' }],
-      presenceLinkTypes: [{ value: 'google_business', label: 'Google Business profile' }],
+      presenceLinkTypes: [
+        { value: 'google_business', label: 'Google Business profile' },
+        { value: 'marketplace_listing', label: 'Marketplace listing' },
+        { value: 'other', label: 'Other' },
+      ],
       peakSeasons: [],
       competitorPlaceholder: '',
       complianceRegime: null,
@@ -109,12 +124,66 @@ test('a saved alias is read as its current value before its label is looked up',
   assert.equal(labels.label('primaryGoal', 'retention'), 'Repeat purchase & retention');
   assert.equal(labels.label('primaryGoal', 'launch_readiness'), 'Launch');
   assert.equal(labels.label('marketingHandler', 'internal_marketer'), 'One in-house marketer');
+  assert.equal(labels.label('marketingHandler', 'not_sure'), 'Nobody yet');
+});
+
+test('a v1 goal or owner reads as the v3 one it maps to (V3-77)', () => {
+  // The backend reads and backfills them the same way
+  // (adcendy-be-v4 src/wizard-v2/wizard-legacy-values-v2.ts).
+  assert.equal(labels.label('primaryGoal', 'more_sales'), 'Revenue growth');
+  assert.equal(labels.label('primaryGoal', 'more_customers'), 'New customers');
+  assert.equal(labels.label('primaryGoal', 'new_market'), 'Market expansion');
+  assert.equal(labels.label('primaryGoal', 'launch_product'), 'Launch');
+  assert.equal(labels.label('primaryGoal', 'brand_awareness'), 'Awareness');
+  assert.equal(labels.label('primaryGoal', 'beat_competitor'), 'New customers');
+  assert.equal(labels.label('primaryGoal', 'reduce_channel_dependence'), 'Other');
+  assert.equal(labels.label('marketingHandler', 'self'), 'Founder');
+  assert.equal(labels.label('marketingHandler', 'team_member'), 'One in-house marketer');
+  assert.equal(labels.label('marketingHandler', 'freelancer_agency'), 'Agency');
+  assert.equal(labels.label('marketingHandler', 'nobody'), 'Nobody yet');
+});
+
+test('a saved answer loads as its current value', () => {
+  assert.equal(toCurrentWizardValue('primaryGoal', 'more_sales'), 'revenue_growth');
+  assert.equal(toCurrentWizardValue('primaryGoal', 'leadGeneration'), 'leads');
+  assert.equal(toCurrentWizardValue('primaryGoal', 'leads'), 'leads');
+  assert.equal(toCurrentWizardValue('marketingHandler', 'self'), 'founder_led');
+  assert.equal(toCurrentWizardValue('marketingHandler', 'not_sure'), 'nobody_yet');
+  assert.equal(toCurrentWizardValue('monthlyMarketingSpend', 'not_sure'), 'unknown');
+  assert.equal(toCurrentWizardValue('monthlyMarketingSpend', '5k_15k'), '5k_15k');
+  assert.equal(toCurrentWizardValue('deliveryDeadline', 'within_one_month'), 'withinThreeMonths');
+  assert.equal(toCurrentWizardValue('presenceLinkTypes', 'flipkart'), 'marketplace_listing');
+  assert.equal(toCurrentWizardValue('primaryGoal', ''), '');
+});
+
+test('a presence link saved under an older type loads as a current one, dropping nothing (A7)', () => {
+  const { digitalPresenceLinks, socialHandles } = withCurrentPresenceLinks(
+    [
+      { type: 'instagram' as never, url: 'https://instagram.com/acme' },
+      { type: 'linkedin' as never, url: 'https://linkedin.com/company/acme-old', label: '' },
+      { type: 'flipkart' as never, url: 'https://www.flipkart.com/acme' },
+      { type: 'whatsapp' as never, url: 'https://wa.me/1', label: 'Orders' },
+      { type: 'trustpilot', url: 'https://trustpilot.com/acme' },
+    ],
+    [{ platform: 'linkedin', handle: 'acme' }],
+    (type) => labels.find('socialPlatforms', type) ?? labels.find('salesChannels', type) ?? type,
+  );
+  assert.deepEqual(socialHandles, [
+    { platform: 'linkedin', handle: 'acme' },
+    { platform: 'instagram', handle: 'https://instagram.com/acme' },
+  ]);
+  assert.deepEqual(digitalPresenceLinks, [
+    { type: 'other', url: 'https://linkedin.com/company/acme-old', label: 'linkedin' },
+    { type: 'marketplace_listing', url: 'https://www.flipkart.com/acme', label: 'Flipkart' },
+    { type: 'other', url: 'https://wa.me/1', label: 'Orders' },
+    { type: 'trustpilot', url: 'https://trustpilot.com/acme' },
+  ]);
 });
 
 test('a value the backend has no label for shows as itself', () => {
   assert.equal(labels.label('sensitiveCategoryFlags', 'new_admin_flag'), 'new_admin_flag');
   assert.equal(labels.find('sensitiveCategoryFlags', 'new_admin_flag'), null);
-  assert.equal(labels.label('primaryGoal', 'more_sales'), 'more_sales');
+  assert.equal(labels.label('primaryGoal', 'grow_somehow'), 'grow_somehow');
   assert.equal(labels.label('paidMediaBudgetRange', 'around INR 8k a month'), 'around INR 8k a month');
   assert.equal(labels.label('unservedField', 'some_value'), 'some_value');
 });
@@ -150,8 +219,11 @@ test("a market's own list reads first, then the global one, then any other marke
   assert.equal(labels.label('socialPlatforms', 'twitter'), 'X (Twitter)');
   assert.equal(labels.label('presenceLinkTypes', 'google_business', 'IN'), 'Google Business profile');
   assert.equal(labels.list('peakSeasons', ['diwali'], 'IN'), 'Diwali');
-  // A saved social presence link the lists no longer offer shows as itself.
-  assert.equal(labels.label('presenceLinkTypes', 'instagram', 'IN'), 'instagram');
+  // A presence link saved under an older type reads as its current type,
+  // and a social one by its platform (A7).
+  assert.equal(labels.label('presenceLinkTypes', 'flipkart', 'IN'), 'Marketplace listing');
+  assert.equal(labels.label('presenceLinkTypes', 'whatsapp', 'IN'), 'Other');
+  assert.equal(labels.label('presenceLinkTypes', 'instagram', 'IN'), 'Instagram');
 });
 
 test('the frontend keeps no local copy of a list the backend serves (V3-03)', () => {

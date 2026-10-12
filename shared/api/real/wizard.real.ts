@@ -12,9 +12,12 @@ import type {
 } from '@/shared/types/wizard';
 import {
   DELIVERY_DEADLINE_VALUES,
+  MARKETING_HANDLER_VALUES,
   MARKETING_HOURS_PER_WEEK_VALUES,
   PAYBACK_WINDOW_VALUES,
+  PRIMARY_GOAL_VALUES,
   normalizeCreativeCapabilities,
+  toCurrentWizardValue,
 } from '@/shared/types/wizard';
 
 type LegacyStepKey = WizardStepState['stepKey'];
@@ -88,32 +91,6 @@ const MARKET_SCOPE_FROM_V2: Record<string, string> = {
   global: 'GLOBAL',
 };
 
-// Older goals (v1, and the v2 names v3 renamed) as the current ones.
-const PRIMARY_GOAL_TO_V2: Record<string, string> = {
-  more_sales: 'revenue_growth',
-  more_customers: 'leads',
-  new_market: 'market_expansion',
-  launch_product: 'launch',
-  reduce_channel_dependence: 'repeat_purchase_retention',
-  brand_awareness: 'awareness',
-  beat_competitor: 'market_expansion',
-  lead_generation: 'leads',
-  retention: 'repeat_purchase_retention',
-  launch_readiness: 'launch',
-};
-
-// Who handles marketing (v3 A2), with every earlier name read as the
-// current one: v1's, and v2's internal marketer and "not sure".
-const MARKETING_HANDLER_TO_V2: Record<string, string> = {
-  self: 'founder_led',
-  team_member: 'in_house_marketer',
-  freelancer_agency: 'agency',
-  nobody: 'nobody_yet',
-  internal_marketer: 'in_house_marketer',
-  not_sure: 'nobody_yet',
-  unknown: 'nobody_yet',
-};
-
 const CAMPAIGN_STATUS_BY_WIZARD_STATUS: Record<WizardStateResponseV2['status'], CampaignStatus> = {
   in_progress: 'DRAFT',
   pending_review: 'IN_REVIEW',
@@ -180,27 +157,6 @@ const PRIMARY_CONVERSION_PATH_VALUES_V2 = [
 
 const SELLS_TO_VALUES_V2 = ['consumers', 'businesses', 'both'] as const;
 const SELLS_VIA_VALUES_V2 = ['own_channel', 'marketplaces', 'partners', 'mix'] as const;
-
-const PRIMARY_GOAL_VALUES_V2 = [
-  'revenue_growth',
-  'new_customers',
-  'leads',
-  'awareness',
-  'launch',
-  'repeat_purchase_retention',
-  'footfall',
-  'market_expansion',
-  'other',
-] as const;
-
-const MARKETING_HANDLER_VALUES_V2 = [
-  'founder_led',
-  'in_house_marketer',
-  'in_house_team',
-  'agency',
-  'freelancer',
-  'nobody_yet',
-] as const;
 
 const CONTENT_CAPACITY_VALUES_V2 = [
   'none',
@@ -978,9 +934,11 @@ function buildStep5Payload(data: Record<string, unknown>) {
   const creativeCapabilities = normalizeCreativeCapabilities(data.creativeCapabilities);
 
   return stripUndefined({
+    // Older goals and owners (v1, and the names v3 renamed) are sent as
+    // their current values (LEGACY_WIZARD_VALUES).
     primaryGoal: pickAllowedValue(
-      mapWithFallback(data.primaryGoal, PRIMARY_GOAL_TO_V2),
-      PRIMARY_GOAL_VALUES_V2,
+      toCurrentWizardValue('primaryGoal', normalizeString(data.primaryGoal)),
+      PRIMARY_GOAL_VALUES,
       'other',
     ),
     monthlyMarketingSpend: normalizeNullableString(data.monthlyMarketingSpend),
@@ -991,8 +949,8 @@ function buildStep5Payload(data: Record<string, unknown>) {
     monthlyMarketingBudget: normalizeMoney(data.monthlyMarketingBudget),
     paidAdsShare: normalizeNullableString(data.paidAdsShare),
     marketingHandler: pickAllowedValue(
-      mapWithFallback(data.marketingHandler, MARKETING_HANDLER_TO_V2),
-      MARKETING_HANDLER_VALUES_V2,
+      toCurrentWizardValue('marketingHandler', normalizeString(data.marketingHandler)),
+      MARKETING_HANDLER_VALUES,
     ),
     contentCapacity: pickAllowedValue(
       data.contentCapacity,

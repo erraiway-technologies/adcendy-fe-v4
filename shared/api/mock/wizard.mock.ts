@@ -114,11 +114,12 @@ const mockWizardOptions: WizardOptionsResponseV2 = {
       { value: 'other', label: 'Other' },
     ],
     marketingHandler: [
-      { value: 'founder_led', label: 'Founder led' },
-      { value: 'internal_marketer', label: 'Internal marketer' },
+      { value: 'founder_led', label: 'Founder' },
+      { value: 'in_house_marketer', label: 'One in-house marketer' },
+      { value: 'in_house_team', label: 'In-house team' },
       { value: 'agency', label: 'Agency' },
-      { value: 'in_house_team', label: 'In house team' },
-      { value: 'unknown', label: "Don't know" },
+      { value: 'freelancer', label: 'Freelancer' },
+      { value: 'nobody_yet', label: 'Nobody yet' },
     ],
     contentCapacity: [
       { value: 'none', label: 'None' },
@@ -375,7 +376,7 @@ export const wizardMockAdapter = {
           ],
           socialHandles: step2.socialHandles || [{ platform: 'instagram', handle: '@adcendy' }],
           digitalPresenceLinks: step2.digitalPresenceLinks || [
-            { type: 'linkedin', url: 'https://linkedin.com/company/adcendy', label: 'Company page' },
+            { type: 'other', url: 'https://linkedin.com/company/adcendy', label: 'Company page' },
           ],
         },
         step3: {
@@ -389,8 +390,8 @@ export const wizardMockAdapter = {
           constraints: step4.constraints || ['Lean in-house marketing bandwidth'],
           trustSignals: step4.trustSignals || ['4.8 star Google rating', 'Client logos on website'],
           monthlyMarketingSpend: step4.monthlyMarketingSpend || 'under_5k',
-          primaryGoal: step4.primaryGoal || 'more_customers',
-          marketingHandler: step4.marketingHandler || 'self',
+          primaryGoal: step4.primaryGoal || 'new_customers',
+          marketingHandler: step4.marketingHandler || 'founder_led',
           pastMarketing: step4.pastMarketing || null,
           whatsWorking: step4.whatsWorking || 'Organic Instagram content drives most inbound interest.',
           biggestFrustration: step4.biggestFrustration || 'Leads are inconsistent month to month.',

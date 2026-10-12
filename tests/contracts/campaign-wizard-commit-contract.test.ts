@@ -2,6 +2,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
+import {
+  LEGACY_WIZARD_VALUES,
+  MARKETING_HANDLER_VALUES,
+  PRIMARY_GOAL_VALUES,
+  toCurrentWizardValue,
+} from '../../shared/types/wizard.ts';
 
 const adapterSource = fs.readFileSync(
   path.resolve(process.cwd(), 'shared', 'api', 'real', 'wizard.real.ts'),
@@ -104,12 +110,23 @@ test('a reopened goals step reads the goal and owner as saved', () => {
 
 test('the adapter lets every v3 goal through, and renames the older ones', () => {
   // A goal missing here would be saved as "other" without a word.
-  const allowed = extract(adapterSource, /const PRIMARY_GOAL_VALUES_V2 = \[[\s\S]*?\] as const;/, 'PRIMARY_GOAL_VALUES_V2');
+  // The adapter checks goals and owners against the served values, after
+  // reading an older one as its current value (V3-75).
+  assert.match(step5Builder, /toCurrentWizardValue\('primaryGoal', [\s\S]*?\),\s*PRIMARY_GOAL_VALUES,/);
+  assert.match(step5Builder, /toCurrentWizardValue\('marketingHandler', [\s\S]*?\),\s*MARKETING_HANDLER_VALUES,/);
   for (const goal of ['revenue_growth', 'new_customers', 'leads', 'awareness', 'launch', 'repeat_purchase_retention', 'footfall', 'market_expansion', 'other']) {
-    assert.match(allowed, new RegExp(`'${goal}'`));
+    assert.ok((PRIMARY_GOAL_VALUES as readonly string[]).includes(goal), goal);
   }
-  const renames = extract(adapterSource, /const PRIMARY_GOAL_TO_V2[\s\S]*?\n};/, 'PRIMARY_GOAL_TO_V2');
-  assert.match(renames, /lead_generation: 'leads'/);
-  assert.match(renames, /retention: 'repeat_purchase_retention'/);
-  assert.match(renames, /launch_readiness: 'launch'/);
+  assert.equal(toCurrentWizardValue('primaryGoal', 'lead_generation'), 'leads');
+  assert.equal(toCurrentWizardValue('primaryGoal', 'retention'), 'repeat_purchase_retention');
+  assert.equal(toCurrentWizardValue('primaryGoal', 'launch_readiness'), 'launch');
+  assert.equal(toCurrentWizardValue('primaryGoal', 'more_sales'), 'revenue_growth');
+  assert.equal(toCurrentWizardValue('marketingHandler', 'self'), 'founder_led');
+  // Every older value maps to one the adapter lets through.
+  for (const value of Object.values(LEGACY_WIZARD_VALUES.primaryGoal)) {
+    assert.ok((PRIMARY_GOAL_VALUES as readonly string[]).includes(value), value);
+  }
+  for (const value of Object.values(LEGACY_WIZARD_VALUES.marketingHandler)) {
+    assert.ok((MARKETING_HANDLER_VALUES as readonly string[]).includes(value), value);
+  }
 });

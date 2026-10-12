@@ -95,12 +95,15 @@ export const SALES_CHANNEL_VALUES = [
 
 export type SalesChannel = (typeof SALES_CHANNEL_VALUES)[number];
 
+// The band answer before v3 (the budget amount replaces it), with the one
+// "Don't know" the backend serves; a saved `not_sure` loads as `unknown`.
 export const MONTHLY_MARKETING_SPEND_VALUES = [
   'nothing',
   'under_5k',
   '5k_15k',
   '15k_50k',
   '50k_plus',
+  'unknown',
 ] as const;
 
 export type MonthlyMarketingSpend = (typeof MONTHLY_MARKETING_SPEND_VALUES)[number];
@@ -117,23 +120,31 @@ export const PRIMARY_CONVERSION_PATH_VALUES = [
 
 export type PrimaryConversionPath = (typeof PRIMARY_CONVERSION_PATH_VALUES)[number];
 
+// The v3 goals the backend serves (V3-14). An older goal is read as one of
+// these through LEGACY_WIZARD_VALUES.
 export const PRIMARY_GOAL_VALUES = [
-  'more_sales',
-  'more_customers',
-  'new_market',
-  'launch_product',
-  'reduce_channel_dependence',
-  'brand_awareness',
-  'beat_competitor',
+  'revenue_growth',
+  'new_customers',
+  'leads',
+  'awareness',
+  'launch',
+  'repeat_purchase_retention',
+  'footfall',
+  'market_expansion',
+  'other',
 ] as const;
 
 export type PrimaryGoal = (typeof PRIMARY_GOAL_VALUES)[number];
 
+// Who handles marketing, as the backend serves it (V3-23). An older owner is
+// read as one of these through LEGACY_WIZARD_VALUES.
 export const MARKETING_HANDLER_VALUES = [
-  'self',
-  'team_member',
-  'freelancer_agency',
-  'nobody',
+  'founder_led',
+  'in_house_marketer',
+  'in_house_team',
+  'agency',
+  'freelancer',
+  'nobody_yet',
 ] as const;
 
 export type MarketingHandler = (typeof MARKETING_HANDLER_VALUES)[number];
@@ -243,8 +254,9 @@ export const SOCIAL_PLATFORM_VALUES = [
 
 export type SocialPlatform = (typeof SOCIAL_PLATFORM_VALUES)[number];
 
-// v3 (V3-43): the presence-link types, with the social and older ones kept
-// so a saved link still reads; a new link is offered its market's list.
+// v3 (V3-43): every presence-link type any market serves; a new link is
+// offered its market's list. A link saved under an older type loads as its
+// current one (withCurrentPresenceLinks).
 export const DIGITAL_PRESENCE_LINK_TYPE_VALUES = [
   'amazon',
   'marketplace_listing',
@@ -255,14 +267,6 @@ export const DIGITAL_PRESENCE_LINK_TYPE_VALUES = [
   'practo',
   'app_store',
   'other',
-  'instagram',
-  'facebook',
-  'youtube',
-  'twitter',
-  'linkedin',
-  'flipkart',
-  'whatsapp',
-  'other_marketplace',
 ] as const;
 
 export type DigitalPresenceLinkType = (typeof DIGITAL_PRESENCE_LINK_TYPE_VALUES)[number];
@@ -379,13 +383,16 @@ export function formatMonthlyRevenue(value: MonthlyRevenue | string | null | und
 }
 
 /**
- * Saved answers under a name the backend no longer serves, by field: what
- * the backend saves some answers as (wizard-v2.service.ts maps them on save),
- * and the goal and owner names v3 renamed. The answer is read as its current
- * value before its label is looked up, so a saved campaign reads the same as
- * the dropdown did.
+ * Saved answers under a name the backend no longer serves, by field, keyed by
+ * match key (snake_case, `not_sure` as `unknown`): what the backend saves
+ * some answers as (wizard-v2.service.ts maps them on save), the names v3
+ * renamed, and the v1 goals and owners (V3-77). The backend reads them the
+ * same way (adcendy-be-v4 `src/wizard-v2/wizard-legacy-values-v2.ts`) and
+ * backfills them. A saved answer is read as its current value before its label
+ * is looked up, and before a reopened step loads it, so a saved campaign reads
+ * the same as the dropdown did.
  */
-const SAVED_VALUE_ALIASES: Record<string, Record<string, string>> = {
+export const LEGACY_WIZARD_VALUES: Readonly<Record<string, Readonly<Record<string, string>>>> = {
   marketingTargetType: {
     product_service: 'product_or_service',
   },
@@ -395,14 +402,109 @@ const SAVED_VALUE_ALIASES: Record<string, Record<string, string>> = {
     marketplace_two_sided: 'marketplace_platform',
   },
   primaryGoal: {
+    // v3 renames (V3-14).
     lead_generation: 'leads',
     retention: 'repeat_purchase_retention',
     launch_readiness: 'launch',
+    // v1 goals (V3-77).
+    more_sales: 'revenue_growth',
+    more_customers: 'new_customers',
+    new_market: 'market_expansion',
+    launch_product: 'launch',
+    brand_awareness: 'awareness',
+    beat_competitor: 'new_customers',
+    reduce_channel_dependence: 'other',
   },
   marketingHandler: {
+    // v3 renames (V3-23); `unknown` also matches a saved `not_sure`.
     internal_marketer: 'in_house_marketer',
+    unknown: 'nobody_yet',
+    // v1 owners (V3-77).
+    self: 'founder_led',
+    team_member: 'in_house_marketer',
+    freelancer_agency: 'agency',
+    nobody: 'nobody_yet',
+  },
+  deliveryDeadline: {
+    within_one_month: 'withinThreeMonths',
+  },
+  monthlyWebsiteTraffic: {
+    '50000_plus': '50000_250000',
+  },
+  emailListSize: {
+    '10000_plus': '10000_50000',
+  },
+  presenceLinkTypes: {
+    flipkart: 'marketplace_listing',
+    other_marketplace: 'marketplace_listing',
+    whatsapp: 'other',
   },
 };
+
+/**
+ * A saved answer as its current value: a legacy name read as the value it
+ * became, a not-sure answer as `unknown`, anything else as saved.
+ */
+export function toCurrentWizardValue(field: string, value: string): string {
+  const raw = value.trim();
+  if (!raw) {
+    return raw;
+  }
+  const key = toWizardMatchKey(raw);
+  return LEGACY_WIZARD_VALUES[field]?.[key] ?? (key === 'unknown' ? 'unknown' : raw);
+}
+
+/** Presence-link types that are social profiles, saved before v3 (A7). */
+const SOCIAL_PRESENCE_LINK_TYPES: ReadonlySet<string> = new Set([
+  'instagram',
+  'facebook',
+  'youtube',
+  'twitter',
+  'linkedin',
+]);
+
+/**
+ * Saved presence links and social handles with every link of an older type
+ * read as a current one, as the backend reads them (v3 A7, V3-43): a social
+ * profile becomes that platform's handle, one per platform, and a second link
+ * for a platform that has one stays as an Other link named for it; a
+ * marketplace is a marketplace listing and WhatsApp is Other, each keeping
+ * its name. Nothing the client gave is dropped.
+ */
+export function withCurrentPresenceLinks(
+  links: readonly DigitalPresenceLink[],
+  handles: readonly SocialHandle[],
+  nameOf: (legacyType: string) => string = (legacyType) => legacyType,
+): { digitalPresenceLinks: DigitalPresenceLink[]; socialHandles: SocialHandle[] } {
+  const socialHandles = [...handles];
+  const platforms = new Set(socialHandles.map((entry) => toWizardToken(String(entry.platform ?? ''))));
+  const digitalPresenceLinks: DigitalPresenceLink[] = [];
+  for (const link of links) {
+    const type = toWizardToken(String(link.type ?? ''));
+    const label = link.label?.trim() ? link.label : null;
+    if (SOCIAL_PRESENCE_LINK_TYPES.has(type)) {
+      if (!platforms.has(type)) {
+        socialHandles.push({ platform: type as SocialPlatform, handle: link.url });
+        platforms.add(type);
+      } else {
+        digitalPresenceLinks.push({ ...link, type: 'other', label: label ?? nameOf(type) });
+      }
+      continue;
+    }
+    const renamed = LEGACY_WIZARD_VALUES.presenceLinkTypes[type];
+    if (renamed) {
+      digitalPresenceLinks.push({
+        ...link,
+        type: renamed as DigitalPresenceLinkType,
+        // "Another marketplace" names nothing a listing does not.
+        label: label ?? (type === 'other_marketplace' ? link.label : nameOf(type)),
+      });
+      continue;
+    }
+    digitalPresenceLinks.push(link);
+  }
+  return { digitalPresenceLinks, socialHandles };
+}
 
 /** The fields whose lists are a market's own (v3 V3-43), under `marketLists`. */
 const MARKET_LIST_FIELDS = ['salesChannels', 'socialPlatforms', 'presenceLinkTypes', 'peakSeasons'] as const;
@@ -481,13 +583,17 @@ export function createWizardOptionLabels(
     if (!raw) {
       return null;
     }
-    const key = toWizardMatchKey(SAVED_VALUE_ALIASES[field]?.[toWizardMatchKey(raw)] ?? raw);
+    const key = toWizardMatchKey(LEGACY_WIZARD_VALUES[field]?.[toWizardMatchKey(raw)] ?? raw);
     if (isMarketListField(field)) {
       for (const code of marketOrder(market)) {
         const found = marketIndexes.get(code)?.get(field)?.get(key);
         if (found) return found;
       }
-      return null;
+      // A social profile saved as a presence link (before v3 A7) is named
+      // by its platform.
+      return field === 'presenceLinkTypes' && SOCIAL_PRESENCE_LINK_TYPES.has(key)
+        ? find('socialPlatforms', key, market)
+        : null;
     }
     return fieldIndexes.get(field)?.get(key) ?? null;
   };

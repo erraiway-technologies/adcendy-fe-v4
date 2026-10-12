@@ -107,8 +107,11 @@ import {
   type WizardDerivedMetrics,
   CLOSE_RATE_BAND_OPTIONS,
   GROSS_MARGIN_BAND_OPTIONS,
+  MONTHLY_MARKETING_SPEND_VALUES,
   normalizeCreativeCapabilities,
+  toCurrentWizardValue,
   toggleCreativeCapability,
+  withCurrentPresenceLinks,
 } from '@/shared/types/wizard';
 
 type WizardModalStep = 1 | 2 | 3 | 4 | 5 | 6 | 7;
@@ -2626,8 +2629,19 @@ export function CampaignWizardModal({
     const savedData = (step2Data?.data ?? {}) as Record<string, unknown>;
     const legacyStep1Data = (step1Data?.data ?? {}) as Record<string, unknown>;
     const savedChannelsData = (step4Data?.data ?? {}) as Record<string, unknown>;
-    const nextSocialHandles = coerceSocialHandles(savedChannelsData.socialHandles);
-    const nextDigitalPresenceLinks = coerceDigitalPresenceLinks(savedChannelsData.digitalPresenceLinks);
+    // A link saved under an older type loads as its current one (v3 A7,
+    // V3-75): a social profile as that platform's handle.
+    const {
+      socialHandles: nextSocialHandles,
+      digitalPresenceLinks: nextDigitalPresenceLinks,
+    } = withCurrentPresenceLinks(
+      coerceDigitalPresenceLinks(savedChannelsData.digitalPresenceLinks),
+      coerceSocialHandles(savedChannelsData.socialHandles),
+      (legacyType) =>
+        optionLabels.find('socialPlatforms', legacyType) ??
+        optionLabels.find('salesChannels', legacyType) ??
+        legacyType,
+    );
     const industryCategoryCandidate =
       normalizeString(savedData.industryCategory as string | undefined) ||
       normalizeString(savedData.businessType as string | undefined) ||
@@ -2726,6 +2740,7 @@ export function CampaignWizardModal({
     industryCategoryOptions,
     lifecycleStageOptions,
     open,
+    optionLabels,
     primaryConversionPathOptions,
     step,
     step1Data,
@@ -2782,14 +2797,23 @@ export function CampaignWizardModal({
       normalizeStringOptionValue(savedAudienceData.language, languageOptions) ||
       getDefaultStringOptionValue(languageOptions);
     const normalizedReportLanguage = normalizeStringOptionValue(savedAudienceData.reportLanguage, reportLanguageOptions);
+    // A goal, owner or band saved under an older name loads as its current
+    // value (V3-75, V3-77), so it matches an option instead of loading blank.
+    const current = (field: string, value: unknown) =>
+      typeof value === 'string' ? toCurrentWizardValue(field, value) : value;
     const normalizedPrimaryGoal =
-      normalizeStringOptionValue(savedGoalsData.primaryGoal, primaryGoalOptions) ||
-      normalizeStringOptionValue(legacyStep2Data.primaryGoal, primaryGoalOptions) ||
+      normalizeStringOptionValue(current('primaryGoal', savedGoalsData.primaryGoal), primaryGoalOptions) ||
+      normalizeStringOptionValue(current('primaryGoal', legacyStep2Data.primaryGoal), primaryGoalOptions) ||
       '';
     const normalizedMarketingHandler =
-      normalizeStringOptionValue(savedGoalsData.marketingHandler, marketingHandlerOptions) ||
-      normalizeStringOptionValue(legacyStep2Data.marketingHandler, marketingHandlerOptions) ||
+      normalizeStringOptionValue(current('marketingHandler', savedGoalsData.marketingHandler), marketingHandlerOptions) ||
+      normalizeStringOptionValue(current('marketingHandler', legacyStep2Data.marketingHandler), marketingHandlerOptions) ||
       '';
+    const savedMonthlyMarketingSpend = [savedGoalsData.monthlyMarketingSpend, legacyStep2Data.monthlyMarketingSpend]
+      .map((value) => current('monthlyMarketingSpend', value))
+      .find((value): value is Step3FormData['monthlyMarketingSpend'] & string =>
+        (MONTHLY_MARKETING_SPEND_VALUES as readonly unknown[]).includes(value),
+      );
     const normalizedContentCapacity =
       normalizeStringOptionValue(savedGoalsData.contentCapacity, contentCapacityOptions) || '';
     const normalizedKnownCompetitors = normalizeListItems(savedGoalsData.knownCompetitors as string[] | undefined);
@@ -2821,10 +2845,9 @@ export function CampaignWizardModal({
           ...normalizeListItems(savedGoalsData.executionConstraints as string[] | undefined),
         ]),
       ),
-      monthlyMarketingSpend:
-        (savedGoalsData.monthlyMarketingSpend as Step3FormData['monthlyMarketingSpend']) ||
-        (legacyStep2Data.monthlyMarketingSpend as Step3FormData['monthlyMarketingSpend']) ||
-        undefined as never,
+      // A saved band the list no longer holds loads unanswered rather than
+      // failing the step's validation.
+      monthlyMarketingSpend: savedMonthlyMarketingSpend,
       // A draft from before the dropdown may hold free text here. It loads
       // unselected so the client picks a band, rather than being mapped to one
       // on their behalf - and never from the monthly spend, which is the whole
@@ -5335,7 +5358,7 @@ export function CampaignWizardModal({
                         variant="outline"
                         size="sm"
                         className="rounded-xl border-border/80 bg-card/95"
-                        onClick={() => appendDigitalPresence({ type: 'instagram', url: '', label: '' })}
+                        onClick={() => appendDigitalPresence({ type: 'other', url: '', label: '' })}
                       >
                         <Plus className="mr-2 h-4 w-4" />
                         Add link
