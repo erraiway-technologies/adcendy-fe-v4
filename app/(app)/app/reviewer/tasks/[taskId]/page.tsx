@@ -52,6 +52,12 @@ import {
   readProductNounModel,
   type ProductNounAnswer,
 } from '@/shared/components/ops/productNounConfirmation';
+import { SearchNoisePicker } from '@/shared/components/ops/SearchNoisePicker';
+import {
+  isSearchNoiseTask,
+  readSearchNoiseModel,
+  type SearchNoiseAnswer,
+} from '@/shared/components/ops/searchNoiseReview';
 
 const OUTPUT_CONSTRAINT_MODE = 'output_constraint_violation';
 const FIELD_LABELS: Record<string, string> = {
@@ -1265,6 +1271,30 @@ export default function ReviewerTaskDetailPage() {
   const productNounModel =
     task && isProductNounTask(task.failureMode) ? readProductNounModel(task) : null;
 
+  // The search-noise question (V3-66): the competitors the run holds beside the
+  // domains left out as noise, answered by marking or adding competitors. It
+  // replaces the JSON box, which offered an empty object and a schema example.
+  const searchNoiseModel = task && isSearchNoiseTask(task.failureMode) ? readSearchNoiseModel(task) : null;
+
+  const handleSearchNoiseSubmit = async (answer: SearchNoiseAnswer) => {
+    try {
+      const result = await respondMutation.mutateAsync({ answer });
+      setLastActionResult(result);
+      toast({
+        title: 'Competitor set submitted',
+        description: result.resumeOutcome ? `Resume outcome: ${result.resumeOutcome}` : 'Task response accepted.',
+      });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.opsV2.all });
+      router.replace('/app/reviewer/strategy-reviews');
+    } catch (error) {
+      toast({
+        title: 'Unable to submit the competitor set',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleProductNounSubmit = async (answer: ProductNounAnswer) => {
     try {
       const result = await respondMutation.mutateAsync({ answer });
@@ -1730,7 +1760,7 @@ export default function ReviewerTaskDetailPage() {
                       <p className="text-sm font-semibold text-foreground">Reviewer Actions</p>
                       <p className="text-xs text-muted-foreground">Resolve blocker then open review assignment.</p>
                     </div>
-                    {!isBlockerSnapshotTask ? (
+                    {!isBlockerSnapshotTask && !searchNoiseModel ? (
                       <ActionButton
                         label="Submit Reviewer Response"
                         tooltip="Submit your answer to unblock the pipeline and resume from the right phase."
@@ -1896,8 +1926,14 @@ export default function ReviewerTaskDetailPage() {
                   </div>
                 </div>
 
-                <div className={cn('grid gap-5', isBlockerSnapshotTask ? 'xl:grid-cols-1' : 'xl:grid-cols-2')}>
-                  {!isBlockerSnapshotTask ? (
+                <div
+                  className={cn(
+                    'grid gap-5',
+                    isBlockerSnapshotTask || searchNoiseModel ? 'xl:grid-cols-1' : 'xl:grid-cols-2',
+                  )}
+                >
+                  {/* The search-noise question is answered with its picker below. */}
+                  {!isBlockerSnapshotTask && !searchNoiseModel ? (
                     <div className="space-y-3 rounded-xl border border-border bg-background/30 p-4">
                       <div className="space-y-1">
                         <Label htmlFor="admin-blocker-answer-json">Blocker Response Payload</Label>
@@ -1970,6 +2006,16 @@ export default function ReviewerTaskDetailPage() {
               readOnly={!isAnswerableTaskStatus(task.status)}
               pending={respondMutation.isPending}
               onSubmit={(answer) => void handleProductNounSubmit(answer)}
+            />
+          ) : null}
+
+          {searchNoiseModel ? (
+            <SearchNoisePicker
+              key={task.id}
+              model={searchNoiseModel}
+              readOnly={!isAnswerableTaskStatus(task.status)}
+              pending={respondMutation.isPending}
+              onSubmit={(answer) => void handleSearchNoiseSubmit(answer)}
             />
           ) : null}
 
