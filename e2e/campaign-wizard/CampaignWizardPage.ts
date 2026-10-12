@@ -3,220 +3,16 @@ import path from 'node:path';
 import { expect, type Locator, type Page, type Response } from '@playwright/test';
 import type { CampaignExecutionReport, CampaignFixture } from './campaign-types';
 import { formatMoney } from '../../shared/types/money';
+import { createWizardE2eOptionLabels, type WizardE2eOptionLabels } from './wizard-options';
 
-// The wizard asks for one country by name, and says where the client sells
-// inside it in words that name that country. Any ISO country (v3 P4): the
-// backend's names are the platform's English region names, as these are.
-const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
-const countryLabel = (code: string) => regionNames.of(code) ?? code;
-
-const marketScopeLabel = (scope: string, countryCode: string) =>
+// Where inside the one country the client sells: the wizard writes these
+// itself (they are not in the options response), naming the served country.
+const marketScopeLabel = (scope: string, countryName: string) =>
   scope === 'national'
-    ? `National — across ${countryLabel(countryCode)}`
+    ? `National — across ${countryName}`
     : 'Regional — specific cities or states';
 
-const STATIC_OPTION_LABELS: Record<string, string> = {
-  under_10k: 'Under INR 10,000',
-  from_10k_to_50k: 'INR 10,000 to INR 50,000',
-  from_50k_to_2l: 'INR 50,000 to INR 2 lakh',
-  from_2l_to_10l: 'INR 2 lakh to INR 10 lakh',
-  from_10l_to_50l: 'INR 10 lakh to INR 50 lakh',
-  above_50l: 'Above INR 50 lakh',
-  under_20_percent: 'Under 20%',
-  from_20_to_40_percent: '20% to 40%',
-  from_40_to_60_percent: '40% to 60%',
-  from_60_to_80_percent: '60% to 80%',
-  above_80_percent: 'Above 80%',
-  under_5_percent: 'Under 5%',
-  from_5_to_15_percent: '5% to 15%',
-  from_15_to_30_percent: '15% to 30%',
-  from_30_to_50_percent: '30% to 50%',
-  above_50_percent: 'Above 50%',
-  not_tracked: 'We do not track this yet',
-  nothing: "I don't spend anything",
-  under_5k: 'Under INR 5,000',
-  '5k_15k': 'INR 5,000 to INR 15,000',
-  '15k_50k': 'INR 15,000 to INR 50,000',
-  '50k_plus': 'Above INR 50,000',
-  not_sure: "Don't know",
-  notSure: "Don't know",
-  underFive: 'Under 5 hours',
-  fiveToTen: '5–10 hours',
-  tenToTwenty: '10–20 hours',
-  twentyToForty: '20–40 hours',
-  fortyPlus: '40+ hours (full-time or more)',
-  withinOneMonth: 'Within 1 month',
-  withinThreeMonths: 'Within 3 months',
-  withinSixMonths: 'Within 6 months',
-  withinTwelveMonths: 'Within 12 months',
-  longerThanTwelveMonths: 'Longer than 12 months',
-  noFixedDeadline: 'No fixed deadline',
-  firstOrder: 'On the first order',
-  // Website traffic (V3-65).
-  under_500: 'Under 500',
-  '500_2000': '500–2,000',
-  '2000_10000': '2,000–10,000',
-  '10000_50000': '10,000–50,000',
-  '50000_250000': '50,000–250,000',
-  '250000_1000000': '250,000–1M',
-  '1000000_plus': 'Over 1M',
-  one_time_buyers: 'Mostly one-time buyers',
-  some_repeat: 'Some customers come back',
-  mostly_repeat: 'Many customers come back',
-  subscription: 'Subscription-based',
-  never: 'Rarely or never',
-  twitter: 'X (Twitter)',
-  about_same: 'About the same',
-  even: 'About even',
-  marketplace_listing: 'Marketplace listing',
-  true: 'Connected',
-  false: 'Not connected',
-  unknown: "Don't know",
-  // The backend's written labels (wizard seed 1.1.0) where the label is not
-  // the value read as words.
-  single_sided: 'One audience',
-  b2b2c: 'Business + end customer (B2B2C)',
-  marketplace_platform: 'Marketplace / two-sided platform',
-  regional_other: 'Regional language (other)',
-  book_call: 'Book a call',
-  book_demo: 'Book a demo',
-  b2b_security_compliance: 'B2B security and compliance',
-  alcohol_tobacco_restricted: 'Alcohol, tobacco and restricted goods',
-  healthcare_wellness: 'Healthcare and wellness',
-  children_minors: 'Children & minors',
-  gambling_rmg: 'Gambling & real-money gaming',
-  own_channel: 'Own website or store',
-  partners: 'Through partners or distributors',
-  mix: 'A mix',
-  lead_form: 'Lead form or enquiry',
-  whatsapp: 'WhatsApp chat',
-  retail_visit: 'Visit a store',
-  app_signup: 'App sign-up',
-  in_house_marketer: 'One in-house marketer',
-  nobody_yet: 'Nobody yet',
-  founder_led: 'Founder',
-  INR: 'Indian rupee (INR)',
-  USD: 'US dollar (USD)',
-  GBP: 'British pound (GBP)',
-  under_quarter: 'Under a quarter',
-  about_half: 'About half',
-  most: 'Most of it',
-  all: 'All of it',
-};
-
-// Values the market lists name by where they appear (v3 P5): "Another
-// marketplace" in India, "A marketplace" on the global list; a Google
-// Business sales channel, a Google Business profile link.
-const MARKET_OPTION_LABELS: Record<string, string[]> = {
-  other_marketplace: ['Another marketplace', 'A marketplace'],
-  google_business: ['Google Business', 'Google Business profile'],
-};
-
-// v3 (V3-40): the industries, searched by their names.
-const INDUSTRY_LABELS: Record<string, string> = {
-  local_retail: 'Local retail',
-  ecommerce_d2c: 'E-commerce & D2C brands',
-  beauty_personal_care: 'Beauty & personal care',
-  fashion_apparel: 'Fashion & apparel',
-  food_beverage_brands: 'Food & beverage brands',
-  restaurants_cafes: 'Restaurants & cafes',
-  healthcare_clinics: 'Healthcare & clinics',
-  wellness_fitness: 'Wellness & fitness',
-  education_edtech: 'Education & EdTech',
-  real_estate: 'Real estate',
-  financial_services_fintech: 'Financial services & fintech',
-  saas_digital: 'SaaS & digital',
-  professional_services: 'Professional services',
-  coaching_consulting: 'Coaching & consulting',
-  travel_hospitality: 'Travel & hospitality',
-  home_services: 'Home services',
-  manufacturing_b2b: 'Manufacturing & B2B',
-  other: 'Other',
-};
-
-// v3 (A3): content capacity by what it means.
-const CONTENT_CAPACITY_OPTION_LABELS: Record<string, string> = {
-  none: 'Nothing yet',
-  low: 'A post or two a week',
-  medium: 'Several a week',
-  high: 'Daily with a team',
-  unknown: "Don't know",
-};
-
-const EMAIL_LIST_OPTION_LABELS: Record<string, string> = {
-  none: 'No email list',
-  under_500: 'Under 500',
-  '500_2000': '500–2,000',
-  '2000_10000': '2,000–10,000',
-  '10000_50000': '10,000–50,000',
-  '50000_250000': '50,000–250,000',
-  '250000_plus': 'Over 250,000',
-};
-
-const WHATSAPP_LIST_OPTION_LABELS: Record<string, string> = {
-  none: 'No WhatsApp list',
-  under_500: 'Under 500 contacts',
-  '500_2000': '500 to 2,000 contacts',
-  '2000_10000': '2,000 to 10,000 contacts',
-  '10000_plus': 'Above 10,000 contacts',
-  unknown: "Don't know",
-};
-
-// v3 P6: the labels the review shows for the newer answers.
-const SHARE_BAND_LABELS: Record<string, string> = {
-  under_10: 'Under 10%',
-  '10_30': '10–30%',
-  '30_60': '30–60%',
-  over_60: 'Over 60%',
-};
-
-const PRICE_POSITION_LABELS: Record<string, string> = {
-  cheaper: 'Cheaper',
-  about_same: 'About the same',
-  premium: 'Premium',
-  unknown: "Don't know",
-};
-
-const AGE_RANGE_LABELS: Record<string, string> = {
-  under_18: 'Under 18',
-  '18_24': '18–24',
-  '25_34': '25–34',
-  '35_44': '35–44',
-  '45_54': '45–54',
-  '55_plus': '55+',
-};
-
-const GENDER_SKEW_LABELS: Record<string, string> = {
-  mostly_women: 'Mostly women',
-  mostly_men: 'Mostly men',
-  even: 'About even',
-  unknown: "Don't know",
-};
-
-const EXISTING_ASSET_LABELS: Record<string, string> = {
-  creators: 'Creators or influencers',
-  community: 'Community or group',
-  email_automation: 'Email automation',
-  referral_programme: 'Referral programme',
-  loyalty_programme: 'Loyalty programme',
-  none: 'None',
-};
-
-// Every market's peak seasons (the backend's market lists).
-const PEAK_SEASON_LABELS: Record<string, string> = {
-  diwali: 'Diwali',
-  wedding_season: 'Wedding season',
-  new_year: 'New Year',
-  summer: 'Summer',
-  monsoon: 'Monsoon',
-  back_to_school: 'Back to school',
-  year_end_sales: 'Year-end sales',
-  black_friday: 'Black Friday',
-  christmas: 'Christmas',
-  valentines: "Valentine's Day",
-  year_end_holidays: 'Year-end holidays',
-  none: 'None',
-};
+const WIZARD_OPTIONS_PATH = '/api/v2/wizard/options';
 
 function normalizeToken(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -234,11 +30,63 @@ function isMutation(response: Response, method: string, pathname: string) {
 }
 
 export class CampaignWizardPage {
+  private optionsResponse: Response | null = null;
+  private optionLabels: WizardE2eOptionLabels | null = null;
+  /** The campaign's market: its market lists are the ones the wizard offers. */
+  private market: string;
+
   constructor(
     private readonly page: Page,
     private readonly fixture: CampaignFixture,
     readonly report: CampaignExecutionReport,
-  ) {}
+  ) {
+    this.market = fixture.wizard.step1.targetMarkets[0] ?? '';
+    // V3-76: option labels come from the options response the wizard itself
+    // loads, so a label changed in the backend seed is followed. Listening
+    // from the start catches it however early the page asks.
+    page.on('response', (response) => {
+      if (
+        response.request().method() === 'GET' &&
+        responsePath(response) === WIZARD_OPTIONS_PATH &&
+        response.ok()
+      ) {
+        this.optionsResponse = response;
+        this.optionLabels = null;
+      }
+    });
+  }
+
+  /** The served option labels, read from the wizard's own options response. */
+  private async labels(): Promise<WizardE2eOptionLabels> {
+    if (this.optionLabels) {
+      return this.optionLabels;
+    }
+    const response =
+      this.optionsResponse ??
+      (await this.page.waitForResponse(
+        (candidate) =>
+          candidate.request().method() === 'GET' &&
+          responsePath(candidate) === WIZARD_OPTIONS_PATH &&
+          candidate.ok(),
+      ));
+    this.optionLabels = createWizardE2eOptionLabels(await response.json());
+    return this.optionLabels;
+  }
+
+  /** The label the wizard offers `value` under at `fieldPath`; throws when it offers none. */
+  private async optionLabel(fieldPath: string, value: string) {
+    const label = (await this.labels()).optionLabel(fieldPath, value, this.market);
+    if (!label) {
+      throw new Error(
+        `Unsupported select value "${value}" for ${fieldPath}: GET ${WIZARD_OPTIONS_PATH} serves no option for it`,
+      );
+    }
+    return label;
+  }
+
+  private async countryName(code: string) {
+    return (await this.labels()).country(code);
+  }
 
   private field(fieldPath: string) {
     return this.page.getByTestId(`campaign-wizard-${fieldPath}`);
@@ -292,69 +140,53 @@ export class CampaignWizardPage {
   }
 
   /**
-   * A searchable picker (country, currency; v3 P4): types the name or code,
-   * then picks the option named so, or the one carrying the code - "Kenyan
-   * Shilling (KES)" for KES.
+   * The option named `label` among those shown: the one that reads exactly
+   * so, else the one that starts with it (an option with a hint reads its
+   * label, then the hint).
    */
-  private async chooseSearchable(fieldPath: string, query: string) {
-    const trigger = this.field(fieldPath);
-    await expect(trigger, `Picker ${fieldPath} should be visible`).toBeVisible();
-    await trigger.click();
-    await this.page.getByTestId(`campaign-wizard-${fieldPath}-search`).fill(query);
-    const desiredLabel = STATIC_OPTION_LABELS[query];
+  private async findOption(fieldPath: string, value: string, label: string) {
     const options = this.page.getByRole('option');
     await expect(options.first()).toBeVisible();
     const texts = (await options.allTextContents()).map((text) => text.trim());
-    // An option with a hint reads its label first, then the hint.
-    const index = texts.findIndex(
-      (text) =>
-        text === desiredLabel ||
-        text === query ||
-        (text.startsWith(query) && /^[A-Z]/.test(query)) ||
-        normalizeToken(text) === normalizeToken(query) ||
-        text.endsWith(`(${query})`),
-    );
-    expect(index, `${fieldPath} should offer ${query}; offered: ${texts.join(', ')}`).toBeGreaterThanOrEqual(0);
-    const text = texts[index];
-    await options.nth(index).click();
-    await expect(trigger).toContainText(desiredLabel ?? (text.startsWith(query) ? query : text));
+    let index = texts.indexOf(label);
+    if (index < 0) {
+      index = texts.findIndex((text) => text.startsWith(label));
+    }
+    if (index < 0) {
+      await this.page.keyboard.press('Escape');
+      throw new Error(
+        `Unsupported select value "${value}" (${label}) for ${fieldPath}. Available options: ${texts.filter(Boolean).join(', ')}`,
+      );
+    }
+    return options.nth(index);
   }
 
-  private async chooseSelect(fieldPath: string, desiredValue: string) {
+  /**
+   * A searchable picker (country, currency, industry; v3 P4): searches for
+   * the value's served label and picks the option named so.
+   */
+  private async chooseSearchable(fieldPath: string, value: string) {
+    const label = await this.optionLabel(fieldPath, value);
+    const trigger = this.field(fieldPath);
+    await expect(trigger, `Picker ${fieldPath} should be visible`).toBeVisible();
+    await trigger.click();
+    await this.page.getByTestId(`campaign-wizard-${fieldPath}-search`).fill(label);
+    await (await this.findOption(fieldPath, value, label)).click();
+    await expect(trigger).toContainText(label);
+  }
+
+  /** A select whose options the wizard writes itself, picked by that text. */
+  private async chooseSelectByLabel(fieldPath: string, label: string) {
     const trigger = this.field(fieldPath);
     await expect(trigger, `Select ${fieldPath} should be visible`).toBeVisible();
     await trigger.click();
-    const options = this.page.getByRole('option');
-    await expect(options.first()).toBeVisible();
-    const desiredLabel =
-      fieldPath === 'emailListSize'
-        ? EMAIL_LIST_OPTION_LABELS[desiredValue]
-        : fieldPath === 'whatsappListSize'
-          ? WHATSAPP_LIST_OPTION_LABELS[desiredValue]
-          : fieldPath === 'contentCapacity'
-            ? CONTENT_CAPACITY_OPTION_LABELS[desiredValue]
-            : STATIC_OPTION_LABELS[desiredValue];
-    const count = await options.count();
-    for (let index = 0; index < count; index += 1) {
-      const option = options.nth(index);
-      const text = (await option.textContent())?.trim() ?? '';
-      if (
-        (desiredLabel && text === desiredLabel) ||
-        MARKET_OPTION_LABELS[desiredValue]?.includes(text) ||
-        normalizeToken(text) === normalizeToken(desiredValue)
-      ) {
-        await option.click();
-        await expect(trigger).toContainText(text);
-        return;
-      }
-    }
-    const availableOptions = (await options.allTextContents())
-      .map((option) => option.trim())
-      .filter(Boolean);
-    await this.page.keyboard.press('Escape');
-    throw new Error(
-      `Unsupported select value "${desiredValue}" for ${fieldPath}. Available options: ${availableOptions.join(', ')}`,
-    );
+    await (await this.findOption(fieldPath, label, label)).click();
+    await expect(trigger).toContainText(label);
+  }
+
+  /** A select, picked by the label the options response serves for `desiredValue`. */
+  private async chooseSelect(fieldPath: string, desiredValue: string) {
+    await this.chooseSelectByLabel(fieldPath, await this.optionLabel(fieldPath, desiredValue));
   }
 
   private async chooseSensitiveFlag(desiredValue: string) {
@@ -438,11 +270,11 @@ export class CampaignWizardPage {
     await this.chooseCard('marketingTargetType', step.marketingTargetType);
     await this.fill('focusName', step.focusName);
     const countryCode = step.targetMarkets[0] ?? '';
-    await this.chooseSearchable('targetMarkets', countryLabel(countryCode));
+    await this.chooseSearchable('targetMarkets', countryCode);
     await this.chooseSearchable('currency', step.currency);
     // "local" fixtures target the same question as regional.
     const marketScope = step.marketScope === 'local' ? 'regional' : step.marketScope;
-    await this.chooseSelect('marketScope', marketScopeLabel(marketScope, countryCode));
+    await this.chooseSelectByLabel('marketScope', marketScopeLabel(marketScope, await this.countryName(countryCode)));
     if (marketScope === 'regional') {
       await this.addTags('operationalLocations', step.operationalLocations);
     }
@@ -483,7 +315,7 @@ export class CampaignWizardPage {
     // before then is overwritten.
     await this.page.waitForLoadState('networkidle');
     await this.fill('businessName', step.businessName);
-    await this.chooseSearchable('industryCategory', INDUSTRY_LABELS[step.industryCategory] ?? step.industryCategory);
+    await this.chooseSearchable('industryCategory', step.industryCategory);
     await this.chooseSelect('sellsTo', step.sellsTo);
     await this.chooseSelect('sellsVia', step.sellsVia);
     await this.chooseSelect('audienceModel', step.audienceModel);
@@ -743,13 +575,14 @@ export class CampaignWizardPage {
 
   async validateReview() {
     const { step1, step2, step3, step5, step6 } = this.fixture.wizard;
+    const labels = await this.labels();
     // Amounts read as the review shows them: "£2,500", "₹15,00,000".
     const money = (amount: number | undefined) =>
       amount === undefined ? undefined : (formatMoney({ amount, currency: step1.currency }) ?? undefined);
     await this.assertReviewContains(this.reviewSection('Focus'), [
       step1.title,
       step1.focusName,
-      ...step1.targetMarkets.map((code) => countryLabel(code)),
+      ...step1.targetMarkets.map((code) => labels.country(code)),
     ]);
     await this.assertReviewContains(this.reviewSection('Business'), [
       step2.businessName,
@@ -763,21 +596,14 @@ export class CampaignWizardPage {
       ...step3.painPoints,
       step3.desiredOutcome,
     ]);
-    // The review shows option answers by their labels, not their values.
-    const optionLabel = (value: string) => STATIC_OPTION_LABELS[value] ?? value;
-    const creativeCapabilityLabels: Record<string, string> = {
-      video: 'Video',
-      photography: 'Photography',
-      copywriting: 'Copywriting',
-      design: 'Design',
-      none: 'None of these',
-    };
+    // The review shows option answers by their served labels, not their values.
+    const optionLabel = (field: string, value: string) => labels.reviewLabel(field, value, this.market);
     await this.assertReviewContains(this.reviewSection('Goals & Context'), [
       money(step5.monthlyMarketingBudget),
-      optionLabel(step5.paidAdsShare),
-      optionLabel(step5.marketingHoursPerWeek),
-      ...step5.creativeCapabilities.map((value) => creativeCapabilityLabels[value] ?? value),
-      optionLabel(step5.deliveryDeadline),
+      optionLabel('paidAdsShare', step5.paidAdsShare),
+      optionLabel('marketingHoursPerWeek', step5.marketingHoursPerWeek),
+      ...step5.creativeCapabilities.map((value) => optionLabel('creativeCapabilities', value)),
+      optionLabel('deliveryDeadline', step5.deliveryDeadline),
       step5.salesCapacity,
       ...(step5.knownCompetitors ?? []),
     ]);
@@ -791,13 +617,16 @@ export class CampaignWizardPage {
       money(step6.averageOrderValueAmount),
       money(step6.typicalDealValue),
       money(step6.monthlyRevenueAmount),
-      optionLabel(step6.paybackWindow),
+      optionLabel('paybackWindow', step6.paybackWindow),
     ]);
-    await this.validateNewAnswersOnReview(money);
+    await this.validateNewAnswersOnReview(money, optionLabel);
   }
 
   /** v3 P6: each newer answer the fixture gives is on the review, under its label. */
-  private async validateNewAnswersOnReview(money: (amount: number | undefined) => string | undefined) {
+  private async validateNewAnswersOnReview(
+    money: (amount: number | undefined) => string | undefined,
+    optionLabel: (field: string, value: string) => string,
+  ) {
     const { step1, step2, step3, step4, step5, step6 } = this.fixture.wizard;
     const business = this.reviewSection('Business');
     const audience = this.reviewSection('Audience');
@@ -805,26 +634,26 @@ export class CampaignWizardPage {
     const economics = this.reviewSection('Economics');
 
     if (step2.pricePosition) {
-      await this.assertReviewField(business, 'Price position', PRICE_POSITION_LABELS[step2.pricePosition]);
+      await this.assertReviewField(business, 'Price position', optionLabel('pricePosition', step2.pricePosition));
     }
     for (const channel of step4.salesChannels) {
       if (channel.salesShare) {
-        await this.assertReviewField(business, 'Sales channels', `(${SHARE_BAND_LABELS[channel.salesShare]} of sales)`);
+        await this.assertReviewField(business, 'Sales channels', `(${optionLabel('salesShare', channel.salesShare)} of sales)`);
       }
     }
     if (step2.sellsTo !== 'businesses') {
       for (const ageRange of step3.ageRanges ?? []) {
-        await this.assertReviewField(audience, 'Age groups', AGE_RANGE_LABELS[ageRange]);
+        await this.assertReviewField(audience, 'Age groups', optionLabel('ageRanges', ageRange));
       }
       if (step3.genderSkew) {
-        await this.assertReviewField(audience, 'Who buys more', GENDER_SKEW_LABELS[step3.genderSkew]);
+        await this.assertReviewField(audience, 'Who buys more', optionLabel('genderSkew', step3.genderSkew));
       }
     }
     for (const trigger of step3.buyingTriggers ?? []) {
       await this.assertReviewField(audience, 'Buying triggers', trigger);
     }
     for (const season of step5.peakSeasons ?? []) {
-      await this.assertReviewField(goals, 'Peak seasons', PEAK_SEASON_LABELS[season] ?? season);
+      await this.assertReviewField(goals, 'Peak seasons', optionLabel('peakSeasons', season));
     }
     for (const offer of step5.currentOffers ?? []) {
       await this.assertReviewField(goals, 'Offers running now', offer);
@@ -839,7 +668,7 @@ export class CampaignWizardPage {
         await this.assertReviewField(
           goals,
           'Current marketing activity',
-          `${SHARE_BAND_LABELS[activity.shareOfSpend]} of spend`,
+          `${optionLabel('shareOfSpend', activity.shareOfSpend)} of spend`,
         );
       }
     }
@@ -849,14 +678,14 @@ export class CampaignWizardPage {
         await this.assertReviewField(
           economics,
           'WhatsApp list size',
-          WHATSAPP_LIST_OPTION_LABELS[step4.whatsappListSize],
+          optionLabel('whatsappListSize', step4.whatsappListSize),
         );
       }
     } else {
       await expect(economics.getByText('WhatsApp list size', { exact: true })).toHaveCount(0);
     }
     for (const asset of step4.existingAssets ?? []) {
-      await this.assertReviewField(economics, 'Already running', EXISTING_ASSET_LABELS[asset]);
+      await this.assertReviewField(economics, 'Already running', optionLabel('existingAssets', asset));
     }
     const acquisitionCost = money(step6.customerAcquisitionCost);
     if (acquisitionCost) {
@@ -882,20 +711,22 @@ export class CampaignWizardPage {
    * their numbers. Saves step 1 with the new answers.
    */
   async changeCountryAndCurrency(countryCode: string, currency: string) {
-    const savedCountry = countryLabel(this.fixture.wizard.step1.targetMarkets[0] ?? '');
-    const nextCountry = countryLabel(countryCode);
+    const savedCode = this.fixture.wizard.step1.targetMarkets[0] ?? '';
+    const savedCountry = await this.countryName(savedCode);
+    const nextCountry = await this.countryName(countryCode);
     await this.page.getByRole('button', { name: 'Back', exact: true }).click();
     await this.assertStep(1);
     const countryNotice = this.page.getByTestId('wizard-country-change-notice');
     await expect(countryNotice).toHaveCount(0);
 
-    await this.chooseSearchable('targetMarkets', nextCountry);
+    await this.chooseSearchable('targetMarkets', countryCode);
     await expect(countryNotice).toContainText(`You changed the country from ${savedCountry} to ${nextCountry}.`);
     // Back to the saved country, no notice; then the new one again.
-    await this.chooseSearchable('targetMarkets', savedCountry);
+    await this.chooseSearchable('targetMarkets', savedCode);
     await expect(countryNotice).toHaveCount(0);
-    await this.chooseSearchable('targetMarkets', nextCountry);
+    await this.chooseSearchable('targetMarkets', countryCode);
     await expect(countryNotice).toBeVisible();
+    this.market = countryCode;
 
     await this.chooseSearchable('currency', currency);
     await expect(this.page.getByTestId('wizard-currency-change-notice')).toHaveText(
@@ -903,7 +734,7 @@ export class CampaignWizardPage {
     );
     // A national scope names the country, so it is picked again for the new one.
     if (this.fixture.wizard.step1.marketScope === 'national') {
-      await this.chooseSelect('marketScope', marketScopeLabel('national', countryCode));
+      await this.chooseSelectByLabel('marketScope', marketScopeLabel('national', nextCountry));
     }
     await this.saveStep(1, 'Continue');
     return { savedCountry, nextCountry };
