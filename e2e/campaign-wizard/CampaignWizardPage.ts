@@ -663,13 +663,17 @@ export class CampaignWizardPage {
         await this.assertReviewField(
           goals,
           'Current marketing activity',
-          `${activity.channel} (${activity.status})`,
+          `${activity.channel} (${optionLabel('currentMarketingActivityStatus', activity.status)})`,
         );
         await this.assertReviewField(
           goals,
           'Current marketing activity',
           `${optionLabel('shareOfSpend', activity.shareOfSpend)} of spend`,
         );
+      }
+      const spend = money(activity.monthlySpendAmount);
+      if (spend) {
+        await this.assertReviewField(goals, 'Current marketing activity', `${spend} a month`);
       }
     }
     // The WhatsApp list is asked, and shown, in India only.

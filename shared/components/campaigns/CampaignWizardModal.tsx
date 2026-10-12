@@ -1799,10 +1799,12 @@ function formatCurrentMarketingActivity(
         status?: string | null;
         workingAssessment?: string | null;
         shareOfSpend?: string | null;
+        monthlySpendAmount?: unknown;
       }>
     | null
     | undefined,
   optionLabels: WizardOptionLabels,
+  showMoney: (value: unknown) => string | null,
 ) {
   if (!activities?.length) {
     return null;
@@ -1814,12 +1816,14 @@ function formatCurrentMarketingActivity(
       const status = optionLabels.label('currentMarketingActivityStatus', activity.status);
       const assessment = optionLabels.label('currentMarketingActivityAssessment', activity.workingAssessment);
       const share = optionLabels.label('shareOfSpend', activity.shareOfSpend);
+      // The monthly spend is an answer like the others; the review left it out.
+      const spend = showMoney(activity.monthlySpendAmount);
 
       if (!channel) {
         return '';
       }
 
-      return `${channel}${status ? ` (${status})` : ''}${assessment ? ` - ${assessment}` : ''}${share ? `, ${share} of spend` : ''}`;
+      return `${channel}${status ? ` (${status})` : ''}${assessment ? ` - ${assessment}` : ''}${spend ? `, ${spend} a month` : ''}${share ? `, ${share} of spend` : ''}`;
     })
     .filter(Boolean);
 
@@ -2015,6 +2019,7 @@ export function CampaignWizardModal({
 
   const step1VersionRef = useRef<number>(0);
   const step2VersionRef = useRef<number>(0);
+  const step2HydrationRef = useRef<string | null>(null);
   const step3VersionRef = useRef<number>(0);
   const step4VersionRef = useRef<number>(0);
   const step5VersionRef = useRef<number>(0);
@@ -2660,10 +2665,22 @@ export function CampaignWizardModal({
     const normalizedPrimaryConversionPath =
       normalizePrimaryConversionPath(savedChannelsData.primaryConversionPath, primaryConversionPathOptions) || '';
 
+    // The saved answers are applied again when the option lists arrive. Once
+    // the client has started typing, only newer saved answers may replace what
+    // they typed: on Ridgeline (E2E) the business name was overwritten after it
+    // had been filled in.
+    const step2Hydration = `${activeCampaignId}:${step2Data?.version ?? 'none'}:${step4Data?.version ?? 'none'}`;
+    if (step2Form.formState.isDirty && step2HydrationRef.current === step2Hydration) {
+      return;
+    }
+    step2HydrationRef.current = step2Hydration;
+
     step2Form.reset({
+      // The business is named by the step-1 focus, not by the campaign's
+      // title: "Ridgeline spring sales push" was being offered as the name of
+      // the business.
       businessName:
         normalizeString(savedData.businessName as string | undefined) ||
-        normalizeString(step1SnapshotRef.current.title) ||
         normalizeString(step1SnapshotRef.current.focusName),
       industryCategory: normalizedIndustryCategory,
       businessType:
@@ -6701,7 +6718,7 @@ export function CampaignWizardModal({
                           <SummaryField label="Sales capacity" value={effectivePreviewStep4?.salesCapacity} />
                           <SummaryField label="Peak seasons" value={optionLabels.list('peakSeasons', previewValue(effectivePreviewStep4, 'peakSeasons'), campaignMarketCode)} />
                           <SummaryField label="Offers running now" value={formatStringList(previewValue(effectivePreviewStep4, 'currentOffers') as string[] | undefined)} />
-                          <SummaryField label="Current marketing activity" value={formatCurrentMarketingActivity(effectivePreviewStep4?.currentMarketingActivity, optionLabels)} className="md:col-span-2" />
+                          <SummaryField label="Current marketing activity" value={formatCurrentMarketingActivity(effectivePreviewStep4?.currentMarketingActivity, optionLabels, showMoney)} className="md:col-span-2" />
                           <SummaryField label="Past marketing" value={effectivePreviewStep4?.pastMarketing} className="md:col-span-2" />
                           <SummaryField label="Known competitor status" value={optionLabels.label('knownCompetitorStatus', effectivePreviewStep4?.knownCompetitorStatus)} />
                           <SummaryField label="Constraints" value={formatStringList(effectivePreviewStep4?.constraints)} />

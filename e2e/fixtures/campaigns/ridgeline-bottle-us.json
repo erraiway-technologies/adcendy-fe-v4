@@ -1,0 +1,192 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "ridgeline-bottle-us",
+  "displayName": "Ridgeline Bottle Co. (US, fictional)",
+  "wizard": {
+    "step1": {
+      "title": "Ridgeline spring sales push",
+      "marketingTargetType": "whole_business",
+      "focusName": "Ridgeline Bottle Co.",
+      "sourceType": "manual_only",
+      "primaryUrl": "",
+      "targetMarkets": [
+        "US"
+      ],
+      "primaryMarket": "US",
+      "marketScope": "national",
+      "currency": "USD"
+    },
+    "step2": {
+      "businessName": "Ridgeline Bottle Co.",
+      "industryCategory": "local_retail",
+      "sellsTo": "consumers",
+      "sellsVia": "mix",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "growth",
+      "businessDescription": "Ridgeline Bottle Co. is a fictional Denver brand that designs insulated stainless-steel water bottles and tumblers for hikers, commuters and gym-goers. It sells mainly through its own website and an Amazon store, with a few outdoor shops in Colorado.",
+      "productCategory": "Insulated stainless-steel water bottles and tumblers",
+      "productsServices": [
+        "24 oz insulated trail bottle",
+        "32 oz wide-mouth bottle with straw lid",
+        "20 oz commuter tumbler",
+        "Replacement lids and boot accessories"
+      ],
+      "offerSummary": "Bottles that keep water cold for 24 hours, with a lifetime warranty and lids that are sold separately when they wear out.",
+      "differentiators": [
+        "Lifetime warranty on every bottle",
+        "Replacement lids sold separately",
+        "Recycled stainless steel"
+      ],
+      "sensitiveCategoryFlags": [
+        "none"
+      ],
+      "priceRangeLow": 24,
+      "priceRangeHigh": 48,
+      "pricePosition": "about_same"
+    },
+    "step3": {
+      "primaryTargetSegment": "Active adults across the United States who carry a water bottle every day for hiking, the gym or the commute.",
+      "targetPersona": "An outdoorsy professional aged 25 to 45 who hikes on weekends, goes to the gym during the week and wants one bottle that survives being dropped and fits a car cup holder.",
+      "language": "english",
+      "painPoints": [
+        "Cheap bottles dent, leak or lose their cold within hours.",
+        "A worn lid means replacing the whole bottle.",
+        "Big-name bottles look the same as everyone else's."
+      ],
+      "desiredOutcome": "Grow online revenue ahead of summer while keeping Amazon reviews strong.",
+      "decisionProcess": "They compare bottles on Amazon and in Instagram ads, read reviews about leaks and cold retention, then buy on Amazon or the website, often adding a second bottle as a gift.",
+      "ageRanges": [
+        "25_34",
+        "35_44"
+      ],
+      "genderSkew": "even",
+      "buyingTriggers": [
+        "Losing or breaking their current bottle",
+        "Starting a new gym or hiking routine"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "own_website",
+          "rank": 1,
+          "salesShare": "30_60"
+        },
+        {
+          "channel": "amazon",
+          "rank": 2,
+          "salesShare": "30_60"
+        },
+        {
+          "channel": "retail_store",
+          "rank": 3,
+          "salesShare": "under_10"
+        }
+      ],
+      "primaryConversionPath": "buy_online",
+      "trustSignals": [
+        "Rated 4.7 out of 5 from over 3,000 Amazon reviews",
+        "Stocked by outdoor shops in Colorado"
+      ],
+      "socialHandles": [
+        {
+          "platform": "instagram",
+          "handle": "ridgelinebottle"
+        },
+        {
+          "platform": "pinterest",
+          "handle": "ridgelinebottle"
+        }
+      ],
+      "digitalPresenceLinks": [
+        {
+          "type": "amazon",
+          "url": "https://www.amazon.com/stores/ridgelinebottle.example",
+          "label": "Amazon store"
+        }
+      ],
+      "monthlyWebsiteTraffic": "10000_50000",
+      "emailListSize": "10000_50000",
+      "googleAnalyticsConnected": true,
+      "existingAssets": [
+        "email_automation",
+        "creators"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "revenue_growth",
+      "monthlyMarketingBudget": 15000,
+      "paidAdsShare": "most",
+      "marketingHandler": "in_house_marketer",
+      "contentCapacity": "medium",
+      "marketingHoursPerWeek": "twentyToForty",
+      "creativeCapabilities": [
+        "photography",
+        "video",
+        "copywriting"
+      ],
+      "deliveryDeadline": "withinThreeMonths",
+      "knownCompetitorStatus": "provided",
+      "knownCompetitors": [
+        "Hydro Flask",
+        "Stanley",
+        "Yeti"
+      ],
+      "currentMarketingActivity": [
+        {
+          "channel": "Amazon Sponsored Products",
+          "status": "active",
+          "workingAssessment": "clearly_working",
+          "monthlySpendAmount": 6000,
+          "shareOfSpend": "30_60"
+        },
+        {
+          "channel": "Instagram and Facebook ads",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 4000,
+          "shareOfSpend": "10_30"
+        },
+        {
+          "channel": "Google Shopping",
+          "status": "paused",
+          "workingAssessment": "not_working",
+          "shareOfSpend": "under_10"
+        }
+      ],
+      "peakSeasons": [
+        "summer",
+        "black_friday",
+        "christmas"
+      ],
+      "currentOffers": [
+        "Free shipping over $40"
+      ],
+      "constraints": [
+        "Stock arrives in batches every eight weeks"
+      ]
+    },
+    "step6": {
+      "averageOrderValueAmount": 38,
+      "monthlyOrderVolume": "2500",
+      "grossMarginBand": "from_40_to_60_percent",
+      "paybackWindow": "firstOrder",
+      "avgCustomerRetention": "some_repeat",
+      "repeatPurchaseFrequency": "every_few_months",
+      "customerAcquisitionCost": 22,
+      "subscriptionOffered": false
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}
