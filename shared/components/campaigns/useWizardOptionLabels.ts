@@ -4,28 +4,17 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/shared/api/queryKeys';
 import { wizardRepository } from '@/shared/api/repositories';
+import { createWizardOptionLabels } from '@/shared/types/wizard';
 
 const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
 
-function labelMap(options: unknown) {
-  const labels = new Map<string, string>();
-  if (!Array.isArray(options)) {
-    return labels;
-  }
-  for (const option of options) {
-    if (option && typeof option.value === 'string' && typeof option.label === 'string') {
-      labels.set(option.value, option.label);
-    }
-  }
-  return labels;
-}
-
 /**
- * The backend's written labels for the wizard answers shown outside the
- * wizard (V3-01): an industry by its name, a country by its name. Reads the
- * wizard options the wizard itself loads, so they share one cache entry.
- * Until they load, an industry has no label (never its stored value) and a
- * country reads by the platform's English region name.
+ * The backend's written labels for wizard answers shown outside the wizard
+ * (V3-01, V3-03), read from the wizard options the wizard itself loads, so
+ * they share one cache entry. `label` and `list` give any answer by its
+ * served label, or as itself when it has none. An industry has no label until
+ * they load (never its stored value), and a country reads by the platform's
+ * English region name.
  */
 export function useWizardOptionLabels() {
   const { data: wizardOptions } = useQuery({
@@ -36,15 +25,15 @@ export function useWizardOptionLabels() {
   });
 
   return useMemo(() => {
-    const industries = labelMap(wizardOptions?.fieldOptions?.industryCategory);
-    const countries = labelMap(wizardOptions?.fieldOptions?.targetMarkets);
+    const labels = createWizardOptionLabels(wizardOptions);
     return {
-      industry: (value?: string | null) => (value ? (industries.get(value) ?? null) : null),
+      ...labels,
+      industry: (value?: string | null) => labels.find('industryCategory', value),
       country: (code?: string | null) => {
         if (!code) {
           return null;
         }
-        const known = countries.get(code);
+        const known = labels.find('targetMarkets', code);
         if (known) {
           return known;
         }

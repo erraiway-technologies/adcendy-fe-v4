@@ -7,22 +7,13 @@ import {
   formatMarketScope,
   type Campaign,
 } from '@/shared/types/campaign';
-import type { WizardPreview, WizardPreviewStep4 } from '@/shared/types/wizard';
 import {
-  formatAvgCustomerRetention,
-  formatDigitalPresenceLinkType,
-  formatEmailListSize,
-  formatMarketingHandler,
-  formatMarketingTargetType,
-  formatMonthlyMarketingSpend,
   formatMonthlyRevenue,
-  formatMonthlyWebsiteTraffic,
-  formatPrimaryGoal,
-  formatRepeatPurchaseFrequency,
-  formatSalesChannel,
-  formatSocialPlatform,
-  formatSourceType,
+  type WizardOptionLabels,
+  type WizardPreview,
+  type WizardPreviewStep4,
 } from '@/shared/types/wizard';
+import { useWizardOptionLabels } from '@/shared/components/campaigns/useWizardOptionLabels';
 
 type SummaryMode = 'compact' | 'full';
 
@@ -68,6 +59,8 @@ function normalizeStringOrList(values?: string | string[] | null) {
 }
 
 function formatSalesChannels(
+  labels: WizardOptionLabels,
+  market: string | null,
   salesChannels?: { channel: string; rank: number; customName?: string | null }[],
 ) {
   if (!salesChannels?.length) {
@@ -75,28 +68,32 @@ function formatSalesChannels(
   }
 
   return salesChannels
-    .map((item) => `${item.rank}. ${item.channel === 'other' ? item.customName || 'Other' : formatSalesChannel(item.channel)}`)
+    .map((item) => `${item.rank}. ${item.channel === 'other' ? item.customName || 'Other' : labels.label('salesChannels', item.channel, market)}`)
     .join(' | ');
 }
 
 function formatSocialHandles(
+  labels: WizardOptionLabels,
+  market: string | null,
   socialHandles?: { platform: string; handle: string }[],
 ) {
   if (!socialHandles?.length) {
     return null;
   }
 
-  return socialHandles.map((item) => `${formatSocialPlatform(item.platform)}: ${item.handle}`).join(' | ');
+  return socialHandles.map((item) => `${labels.label('socialPlatforms', item.platform, market)}: ${item.handle}`).join(' | ');
 }
 
 function formatDigitalPresenceLinks(
+  labels: WizardOptionLabels,
+  market: string | null,
   links?: { type: string; url: string; label?: string | null }[],
 ) {
   if (!links?.length) {
     return null;
   }
 
-  return links.map((item) => `${formatDigitalPresenceLinkType(item.type)}: ${item.label || item.url}`).join(' | ');
+  return links.map((item) => `${labels.label('presenceLinkTypes', item.type, market)}: ${item.label || item.url}`).join(' | ');
 }
 
 function formatGoogleAnalyticsConnected(value?: boolean | 'unknown' | null) {
@@ -115,11 +112,16 @@ function formatGoogleAnalyticsConnected(value?: boolean | 'unknown' | null) {
   return null;
 }
 
-function buildSubmittedInputSections(campaign: Campaign, preview?: WizardPreview | null): SummarySection[] {
+function buildSubmittedInputSections(
+  campaign: Campaign,
+  labels: WizardOptionLabels,
+  preview?: WizardPreview | null,
+): SummarySection[] {
   const step1 = preview?.steps?.step1;
   const step2 = preview?.steps?.step2;
   const step3 = preview?.steps?.step3;
   const step4 = preview?.steps?.step4 ?? (step3 as WizardPreviewStep4 | undefined);
+  const market = step1?.primaryMarket || campaign.v2PrimaryMarket || null;
 
   return [
     {
@@ -128,13 +130,13 @@ function buildSubmittedInputSections(campaign: Campaign, preview?: WizardPreview
       compactItems: [
         { label: 'Campaign Title', value: step1?.title || campaign.name },
         { label: 'Focus', value: step1?.focusName },
-        { label: 'Source', value: formatSourceType(step1?.sourceType) },
+        { label: 'Source', value: labels.label('sourceType', step1?.sourceType) },
       ],
       fullItems: [
         { label: 'Campaign Title', value: step1?.title || campaign.name },
-        { label: 'Marketing Target', value: formatMarketingTargetType(step1?.marketingTargetType) },
+        { label: 'Marketing Target', value: labels.label('marketingTargetType', step1?.marketingTargetType) },
         { label: 'Focus Name', value: step1?.focusName },
-        { label: 'Source Type', value: formatSourceType(step1?.sourceType) },
+        { label: 'Source Type', value: labels.label('sourceType', step1?.sourceType) },
         { label: 'Source URL', value: step1?.primaryUrl || null },
         { label: 'Market Location', value: step1?.marketLocation || campaign.city },
       ],
@@ -145,7 +147,7 @@ function buildSubmittedInputSections(campaign: Campaign, preview?: WizardPreview
       compactItems: [
         { label: 'Business Type', value: formatBusinessType(step2?.businessType || campaign.businessType || null) },
         { label: 'Product / Service', value: normalizeStringOrList(step2?.productOrService) },
-        { label: 'Sales Channels', value: formatSalesChannels(step2?.salesChannels) },
+        { label: 'Sales Channels', value: formatSalesChannels(labels, market, step2?.salesChannels) },
       ],
       fullItems: [
         { label: 'Business Type', value: formatBusinessType(step2?.businessType || campaign.businessType || null) },
@@ -156,9 +158,9 @@ function buildSubmittedInputSections(campaign: Campaign, preview?: WizardPreview
         { label: 'Offer Summary', value: step2?.offerSummary },
         { label: 'Price Range', value: step2?.priceRange },
         { label: 'Differentiators', value: normalizeList(step2?.differentiators) },
-        { label: 'Sales Channels', value: formatSalesChannels(step2?.salesChannels) },
-        { label: 'Social Handles', value: formatSocialHandles(step2?.socialHandles) },
-        { label: 'Digital Presence Links', value: formatDigitalPresenceLinks(step2?.digitalPresenceLinks) },
+        { label: 'Sales Channels', value: formatSalesChannels(labels, market, step2?.salesChannels) },
+        { label: 'Social Handles', value: formatSocialHandles(labels, market, step2?.socialHandles) },
+        { label: 'Digital Presence Links', value: formatDigitalPresenceLinks(labels, market, step2?.digitalPresenceLinks) },
         { label: 'Business Description', value: step2?.businessDescription },
       ],
     },
@@ -167,28 +169,28 @@ function buildSubmittedInputSections(campaign: Campaign, preview?: WizardPreview
       description: 'Targeting, goals, constraints, and supporting business context.',
       compactItems: [
         { label: 'Target Persona', value: step3?.targetPersona },
-        { label: 'Goal', value: formatPrimaryGoal(step4?.primaryGoal) },
-        { label: 'Spend', value: formatMonthlyMarketingSpend(step4?.monthlyMarketingSpend) },
+        { label: 'Goal', value: labels.label('primaryGoal', step4?.primaryGoal) },
+        { label: 'Spend', value: labels.label('monthlyMarketingSpend', step4?.monthlyMarketingSpend) },
       ],
       fullItems: [
         { label: 'Target Persona', value: step3?.targetPersona },
         { label: 'Target Audience', value: step3?.targetAudience },
-        { label: 'Language', value: step3?.language },
+        { label: 'Language', value: labels.label('language', step3?.language) },
         { label: 'Pain Points', value: normalizeList(step3?.painPoints) },
         { label: 'Desired Outcome', value: step3?.desiredOutcome },
         { label: 'Constraints', value: normalizeList(step4?.constraints) },
-        { label: 'Monthly Marketing Spend', value: formatMonthlyMarketingSpend(step4?.monthlyMarketingSpend) },
-        { label: 'Primary Goal', value: formatPrimaryGoal(step4?.primaryGoal) },
-        { label: 'Marketing Owner', value: formatMarketingHandler(step4?.marketingHandler) },
+        { label: 'Monthly Marketing Spend', value: labels.label('monthlyMarketingSpend', step4?.monthlyMarketingSpend) },
+        { label: 'Primary Goal', value: labels.label('primaryGoal', step4?.primaryGoal) },
+        { label: 'Marketing Owner', value: labels.label('marketingHandler', step4?.marketingHandler) },
         { label: "What's Working", value: step4?.whatsWorking },
         { label: 'Biggest Frustration', value: step4?.biggestFrustration },
         { label: 'Monthly Revenue', value: formatMonthlyRevenue(step4?.monthlyRevenue) },
         { label: 'Monthly Order Volume', value: normalizeStringOrList(step4?.monthlyOrderVolume) },
         { label: 'Product Cost', value: normalizeStringOrList(step4?.productCost) },
-        { label: 'Retention Pattern', value: formatAvgCustomerRetention(step4?.avgCustomerRetention) },
-        { label: 'Repeat Purchase Frequency', value: formatRepeatPurchaseFrequency(step4?.repeatPurchaseFrequency) },
-        { label: 'Website Traffic', value: formatMonthlyWebsiteTraffic(step4?.monthlyWebsiteTraffic) },
-        { label: 'Email List Size', value: formatEmailListSize(step4?.emailListSize) },
+        { label: 'Retention Pattern', value: labels.label('avgCustomerRetention', step4?.avgCustomerRetention) },
+        { label: 'Repeat Purchase Frequency', value: labels.label('repeatPurchaseFrequency', step4?.repeatPurchaseFrequency) },
+        { label: 'Website Traffic', value: labels.label('monthlyWebsiteTraffic', step4?.monthlyWebsiteTraffic) },
+        { label: 'Email List Size', value: labels.label('emailListSize', step4?.emailListSize) },
         { label: 'Google Analytics', value: formatGoogleAnalyticsConnected(step4?.googleAnalyticsConnected) },
         { label: 'Known Competitors', value: normalizeList(step4?.knownCompetitors) },
         { label: 'Additional Context', value: step4?.additionalContext },
@@ -202,7 +204,8 @@ export function SubmittedInputsSummary({
   preview,
   mode = 'compact',
 }: SubmittedInputsSummaryProps) {
-  const sections = buildSubmittedInputSections(campaign, preview);
+  const labels = useWizardOptionLabels();
+  const sections = buildSubmittedInputSections(campaign, labels, preview);
   const gridClassName =
     mode === 'compact'
       ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]'

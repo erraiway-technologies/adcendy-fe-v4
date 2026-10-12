@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { formatCampaignStatus, type Campaign } from '@/shared/types/campaign';
-import { formatSourceType } from '@/shared/types/wizard';
 import type { WizardOptionLabels } from '@/shared/components/campaigns/useWizardOptionLabels';
 
 function formatListLabel(values?: string[]) {
@@ -62,7 +61,7 @@ export function CampaignListItem({
   ];
 
   const secondRowValues = [
-    formatSourceType(campaign.v2SourceType),
+    labels.label('sourceType', campaign.v2SourceType),
     labels.industry(campaign.v2IndustryCategory) || campaign.niche || null,
     formatListLabel(campaign.v2PrimaryOfferings),
   ];

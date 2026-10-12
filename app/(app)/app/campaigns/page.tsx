@@ -57,6 +57,7 @@ export default function CampaignsPage() {
         campaign.status,
         String(campaign.currentStep),
         campaign.v2SourceType,
+        optionLabels.label('sourceType', campaign.v2SourceType),
         campaign.v2PrimaryMarket,
         ...(campaign.v2TargetMarkets ?? []),
         campaign.v2BusinessName,

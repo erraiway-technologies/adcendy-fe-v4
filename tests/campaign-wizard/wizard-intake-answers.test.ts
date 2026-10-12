@@ -4,16 +4,9 @@ import {
   CREATIVE_CAPABILITY_VALUES,
   DELIVERY_DEADLINE_VALUES,
   MARKETING_HOURS_PER_WEEK_VALUES,
-  MONTHLY_MARKETING_SPEND_LABELS,
   MONTHLY_MARKETING_SPEND_VALUES,
-  PAID_MEDIA_BUDGET_RANGE_LABELS,
   PAID_MEDIA_BUDGET_RANGE_VALUES,
   PAYBACK_WINDOW_VALUES,
-  formatCreativeCapabilities,
-  formatDeliveryDeadline,
-  formatMarketingHoursPerWeek,
-  formatPaidMediaBudgetRange,
-  formatPaybackWindow,
   normalizeCreativeCapabilities,
   toggleCreativeCapability,
 } from '../../shared/types/wizard.ts';
@@ -21,6 +14,7 @@ import {
 // Wizard v2.1 intake answers. The backend step schemas are strict and these
 // are the option values GET /api/v2/wizard/options lists, verbatim; its
 // not-sure option is served as the one "Don't know", `unknown` (v3 rule 4).
+// Their labels come from that response too (wizard-labels.test.ts).
 
 test('option values match the backend wizard contract exactly', () => {
   assert.deepEqual([...MARKETING_HOURS_PER_WEEK_VALUES], [
@@ -55,20 +49,6 @@ test('option values match the backend wizard contract exactly', () => {
   assert.deepEqual([...PAID_MEDIA_BUDGET_RANGE_VALUES], [...MONTHLY_MARKETING_SPEND_VALUES, 'unknown']);
 });
 
-test("the paid media budget reads with the monthly spend labels, plus Don't know", () => {
-  for (const value of MONTHLY_MARKETING_SPEND_VALUES) {
-    assert.equal(PAID_MEDIA_BUDGET_RANGE_LABELS[value], MONTHLY_MARKETING_SPEND_LABELS[value]);
-  }
-  assert.equal(formatPaidMediaBudgetRange('5k_15k'), 'INR 5,000 to INR 15,000');
-  assert.equal(formatPaidMediaBudgetRange('unknown'), "Don't know");
-  // An answer saved before the change reads the same.
-  assert.equal(formatPaidMediaBudgetRange('not_sure'), "Don't know");
-});
-
-test('a paid media budget typed as free text before the dropdown is shown as typed', () => {
-  assert.equal(formatPaidMediaBudgetRange('around INR 8k a month'), 'around INR 8k a month');
-});
-
 test('selecting "None of these" clears the others, and any other choice clears it', () => {
   assert.deepEqual(toggleCreativeCapability(['video', 'design'], 'none'), ['none']);
   assert.deepEqual(toggleCreativeCapability(['none'], 'video'), ['video']);
@@ -83,14 +63,4 @@ test('creative capabilities are normalized the way the backend reads them', () =
   assert.deepEqual(normalizeCreativeCapabilities(['none']), ['none']);
   assert.deepEqual(normalizeCreativeCapabilities(['Video', 'drone_footage', 42]), []);
   assert.deepEqual(normalizeCreativeCapabilities('video'), []);
-});
-
-test('review labels are plain language', () => {
-  assert.equal(formatMarketingHoursPerWeek('fortyPlus'), '40+ hours (full-time or more)');
-  assert.equal(formatDeliveryDeadline('withinThreeMonths'), 'Within 3 months');
-  assert.equal(formatPaybackWindow('firstOrder'), 'On the first order');
-  assert.equal(formatCreativeCapabilities(['video', 'copywriting']), 'Video, Copywriting');
-  assert.equal(formatCreativeCapabilities(['none']), 'None of these');
-  assert.equal(formatCreativeCapabilities([]), null);
-  assert.equal(formatPaybackWindow(undefined), null);
 });

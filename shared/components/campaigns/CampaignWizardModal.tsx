@@ -96,57 +96,17 @@ import {
 } from '@/shared/types/campaign';
 import type { LegalConsentType } from '@/shared/types/legal';
 import {
-  DIGITAL_PRESENCE_LINK_TYPE_OPTIONS,
-  AVG_CUSTOMER_RETENTION_OPTIONS,
-  EMAIL_LIST_SIZE_OPTIONS,
-  MONTHLY_WEBSITE_TRAFFIC_OPTIONS,
-  REPEAT_PURCHASE_FREQUENCY_OPTIONS,
-  SALES_CHANNEL_OPTIONS,
-  SOCIAL_PLATFORM_OPTIONS,
-  formatAvgCustomerRetention,
-  formatAudienceModel,
-  formatDigitalPresenceLinkType,
-  formatEmailListSize,
-  formatLifecycleStage,
-  formatMarketingHandler,
-  formatMarketingTargetType,
-  formatMonthlyMarketingSpend,
+  createWizardOptionLabels,
   formatMonthlyRevenue,
-  formatMonthlyWebsiteTraffic,
-  formatPrimaryConversionPath,
-  formatPrimaryGoal,
-  formatRepeatPurchaseFrequency,
-  formatSalesChannel,
-  formatSocialPlatform,
-  formatSourceType,
   type DigitalPresenceLink,
   type RankedSalesChannel,
   type SocialHandle,
   type WizardFieldOptionV2,
+  type WizardOptionLabels,
   type WizardOptionsResponseV2,
   type WizardDerivedMetrics,
   CLOSE_RATE_BAND_OPTIONS,
   GROSS_MARGIN_BAND_OPTIONS,
-  CREATIVE_CAPABILITY_LABELS,
-  SENSITIVE_CATEGORY_FLAG_LABELS,
-  formatContentCapacity,
-  formatKnownCompetitorStatus,
-  formatSensitiveCategoryFlags,
-  CREATIVE_CAPABILITY_OPTIONS,
-  CONTENT_CAPACITY_LABELS,
-  DELIVERY_DEADLINE_LABELS,
-  DELIVERY_DEADLINE_OPTIONS,
-  MARKETING_HOURS_PER_WEEK_LABELS,
-  MARKETING_HOURS_PER_WEEK_OPTIONS,
-  PAID_MEDIA_BUDGET_RANGE_LABELS,
-  PAID_MEDIA_BUDGET_RANGE_OPTIONS,
-  PAYBACK_WINDOW_LABELS,
-  PAYBACK_WINDOW_OPTIONS,
-  formatCreativeCapabilities,
-  formatDeliveryDeadline,
-  formatMarketingHoursPerWeek,
-  formatPaidMediaBudgetRange,
-  formatPaybackWindow,
   normalizeCreativeCapabilities,
   toggleCreativeCapability,
 } from '@/shared/types/wizard';
@@ -170,33 +130,6 @@ const OPTIONAL_SELECT_VALUE = '__empty__';
  * LEAD_GENERATION_PATHS_V2.
  */
 const LEAD_GENERATION_PATHS = new Set(['lead_form', 'book_call', 'book_demo', 'whatsapp']);
-
-const STEP2_SELLS_TO_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'consumers', label: 'Consumers' },
-  { value: 'businesses', label: 'Businesses' },
-  { value: 'both', label: 'Both' },
-];
-
-const STEP2_SELLS_VIA_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'own_channel', label: 'Own website or store' },
-  { value: 'marketplaces', label: 'Marketplaces' },
-  { value: 'partners', label: 'Through partners or distributors' },
-  { value: 'mix', label: 'A mix' },
-];
-
-const STEP1_CURRENCY_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'INR', label: 'Indian rupee (INR)' },
-  { value: 'USD', label: 'US dollar (USD)' },
-  { value: 'GBP', label: 'British pound (GBP)' },
-];
-
-const STEP5_PAID_ADS_SHARE_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'none', label: 'None' },
-  { value: 'under_quarter', label: 'Under a quarter' },
-  { value: 'about_half', label: 'About half' },
-  { value: 'most', label: 'Most of it' },
-  { value: 'all', label: 'All of it' },
-];
 
 const EMPTY_STEP_1_VALUES: Step1FormData = {
   title: '',
@@ -342,26 +275,6 @@ type WizardStringOption = {
   sourceValue?: string;
 };
 
-const STEP1_MARKETING_TARGET_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'whole_business', label: 'Whole business' },
-  { value: 'product_or_service', label: 'Product or service' },
-  { value: 'launch', label: 'Launch' },
-  { value: 'market_expansion', label: 'Market expansion' },
-  { value: 'specific_audience', label: 'Specific audience' },
-  { value: 'other', label: 'Other' },
-];
-
-const STEP1_SOURCE_TYPE_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'website', label: 'Website' },
-  { value: 'digital_presence_only', label: 'Digital presence only' },
-  { value: 'manual_only', label: 'Manual only' },
-];
-
-const STEP1_MARKET_SCOPE_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'national', label: 'National' },
-  { value: 'regional', label: 'Regional' },
-];
-
 // One strategy covers one country, and research runs for the whole of it.
 // Which countries can be chosen is the Backend's to say: it serves them as
 // `fieldOptions.targetMarkets` (ISO 3166-1 alpha-2 codes, e.g. GB).
@@ -387,102 +300,6 @@ function getWizardMarketScopeLabel(scope: string, countryLabel: string) {
     ? `National — across ${countryLabel}`
     : 'Regional — specific cities or states';
 }
-
-const STEP2_AUDIENCE_MODEL_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'single_sided', label: 'One audience' },
-  { value: 'b2b2c', label: 'Business + end customer (B2B2C)' },
-  { value: 'marketplace_platform', label: 'Marketplace / two-sided platform' },
-  { value: 'multi_sided', label: 'Multi-sided' },
-  { value: 'unknown', label: "Don't know" },
-];
-
-const STEP2_LIFECYCLE_STAGE_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'pre_launch', label: 'Pre-launch' },
-  { value: 'launch', label: 'Launch' },
-  { value: 'growth', label: 'Growth' },
-  { value: 'scaling', label: 'Scaling' },
-  { value: 'mature', label: 'Mature' },
-];
-
-const STEP3_LANGUAGE_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'english', label: 'English' },
-  { value: 'hindi', label: 'Hindi' },
-  { value: 'regional_other', label: 'Regional language (other)' },
-  { value: 'mixed', label: 'Mixed' },
-  { value: 'unknown', label: "Don't know" },
-];
-
-const STEP3_REPORT_LANGUAGE_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'english', label: 'English' },
-  { value: 'hindi', label: 'Hindi' },
-  { value: 'regional_other', label: 'Regional language (other)' },
-];
-
-const STEP4_PRIMARY_CONVERSION_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'buy_online', label: 'Buy online' },
-  { value: 'book_demo', label: 'Book a demo' },
-  { value: 'book_call', label: 'Book a call' },
-  { value: 'whatsapp', label: 'WhatsApp' },
-  { value: 'retail_visit', label: 'Retail visit' },
-  { value: 'app_signup', label: 'App signup' },
-  { value: 'other', label: 'Other' },
-];
-
-const STEP5_PRIMARY_GOAL_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'revenue_growth', label: 'Revenue growth' },
-  { value: 'new_customers', label: 'New customers' },
-  { value: 'leads', label: 'Leads' },
-  { value: 'awareness', label: 'Awareness' },
-  { value: 'launch', label: 'Launch' },
-  { value: 'repeat_purchase_retention', label: 'Repeat purchase & retention' },
-  { value: 'footfall', label: 'Footfall' },
-  { value: 'market_expansion', label: 'Market expansion' },
-  { value: 'other', label: 'Other' },
-];
-
-const STEP5_MARKETING_HANDLER_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'founder_led', label: 'Founder-led' },
-  { value: 'internal_marketer', label: 'Internal marketer' },
-  { value: 'agency', label: 'Agency' },
-  { value: 'in_house_team', label: 'In-house team' },
-  { value: 'unknown', label: "Don't know" },
-];
-
-const STEP5_CONTENT_CAPACITY_FALLBACK_OPTIONS: WizardStringOption[] = Object.entries(CONTENT_CAPACITY_LABELS).map(
-  ([value, label]) => ({ value, label }),
-);
-
-// Wizard v2.1 answers, used when the backend option list is unavailable. The
-// values match the backend's lists exactly.
-const STEP5_PAID_MEDIA_BUDGET_RANGE_FALLBACK_OPTIONS: WizardStringOption[] = [...PAID_MEDIA_BUDGET_RANGE_OPTIONS];
-const STEP5_MARKETING_HOURS_PER_WEEK_FALLBACK_OPTIONS: WizardStringOption[] = [...MARKETING_HOURS_PER_WEEK_OPTIONS];
-const STEP5_CREATIVE_CAPABILITY_FALLBACK_OPTIONS: WizardStringOption[] = [...CREATIVE_CAPABILITY_OPTIONS];
-const STEP5_DELIVERY_DEADLINE_FALLBACK_OPTIONS: WizardStringOption[] = [...DELIVERY_DEADLINE_OPTIONS];
-const STEP6_PAYBACK_WINDOW_FALLBACK_OPTIONS: WizardStringOption[] = [...PAYBACK_WINDOW_OPTIONS];
-
-const STEP5_KNOWN_COMPETITOR_STATUS_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'provided', label: 'Provided' },
-  { value: 'none_known', label: 'None known' },
-  { value: 'unknown', label: "Don't know" },
-];
-
-const STEP5_CURRENT_MARKETING_ACTIVITY_STATUS_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'active', label: 'Active' },
-  { value: 'paused', label: 'Paused' },
-  { value: 'discontinued', label: 'Discontinued' },
-];
-
-const STEP5_CURRENT_MARKETING_ACTIVITY_ASSESSMENT_FALLBACK_OPTIONS: WizardStringOption[] = [
-  { value: 'clearly_working', label: 'Clearly working' },
-  { value: 'unclear', label: 'Unclear' },
-  { value: 'not_working', label: 'Not working' },
-  { value: 'unknown', label: "Don't know" },
-];
-
-const STEP7_DATA_CONSENT_FALLBACK_OPTIONS: WizardFieldOptionV2[] = [
-  { value: true, label: 'Yes' },
-  { value: false, label: 'No' },
-];
 
 const MARKETING_TARGET_DESCRIPTIONS: Record<string, string> = {
   whole_business: 'A business, brand, or store as a whole',
@@ -1559,13 +1376,6 @@ type StringFieldOptionsConfig = {
    * spelling, for fields whose contract is the camelCase value itself.
    */
   valueFrom?: 'canonicalToken' | 'value';
-  /**
-   * Plain-language labels by option value. The backend label is generated from
-   * the value ("Under Five"), so a known value reads better from here; an
-   * unknown one falls back to the backend label. The fallback list's labels
-   * count too, so these are only needed where it has none.
-   */
-  labels?: Record<string, string>;
 };
 
 /** A preview step's field, for the answers its type does not list yet. */
@@ -1573,63 +1383,48 @@ function previewValue(step: unknown, key: string): unknown {
   return step && typeof step === 'object' ? (step as Record<string, unknown>)[key] : undefined;
 }
 
-/** The label of a picked option; the value itself when no option has it. */
-function labelOfOption(options: { value: string; label: string }[], value: unknown): string | null {
-  if (typeof value !== 'string' || !value) return null;
-  const token = value.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
-  return options.find((option) => option.value === value || option.value === token)?.label ?? value;
-}
-
-/** The labels of picked options, joined. */
-function labelsOfOptions(options: { value: string; label: string }[], values: unknown): string | null {
-  if (!Array.isArray(values) || values.length === 0) return null;
-  return values.map((value) => labelOfOption(options, value)).filter(Boolean).join(', ');
-}
-
+/**
+ * A field's options as the backend serves them, labels included (V3-03):
+ * there is no local list, so until the options load the list is empty.
+ */
 function getStringFieldOptions(
   wizardOptions: WizardOptionsResponseV2 | undefined,
   fieldKey: string,
-  fallbackOptions: WizardStringOption[],
-  { valueFrom = 'canonicalToken', labels }: StringFieldOptionsConfig = {},
-) {
-  // The backend builds its labels from the values ("Founder Led", "Pre
-  // Launch"); the frontend's own wording wins wherever it has one.
-  const fallbackLabels = new Map(fallbackOptions.map((option) => [option.value, option.label]));
-  const options = getFieldOptions(wizardOptions, fieldKey)
+  { valueFrom = 'canonicalToken' }: StringFieldOptionsConfig = {},
+): WizardStringOption[] {
+  return getFieldOptions(wizardOptions, fieldKey)
     .filter((option): option is WizardFieldOptionV2 & { value: string } => typeof option.value === 'string')
-    .map((option) => {
-      const value = valueFrom === 'value' ? option.value : option.canonicalToken || option.value;
-      return {
-        value,
-        label: labels?.[value] || fallbackLabels.get(value) || option.label || option.value,
-        canonicalToken: option.canonicalToken,
-        sourceValue: option.value,
-      };
-    });
-
-  return options.length ? options : fallbackOptions;
+    .map((option) => ({
+      value: valueFrom === 'value' ? option.value : option.canonicalToken || option.value,
+      label: option.label || option.value,
+      canonicalToken: option.canonicalToken,
+      sourceValue: option.value,
+    }));
 }
 
 function getBooleanFieldOptions(
   wizardOptions: WizardOptionsResponseV2 | undefined,
   fieldKey: string,
-  fallbackOptions: WizardFieldOptionV2[],
-) {
-  const options = getFieldOptions(wizardOptions, fieldKey)
+): WizardFieldOptionV2[] {
+  return getFieldOptions(wizardOptions, fieldKey)
     .filter((option): option is WizardFieldOptionV2 & { value: boolean } => typeof option.value === 'boolean')
     .map((option) => ({
       value: option.value,
       label: option.label || String(option.value),
       canonicalToken: option.canonicalToken,
     }));
-
-  return options.length ? options : fallbackOptions;
 }
 
 function normalizeStringOptionValue(value: unknown, options: WizardStringOption[]) {
   const normalizedValue = normalizeString(typeof value === 'string' ? value : undefined);
   if (!normalizedValue) {
     return '';
+  }
+
+  // Until the options load, a saved answer is kept as saved: matching it
+  // against no list would clear it, and the next save would send the blank.
+  if (!options.length) {
+    return normalizedValue;
   }
 
   const matchingOption = options.find(
@@ -1964,8 +1759,8 @@ function coerceDigitalPresenceLinks(value: unknown): DigitalPresenceLink[] {
 /** The channels in rank order, each with its share of sales when given (v3 P6). */
 function formatRankedSalesChannels(
   channels: RankedSalesChannel[] | undefined,
-  channelOptions: { value: string; label: string }[],
-  shareOptions: { value: string; label: string }[],
+  optionLabels: WizardOptionLabels,
+  market: string | null,
 ) {
   const normalizedChannels = normalizeSalesChannels(channels);
   if (!normalizedChannels.length) {
@@ -1977,8 +1772,8 @@ function formatRankedSalesChannels(
       const name =
         item.channel === 'other'
           ? item.customName || 'Other'
-          : (channelOptions.find((option) => option.value === item.channel)?.label ?? formatSalesChannel(item.channel));
-      const share = labelOfOption(shareOptions, item.salesShare);
+          : optionLabels.label('salesChannels', item.channel, market);
+      const share = optionLabels.label('salesShare', item.salesShare);
       return `${item.rank}. ${name}${share ? ` (${share} of sales)` : ''}`;
     })
     .join(' | ');
@@ -2004,7 +1799,7 @@ function formatCurrentMarketingActivity(
       }>
     | null
     | undefined,
-  shareOptions: { value: string; label: string }[],
+  optionLabels: WizardOptionLabels,
 ) {
   if (!activities?.length) {
     return null;
@@ -2013,9 +1808,9 @@ function formatCurrentMarketingActivity(
   const cleaned = activities
     .map((activity) => {
       const channel = normalizeString(activity.channel ?? '');
-      const status = normalizeString(activity.status ?? '');
-      const assessment = normalizeString(activity.workingAssessment ?? '');
-      const share = labelOfOption(shareOptions, activity.shareOfSpend);
+      const status = optionLabels.label('currentMarketingActivityStatus', activity.status);
+      const assessment = optionLabels.label('currentMarketingActivityAssessment', activity.workingAssessment);
+      const share = optionLabels.label('shareOfSpend', activity.shareOfSpend);
 
       if (!channel) {
         return '';
@@ -2026,26 +1821,6 @@ function formatCurrentMarketingActivity(
     .filter(Boolean);
 
   return cleaned.length ? cleaned.join(', ') : null;
-}
-
-function formatSocialHandles(handles?: SocialHandle[]) {
-  if (!handles?.length) {
-    return null;
-  }
-
-  return handles
-    .map((item) => `${formatSocialPlatform(item.platform)}: ${item.handle}`)
-    .join(' | ');
-}
-
-function formatDigitalPresenceLinks(links?: DigitalPresenceLink[]) {
-  if (!links?.length) {
-    return null;
-  }
-
-  return links
-    .map((item) => `${formatDigitalPresenceLinkType(item.type)}: ${item.label || item.url}`)
-    .join(' | ');
 }
 
 function getFocusNameLabel(sourceType?: Step1FormData['marketingTargetType']) {
@@ -2372,15 +2147,15 @@ export function CampaignWizardModal({
   );
 
   const marketingTargetTypeOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'marketingTargetType', STEP1_MARKETING_TARGET_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'marketingTargetType'),
     [wizardOptions],
   );
   const sourceTypeOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'sourceType', STEP1_SOURCE_TYPE_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'sourceType'),
     [wizardOptions],
   );
   const marketScopeOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'marketScope', STEP1_MARKET_SCOPE_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'marketScope'),
     [wizardOptions],
   );
   // No local fallback: a country the Backend does not serve cannot be chosen.
@@ -2403,134 +2178,106 @@ export function CampaignWizardModal({
         option.hint,
       ]),
     );
-    return getStringFieldOptions(wizardOptions, 'industryCategory', []).map((option) => ({
+    return getStringFieldOptions(wizardOptions, 'industryCategory').map((option) => ({
       ...option,
       hint: hints.get(option.value),
     }));
   }, [wizardOptions]);
   const audienceModelOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'audienceModel', STEP2_AUDIENCE_MODEL_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'audienceModel'),
     [wizardOptions],
   );
   const lifecycleStageOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'lifecycleStage', STEP2_LIFECYCLE_STAGE_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'lifecycleStage'),
     [wizardOptions],
   );
   const sensitiveCategoryFlagOptions = useMemo(
-    () =>
-      getStringFieldOptions(wizardOptions, 'sensitiveCategoryFlags', [], {
-        labels: SENSITIVE_CATEGORY_FLAG_LABELS,
-      }),
+    () => getStringFieldOptions(wizardOptions, 'sensitiveCategoryFlags'),
     [wizardOptions],
   );
   const languageOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'language', STEP3_LANGUAGE_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'language'),
     [wizardOptions],
   );
   const reportLanguageOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'reportLanguage', STEP3_REPORT_LANGUAGE_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'reportLanguage'),
     [wizardOptions],
   );
   const primaryConversionPathOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'primaryConversionPath', STEP4_PRIMARY_CONVERSION_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'primaryConversionPath'),
     [wizardOptions],
   );
   const primaryGoalOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'primaryGoal', STEP5_PRIMARY_GOAL_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'primaryGoal'),
     [wizardOptions],
   );
   const marketingHandlerOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'marketingHandler', STEP5_MARKETING_HANDLER_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'marketingHandler'),
     [wizardOptions],
   );
   const contentCapacityOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'contentCapacity', STEP5_CONTENT_CAPACITY_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'contentCapacity'),
     [wizardOptions],
   );
   // The paid budget's bands are snake_case already, so the canonical token is
   // the value to send. The capacity and payback questions send the backend's
   // camelCase values, which their canonical tokens would turn into snake_case.
   const sellsToOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'sellsTo', STEP2_SELLS_TO_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'sellsTo'),
     [wizardOptions],
   );
   const sellsViaOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'sellsVia', STEP2_SELLS_VIA_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'sellsVia'),
     [wizardOptions],
   );
   const currencyOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'currency', STEP1_CURRENCY_FALLBACK_OPTIONS, { valueFrom: 'value' }),
+    () => getStringFieldOptions(wizardOptions, 'currency', { valueFrom: 'value' }),
     [wizardOptions],
   );
   const paidAdsShareOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'paidAdsShare', STEP5_PAID_ADS_SHARE_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'paidAdsShare'),
     [wizardOptions],
   );
   const paidMediaBudgetRangeOptions = useMemo(
-    () =>
-      getStringFieldOptions(wizardOptions, 'paidMediaBudgetRange', STEP5_PAID_MEDIA_BUDGET_RANGE_FALLBACK_OPTIONS, {
-        labels: PAID_MEDIA_BUDGET_RANGE_LABELS,
-      }),
+    () => getStringFieldOptions(wizardOptions, 'paidMediaBudgetRange'),
     [wizardOptions],
   );
   const marketingHoursPerWeekOptions = useMemo(
-    () =>
-      getStringFieldOptions(wizardOptions, 'marketingHoursPerWeek', STEP5_MARKETING_HOURS_PER_WEEK_FALLBACK_OPTIONS, {
-        valueFrom: 'value',
-        labels: MARKETING_HOURS_PER_WEEK_LABELS,
-      }),
+    () => getStringFieldOptions(wizardOptions, 'marketingHoursPerWeek', { valueFrom: 'value' }),
     [wizardOptions],
   );
   const creativeCapabilityOptions = useMemo(
-    () =>
-      getStringFieldOptions(wizardOptions, 'creativeCapabilities', STEP5_CREATIVE_CAPABILITY_FALLBACK_OPTIONS, {
-        valueFrom: 'value',
-        labels: CREATIVE_CAPABILITY_LABELS,
-      }),
+    () => getStringFieldOptions(wizardOptions, 'creativeCapabilities', { valueFrom: 'value' }),
     [wizardOptions],
   );
   const deliveryDeadlineOptions = useMemo(
-    () =>
-      getStringFieldOptions(wizardOptions, 'deliveryDeadline', STEP5_DELIVERY_DEADLINE_FALLBACK_OPTIONS, {
-        valueFrom: 'value',
-        labels: DELIVERY_DEADLINE_LABELS,
-      }),
+    () => getStringFieldOptions(wizardOptions, 'deliveryDeadline', { valueFrom: 'value' }),
     [wizardOptions],
   );
   const paybackWindowOptions = useMemo(
-    () =>
-      getStringFieldOptions(wizardOptions, 'paybackWindow', STEP6_PAYBACK_WINDOW_FALLBACK_OPTIONS, {
-        valueFrom: 'value',
-        labels: PAYBACK_WINDOW_LABELS,
-      }),
+    () => getStringFieldOptions(wizardOptions, 'paybackWindow', { valueFrom: 'value' }),
     [wizardOptions],
   );
   const knownCompetitorStatusOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'knownCompetitorStatus', STEP5_KNOWN_COMPETITOR_STATUS_FALLBACK_OPTIONS),
+    () => getStringFieldOptions(wizardOptions, 'knownCompetitorStatus'),
     [wizardOptions],
   );
   const currentMarketingActivityStatusOptions = useMemo(
-    () =>
-      getStringFieldOptions(
-        wizardOptions,
-        'currentMarketingActivityStatus',
-        STEP5_CURRENT_MARKETING_ACTIVITY_STATUS_FALLBACK_OPTIONS,
-      ),
+    () => getStringFieldOptions(wizardOptions, 'currentMarketingActivityStatus'),
     [wizardOptions],
   );
   const currentMarketingActivityAssessmentOptions = useMemo(
-    () =>
-      getStringFieldOptions(
-        wizardOptions,
-        'currentMarketingActivityAssessment',
-        STEP5_CURRENT_MARKETING_ACTIVITY_ASSESSMENT_FALLBACK_OPTIONS,
-      ),
+    () => getStringFieldOptions(wizardOptions, 'currentMarketingActivityAssessment'),
     [wizardOptions],
   );
   const dataConsentOptInOptions = useMemo(
-    () => getBooleanFieldOptions(wizardOptions, 'dataConsentOptIn', STEP7_DATA_CONSENT_FALLBACK_OPTIONS),
+    () => getBooleanFieldOptions(wizardOptions, 'dataConsentOptIn'),
     [wizardOptions],
   );
+
+  // Every answer by the label the backend serves for it (V3-03): the review
+  // reads its labels from here, never from a local list.
+  const optionLabels = useMemo(() => createWizardOptionLabels(wizardOptions), [wizardOptions]);
 
   const stepVersion = wizardState?.version;
   const step1Data = useMemo(
@@ -2689,45 +2436,18 @@ export function CampaignWizardModal({
   const watchedAudienceSegments = step3Form.watch('audienceSegments') ?? [];
   const watchedPainPoints = step3Form.watch('painPoints') ?? [];
   const watchedBuyerRoles = step3Form.watch('buyerRoles') ?? [];
-  // v3 P6: the new questions' lists, served with their labels; the fallbacks
-  // carry the same values.
-  const pricePositionOptions = getStringFieldOptions(wizardOptions, 'pricePosition', [
-    { value: 'cheaper', label: 'Cheaper' },
-    { value: 'about_same', label: 'About the same' },
-    { value: 'premium', label: 'Premium' },
-    { value: 'unknown', label: "Don't know" },
-  ]);
-  const ageRangeOptions = getStringFieldOptions(wizardOptions, 'ageRanges', [
-    { value: 'under_18', label: 'Under 18' },
-    { value: '18_24', label: '18–24' },
-    { value: '25_34', label: '25–34' },
-    { value: '35_44', label: '35–44' },
-    { value: '45_54', label: '45–54' },
-    { value: '55_plus', label: '55+' },
-  ]);
-  const genderSkewOptions = getStringFieldOptions(wizardOptions, 'genderSkew', [
-    { value: 'mostly_women', label: 'Mostly women' },
-    { value: 'mostly_men', label: 'Mostly men' },
-    { value: 'even', label: 'About even' },
-    { value: 'unknown', label: "Don't know" },
-  ]);
-  const shareBandFallback = [
-    { value: 'under_10', label: 'Under 10%' },
-    { value: '10_30', label: '10–30%' },
-    { value: '30_60', label: '30–60%' },
-    { value: 'over_60', label: 'Over 60%' },
-  ];
-  const salesShareOptions = getStringFieldOptions(wizardOptions, 'salesShare', shareBandFallback);
-  const shareOfSpendOptions = getStringFieldOptions(wizardOptions, 'shareOfSpend', shareBandFallback);
-  const whatsappListSizeOptions = getStringFieldOptions(wizardOptions, 'whatsappListSize', []);
-  const existingAssetOptions = getStringFieldOptions(wizardOptions, 'existingAssets', [
-    { value: 'creators', label: 'Creators or influencers' },
-    { value: 'community', label: 'Community or group' },
-    { value: 'email_automation', label: 'Email automation' },
-    { value: 'referral_programme', label: 'Referral programme' },
-    { value: 'loyalty_programme', label: 'Loyalty programme' },
-    { value: 'none', label: 'None' },
-  ]);
+  // v3 P6: the new questions' lists, served with their labels.
+  const pricePositionOptions = getStringFieldOptions(wizardOptions, 'pricePosition');
+  const ageRangeOptions = getStringFieldOptions(wizardOptions, 'ageRanges');
+  const genderSkewOptions = getStringFieldOptions(wizardOptions, 'genderSkew');
+  const salesShareOptions = getStringFieldOptions(wizardOptions, 'salesShare');
+  const shareOfSpendOptions = getStringFieldOptions(wizardOptions, 'shareOfSpend');
+  const whatsappListSizeOptions = getStringFieldOptions(wizardOptions, 'whatsappListSize');
+  const existingAssetOptions = getStringFieldOptions(wizardOptions, 'existingAssets');
+  const monthlyWebsiteTrafficOptions = getStringFieldOptions(wizardOptions, 'monthlyWebsiteTraffic');
+  const emailListSizeOptions = getStringFieldOptions(wizardOptions, 'emailListSize');
+  const avgCustomerRetentionOptions = getStringFieldOptions(wizardOptions, 'avgCustomerRetention');
+  const repeatPurchaseFrequencyOptions = getStringFieldOptions(wizardOptions, 'repeatPurchaseFrequency');
   const [buyingTriggerDraft, setBuyingTriggerDraft] = useState('');
   const [currentOfferDraft, setCurrentOfferDraft] = useState('');
   const watchedBuyingTriggers = step3Form.watch('buyingTriggers') ?? [];
@@ -2749,9 +2469,9 @@ export function CampaignWizardModal({
   const watchedBusinessModel = step2Form.watch('businessModel');
   const watchedSellsTo = step2Form.watch('sellsTo');
   // v3 V3-43: the campaign market's own lists - a curated market's, or the
-  // global ones - falling back to the full lists before the backend serves
-  // them. The market is the one picked on step 1, or the saved one when the
-  // wizard resumes on a later step.
+  // global ones - and empty until the backend serves them. The market is the
+  // one picked on step 1, or the saved one when the wizard resumes on a later
+  // step.
   const campaignMarketCode =
     selectedCountryCode ||
     toWizardCountryCode(
@@ -2760,12 +2480,12 @@ export function CampaignWizardModal({
     );
   const marketList =
     wizardOptions?.marketLists?.[campaignMarketCode] ?? wizardOptions?.marketLists?.global ?? null;
-  const salesChannelOptions = marketList?.salesChannels ?? SALES_CHANNEL_OPTIONS;
+  const salesChannelOptions = marketList?.salesChannels ?? [];
   // LinkedIn only for a business that sells to businesses.
-  const socialPlatformOptions = (marketList?.socialPlatforms ?? SOCIAL_PLATFORM_OPTIONS).filter(
+  const socialPlatformOptions = (marketList?.socialPlatforms ?? []).filter(
     (option) => !('businessOnly' in option && option.businessOnly) || watchedSellsTo !== 'consumers',
   );
-  const presenceLinkTypeOptions = marketList?.presenceLinkTypes ?? DIGITAL_PRESENCE_LINK_TYPE_OPTIONS;
+  const presenceLinkTypeOptions = marketList?.presenceLinkTypes ?? [];
   const competitorPlaceholder = marketList?.competitorPlaceholder ?? 'e.g. Mamaearth, Practo, Zoho';
   const watchedConversionPath = step2Form.watch('primaryConversionPath');
   // What this client is asked follows its shape (v3 P2): business-buyer
@@ -3119,7 +2839,7 @@ export function CampaignWizardModal({
       creativeCapabilities: normalizeCreativeCapabilities(
         (Array.isArray(savedGoalsData.creativeCapabilities) ? savedGoalsData.creativeCapabilities : [])
           .map((value) => normalizeStringOptionValue(value, creativeCapabilityOptions)),
-        creativeCapabilityOptions.map((option) => option.value),
+        creativeCapabilityOptions.length ? creativeCapabilityOptions.map((option) => option.value) : undefined,
       ),
       deliveryDeadline: normalizeStringOptionValue(savedGoalsData.deliveryDeadline, deliveryDeadlineOptions),
       salesCapacity: normalizeString(savedGoalsData.salesCapacity as string | undefined),
@@ -5534,7 +5254,7 @@ export function CampaignWizardModal({
                       )}
                     />
                     <SubtleNote>
-                      {formatPrimaryConversionPath(step2Form.getValues('primaryConversionPath') || null) || 'Choose how conversions most commonly happen right now.'}
+                      {optionLabels.label('primaryConversionPath', step2Form.getValues('primaryConversionPath')) || 'Choose how conversions most commonly happen right now.'}
                     </SubtleNote>
                     <FieldMeta error={step2Form.formState.errors.primaryConversionPath?.message} />
                   </div>
@@ -5705,7 +5425,7 @@ export function CampaignWizardModal({
                               <SelectValue placeholder="Select traffic" />
                             </SelectTrigger>
                             <SelectContent>
-                              {MONTHLY_WEBSITE_TRAFFIC_OPTIONS.map((option) => (
+                              {monthlyWebsiteTrafficOptions.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                   {option.label}
                                 </SelectItem>
@@ -5728,7 +5448,7 @@ export function CampaignWizardModal({
                               <SelectValue placeholder="Select size" />
                             </SelectTrigger>
                             <SelectContent>
-                              {EMAIL_LIST_SIZE_OPTIONS.map((option) => (
+                              {emailListSizeOptions.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                   {option.label}
                                 </SelectItem>
@@ -6744,7 +6464,7 @@ export function CampaignWizardModal({
                               <SelectValue placeholder="Select pattern" />
                             </SelectTrigger>
                             <SelectContent>
-                              {AVG_CUSTOMER_RETENTION_OPTIONS.map((option) => (
+                              {avgCustomerRetentionOptions.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                   {option.label}
                                 </SelectItem>
@@ -6799,7 +6519,7 @@ export function CampaignWizardModal({
                               <SelectValue placeholder="Select frequency" />
                             </SelectTrigger>
                             <SelectContent>
-                              {REPEAT_PURCHASE_FREQUENCY_OPTIONS.map((option) => (
+                              {repeatPurchaseFrequencyOptions.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                   {option.label}
                                 </SelectItem>
@@ -6844,9 +6564,9 @@ export function CampaignWizardModal({
                       >
                         <ReviewGrid>
                           <SummaryField label="Campaign title" value={effectivePreviewStep1?.title || campaign?.name || preview?.campaign?.title} />
-                          <SummaryField label="Marketing target" value={formatMarketingTargetType(effectivePreviewStep1?.marketingTargetType)} />
+                          <SummaryField label="Marketing target" value={optionLabels.label('marketingTargetType', effectivePreviewStep1?.marketingTargetType)} />
                           <SummaryField label="Focus name" value={effectivePreviewStep1?.focusName} />
-                          <SummaryField label="Source type" value={formatSourceType(effectivePreviewStep1?.sourceType)} />
+                          <SummaryField label="Source type" value={optionLabels.label('sourceType', effectivePreviewStep1?.sourceType)} />
                           <SummaryField label="Source URL" value={effectivePreviewStep1?.primaryUrl || null} />
                           <SummaryField label="Country" value={targetMarketOptions.find((option) => option.value === toWizardCountryCode(effectivePreviewStep1?.targetMarkets?.[0], targetMarketOptions))?.label ?? formatStringList(effectivePreviewStep1?.targetMarkets)} />
                           <SummaryField label="Marketing target location" value={formatMarketScope(effectivePreviewStep1?.marketScope || campaign?.marketScope || null)} />
@@ -6866,27 +6586,34 @@ export function CampaignWizardModal({
                       >
                         <ReviewGrid>
                           <SummaryField label="Business name" value={effectivePreviewStep2?.businessName} />
-                          <SummaryField label="Industry category" value={formatBusinessType(effectivePreviewStep2?.industryCategory || effectivePreviewStep2?.businessType || campaign?.businessType || null)} />
+                          <SummaryField
+                            label="Industry category"
+                            value={
+                              effectivePreviewStep2?.industryCategory
+                                ? optionLabels.label('industryCategory', effectivePreviewStep2.industryCategory)
+                                : formatBusinessType(effectivePreviewStep2?.businessType || campaign?.businessType || null)
+                            }
+                          />
                           <SummaryField
                             label="Who you sell to"
-                            value={sellsToOptions.find((option) => option.value === effectivePreviewStep2?.sellsTo)?.label}
+                            value={optionLabels.label('sellsTo', effectivePreviewStep2?.sellsTo)}
                           />
                           <SummaryField
                             label="How you sell"
-                            value={sellsViaOptions.find((option) => option.value === effectivePreviewStep2?.sellsVia)?.label}
+                            value={optionLabels.label('sellsVia', effectivePreviewStep2?.sellsVia)}
                           />
                           <SummaryField label="Business model" value={formatBusinessModel(effectivePreviewStep2?.businessModel || campaign?.businessModel || null)} />
-                          <SummaryField label="Audience model" value={formatAudienceModel(effectivePreviewStep2?.audienceModel)} />
-                          <SummaryField label="Lifecycle stage" value={formatLifecycleStage(effectivePreviewStep2?.lifecycleStage)} />
+                          <SummaryField label="Audience model" value={optionLabels.label('audienceModel', effectivePreviewStep2?.audienceModel)} />
+                          <SummaryField label="Lifecycle stage" value={optionLabels.label('lifecycleStage', effectivePreviewStep2?.lifecycleStage)} />
                           <SummaryField label="Source URL" value={effectivePreviewStep1?.primaryUrl || null} />
                           <SummaryField label="Product category" value={effectivePreviewStep2?.productCategory} />
                           <SummaryField label="Product or service" value={formatStringOrList(effectivePreviewStep2?.productOrService as string[] | string | undefined)} />
                           <SummaryField label="Price range" value={showPriceRange(effectivePreviewStep2)} />
-                          <SummaryField label="Price position" value={labelOfOption(pricePositionOptions, previewValue(effectivePreviewStep2, 'pricePosition'))} />
-                          <SummaryField label="Sales channels" value={formatRankedSalesChannels(effectivePreviewStep2?.salesChannels, salesChannelOptions, salesShareOptions)} className="md:col-span-2" />
+                          <SummaryField label="Price position" value={optionLabels.label('pricePosition', previewValue(effectivePreviewStep2, 'pricePosition'))} />
+                          <SummaryField label="Sales channels" value={formatRankedSalesChannels(effectivePreviewStep2?.salesChannels, optionLabels, campaignMarketCode)} className="md:col-span-2" />
                           <SummaryField label="Offer summary" value={effectivePreviewStep2?.offerSummary} />
                           <SummaryField label="Differentiators" value={formatStringList(effectivePreviewStep2?.differentiators)} />
-                          <SummaryField label="Sensitive category flags" value={formatSensitiveCategoryFlags(effectivePreviewStep2?.sensitiveCategoryFlags)} />
+                          <SummaryField label="Sensitive category flags" value={optionLabels.list('sensitiveCategoryFlags', effectivePreviewStep2?.sensitiveCategoryFlags)} />
                           <SummaryField label="Compliance-sensitive claims" value={formatStringList(effectivePreviewStep2?.complianceSensitiveClaims)} className="md:col-span-2" />
                           <SummaryField label="Business description" value={effectivePreviewStep2?.businessDescription} className="md:col-span-2" />
                         </ReviewGrid>
@@ -6911,8 +6638,8 @@ export function CampaignWizardModal({
                           <SummaryField label="Pain points" value={formatStringList(effectivePreviewStep3?.painPoints)} />
                           <SummaryField label="Decision process" value={effectivePreviewStep3?.decisionProcess} />
                           <SummaryField label="Buyer roles" value={formatStringList(effectivePreviewStep3?.buyerRoles)} />
-                          <SummaryField label="Age groups" value={labelsOfOptions(ageRangeOptions, previewValue(effectivePreviewStep3, 'ageRanges'))} />
-                          <SummaryField label="Who buys more" value={labelOfOption(genderSkewOptions, previewValue(effectivePreviewStep3, 'genderSkew'))} />
+                          <SummaryField label="Age groups" value={optionLabels.list('ageRanges', previewValue(effectivePreviewStep3, 'ageRanges'))} />
+                          <SummaryField label="Who buys more" value={optionLabels.label('genderSkew', previewValue(effectivePreviewStep3, 'genderSkew'))} />
                           <SummaryField label="Buying triggers" value={formatStringList(previewValue(effectivePreviewStep3, 'buyingTriggers') as string[] | undefined)} />
                         </ReviewGrid>
                       </ReviewSection>
@@ -6932,28 +6659,28 @@ export function CampaignWizardModal({
                             label="Total monthly marketing budget"
                             value={
                               showMoney(effectivePreviewStep4?.monthlyMarketingBudget) ??
-                              formatMonthlyMarketingSpend(effectivePreviewStep4?.monthlyMarketingSpend)
+                              optionLabels.label('monthlyMarketingSpend', effectivePreviewStep4?.monthlyMarketingSpend)
                             }
                           />
                           <SummaryField
                             label="Of which, paid ads"
                             value={
-                              paidAdsShareOptions.find((option) => option.value === effectivePreviewStep4?.paidAdsShare)?.label ??
-                              formatPaidMediaBudgetRange(effectivePreviewStep4?.paidMediaBudgetRange)
+                              optionLabels.find('paidAdsShare', effectivePreviewStep4?.paidAdsShare) ??
+                              optionLabels.label('paidMediaBudgetRange', effectivePreviewStep4?.paidMediaBudgetRange)
                             }
                           />
-                          <SummaryField label="Primary goal" value={formatPrimaryGoal(effectivePreviewStep4?.primaryGoal)} />
-                          <SummaryField label="Marketing owner" value={formatMarketingHandler(effectivePreviewStep4?.marketingHandler)} />
-                          <SummaryField label="Content capacity" value={formatContentCapacity(effectivePreviewStep4?.contentCapacity)} />
-                          <SummaryField label="Hours a week for marketing" value={formatMarketingHoursPerWeek(effectivePreviewStep4?.marketingHoursPerWeek)} />
-                          <SummaryField label="Made in-house" value={formatCreativeCapabilities(effectivePreviewStep4?.creativeCapabilities)} />
-                          <SummaryField label="Results needed" value={formatDeliveryDeadline(effectivePreviewStep4?.deliveryDeadline)} />
+                          <SummaryField label="Primary goal" value={optionLabels.label('primaryGoal', effectivePreviewStep4?.primaryGoal)} />
+                          <SummaryField label="Marketing owner" value={optionLabels.label('marketingHandler', effectivePreviewStep4?.marketingHandler)} />
+                          <SummaryField label="Content capacity" value={optionLabels.label('contentCapacity', effectivePreviewStep4?.contentCapacity)} />
+                          <SummaryField label="Hours a week for marketing" value={optionLabels.label('marketingHoursPerWeek', effectivePreviewStep4?.marketingHoursPerWeek)} />
+                          <SummaryField label="Made in-house" value={optionLabels.list('creativeCapabilities', effectivePreviewStep4?.creativeCapabilities)} />
+                          <SummaryField label="Results needed" value={optionLabels.label('deliveryDeadline', effectivePreviewStep4?.deliveryDeadline)} />
                           <SummaryField label="Sales capacity" value={effectivePreviewStep4?.salesCapacity} />
-                          <SummaryField label="Peak seasons" value={labelsOfOptions(marketList?.peakSeasons ?? [], previewValue(effectivePreviewStep4, 'peakSeasons'))} />
+                          <SummaryField label="Peak seasons" value={optionLabels.list('peakSeasons', previewValue(effectivePreviewStep4, 'peakSeasons'), campaignMarketCode)} />
                           <SummaryField label="Offers running now" value={formatStringList(previewValue(effectivePreviewStep4, 'currentOffers') as string[] | undefined)} />
-                          <SummaryField label="Current marketing activity" value={formatCurrentMarketingActivity(effectivePreviewStep4?.currentMarketingActivity, shareOfSpendOptions)} className="md:col-span-2" />
+                          <SummaryField label="Current marketing activity" value={formatCurrentMarketingActivity(effectivePreviewStep4?.currentMarketingActivity, optionLabels)} className="md:col-span-2" />
                           <SummaryField label="Past marketing" value={effectivePreviewStep4?.pastMarketing} className="md:col-span-2" />
-                          <SummaryField label="Known competitor status" value={formatKnownCompetitorStatus(effectivePreviewStep4?.knownCompetitorStatus)} />
+                          <SummaryField label="Known competitor status" value={optionLabels.label('knownCompetitorStatus', effectivePreviewStep4?.knownCompetitorStatus)} />
                           <SummaryField label="Constraints" value={formatStringList(effectivePreviewStep4?.constraints)} />
                           <SummaryField label="Channels to avoid" value={formatStringList(effectivePreviewStep4?.channelsToAvoid)} />
                           <SummaryField label="Channels strongly preferred" value={formatStringList(effectivePreviewStep4?.channelsStronglyPreferred)} />
@@ -6992,16 +6719,16 @@ export function CampaignWizardModal({
                           <SummaryField label="Product cost" value={effectivePreviewStep4?.productCost} />
                           <SummaryField label="Orders per subscriber" value={effectivePreviewStep4?.monthlyOrdersPerSubscriber} />
                           <SummaryField label="Monthly churn rate" value={effectivePreviewStep4?.monthlyChurnRate} />
-                          <SummaryField label="Retention" value={formatAvgCustomerRetention(effectivePreviewStep4?.avgCustomerRetention)} />
-                          <SummaryField label="Repeat frequency" value={formatRepeatPurchaseFrequency(effectivePreviewStep4?.repeatPurchaseFrequency)} />
+                          <SummaryField label="Retention" value={optionLabels.label('avgCustomerRetention', effectivePreviewStep4?.avgCustomerRetention)} />
+                          <SummaryField label="Repeat frequency" value={optionLabels.label('repeatPurchaseFrequency', effectivePreviewStep4?.repeatPurchaseFrequency)} />
                           <SummaryField label="Sales cycle length" value={effectivePreviewStep4?.salesCycleLength} />
-                          <SummaryField label="Time to earn back a customer's cost" value={formatPaybackWindow(effectivePreviewStep4?.paybackWindow)} />
-                          <SummaryField label="Website traffic" value={formatMonthlyWebsiteTraffic(effectivePreviewStep4?.monthlyWebsiteTraffic)} />
-                          <SummaryField label="Email list size" value={formatEmailListSize(effectivePreviewStep4?.emailListSize)} />
+                          <SummaryField label="Time to earn back a customer's cost" value={optionLabels.label('paybackWindow', effectivePreviewStep4?.paybackWindow)} />
+                          <SummaryField label="Website traffic" value={optionLabels.label('monthlyWebsiteTraffic', effectivePreviewStep4?.monthlyWebsiteTraffic)} />
+                          <SummaryField label="Email list size" value={optionLabels.label('emailListSize', effectivePreviewStep4?.emailListSize)} />
                           {asksWhatsappListSize ? (
-                            <SummaryField label="WhatsApp list size" value={labelOfOption(whatsappListSizeOptions, previewValue(effectivePreviewStep4, 'whatsappListSize'))} />
+                            <SummaryField label="WhatsApp list size" value={optionLabels.label('whatsappListSize', previewValue(effectivePreviewStep4, 'whatsappListSize'))} />
                           ) : null}
-                          <SummaryField label="Already running" value={labelsOfOptions(existingAssetOptions, previewValue(effectivePreviewStep4, 'existingAssets'))} />
+                          <SummaryField label="Already running" value={optionLabels.list('existingAssets', previewValue(effectivePreviewStep4, 'existingAssets'))} />
                           <SummaryField label="Cost to win a customer" value={showMoney(previewValue(effectivePreviewStep4, 'customerAcquisitionCost'))} />
                           <SummaryField
                             label="Customers subscribe"

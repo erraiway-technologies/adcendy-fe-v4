@@ -283,133 +283,11 @@ export const EMAIL_LIST_SIZE_VALUES = [
 
 export type EmailListSize = (typeof EMAIL_LIST_SIZE_VALUES)[number];
 
-export const MARKETING_TARGET_TYPE_LABELS: Record<MarketingTargetType, string> = {
-  whole_business: 'Whole business',
-  product_or_service: 'Product or service',
-  launch: 'Launch',
-  market_expansion: 'Market expansion',
-  specific_audience: 'Specific audience',
-  other: 'Other',
-};
-
-export const SOURCE_TYPE_LABELS: Record<SourceType, string> = {
-  website: 'Website',
-  digital_presence_only: 'Digital presence only',
-  manual_only: 'Manual only',
-};
-
-export const AUDIENCE_MODEL_LABELS: Record<AudienceModel, string> = {
-  single_sided: 'One audience',
-  b2b2c: 'Business + end customer (B2B2C)',
-  marketplace_platform: 'Marketplace / two-sided platform',
-  multi_sided: 'Multi-sided',
-  unknown: "Don't know",
-};
-
-export const LIFECYCLE_STAGE_LABELS: Record<LifecycleStage, string> = {
-  pre_launch: 'Pre-launch',
-  launch: 'Launch',
-  growth: 'Growth',
-  scaling: 'Scaling',
-  mature: 'Mature',
-};
-
-export const LANGUAGE_LABELS: Record<Language, string> = {
-  english: 'English',
-  hindi: 'Hindi',
-  regional_other: 'Regional language (other)',
-  mixed: 'Mixed',
-  unknown: "Don't know",
-};
-
-export const REPORT_LANGUAGE_LABELS: Record<ReportLanguage, string> = {
-  english: 'English',
-  hindi: 'Hindi',
-  regional_other: 'Regional language (other)',
-};
-
-export const SALES_CHANNEL_LABELS: Record<SalesChannel, string> = {
-  own_website: 'Own website',
-  amazon: 'Amazon',
-  flipkart: 'Flipkart',
-  meesho: 'Meesho',
-  myntra: 'Myntra',
-  nykaa: 'Nykaa',
-  quick_commerce: 'Quick commerce (Blinkit, Zepto, Instamart)',
-  ebay: 'eBay',
-  etsy: 'Etsy',
-  tiktok_shop: 'TikTok Shop',
-  instagram: 'Instagram',
-  whatsapp: 'WhatsApp',
-  retail_store: 'Retail store',
-  justdial: 'Justdial',
-  google_business: 'Google Business',
-  facebook: 'Facebook',
-  other_marketplace: 'Another marketplace',
-  direct_sales: 'Direct sales',
-  other: 'Other',
-};
-
-export const MONTHLY_MARKETING_SPEND_LABELS: Record<MonthlyMarketingSpend, string> = {
-  nothing: "I don't spend anything",
-  under_5k: 'Under INR 5,000',
-  '5k_15k': 'INR 5,000 to INR 15,000',
-  '15k_50k': 'INR 15,000 to INR 50,000',
-  '50k_plus': 'Above INR 50,000',
-};
-
-export const PRIMARY_CONVERSION_PATH_LABELS: Record<PrimaryConversionPath, string> = {
-  buy_online: 'Buy online',
-  book_demo: 'Book a demo',
-  book_call: 'Book a call',
-  whatsapp: 'WhatsApp',
-  retail_visit: 'Retail visit',
-  app_signup: 'App signup',
-  other: 'Other',
-};
-
-/**
- * Goal labels: first the values the wizard asks today (the backend's
- * `primaryGoal` list, as the dropdown sends them), then the v2 names v3
- * renamed and the v1 values older campaigns may still hold.
- */
-export const PRIMARY_GOAL_LABELS: Record<string, string> = {
-  revenue_growth: 'Revenue growth',
-  new_customers: 'New customers',
-  leads: 'Leads',
-  awareness: 'Awareness',
-  launch: 'Launch',
-  repeat_purchase_retention: 'Repeat purchase & retention',
-  footfall: 'Footfall',
-  market_expansion: 'Market expansion',
-  other: 'Other',
-  lead_generation: 'Leads',
-  launch_readiness: 'Launch',
-  retention: 'Repeat purchase & retention',
-  more_sales: 'Get more sales',
-  more_customers: 'Get more customers',
-  new_market: 'Enter a new market',
-  launch_product: 'Launch a product',
-  reduce_channel_dependence: 'Reduce channel dependence',
-  brand_awareness: 'Build brand awareness',
-  beat_competitor: 'Beat a competitor',
-};
-
-/** Who handles marketing: today's values first, then the v1 ones older campaigns may hold. */
-export const MARKETING_HANDLER_LABELS: Record<string, string> = {
-  founder_led: 'Founder',
-  in_house_marketer: 'One in-house marketer',
-  freelancer: 'Freelancer',
-  nobody_yet: 'Nobody yet',
-  internal_marketer: 'One in-house marketer',
-  agency: 'Agency',
-  in_house_team: 'In-house team',
-  unknown: "Don't know",
-  self: 'I handle it myself',
-  team_member: 'A team member handles it',
-  freelancer_agency: 'A freelancer or agency handles it',
-  nobody: 'Nobody handles it right now',
-};
+// The labels of every answer the backend lists live in the wizard options
+// response (`GET /api/v2/wizard/options`); read them with
+// `createWizardOptionLabels` (V3-03). The lists below are the answers the
+// backend serves no list for: the monthly revenue band older campaigns hold,
+// and the deal value, gross margin and close rate bands.
 
 export const MONTHLY_REVENUE_LABELS: Record<MonthlyRevenue, string> = {
   under_25k: 'Under INR 25,000',
@@ -445,130 +323,6 @@ export const CLOSE_RATE_BAND_LABELS: Record<CloseRateBand, string> = {
   not_tracked: 'We do not track this yet',
 };
 
-export const AVG_CUSTOMER_RETENTION_LABELS: Record<AvgCustomerRetention, string> = {
-  one_time_buyers: 'Mostly one-time buyers',
-  some_repeat: 'Some customers come back',
-  mostly_repeat: 'Many customers come back',
-  unknown: "Don't know",
-};
-
-export const REPEAT_PURCHASE_FREQUENCY_LABELS: Record<RepeatPurchaseFrequency, string> = {
-  never: 'Rarely or never',
-  every_few_months: 'Every few months',
-  monthly: 'Monthly',
-  weekly: 'Weekly',
-  unknown: "Don't know",
-};
-
-export const MONTHLY_WEBSITE_TRAFFIC_LABELS: Record<MonthlyWebsiteTraffic, string> = {
-  under_500: 'Under 500',
-  '500_2000': '500–2,000',
-  '2000_10000': '2,000–10,000',
-  '10000_50000': '10,000–50,000',
-  '50000_250000': '50,000–250,000',
-  '250000_1000000': '250,000–1M',
-  '1000000_plus': 'Over 1M',
-  unknown: "Don't know",
-};
-
-export const SOCIAL_PLATFORM_LABELS: Record<SocialPlatform, string> = {
-  instagram: 'Instagram',
-  facebook: 'Facebook',
-  youtube: 'YouTube',
-  twitter: 'X (Twitter)',
-  tiktok: 'TikTok',
-  pinterest: 'Pinterest',
-  threads: 'Threads',
-  snapchat: 'Snapchat',
-  linkedin: 'LinkedIn',
-};
-
-export const DIGITAL_PRESENCE_LINK_TYPE_LABELS: Record<DigitalPresenceLinkType, string> = {
-  amazon: 'Amazon store',
-  marketplace_listing: 'Marketplace listing',
-  google_business: 'Google Business profile',
-  google_reviews: 'Google Reviews',
-  trustpilot: 'Trustpilot',
-  zomato_swiggy: 'Zomato / Swiggy',
-  practo: 'Practo',
-  app_store: 'App Store / Play Store',
-  other: 'Other',
-  instagram: 'Instagram',
-  facebook: 'Facebook',
-  youtube: 'YouTube',
-  twitter: 'X (Twitter)',
-  linkedin: 'LinkedIn',
-  flipkart: 'Flipkart',
-  whatsapp: 'WhatsApp',
-  other_marketplace: 'Marketplace listing',
-};
-
-export const EMAIL_LIST_SIZE_LABELS: Record<EmailListSize, string> = {
-  none: 'No email list',
-  under_500: 'Under 500',
-  '500_2000': '500–2,000',
-  '2000_10000': '2,000–10,000',
-  '10000_50000': '10,000–50,000',
-  '50000_250000': '50,000–250,000',
-  '250000_plus': 'Over 250,000',
-  unknown: "Don't know",
-};
-
-export const MARKETING_TARGET_TYPE_OPTIONS = MARKETING_TARGET_TYPE_VALUES.map((value) => ({
-  value,
-  label: MARKETING_TARGET_TYPE_LABELS[value],
-}));
-
-export const SOURCE_TYPE_OPTIONS = SOURCE_TYPE_VALUES.map((value) => ({
-  value,
-  label: SOURCE_TYPE_LABELS[value],
-}));
-
-export const AUDIENCE_MODEL_OPTIONS = AUDIENCE_MODEL_VALUES.map((value) => ({
-  value,
-  label: AUDIENCE_MODEL_LABELS[value],
-}));
-
-export const LIFECYCLE_STAGE_OPTIONS = LIFECYCLE_STAGE_VALUES.map((value) => ({
-  value,
-  label: LIFECYCLE_STAGE_LABELS[value],
-}));
-
-export const LANGUAGE_OPTIONS = LANGUAGE_VALUES.map((value) => ({
-  value,
-  label: LANGUAGE_LABELS[value],
-}));
-
-export const REPORT_LANGUAGE_OPTIONS = REPORT_LANGUAGE_VALUES.map((value) => ({
-  value,
-  label: REPORT_LANGUAGE_LABELS[value],
-}));
-
-export const SALES_CHANNEL_OPTIONS = SALES_CHANNEL_VALUES.map((value) => ({
-  value,
-  label: SALES_CHANNEL_LABELS[value],
-}));
-
-export const MONTHLY_MARKETING_SPEND_OPTIONS = MONTHLY_MARKETING_SPEND_VALUES.map((value) => ({
-  value,
-  label: MONTHLY_MARKETING_SPEND_LABELS[value],
-}));
-
-export const PRIMARY_CONVERSION_PATH_OPTIONS = PRIMARY_CONVERSION_PATH_VALUES.map((value) => ({
-  value,
-  label: PRIMARY_CONVERSION_PATH_LABELS[value],
-}));
-
-export const PRIMARY_GOAL_OPTIONS = PRIMARY_GOAL_VALUES.map((value) => ({
-  value,
-  label: PRIMARY_GOAL_LABELS[value],
-}));
-
-export const MARKETING_HANDLER_OPTIONS = MARKETING_HANDLER_VALUES.map((value) => ({
-  value,
-  label: MARKETING_HANDLER_LABELS[value],
-}));
-
 export const MONTHLY_REVENUE_OPTIONS = MONTHLY_REVENUE_VALUES.map((value) => ({
   value,
   label: MONTHLY_REVENUE_LABELS[value],
@@ -589,44 +343,7 @@ export const CLOSE_RATE_BAND_OPTIONS = CLOSE_RATE_BAND_VALUES.map((value) => ({
   label: CLOSE_RATE_BAND_LABELS[value],
 }));
 
-export const AVG_CUSTOMER_RETENTION_OPTIONS = AVG_CUSTOMER_RETENTION_VALUES.map((value) => ({
-  value,
-  label: AVG_CUSTOMER_RETENTION_LABELS[value],
-}));
-
-export const REPEAT_PURCHASE_FREQUENCY_OPTIONS = REPEAT_PURCHASE_FREQUENCY_VALUES.map((value) => ({
-  value,
-  label: REPEAT_PURCHASE_FREQUENCY_LABELS[value],
-}));
-
-export const MONTHLY_WEBSITE_TRAFFIC_OPTIONS = MONTHLY_WEBSITE_TRAFFIC_VALUES.map((value) => ({
-  value,
-  label: MONTHLY_WEBSITE_TRAFFIC_LABELS[value],
-}));
-
-export const SOCIAL_PLATFORM_OPTIONS = SOCIAL_PLATFORM_VALUES.map((value) => ({
-  value,
-  label: SOCIAL_PLATFORM_LABELS[value],
-}));
-
-// v3 (A7): social profiles are asked as social handles, so a new presence
-// link is not offered their types. Saved ones are still read: the backend
-// moves them into the handles.
-export const DIGITAL_PRESENCE_LINK_TYPE_OPTIONS = DIGITAL_PRESENCE_LINK_TYPE_VALUES.filter(
-  (value) =>
-    !(SOCIAL_PLATFORM_VALUES as readonly string[]).includes(value) &&
-    !['flipkart', 'whatsapp', 'other_marketplace'].includes(value),
-).map((value) => ({
-  value,
-  label: DIGITAL_PRESENCE_LINK_TYPE_LABELS[value],
-}));
-
-export const EMAIL_LIST_SIZE_OPTIONS = EMAIL_LIST_SIZE_VALUES.map((value) => ({
-  value,
-  label: EMAIL_LIST_SIZE_LABELS[value],
-}));
-
-/** `revenueGrowth` and `revenue-growth` -> `revenue_growth`: the form the label maps are keyed by. */
+/** `revenueGrowth` and `revenue-growth` -> `revenue_growth`: the form option values are compared in. */
 export function toWizardToken(value: string): string {
   return value
     .trim()
@@ -634,6 +351,15 @@ export function toWizardToken(value: string): string {
     .replace(/[^A-Za-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '')
     .toLowerCase();
+}
+
+/**
+ * The token an answer is matched by: its snake_case form, with the earlier
+ * not-sure answers read as the one "Don't know" the backend serves (`unknown`).
+ */
+function toWizardMatchKey(value: string): string {
+  const token = toWizardToken(value);
+  return token === 'not_sure' ? 'unknown' : token;
 }
 
 function formatWizardEnumValue<T extends string>(
@@ -644,153 +370,146 @@ function formatWizardEnumValue<T extends string>(
     return null;
   }
 
-  // A value saved in another spelling (camelCase from the backend) still finds
-  // its label, and the earlier not-sure answers read as the one "Don't know".
-  const token = toWizardToken(value);
-  return labels[value] ?? labels[token] ?? labels[token === 'not_sure' ? 'unknown' : token] ?? value;
-}
-
-/**
- * What the backend saves some answers as (wizard-v2.service.ts maps them on
- * save), so a saved campaign reads the same as the dropdown did.
- */
-const SAVED_MARKETING_TARGET_ALIASES: Record<string, string> = {
-  product_service: 'product_or_service',
-};
-const SAVED_AUDIENCE_MODEL_ALIASES: Record<string, string> = {
-  single_audience: 'single_sided',
-  business_and_end_customer: 'b2b2c',
-  marketplace_two_sided: 'marketplace_platform',
-};
-
-function withAlias(value: string | null | undefined, aliases: Record<string, string>) {
-  if (!value) return value;
-  return aliases[toWizardToken(value)] ?? value;
-}
-
-// v3 (A3): what each capacity means, not a size.
-export const CONTENT_CAPACITY_LABELS: Record<string, string> = {
-  none: 'Nothing yet',
-  low: 'A post or two a week',
-  medium: 'Several a week',
-  high: 'Daily with a team',
-  unknown: "Don't know",
-};
-
-export const KNOWN_COMPETITOR_STATUS_LABELS: Record<string, string> = {
-  provided: 'Provided',
-  none_known: 'None known',
-  unknown: "Don't know",
-};
-
-/**
- * The backend's sensitive category flags (`fieldOptions.sensitiveCategoryFlags`).
- * The list itself is the backend's - an admin can add a flag - so one missing
- * here still shows, with the backend's own label.
- */
-export const SENSITIVE_CATEGORY_FLAG_LABELS: Record<string, string> = {
-  none: 'None',
-  unknown: "Don't know",
-  healthcare: 'Healthcare',
-  wellness: 'Wellness',
-  supplements: 'Supplements',
-  finance: 'Finance',
-  legal: 'Legal',
-  education_claims: 'Education claims',
-  b2b_security_compliance: 'B2B security and compliance',
-  alcohol_tobacco_restricted: 'Alcohol, tobacco and restricted goods',
-  restricted_products: 'Restricted products',
-  // v3 (V3-42): two flags added; "Healthcare and wellness" retired, the
-  // backend reading an old answer as both flags.
-  children_minors: 'Children & minors',
-  gambling_rmg: 'Gambling & real-money gaming',
-};
-
-export function formatContentCapacity(value: string | null | undefined) {
-  return formatWizardEnumValue(value, CONTENT_CAPACITY_LABELS);
-}
-
-export function formatKnownCompetitorStatus(value: string | null | undefined) {
-  return formatWizardEnumValue(value, KNOWN_COMPETITOR_STATUS_LABELS);
-}
-
-export function formatSensitiveCategoryFlags(values: string[] | null | undefined) {
-  const labels = (values ?? [])
-    .map((value) => formatWizardEnumValue(value, SENSITIVE_CATEGORY_FLAG_LABELS))
-    .filter((label): label is string => Boolean(label));
-  return labels.length ? labels.join(', ') : null;
-}
-
-export function formatMarketingTargetType(value: MarketingTargetType | string | null | undefined) {
-  return formatWizardEnumValue(withAlias(value, SAVED_MARKETING_TARGET_ALIASES), MARKETING_TARGET_TYPE_LABELS);
-}
-
-export function formatSourceType(value: SourceType | string | null | undefined) {
-  return formatWizardEnumValue(value, SOURCE_TYPE_LABELS);
-}
-
-export function formatAudienceModel(value: AudienceModel | string | null | undefined) {
-  return formatWizardEnumValue(withAlias(value, SAVED_AUDIENCE_MODEL_ALIASES), AUDIENCE_MODEL_LABELS);
-}
-
-export function formatLifecycleStage(value: LifecycleStage | string | null | undefined) {
-  return formatWizardEnumValue(value, LIFECYCLE_STAGE_LABELS);
-}
-
-export function formatLanguage(value: Language | string | null | undefined) {
-  return formatWizardEnumValue(value, LANGUAGE_LABELS);
-}
-
-export function formatReportLanguage(value: ReportLanguage | string | null | undefined) {
-  return formatWizardEnumValue(value, REPORT_LANGUAGE_LABELS);
-}
-
-export function formatSalesChannel(value: SalesChannel | string | null | undefined) {
-  return formatWizardEnumValue(value, SALES_CHANNEL_LABELS);
-}
-
-export function formatMonthlyMarketingSpend(value: MonthlyMarketingSpend | string | null | undefined) {
-  return formatWizardEnumValue(value, MONTHLY_MARKETING_SPEND_LABELS);
-}
-
-export function formatPrimaryConversionPath(value: PrimaryConversionPath | string | null | undefined) {
-  return formatWizardEnumValue(value, PRIMARY_CONVERSION_PATH_LABELS);
-}
-
-export function formatPrimaryGoal(value: PrimaryGoal | string | null | undefined) {
-  return formatWizardEnumValue(value, PRIMARY_GOAL_LABELS);
-}
-
-export function formatMarketingHandler(value: MarketingHandler | string | null | undefined) {
-  return formatWizardEnumValue(value, MARKETING_HANDLER_LABELS);
+  // A value saved in another spelling (camelCase from the backend) still finds its label.
+  return labels[value] ?? labels[toWizardMatchKey(value)] ?? value;
 }
 
 export function formatMonthlyRevenue(value: MonthlyRevenue | string | null | undefined) {
   return formatWizardEnumValue(value, MONTHLY_REVENUE_LABELS);
 }
 
-export function formatAvgCustomerRetention(value: AvgCustomerRetention | string | null | undefined) {
-  return formatWizardEnumValue(value, AVG_CUSTOMER_RETENTION_LABELS);
+/**
+ * Saved answers under a name the backend no longer serves, by field: what
+ * the backend saves some answers as (wizard-v2.service.ts maps them on save),
+ * and the goal and owner names v3 renamed. The answer is read as its current
+ * value before its label is looked up, so a saved campaign reads the same as
+ * the dropdown did.
+ */
+const SAVED_VALUE_ALIASES: Record<string, Record<string, string>> = {
+  marketingTargetType: {
+    product_service: 'product_or_service',
+  },
+  audienceModel: {
+    single_audience: 'single_sided',
+    business_and_end_customer: 'b2b2c',
+    marketplace_two_sided: 'marketplace_platform',
+  },
+  primaryGoal: {
+    lead_generation: 'leads',
+    retention: 'repeat_purchase_retention',
+    launch_readiness: 'launch',
+  },
+  marketingHandler: {
+    internal_marketer: 'in_house_marketer',
+  },
+};
+
+/** The fields whose lists are a market's own (v3 V3-43), under `marketLists`. */
+const MARKET_LIST_FIELDS = ['salesChannels', 'socialPlatforms', 'presenceLinkTypes', 'peakSeasons'] as const;
+type WizardMarketListField = (typeof MARKET_LIST_FIELDS)[number];
+
+function isMarketListField(field: string): field is WizardMarketListField {
+  return (MARKET_LIST_FIELDS as readonly string[]).includes(field);
 }
 
-export function formatRepeatPurchaseFrequency(value: RepeatPurchaseFrequency | string | null | undefined) {
-  return formatWizardEnumValue(value, REPEAT_PURCHASE_FREQUENCY_LABELS);
+type WizardLabelIndex = Map<string, string>;
+
+function indexOptionLabels(options: unknown): WizardLabelIndex {
+  const index: WizardLabelIndex = new Map();
+  if (!Array.isArray(options)) {
+    return index;
+  }
+  for (const option of options) {
+    if (!option || typeof option !== 'object') continue;
+    const { value, label, canonicalToken } = option as Partial<WizardFieldOptionV2>;
+    if ((typeof value !== 'string' && typeof value !== 'boolean') || typeof label !== 'string' || !label) {
+      continue;
+    }
+    for (const key of [String(value), canonicalToken]) {
+      if (typeof key === 'string' && key && !index.has(toWizardMatchKey(key))) {
+        index.set(toWizardMatchKey(key), label);
+      }
+    }
+  }
+  return index;
 }
 
-export function formatMonthlyWebsiteTraffic(value: MonthlyWebsiteTraffic | string | null | undefined) {
-  return formatWizardEnumValue(value, MONTHLY_WEBSITE_TRAFFIC_LABELS);
+export interface WizardOptionLabels {
+  /**
+   * The backend's label of an answer, or null when the options response has
+   * none (not loaded yet, or a value it does not list). A market-list field
+   * reads that market's list first, then the global and the other markets'.
+   */
+  find(field: string, value: unknown, market?: string | null): string | null;
+  /** The backend's label of an answer; the answer itself when it has none; null when unanswered. */
+  label(field: string, value: unknown, market?: string | null): string | null;
+  /** Several answers' labels, joined; null when none was given. */
+  list(field: string, values: unknown, market?: string | null): string | null;
 }
 
-export function formatSocialPlatform(value: SocialPlatform | string | null | undefined) {
-  return formatWizardEnumValue(value, SOCIAL_PLATFORM_LABELS);
-}
+/**
+ * Every wizard answer by the label the backend serves for it in the options
+ * response (`fieldOptions`, and `marketLists` for a market's own lists): the
+ * one source of option labels (V3-03). A value with no label shows as itself,
+ * never as a label kept here.
+ */
+export function createWizardOptionLabels(
+  options: Pick<WizardOptionsResponseV2, 'fieldOptions' | 'marketLists'> | null | undefined,
+): WizardOptionLabels {
+  const fieldIndexes = new Map<string, WizardLabelIndex>();
+  for (const [field, fieldOptions] of Object.entries(options?.fieldOptions ?? {})) {
+    fieldIndexes.set(field, indexOptionLabels(fieldOptions));
+  }
+  const marketLists = options?.marketLists ?? {};
+  const marketIndexes = new Map<string, Map<WizardMarketListField, WizardLabelIndex>>();
+  for (const [market, lists] of Object.entries(marketLists)) {
+    marketIndexes.set(
+      market,
+      new Map(MARKET_LIST_FIELDS.map((field) => [field, indexOptionLabels(lists?.[field])])),
+    );
+  }
+  const marketOrder = (market?: string | null) => {
+    const others = Object.keys(marketLists).filter((code) => code !== market && code !== 'global');
+    return [market, 'global', ...others].filter((code): code is string => Boolean(code));
+  };
 
-export function formatDigitalPresenceLinkType(value: DigitalPresenceLinkType | string | null | undefined) {
-  return formatWizardEnumValue(value, DIGITAL_PRESENCE_LINK_TYPE_LABELS);
-}
+  const find = (field: string, value: unknown, market?: string | null): string | null => {
+    if ((typeof value !== 'string' && typeof value !== 'boolean') || value === '') {
+      return null;
+    }
+    const raw = String(value).trim();
+    if (!raw) {
+      return null;
+    }
+    const key = toWizardMatchKey(SAVED_VALUE_ALIASES[field]?.[toWizardMatchKey(raw)] ?? raw);
+    if (isMarketListField(field)) {
+      for (const code of marketOrder(market)) {
+        const found = marketIndexes.get(code)?.get(field)?.get(key);
+        if (found) return found;
+      }
+      return null;
+    }
+    return fieldIndexes.get(field)?.get(key) ?? null;
+  };
 
-export function formatEmailListSize(value: EmailListSize | string | null | undefined) {
-  return formatWizardEnumValue(value, EMAIL_LIST_SIZE_LABELS);
+  const label = (field: string, value: unknown, market?: string | null): string | null => {
+    const found = find(field, value, market);
+    if (found) return found;
+    if (typeof value === 'boolean') return String(value);
+    return typeof value === 'string' && value.trim() ? value.trim() : null;
+  };
+
+  const list = (field: string, values: unknown, market?: string | null): string | null => {
+    if (!Array.isArray(values)) {
+      return null;
+    }
+    const labels = values
+      .map((value) => label(field, value, market))
+      .filter((entry): entry is string => Boolean(entry));
+    return labels.length ? labels.join(', ') : null;
+  };
+
+  return { find, label, list };
 }
 
 /**
@@ -811,20 +530,6 @@ export const PAID_MEDIA_BUDGET_RANGE_VALUES = [
 
 export type PaidMediaBudgetRange = (typeof PAID_MEDIA_BUDGET_RANGE_VALUES)[number];
 
-export const PAID_MEDIA_BUDGET_RANGE_LABELS: Record<PaidMediaBudgetRange, string> = {
-  ...MONTHLY_MARKETING_SPEND_LABELS,
-  unknown: "Don't know",
-};
-
-export const PAID_MEDIA_BUDGET_RANGE_OPTIONS = PAID_MEDIA_BUDGET_RANGE_VALUES.map((value) => ({
-  value,
-  label: PAID_MEDIA_BUDGET_RANGE_LABELS[value],
-}));
-
-export function formatPaidMediaBudgetRange(value: PaidMediaBudgetRange | string | null | undefined) {
-  return formatWizardEnumValue(value, PAID_MEDIA_BUDGET_RANGE_LABELS);
-}
-
 /**
  * The Wizard v2.1 capacity and payback questions.
  *
@@ -844,20 +549,6 @@ export const MARKETING_HOURS_PER_WEEK_VALUES = [
 
 export type MarketingHoursPerWeek = (typeof MARKETING_HOURS_PER_WEEK_VALUES)[number];
 
-export const MARKETING_HOURS_PER_WEEK_LABELS: Record<MarketingHoursPerWeek, string> = {
-  underFive: 'Under 5 hours',
-  fiveToTen: '5–10 hours',
-  tenToTwenty: '10–20 hours',
-  twentyToForty: '20–40 hours',
-  fortyPlus: '40+ hours (full-time or more)',
-  unknown: "Don't know",
-};
-
-export const MARKETING_HOURS_PER_WEEK_OPTIONS = MARKETING_HOURS_PER_WEEK_VALUES.map((value) => ({
-  value,
-  label: MARKETING_HOURS_PER_WEEK_LABELS[value],
-}));
-
 export const CREATIVE_CAPABILITY_VALUES = [
   'video',
   'photography',
@@ -867,19 +558,6 @@ export const CREATIVE_CAPABILITY_VALUES = [
 ] as const;
 
 export type CreativeCapability = (typeof CREATIVE_CAPABILITY_VALUES)[number];
-
-export const CREATIVE_CAPABILITY_LABELS: Record<CreativeCapability, string> = {
-  video: 'Video',
-  photography: 'Photography',
-  copywriting: 'Copywriting',
-  design: 'Design',
-  none: 'None of these',
-};
-
-export const CREATIVE_CAPABILITY_OPTIONS = CREATIVE_CAPABILITY_VALUES.map((value) => ({
-  value,
-  label: CREATIVE_CAPABILITY_LABELS[value],
-}));
 
 // v3 (A6): no one-month deadline; the backend reads one saved earlier as
 // three months.
@@ -892,18 +570,6 @@ export const DELIVERY_DEADLINE_VALUES = [
 
 export type DeliveryDeadline = (typeof DELIVERY_DEADLINE_VALUES)[number];
 
-export const DELIVERY_DEADLINE_LABELS: Record<DeliveryDeadline, string> = {
-  withinThreeMonths: 'Within 3 months',
-  withinSixMonths: 'Within 6 months',
-  noFixedDeadline: 'No fixed deadline',
-  unknown: "Don't know",
-};
-
-export const DELIVERY_DEADLINE_OPTIONS = DELIVERY_DEADLINE_VALUES.map((value) => ({
-  value,
-  label: DELIVERY_DEADLINE_LABELS[value],
-}));
-
 export const PAYBACK_WINDOW_VALUES = [
   'firstOrder',
   'withinThreeMonths',
@@ -915,38 +581,6 @@ export const PAYBACK_WINDOW_VALUES = [
 
 export type PaybackWindow = (typeof PAYBACK_WINDOW_VALUES)[number];
 
-export const PAYBACK_WINDOW_LABELS: Record<PaybackWindow, string> = {
-  firstOrder: 'On the first order',
-  withinThreeMonths: 'Within 3 months',
-  withinSixMonths: 'Within 6 months',
-  withinTwelveMonths: 'Within 12 months',
-  longerThanTwelveMonths: 'Longer than 12 months',
-  unknown: "Don't know",
-};
-
-export const PAYBACK_WINDOW_OPTIONS = PAYBACK_WINDOW_VALUES.map((value) => ({
-  value,
-  label: PAYBACK_WINDOW_LABELS[value],
-}));
-
-export function formatMarketingHoursPerWeek(value: MarketingHoursPerWeek | string | null | undefined) {
-  return formatWizardEnumValue(value, MARKETING_HOURS_PER_WEEK_LABELS);
-}
-
-export function formatCreativeCapabilities(values: readonly string[] | null | undefined) {
-  const labels = (values ?? [])
-    .map((value) => formatWizardEnumValue(value, CREATIVE_CAPABILITY_LABELS))
-    .filter((label): label is string => Boolean(label));
-  return labels.length ? labels.join(', ') : null;
-}
-
-export function formatDeliveryDeadline(value: DeliveryDeadline | string | null | undefined) {
-  return formatWizardEnumValue(value, DELIVERY_DEADLINE_LABELS);
-}
-
-export function formatPaybackWindow(value: PaybackWindow | string | null | undefined) {
-  return formatWizardEnumValue(value, PAYBACK_WINDOW_LABELS);
-}
 
 /** "None of these" is an answer of its own, so it never sits beside a capability. */
 const NO_CREATIVE_CAPABILITY: CreativeCapability = 'none';
