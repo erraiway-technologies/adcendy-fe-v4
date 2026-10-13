@@ -18,7 +18,6 @@ import {
 
 type BusinessProfileHoldFormProps = {
   model: BusinessProfileHoldModel;
-  question: string | null;
   /** The task no longer takes an answer. */
   readOnly: boolean;
   pending: boolean;
@@ -35,7 +34,6 @@ type BusinessProfileHoldFormProps = {
  */
 export function BusinessProfileHoldForm({
   model,
-  question,
   readOnly,
   pending,
   refusal,
@@ -97,8 +95,6 @@ export function BusinessProfileHoldForm({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
-        {question ? <p className="text-sm text-muted-foreground">{question}</p> : null}
-
         {model.holds.length > 0 ? (
           <div className="space-y-2 rounded-lg border border-border bg-background/40 p-3">
             <p className="text-sm font-semibold text-foreground">Why this is being asked</p>

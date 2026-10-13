@@ -1,0 +1,158 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "brightsmile-dental-uk",
+  "displayName": "BrightSmile Dental (UK, fictional)",
+  "wizard": {
+    "step1": {
+      "title": "BrightSmile Dental new patients",
+      "marketingTargetType": "whole_business",
+      "focusName": "BrightSmile Dental",
+      "sourceType": "manual_only",
+      "primaryUrl": "",
+      "targetMarkets": [
+        "GB"
+      ],
+      "primaryMarket": "GB",
+      "marketScope": "regional",
+      "currency": "GBP",
+      "operationalLocations": [
+        "Leeds"
+      ]
+    },
+    "step2": {
+      "businessName": "BrightSmile Dental",
+      "industryCategory": "healthcare_clinics",
+      "sellsTo": "consumers",
+      "sellsVia": "own_channel",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "growth",
+      "businessDescription": "BrightSmile Dental is a fictional private dental clinic in Leeds. Patients book check-ups, hygiene visits, whitening and Invisalign consultations online and pay at the clinic.",
+      "productCategory": "Private dental care, booked by appointment",
+      "productsServices": [
+        "Dental check-up and hygiene visit",
+        "Teeth whitening",
+        "Invisalign consultation",
+        "Emergency dental appointment"
+      ],
+      "offerSummary": "Same-week appointments with evening and Saturday slots, booked online in under a minute.",
+      "differentiators": [
+        "Same-week appointments",
+        "Evening and Saturday slots",
+        "Fixed prices shown before you book"
+      ],
+      "sensitiveCategoryFlags": [
+        "healthcare"
+      ],
+      "priceRangeLow": 60,
+      "priceRangeHigh": 450,
+      "pricePosition": "premium",
+      "complianceSensitiveClaims": [
+        "Whitening results vary by patient"
+      ]
+    },
+    "step3": {
+      "primaryTargetSegment": "Adults in Leeds who want private dental care without a long wait for an NHS appointment.",
+      "targetPersona": "A working adult aged 28 to 55 in Leeds who wants a check-up or whitening at a time that fits around work.",
+      "language": "english",
+      "painPoints": [
+        "NHS waiting lists are long.",
+        "Clinic hours clash with work.",
+        "Prices are unclear until after treatment."
+      ],
+      "desiredOutcome": "Fill more appointment slots with new private patients.",
+      "decisionProcess": "They search for a dentist nearby, compare reviews and prices, then book a slot online.",
+      "ageRanges": [
+        "25_34",
+        "35_44",
+        "45_54"
+      ],
+      "genderSkew": "even",
+      "buyingTriggers": [
+        "A toothache",
+        "A wedding or event coming up"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "own_website",
+          "rank": 1,
+          "salesShare": "over_60"
+        }
+      ],
+      "primaryConversionPath": "book_appointment",
+      "trustSignals": [
+        "Rated 4.9 on Google by 300 patients"
+      ],
+      "socialHandles": [
+        {
+          "platform": "instagram",
+          "handle": "brightsmiledental"
+        }
+      ],
+      "digitalPresenceLinks": [],
+      "monthlyWebsiteTraffic": "2000_10000",
+      "emailListSize": "2000_10000",
+      "googleAnalyticsConnected": true,
+      "existingAssets": [
+        "email_automation"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "new_customers",
+      "monthlyMarketingBudget": 2500,
+      "paidAdsShare": "about_half",
+      "marketingHandler": "founder_led",
+      "contentCapacity": "medium",
+      "marketingHoursPerWeek": "tenToTwenty",
+      "creativeCapabilities": [
+        "photography",
+        "copywriting"
+      ],
+      "deliveryDeadline": "withinSixMonths",
+      "knownCompetitorStatus": "provided",
+      "knownCompetitors": [
+        "Leeds Dental Centre",
+        "Smile Clinic Leeds"
+      ],
+      "currentMarketingActivity": [
+        {
+          "channel": "Google Search ads",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 600,
+          "shareOfSpend": "30_60"
+        }
+      ],
+      "peakSeasons": [],
+      "currentOffers": [
+        "Free whitening consultation"
+      ],
+      "constraints": [
+        "Two dentists, about 160 appointments a week"
+      ]
+    },
+    "step6": {
+      "averageOrderValueAmount": 120,
+      "monthlyOrderVolume": "400",
+      "grossMarginBand": "from_40_to_60_percent",
+      "paybackWindow": "withinThreeMonths",
+      "avgCustomerRetention": "mostly_repeat",
+      "repeatPurchaseFrequency": "every_few_months",
+      "customerAcquisitionCost": 18,
+      "subscriptionOffered": false
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}

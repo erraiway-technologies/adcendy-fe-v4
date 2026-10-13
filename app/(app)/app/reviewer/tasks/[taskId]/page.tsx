@@ -2038,7 +2038,6 @@ export default function ReviewerTaskDetailPage() {
             <BusinessProfileHoldForm
               key={task.id}
               model={businessProfileHoldModel}
-              question={task.renderedQuestion ?? null}
               readOnly={!isAnswerableTaskStatus(task.status)}
               pending={respondMutation.isPending}
               refusal={profileHoldRefusal}

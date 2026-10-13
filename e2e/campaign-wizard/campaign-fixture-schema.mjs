@@ -203,6 +203,7 @@ const step4Schema = z
       'buy_online',
       'book_demo',
       'book_call',
+      'book_appointment',
       'whatsapp',
       'retail_visit',
       'app_signup',
