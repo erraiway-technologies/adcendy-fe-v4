@@ -149,6 +149,7 @@ const PRIMARY_CONVERSION_PATH_VALUES_V2 = [
   'lead_form',
   'book_demo',
   'book_call',
+  'book_appointment',
   'whatsapp',
   'retail_visit',
   'app_signup',

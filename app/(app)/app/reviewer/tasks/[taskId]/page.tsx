@@ -53,6 +53,13 @@ import {
   type ProductNounAnswer,
 } from '@/shared/components/ops/productNounConfirmation';
 import { SearchNoisePicker } from '@/shared/components/ops/SearchNoisePicker';
+import { BusinessProfileHoldForm } from '@/shared/components/ops/BusinessProfileHoldForm';
+import {
+  isBusinessProfileHoldTask,
+  readBusinessProfileHoldModel,
+  readProfileHoldRefusal,
+  type BusinessProfileHoldAnswer,
+} from '@/shared/components/ops/businessProfileHold';
 import {
   isSearchNoiseTask,
   readSearchNoiseModel,
@@ -1005,6 +1012,8 @@ export default function ReviewerTaskDetailPage() {
     PIPELINE_MARKET_SELECTION_CUSTOM,
   );
   const [lastActionResult, setLastActionResult] = useState<unknown>(null);
+  /** Why the backend refused the last business-profile answer (V3-94). */
+  const [profileHoldRefusal, setProfileHoldRefusal] = useState<string | null>(null);
 
   useEffect(() => {
     setStoredCampaignId(getStoredCampaignIdForTask(taskId));
@@ -1275,6 +1284,33 @@ export default function ReviewerTaskDetailPage() {
   // domains left out as noise, answered by marking or adding competitors. It
   // replaces the JSON box, which offered an empty object and a schema example.
   const searchNoiseModel = task && isSearchNoiseTask(task.failureMode) ? readSearchNoiseModel(task) : null;
+  // V3-94: the intake does not settle what kind of business this is; the
+  // reviewer corrects the profile's answers, each with a reason.
+  const businessProfileHoldModel =
+    task && isBusinessProfileHoldTask(task.failureMode) ? readBusinessProfileHoldModel(task) : null;
+
+  const handleBusinessProfileHoldSubmit = async (answer: BusinessProfileHoldAnswer) => {
+    setProfileHoldRefusal(null);
+    try {
+      const result = await respondMutation.mutateAsync({ answer });
+      setLastActionResult(result);
+      toast({
+        title: 'Profile answers submitted',
+        description: result.resumeOutcome ? `Resume outcome: ${result.resumeOutcome}` : 'Task response accepted.',
+      });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.opsV2.all });
+      router.replace('/app/reviewer/strategy-reviews');
+    } catch (error) {
+      // A refused answer leaves the task open: say why beside the form.
+      const refusal = readProfileHoldRefusal(error instanceof Error ? error.message : null);
+      setProfileHoldRefusal(refusal);
+      toast({
+        title: refusal ? 'The answers were refused' : 'Unable to submit the profile answers',
+        description: refusal ?? (error instanceof Error ? error.message : 'Unknown error'),
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleSearchNoiseSubmit = async (answer: SearchNoiseAnswer) => {
     try {
@@ -1996,6 +2032,18 @@ export default function ReviewerTaskDetailPage() {
                 </div>
               </CardContent>
             </Card>
+          ) : null}
+
+          {businessProfileHoldModel ? (
+            <BusinessProfileHoldForm
+              key={task.id}
+              model={businessProfileHoldModel}
+              question={task.renderedQuestion ?? null}
+              readOnly={!isAnswerableTaskStatus(task.status)}
+              pending={respondMutation.isPending}
+              refusal={profileHoldRefusal}
+              onSubmit={(answer) => void handleBusinessProfileHoldSubmit(answer)}
+            />
           ) : null}
 
           {productNounModel ? (

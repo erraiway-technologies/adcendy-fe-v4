@@ -96,7 +96,8 @@ const mockWizardOptions: WizardOptionsResponseV2 = {
     primaryConversionPath: [
       { value: 'buy_online', label: 'Buy online' },
       { value: 'book_demo', label: 'Book demo' },
-      { value: 'book_call', label: 'Book call' },
+      { value: 'book_call', label: 'Book a sales call' },
+      { value: 'book_appointment', label: 'Book an appointment' },
       { value: 'whatsapp', label: 'WhatsApp' },
       { value: 'retail_visit', label: 'Retail visit' },
       { value: 'app_signup', label: 'App signup' },
