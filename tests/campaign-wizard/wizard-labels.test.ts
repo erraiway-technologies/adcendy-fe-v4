@@ -151,7 +151,6 @@ test('a saved answer loads as its current value', () => {
   assert.equal(toCurrentWizardValue('marketingHandler', 'not_sure'), 'nobody_yet');
   assert.equal(toCurrentWizardValue('monthlyMarketingSpend', 'not_sure'), 'unknown');
   assert.equal(toCurrentWizardValue('monthlyMarketingSpend', '5k_15k'), '5k_15k');
-  assert.equal(toCurrentWizardValue('deliveryDeadline', 'within_one_month'), 'withinThreeMonths');
   assert.equal(toCurrentWizardValue('presenceLinkTypes', 'flipkart'), 'marketplace_listing');
   assert.equal(toCurrentWizardValue('primaryGoal', ''), '');
 });

@@ -78,10 +78,6 @@ test('the wizard v2.1 answers reach the backend under their contract names, unco
     step5Builder,
     /marketingHoursPerWeek: pickAllowedValue\(data\.marketingHoursPerWeek, MARKETING_HOURS_PER_WEEK_VALUES\),/,
   );
-  assert.match(
-    step5Builder,
-    /deliveryDeadline: pickAllowedValue\(data\.deliveryDeadline, DELIVERY_DEADLINE_VALUES\),/,
-  );
   assert.match(step5Builder, /normalizeCreativeCapabilities\(data\.creativeCapabilities\)/);
   assert.match(step5Builder, /creativeCapabilities: creativeCapabilities\.length \? creativeCapabilities : undefined,/);
   assert.match(
@@ -89,9 +85,12 @@ test('the wizard v2.1 answers reach the backend under their contract names, unco
     /paybackWindow: pickAllowedValue\(data\.paybackWindow, PAYBACK_WINDOW_VALUES\),/,
   );
 
-  for (const field of ['marketingHoursPerWeek', 'creativeCapabilities', 'deliveryDeadline']) {
+  for (const field of ['marketingHoursPerWeek', 'creativeCapabilities']) {
     assert.match(goalsStepPayload, new RegExp(`\\b${field}:`), `Step 5 payload should send ${field}`);
   }
+  // V3-153: "When you need results" is no longer asked or sent.
+  assert.doesNotMatch(goalsStepPayload, /\bdeliveryDeadline:/);
+  assert.doesNotMatch(step5Builder, /\bdeliveryDeadline:/);
   assert.match(economicsStepPayload, /\bpaybackWindow:/, 'Step 6 payload should send paybackWindow');
 });
 

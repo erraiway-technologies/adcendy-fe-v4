@@ -11,7 +11,6 @@ import type {
   WizardStepState,
 } from '@/shared/types/wizard';
 import {
-  DELIVERY_DEADLINE_VALUES,
   MARKETING_HANDLER_VALUES,
   MARKETING_HOURS_PER_WEEK_VALUES,
   PAYBACK_WINDOW_VALUES,
@@ -641,7 +640,6 @@ function buildLegacyStepDataFromState(
       contentCapacity: normalizeNullableString(step5.contentCapacity),
       marketingHoursPerWeek: normalizeNullableString(step5.marketingHoursPerWeek),
       creativeCapabilities: normalizeStringList(step5.creativeCapabilities),
-      deliveryDeadline: normalizeNullableString(step5.deliveryDeadline),
       salesCapacity: normalizeNullableString(step5.salesCapacity),
       currentMarketingActivity: Array.isArray(step5.currentMarketingActivity)
         ? step5.currentMarketingActivity
@@ -717,7 +715,6 @@ function buildPreviewStep4FromState(state: WizardStateResponseV2) {
     contentCapacity: normalizeNullableString(step5.contentCapacity),
     marketingHoursPerWeek: normalizeNullableString(step5.marketingHoursPerWeek),
     creativeCapabilities: normalizeStringList(step5.creativeCapabilities),
-    deliveryDeadline: normalizeNullableString(step5.deliveryDeadline),
     salesCapacity: normalizeNullableString(step5.salesCapacity),
     currentMarketingActivity: Array.isArray(step5.currentMarketingActivity)
       ? step5.currentMarketingActivity
@@ -963,7 +960,6 @@ function buildStep5Payload(data: Record<string, unknown>) {
     // optional, and a guessed answer would read as a real one.
     marketingHoursPerWeek: pickAllowedValue(data.marketingHoursPerWeek, MARKETING_HOURS_PER_WEEK_VALUES),
     creativeCapabilities: creativeCapabilities.length ? creativeCapabilities : undefined,
-    deliveryDeadline: pickAllowedValue(data.deliveryDeadline, DELIVERY_DEADLINE_VALUES),
     salesCapacity: normalizeNullableString(data.salesCapacity),
     currentMarketingActivity: currentMarketingActivity.length ? currentMarketingActivity : undefined,
     pastMarketing: normalizeNullableString(data.pastMarketing),

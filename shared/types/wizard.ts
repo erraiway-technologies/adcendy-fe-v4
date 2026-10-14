@@ -425,9 +425,6 @@ export const LEGACY_WIZARD_VALUES: Readonly<Record<string, Readonly<Record<strin
     freelancer_agency: 'agency',
     nobody: 'nobody_yet',
   },
-  deliveryDeadline: {
-    within_one_month: 'withinThreeMonths',
-  },
   monthlyWebsiteTraffic: {
     '50000_plus': '50000_250000',
   },
@@ -679,17 +676,6 @@ export const CREATIVE_CAPABILITY_VALUES = [
 
 export type CreativeCapability = (typeof CREATIVE_CAPABILITY_VALUES)[number];
 
-// v3 (A6): no one-month deadline; the backend reads one saved earlier as
-// three months.
-export const DELIVERY_DEADLINE_VALUES = [
-  'withinThreeMonths',
-  'withinSixMonths',
-  'noFixedDeadline',
-  'unknown',
-] as const;
-
-export type DeliveryDeadline = (typeof DELIVERY_DEADLINE_VALUES)[number];
-
 export const PAYBACK_WINDOW_VALUES = [
   'firstOrder',
   'withinThreeMonths',
@@ -842,7 +828,6 @@ export interface WizardPreviewStep4 {
   contentCapacity?: string | null;
   marketingHoursPerWeek?: MarketingHoursPerWeek | string | null;
   creativeCapabilities?: string[] | null;
-  deliveryDeadline?: DeliveryDeadline | string | null;
   salesCapacity?: string | null;
   currentMarketingActivity?: Array<{
     channel: string;

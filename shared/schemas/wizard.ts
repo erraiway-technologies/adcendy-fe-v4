@@ -306,7 +306,6 @@ export const step3Schema = z.object({
   // by the step 5 submit handler - for the same reason as the paid budget.
   marketingHoursPerWeek: optionAnswerSchema,
   creativeCapabilities: z.array(tagItemSchema).max(10, 'Choose up to 10').default([]),
-  deliveryDeadline: optionAnswerSchema,
   salesCapacity: z.string().trim().max(120, 'Keep this under 120 characters').optional().or(z.literal('')),
   currentMarketingActivity: z.array(currentMarketingActivitySchema).default([]),
   pastMarketing: z.string().trim().max(1200, 'Keep this under 1200 characters').optional().or(z.literal('')),
@@ -386,7 +385,6 @@ export const goalsStepAnswersSchema = z.object({
       (values) => !(values.includes('none') && values.length > 1),
       '"None of these" cannot be combined with other choices.',
     ),
-  deliveryDeadline: requiredAnswerSchema('Choose when you need to see results.'),
 });
 
 /** Step 6 answers the form requires before it saves - see `goalsStepAnswersSchema`. */

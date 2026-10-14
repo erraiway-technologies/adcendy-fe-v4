@@ -201,7 +201,6 @@ const EMPTY_STEP_3_VALUES: Step3FormData = {
   contentCapacity: '',
   marketingHoursPerWeek: '',
   creativeCapabilities: [],
-  deliveryDeadline: '',
   salesCapacity: '',
   currentMarketingActivity: [],
   pastMarketing: '',
@@ -2258,10 +2257,6 @@ export function CampaignWizardModal({
     () => getStringFieldOptions(wizardOptions, 'creativeCapabilities', { valueFrom: 'value' }),
     [wizardOptions],
   );
-  const deliveryDeadlineOptions = useMemo(
-    () => getStringFieldOptions(wizardOptions, 'deliveryDeadline', { valueFrom: 'value' }),
-    [wizardOptions],
-  );
   const paybackWindowOptions = useMemo(
     () => getStringFieldOptions(wizardOptions, 'paybackWindow', { valueFrom: 'value' }),
     [wizardOptions],
@@ -2881,7 +2876,6 @@ export function CampaignWizardModal({
           .map((value) => normalizeStringOptionValue(value, creativeCapabilityOptions)),
         creativeCapabilityOptions.length ? creativeCapabilityOptions.map((option) => option.value) : undefined,
       ),
-      deliveryDeadline: normalizeStringOptionValue(savedGoalsData.deliveryDeadline, deliveryDeadlineOptions),
       salesCapacity: normalizeString(savedGoalsData.salesCapacity as string | undefined),
       currentMarketingActivity: normalizeCurrentMarketingActivityItems(
         savedGoalsData.currentMarketingActivity,
@@ -2975,7 +2969,6 @@ export function CampaignWizardModal({
     currentMarketingActivityAssessmentOptions,
     currentMarketingActivityStatusOptions,
     dataConsentOptInOptions,
-    deliveryDeadlineOptions,
     knownCompetitorStatusOptions,
     languageOptions,
     marketingHandlerOptions,
@@ -3333,8 +3326,6 @@ export function CampaignWizardModal({
       marketingHoursPerWeek:
         normalizeStringOptionValue(data.marketingHoursPerWeek, marketingHoursPerWeekOptions) || undefined,
       creativeCapabilities: normalizeListItems(data.creativeCapabilities),
-      deliveryDeadline:
-        normalizeStringOptionValue(data.deliveryDeadline, deliveryDeadlineOptions) || undefined,
       salesCapacity: normalizeNullableString(data.salesCapacity),
       currentMarketingActivity: (data.currentMarketingActivity ?? [])
         .map((activity) => ({
@@ -3949,7 +3940,6 @@ export function CampaignWizardModal({
     effectivePreviewStep4?.contentCapacity,
     effectivePreviewStep4?.marketingHoursPerWeek,
     effectivePreviewStep4?.creativeCapabilities,
-    effectivePreviewStep4?.deliveryDeadline,
     effectivePreviewStep4?.salesCapacity,
     effectivePreviewStep4?.currentMarketingActivity,
     effectivePreviewStep4?.pastMarketing,
@@ -5769,29 +5759,6 @@ export function CampaignWizardModal({
                       <FieldMeta error={step3Form.formState.errors.marketingHoursPerWeek?.message} />
                     </div>
 
-                    <div className="space-y-2">
-                      <FieldLabel label="When do you need to see results from this plan?" required />
-                      <Controller
-                        name="deliveryDeadline"
-                        control={step3Form.control}
-                        render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value ?? ''}>
-                            <SelectTrigger data-testid={wizardFieldTestId('deliveryDeadline')} className={wizardInputClassName}>
-                              <SelectValue placeholder="Select timing" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {deliveryDeadlineOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                      <FieldMeta error={step3Form.formState.errors.deliveryDeadline?.message} />
-                    </div>
-
                     <div className="space-y-3 sm:col-span-2">
                       <div className="space-y-1">
                         <FieldLabel label="What can your team make in-house?" helper="Pick everything that applies." required />
@@ -6714,7 +6681,6 @@ export function CampaignWizardModal({
                           <SummaryField label="Content capacity" value={optionLabels.label('contentCapacity', effectivePreviewStep4?.contentCapacity)} />
                           <SummaryField label="Hours a week for marketing" value={optionLabels.label('marketingHoursPerWeek', effectivePreviewStep4?.marketingHoursPerWeek)} />
                           <SummaryField label="Made in-house" value={optionLabels.list('creativeCapabilities', effectivePreviewStep4?.creativeCapabilities)} />
-                          <SummaryField label="Results needed" value={optionLabels.label('deliveryDeadline', effectivePreviewStep4?.deliveryDeadline)} />
                           <SummaryField label="Sales capacity" value={effectivePreviewStep4?.salesCapacity} />
                           <SummaryField label="Peak seasons" value={optionLabels.list('peakSeasons', previewValue(effectivePreviewStep4, 'peakSeasons'), campaignMarketCode)} />
                           <SummaryField label="Offers running now" value={formatStringList(previewValue(effectivePreviewStep4, 'currentOffers') as string[] | undefined)} />

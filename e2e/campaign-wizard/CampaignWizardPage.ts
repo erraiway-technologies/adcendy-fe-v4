@@ -436,7 +436,6 @@ export class CampaignWizardPage {
     await this.chooseSelect('paidAdsShare', step.paidAdsShare);
     await this.chooseSelect('contentCapacity', step.contentCapacity);
     await this.chooseSelect('marketingHoursPerWeek', step.marketingHoursPerWeek);
-    await this.chooseSelect('deliveryDeadline', step.deliveryDeadline);
     // Each card toggles. The fixture schema keeps "none" on its own, so every
     // card starts unselected and ends selected.
     for (const capability of step.creativeCapabilities) {
@@ -603,7 +602,6 @@ export class CampaignWizardPage {
       optionLabel('paidAdsShare', step5.paidAdsShare),
       optionLabel('marketingHoursPerWeek', step5.marketingHoursPerWeek),
       ...step5.creativeCapabilities.map((value) => optionLabel('creativeCapabilities', value)),
-      optionLabel('deliveryDeadline', step5.deliveryDeadline),
       step5.salesCapacity,
       ...(step5.knownCompetitors ?? []),
     ]);

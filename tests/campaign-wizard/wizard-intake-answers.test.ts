@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   CREATIVE_CAPABILITY_VALUES,
-  DELIVERY_DEADLINE_VALUES,
   DIGITAL_PRESENCE_LINK_TYPE_VALUES,
   MARKETING_HANDLER_VALUES,
   MARKETING_HOURS_PER_WEEK_VALUES,
@@ -34,12 +33,6 @@ test('option values match the backend wizard contract exactly', () => {
     'copywriting',
     'design',
     'none',
-  ]);
-  assert.deepEqual([...DELIVERY_DEADLINE_VALUES], [
-    'withinThreeMonths',
-    'withinSixMonths',
-    'noFixedDeadline',
-    'unknown',
   ]);
   assert.deepEqual([...PAYBACK_WINDOW_VALUES], [
     'firstOrder',

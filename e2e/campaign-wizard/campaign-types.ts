@@ -71,7 +71,8 @@ export interface CampaignFixture {
       contentCapacity: string;
       marketingHoursPerWeek: string;
       creativeCapabilities: string[];
-      deliveryDeadline: string;
+      /** Retired (V3-153): older fixtures still carry it; never entered. */
+      deliveryDeadline?: string;
       salesCapacity?: string;
       currentMarketingActivity?: Array<{
         channel: string;
