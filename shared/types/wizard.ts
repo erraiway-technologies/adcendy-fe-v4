@@ -555,6 +555,16 @@ export interface WizardOptionLabels {
  * one source of option labels (V3-03). A value with no label shows as itself,
  * never as a label kept here.
  */
+/**
+ * Labels the backend serves for answers it no longer offers but a saved draft
+ * can still hold (V3-125): a campaign answered before V3-40 holds an industry's
+ * guidance category ("healthcare_wellness"), served under its own field so
+ * the wizard does not offer it.
+ */
+const EARLIER_ANSWER_FIELDS: Readonly<Record<string, string>> = {
+  industryCategory: 'industryCategoryEarlier',
+};
+
 export function createWizardOptionLabels(
   options: Pick<WizardOptionsResponseV2, 'fieldOptions' | 'marketLists'> | null | undefined,
 ): WizardOptionLabels {
@@ -595,7 +605,11 @@ export function createWizardOptionLabels(
         ? find('socialPlatforms', key, market)
         : null;
     }
-    return fieldIndexes.get(field)?.get(key) ?? null;
+    const earlierField = EARLIER_ANSWER_FIELDS[field];
+    return (
+      fieldIndexes.get(field)?.get(key) ??
+      (earlierField ? (fieldIndexes.get(earlierField)?.get(key) ?? null) : null)
+    );
   };
 
   const label = (field: string, value: unknown, market?: string | null): string | null => {

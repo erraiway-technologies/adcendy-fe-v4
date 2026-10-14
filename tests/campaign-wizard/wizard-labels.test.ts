@@ -251,3 +251,18 @@ test('the frontend keeps no local copy of a list the backend serves (V3-03)', ()
   assert.doesNotMatch(wizard, /_FALLBACK_OPTIONS\b/);
   assert.doesNotMatch(wizard, /\bformat(PrimaryGoal|MarketingHandler|ContentCapacity|SourceType|SalesChannel)\(/);
 });
+
+test('an industry an earlier draft holds reads by its served label, never its key (V3-125)', () => {
+  const labels = createWizardOptionLabels({
+    fieldOptions: {
+      industryCategory: [option('healthcare_clinics', 'Healthcare & clinics')],
+      industryCategoryEarlier: [option('healthcare_wellness', 'Healthcare & wellness')],
+    },
+    marketLists: {},
+  });
+  assert.equal(labels.find('industryCategory', 'healthcare_clinics'), 'Healthcare & clinics');
+  assert.equal(labels.find('industryCategory', 'healthcare_wellness'), 'Healthcare & wellness');
+  assert.equal(labels.label('industryCategory', 'healthcare_wellness'), 'Healthcare & wellness');
+  // The earlier labels name a saved answer; they are not another field's.
+  assert.equal(labels.find('audienceModel', 'healthcare_wellness'), null);
+});
