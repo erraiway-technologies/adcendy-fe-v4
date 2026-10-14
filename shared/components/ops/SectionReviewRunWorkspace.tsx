@@ -186,18 +186,29 @@ export function SectionReviewRunWorkspace({
     <div className="space-y-4">
       <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle>{workspace.campaignTitle || workspace.campaignId || workspace.runId}</CardTitle>
+          <CardTitle>
+            {workspace.campaignTitle ||
+              (canReview ? workspace.campaignId || workspace.runId : 'Your strategy')}
+          </CardTitle>
           <CardDescription>
-            Run: {workspace.runId} {workspace.marketId ? `| Market: ${workspace.marketId}` : ''}
+            {/* V3-112: a client is not shown the run's internal id. */}
+            {canReview ? `Run: ${workspace.runId} ` : ''}
+            {workspace.marketId ? `${canReview ? '| ' : ''}Market: ${workspace.marketId}` : ''}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <ReviewStatusBadge status={workspace.status} label={formatOpsStatus(workspace.status)} />
-            <ReviewStatusBadge
-              status={workspace.campaignStatus}
-              label={formatCampaignOpsStatus(workspace.campaignStatus)}
-            />
+            {/* V3-112: a status not yet set (a run held at intake has no
+                review yet) is left out, not printed as "Unknown". */}
+            {workspace.status && (
+              <ReviewStatusBadge status={workspace.status} label={formatOpsStatus(workspace.status)} />
+            )}
+            {workspace.campaignStatus && (
+              <ReviewStatusBadge
+                status={workspace.campaignStatus}
+                label={formatCampaignOpsStatus(workspace.campaignStatus)}
+              />
+            )}
           </div>
           <div className="grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
             <p>Reviewer: {workspace.reviewerName || workspace.reviewerEmail || workspace.reviewerId || 'Unassigned'}</p>
@@ -211,7 +222,8 @@ export function SectionReviewRunWorkspace({
       <Tabs defaultValue={defaultTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="input-details">Input Details</TabsTrigger>
+          {/* V3-112: the raw input payload is a reviewer's tool. */}
+          {canReview && <TabsTrigger value="input-details">Input Details</TabsTrigger>}
           <TabsTrigger value="strategy">Strategy</TabsTrigger>
         </TabsList>
 
@@ -220,7 +232,9 @@ export function SectionReviewRunWorkspace({
             <CardHeader>
               <CardTitle>Campaign Overview</CardTitle>
               <CardDescription>
-                Review summary for run status, campaign state, and section coverage.
+                {canReview
+                  ? 'Review summary for run status, campaign state, and section coverage.'
+                  : 'Where your strategy stands and how many sections are written.'}
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-3">
@@ -230,10 +244,12 @@ export function SectionReviewRunWorkspace({
                   {workspace.campaignTitle || workspace.campaignId || 'Not available'}
                 </p>
               </div>
-              <div className="rounded-md border border-border bg-background p-3">
-                <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Run</p>
-                <p className="mt-1 font-medium text-foreground">{workspace.runId}</p>
-              </div>
+              {canReview && (
+                <div className="rounded-md border border-border bg-background p-3">
+                  <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Run</p>
+                  <p className="mt-1 font-medium text-foreground">{workspace.runId}</p>
+                </div>
+              )}
               <div className="rounded-md border border-border bg-background p-3">
                 <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Market</p>
                 <p className="mt-1 font-medium text-foreground">{workspace.marketId || 'Not available'}</p>
@@ -256,19 +272,21 @@ export function SectionReviewRunWorkspace({
           </Card>
         </TabsContent>
 
-        <TabsContent value="input-details">
-          <Card className="border-border bg-card">
-            <CardHeader>
-              <CardTitle>Input Details</CardTitle>
-              <CardDescription>Primary workspace payload from `GET /api/v2/section-reviews/:runId/workspace`.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <pre className="max-h-[520px] overflow-auto rounded-md border border-border bg-background p-3 text-xs">
-                {toJsonPreview(workspace.inputs)}
-              </pre>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {canReview && (
+          <TabsContent value="input-details">
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle>Input Details</CardTitle>
+                <CardDescription>Primary workspace payload from `GET /api/v2/section-reviews/:runId/workspace`.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <pre className="max-h-[520px] overflow-auto rounded-md border border-border bg-background p-3 text-xs">
+                  {toJsonPreview(workspace.inputs)}
+                </pre>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
 
         <TabsContent value="strategy" className="space-y-4">
           <div className="grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
@@ -308,9 +326,11 @@ export function SectionReviewRunWorkspace({
               <Card className="border-border bg-card">
                 <CardHeader>
                   <CardTitle>{selectedSection?.sectionTitle || selectedSection?.sectionId || 'No section selected'}</CardTitle>
-                  <CardDescription>
-                    Task ID: {selectedSection?.sectionReviewTaskId || 'Not available'}
-                  </CardDescription>
+                  {canReview && (
+                    <CardDescription>
+                      Task ID: {selectedSection?.sectionReviewTaskId || 'Not available'}
+                    </CardDescription>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {selectedSection ? (

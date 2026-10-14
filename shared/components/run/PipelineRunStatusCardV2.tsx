@@ -15,6 +15,10 @@ import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ApiError } from '@/shared/api/errors';
 import { getRunStateDescriptor } from '@/shared/run/run-state-v2';
+import {
+  describeRunPhaseV2,
+  RUN_ACTION_CLIENT_WORDS_V2,
+} from '@/shared/run/run-client-words-v2';
 import type { PipelineRunStatusResponseV2 } from '@/shared/types/runsV2';
 
 interface PipelineRunStatusCardV2Props {
@@ -83,6 +87,9 @@ export function PipelineRunStatusCardV2({
   const StateIcon = stateIcons[run.status];
   const progressPercent = run.progress.percent;
   const errorMessage = run.error?.message;
+  // V3-112: the run's state in the client's words, never its keys.
+  const phaseWords = describeRunPhaseV2(run.currentPhase);
+  const actionWords = RUN_ACTION_CLIENT_WORDS_V2[run.requiredAction] ?? null;
 
   return (
     <Card className="space-y-6 p-6">
@@ -103,7 +110,7 @@ export function PipelineRunStatusCardV2({
           </div>
         </div>
         <Badge variant={run.status === 'FAILED' ? 'destructive' : 'outline'}>
-          {run.status.replaceAll('_', ' ')}
+          {state.label}
         </Badge>
       </div>
 
@@ -111,7 +118,7 @@ export function PipelineRunStatusCardV2({
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">
-              {run.currentPhase ?? 'Preparing'}
+              {phaseWords ?? 'Preparing'}
             </span>
             <span>{progressPercent}%</span>
           </div>
@@ -125,10 +132,9 @@ export function PipelineRunStatusCardV2({
       )}
 
       <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-        <span>Run ID: {run.runId}</span>
-        <span>Attempt: {run.attemptNumber}</span>
-        {run.currentPhase && <span>Phase: {run.currentPhase}</span>}
-        <span>Action: {run.requiredAction.replaceAll('_', ' ')}</span>
+        {phaseWords && <span>Now: {phaseWords}</span>}
+        {actionWords && <span>{actionWords}</span>}
+        <span>Reference: {run.runId}</span>
       </div>
 
       {!isOnline && (

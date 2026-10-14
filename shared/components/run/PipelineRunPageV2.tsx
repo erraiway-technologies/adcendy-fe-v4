@@ -27,8 +27,8 @@ export function PipelineRunPageV2({
           Strategy generation
         </h1>
         <p className="text-muted-foreground">
-          This page keeps the canonical run ID, so it can recover status after
-          refreshes, reconnects, or a new browser session.
+          This page follows your strategy as it is prepared. You can close it
+          and come back at any time.
         </p>
       </div>
 
