@@ -76,6 +76,8 @@ export interface CampaignFixture {
       salesCapacity?: string;
       currentMarketingActivity?: Array<{
         channel: string;
+        /** V3-154: a catalogue channel id; absent, the name is typed under Other. */
+        channelId?: string;
         status: string;
         workingAssessment?: string;
         evidence?: string;

@@ -831,6 +831,8 @@ export interface WizardPreviewStep4 {
   salesCapacity?: string | null;
   currentMarketingActivity?: Array<{
     channel: string;
+    /** V3-154: the catalogue channel picked from the list, or "other". */
+    channelId?: string | null;
     status: string;
     workingAssessment?: string | null;
     evidence?: string | null;

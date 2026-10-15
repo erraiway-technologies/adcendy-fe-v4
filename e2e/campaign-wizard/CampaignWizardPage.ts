@@ -455,7 +455,11 @@ export class CampaignWizardPage {
     for (let index = 0; index < (step.currentMarketingActivity ?? []).length; index += 1) {
       const activity = step.currentMarketingActivity![index];
       await this.page.getByTestId('campaign-wizard-add-currentMarketingActivity').click();
-      await this.fill(`currentMarketingActivity.${index}.channel`, activity.channel);
+      // V3-154: the channel from the catalogue list by id, else "Other" with the name typed.
+      await this.chooseSelect(`currentMarketingActivity.${index}.channelId`, activity.channelId ?? 'other');
+      if (!activity.channelId) {
+        await this.fill(`currentMarketingActivity.${index}.channel`, activity.channel);
+      }
       await this.chooseSelect(`currentMarketingActivity.${index}.status`, activity.status);
       if (activity.workingAssessment) {
         await this.chooseSelect(

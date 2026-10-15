@@ -1549,6 +1549,7 @@ function normalizeCurrentMarketingActivityItems(
 
       return {
         channel,
+        channelId: normalizeString(typeof entry.channelId === 'string' ? entry.channelId : ''),
         status: status || '',
         workingAssessment,
         evidence: normalizeString(typeof entry.evidence === 'string' ? entry.evidence : ''),
@@ -2269,6 +2270,11 @@ export function CampaignWizardModal({
     () => getStringFieldOptions(wizardOptions, 'currentMarketingActivityStatus'),
     [wizardOptions],
   );
+  // V3-154: the channel catalogue, by name, with "Other" for a channel it does not have.
+  const currentMarketingActivityChannelOptions = useMemo(
+    () => getStringFieldOptions(wizardOptions, 'currentMarketingActivityChannel'),
+    [wizardOptions],
+  );
   const currentMarketingActivityAssessmentOptions = useMemo(
     () => getStringFieldOptions(wizardOptions, 'currentMarketingActivityAssessment'),
     [wizardOptions],
@@ -2463,6 +2469,8 @@ export function CampaignWizardModal({
     (sum, row) => sum + (shareLowerEnd[row.salesShare ?? ''] ?? 0),
     0,
   );
+  // V3-154: each row's channel choice decides whether its name is typed.
+  const currentMarketingActivityValues = step3Form.watch('currentMarketingActivity');
   const shareOfSpendTotal = (step3Form.watch('currentMarketingActivity') ?? []).reduce(
     (sum, row) => sum + (shareLowerEnd[row.shareOfSpend ?? ''] ?? 0),
     0,
@@ -3330,6 +3338,7 @@ export function CampaignWizardModal({
       currentMarketingActivity: (data.currentMarketingActivity ?? [])
         .map((activity) => ({
           channel: normalizeString(activity.channel),
+          channelId: normalizeNullableString(activity.channelId),
           status: normalizeStringOptionValue(activity.status, currentMarketingActivityStatusOptions),
           workingAssessment:
             normalizeStringOptionValue(
@@ -5926,6 +5935,7 @@ export function CampaignWizardModal({
                         onClick={() =>
                           appendCurrentMarketingActivity({
                             channel: '',
+                            channelId: '',
                             status: '',
                             workingAssessment: '',
                             evidence: '',
@@ -5952,12 +5962,67 @@ export function CampaignWizardModal({
                       currentMarketingActivityFields.map((field, index) => (
                         <div key={field.id} className="space-y-3 rounded-xl border border-border/80 bg-muted/60 p-3">
                           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
-                            <Input
-                              data-testid={wizardFieldTestId(`currentMarketingActivity.${index}.channel`)}
-                              className={wizardInputClassName}
-                              placeholder="Channel (e.g. Google Ads, SEO, Instagram)"
-                              {...step3Form.register(`currentMarketingActivity.${index}.channel`)}
-                            />
+                            {currentMarketingActivityChannelOptions.length ? (
+                              <div className="space-y-2">
+                                <Controller
+                                  name={`currentMarketingActivity.${index}.channelId`}
+                                  control={step3Form.control}
+                                  render={({ field: controllerField }) => (
+                                    <Select
+                                      // A channel saved before the list read as typed: shown as "Other".
+                                      value={
+                                        controllerField.value ||
+                                        (step3Form.getValues(`currentMarketingActivity.${index}.channel`) ? 'other' : '')
+                                      }
+                                      onValueChange={(value) => {
+                                        controllerField.onChange(value);
+                                        const option = currentMarketingActivityChannelOptions.find(
+                                          (entry) => entry.value === value,
+                                        );
+                                        step3Form.setValue(
+                                          `currentMarketingActivity.${index}.channel`,
+                                          value === 'other' ? '' : (option?.label ?? ''),
+                                          { shouldDirty: true },
+                                        );
+                                      }}
+                                    >
+                                      <SelectTrigger
+                                        data-testid={wizardFieldTestId(`currentMarketingActivity.${index}.channelId`)}
+                                        className={wizardInputClassName}
+                                      >
+                                        <SelectValue placeholder="Choose the channel" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {currentMarketingActivityChannelOptions.map((option) => (
+                                          <SelectItem key={option.value} value={option.value}>
+                                            {option.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  )}
+                                />
+                                {(currentMarketingActivityValues?.[index]?.channelId ||
+                                  (currentMarketingActivityValues?.[index]?.channel ? 'other' : '')) === 'other' ? (
+                                  <Input
+                                    data-testid={wizardFieldTestId(`currentMarketingActivity.${index}.channel`)}
+                                    className={wizardInputClassName}
+                                    placeholder="Name the channel"
+                                    {...step3Form.register(`currentMarketingActivity.${index}.channel`)}
+                                  />
+                                ) : (
+                                  // The listed channel's name, kept registered so the row holds it.
+                                  <input type="hidden" {...step3Form.register(`currentMarketingActivity.${index}.channel`)} />
+                                )}
+                              </div>
+                            ) : (
+                              <Input
+                                data-testid={wizardFieldTestId(`currentMarketingActivity.${index}.channel`)}
+                                className={wizardInputClassName}
+                                placeholder="Channel (e.g. Google Ads, SEO, Instagram)"
+                                {...step3Form.register(`currentMarketingActivity.${index}.channel`)}
+                              />
+                            )}
                             <Controller
                               name={`currentMarketingActivity.${index}.status`}
                               control={step3Form.control}

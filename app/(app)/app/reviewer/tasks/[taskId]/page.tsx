@@ -54,6 +54,13 @@ import {
 } from '@/shared/components/ops/productNounConfirmation';
 import { SearchNoisePicker } from '@/shared/components/ops/SearchNoisePicker';
 import { BusinessProfileHoldForm } from '@/shared/components/ops/BusinessProfileHoldForm';
+import { UnmatchedChannelHoldForm } from '@/shared/components/ops/UnmatchedChannelHoldForm';
+import {
+  isUnmatchedChannelHoldTask,
+  readUnmatchedChannelHoldModel,
+  readUnmatchedChannelRefusal,
+  type UnmatchedChannelHoldAnswer,
+} from '@/shared/components/ops/unmatchedChannelHold';
 import {
   isBusinessProfileHoldTask,
   readBusinessProfileHoldModel,
@@ -1014,6 +1021,7 @@ export default function ReviewerTaskDetailPage() {
   const [lastActionResult, setLastActionResult] = useState<unknown>(null);
   /** Why the backend refused the last business-profile answer (V3-94). */
   const [profileHoldRefusal, setProfileHoldRefusal] = useState<string | null>(null);
+  const [channelHoldRefusal, setChannelHoldRefusal] = useState<string | null>(null);
 
   useEffect(() => {
     setStoredCampaignId(getStoredCampaignIdForTask(taskId));
@@ -1288,6 +1296,34 @@ export default function ReviewerTaskDetailPage() {
   // reviewer corrects the profile's answers, each with a reason.
   const businessProfileHoldModel =
     task && isBusinessProfileHoldTask(task.failureMode) ? readBusinessProfileHoldModel(task) : null;
+
+  // V3-154: the client named channels the channel list does not have; the
+  // reviewer maps each to the channel it is, or flags it as new.
+  const unmatchedChannelHoldModel =
+    task && isUnmatchedChannelHoldTask(task.failureMode) ? readUnmatchedChannelHoldModel(task) : null;
+
+  const handleUnmatchedChannelHoldSubmit = async (answer: UnmatchedChannelHoldAnswer) => {
+    setChannelHoldRefusal(null);
+    try {
+      const result = await respondMutation.mutateAsync({ answer });
+      setLastActionResult(result);
+      toast({
+        title: 'Channel names mapped',
+        description: result.resumeOutcome ? `Resume outcome: ${result.resumeOutcome}` : 'Task response accepted.',
+      });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.opsV2.all });
+      router.replace('/app/reviewer/strategy-reviews');
+    } catch (error) {
+      // A refused answer leaves the task open: say why beside the form.
+      const refusal = readUnmatchedChannelRefusal(error instanceof Error ? error.message : null);
+      setChannelHoldRefusal(refusal);
+      toast({
+        title: refusal ? 'The answer was refused' : 'Unable to submit the channel mapping',
+        description: refusal ?? (error instanceof Error ? error.message : 'Unknown error'),
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleBusinessProfileHoldSubmit = async (answer: BusinessProfileHoldAnswer) => {
     setProfileHoldRefusal(null);
@@ -2042,6 +2078,17 @@ export default function ReviewerTaskDetailPage() {
               pending={respondMutation.isPending}
               refusal={profileHoldRefusal}
               onSubmit={(answer) => void handleBusinessProfileHoldSubmit(answer)}
+            />
+          ) : null}
+
+          {unmatchedChannelHoldModel ? (
+            <UnmatchedChannelHoldForm
+              key={task.id}
+              model={unmatchedChannelHoldModel}
+              readOnly={!isAnswerableTaskStatus(task.status)}
+              pending={respondMutation.isPending}
+              refusal={channelHoldRefusal}
+              onSubmit={(answer) => void handleUnmatchedChannelHoldSubmit(answer)}
             />
           ) : null}
 

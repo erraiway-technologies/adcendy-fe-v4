@@ -65,6 +65,8 @@ const hasAmount = (value: string | undefined) => parseAmountText(value) !== null
 
 const currentMarketingActivitySchema = z.object({
   channel: z.string().trim().min(1, 'Channel is required').max(120, 'Keep channel under 120 characters'),
+  // V3-154: the catalogue channel picked from the list, or "other" with the name typed.
+  channelId: z.string().trim().max(120).optional().or(z.literal('')),
   status: z.string().trim().min(1, 'Status is required').max(80, 'Keep status under 80 characters'),
   workingAssessment: z.string().trim().max(80, 'Keep assessment under 80 characters').optional().or(z.literal('')),
   evidence: z.string().trim().max(500, 'Keep evidence under 500 characters').optional().or(z.literal('')),

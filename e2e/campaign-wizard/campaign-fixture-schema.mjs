@@ -229,6 +229,8 @@ const step4Schema = z
 const activitySchema = z
   .object({
     channel: boundedText(120),
+    // V3-154: a catalogue channel id picked from the list; absent, the name is typed under Other.
+    channelId: z.string().trim().min(1).max(120).optional(),
     status: z.enum(['active', 'paused', 'discontinued']),
     workingAssessment: z.enum(['', 'clearly_working', 'unclear', 'not_working', 'unknown']).default(''),
     evidence: optionalTextMax(500),

@@ -24,6 +24,7 @@ const ROW_CONTROL_OPTIONS: Record<string, string> = {
   'salesChannels.salesShare': 'salesShare',
   'socialHandles.platform': 'socialPlatforms',
   'digitalPresenceLinks.type': 'presenceLinkTypes',
+  'currentMarketingActivity.channelId': 'currentMarketingActivityChannel',
   'currentMarketingActivity.status': 'currentMarketingActivityStatus',
   'currentMarketingActivity.workingAssessment': 'currentMarketingActivityAssessment',
   'currentMarketingActivity.shareOfSpend': 'shareOfSpend',

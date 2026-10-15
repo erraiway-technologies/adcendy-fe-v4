@@ -346,6 +346,8 @@ function normalizeCurrentMarketingActivity(value: unknown) {
 
       return stripUndefined({
         channel: normalizeNullableString(item.channel),
+        // V3-154: the catalogue channel picked from the list, or "other".
+        channelId: normalizeNullableString(item.channelId),
         status,
         workingAssessment: workingAssessment ?? null,
         evidence: normalizeNullableString(item.evidence),
