@@ -242,6 +242,11 @@ const EMPTY_STEP_3_VALUES: Step3FormData = {
   currentOffers: [],
   existingAssets: [],
   whatsappListSize: '',
+  smsListSize: '',
+  communitySize: '',
+  emailListConsent: '',
+  smsListConsent: '',
+  whatsappListConsent: '',
   customerAcquisitionCost: '',
   subscriptionOffered: '',
   subscriberMonths: '',
@@ -2452,6 +2457,9 @@ export function CampaignWizardModal({
   const salesShareOptions = getStringFieldOptions(wizardOptions, 'salesShare');
   const shareOfSpendOptions = getStringFieldOptions(wizardOptions, 'shareOfSpend');
   const whatsappListSizeOptions = getStringFieldOptions(wizardOptions, 'whatsappListSize');
+  const smsListSizeOptions = getStringFieldOptions(wizardOptions, 'smsListSize');
+  const communitySizeOptions = getStringFieldOptions(wizardOptions, 'communitySize');
+  const listConsentOptions = getStringFieldOptions(wizardOptions, 'emailListConsent');
   const existingAssetOptions = getStringFieldOptions(wizardOptions, 'existingAssets');
   const monthlyWebsiteTrafficOptions = getStringFieldOptions(wizardOptions, 'monthlyWebsiteTraffic');
   const emailListSizeOptions = getStringFieldOptions(wizardOptions, 'emailListSize');
@@ -2507,7 +2515,12 @@ export function CampaignWizardModal({
   // v3 P6: age and who buys more are asked of a business selling to
   // consumers, alone or beside businesses; the WhatsApp list in India.
   const asksConsumerQuestions = watchedSellsTo !== 'businesses';
-  const asksWhatsappListSize = campaignMarketCode === 'IN';
+  // V3-158: the lists a business owns are asked in every market; each list's
+  // marketing consent where a target market requires it (UK, EU, EEA).
+  const consentMarkets = new Set(wizardOptions?.marketingConsentMarkets ?? []);
+  const asksListConsent = watchedTargetMarkets.some((market) =>
+    consentMarkets.has(String(market).toUpperCase()),
+  );
   const isLeadGenerationPath = LEAD_GENERATION_PATHS.has(watchedConversionPath ?? '');
   const asksLeadGenerationQuestions = !watchedConversionPath || isLeadGenerationPath;
   const asksPurchaseQuestions = !watchedConversionPath || !isLeadGenerationPath;
@@ -2940,6 +2953,11 @@ export function CampaignWizardModal({
       currentOffers: normalizeListItems(savedGoalsData.currentOffers as string[] | undefined),
       existingAssets: normalizeListItems(savedChannelsData.existingAssets as string[] | undefined),
       whatsappListSize: normalizeString(savedChannelsData.whatsappListSize as string | undefined),
+      smsListSize: normalizeString(savedChannelsData.smsListSize as string | undefined),
+      communitySize: normalizeString(savedChannelsData.communitySize as string | undefined),
+      emailListConsent: normalizeString(savedChannelsData.emailListConsent as string | undefined),
+      smsListConsent: normalizeString(savedChannelsData.smsListConsent as string | undefined),
+      whatsappListConsent: normalizeString(savedChannelsData.whatsappListConsent as string | undefined),
       customerAcquisitionCost: amountTextFromSaved(savedEconomicsData.customerAcquisitionCost),
       subscriptionOffered:
         savedEconomicsData.subscriptionOffered === true
@@ -3310,8 +3328,13 @@ export function CampaignWizardModal({
         : step3Values.googleAnalyticsConnected,
     monthlyWebsiteTraffic: step3Values.monthlyWebsiteTraffic || null,
     emailListSize: step3Values.emailListSize || null,
-    // v3 P6: the WhatsApp list is asked in India only.
-    whatsappListSize: asksWhatsappListSize ? step3Values.whatsappListSize || null : null,
+    // V3-158: the audiences the business owns, in every market; consent where asked.
+    whatsappListSize: step3Values.whatsappListSize || null,
+    smsListSize: step3Values.smsListSize || null,
+    communitySize: step3Values.communitySize || null,
+    emailListConsent: asksListConsent ? step3Values.emailListConsent || null : null,
+    smsListConsent: asksListConsent ? step3Values.smsListConsent || null : null,
+    whatsappListConsent: asksListConsent ? step3Values.whatsappListConsent || null : null,
     existingAssets: normalizeListItems(step3Values.existingAssets),
   });
 
@@ -5498,9 +5521,8 @@ export function CampaignWizardModal({
                       />
                       <FieldMeta error={step3Form.formState.errors.emailListSize?.message} />
                     </div>
-                    {asksWhatsappListSize ? (
                     <div className="space-y-2">
-                      <FieldLabel label="WhatsApp list size" helper="Customers you can message on WhatsApp." />
+                      <FieldLabel label="WhatsApp list size" helper="Customers who agreed to receive your WhatsApp messages." />
                       <Controller
                         name="whatsappListSize"
                         control={step3Form.control}
@@ -5508,7 +5530,7 @@ export function CampaignWizardModal({
                           <OptionSelect
                             testId={wizardFieldTestId('whatsappListSize')}
                             className={wizardInputClassName}
-                            placeholder="Select size"
+                            placeholder="Select"
                             options={whatsappListSizeOptions}
                             value={field.value}
                             onChange={field.onChange}
@@ -5516,6 +5538,94 @@ export function CampaignWizardModal({
                         )}
                       />
                     </div>
+                    <div className="space-y-2">
+                      <FieldLabel label="Texting list size" helper="Customers who agreed to receive your texts." />
+                      <Controller
+                        name="smsListSize"
+                        control={step3Form.control}
+                        render={({ field }) => (
+                          <OptionSelect
+                            testId={wizardFieldTestId('smsListSize')}
+                            className={wizardInputClassName}
+                            placeholder="Select"
+                            options={smsListSizeOptions}
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <FieldLabel label="Community size" helper="Members of a community you run (a group, forum or server)." />
+                      <Controller
+                        name="communitySize"
+                        control={step3Form.control}
+                        render={({ field }) => (
+                          <OptionSelect
+                            testId={wizardFieldTestId('communitySize')}
+                            className={wizardInputClassName}
+                            placeholder="Select"
+                            options={communitySizeOptions}
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </div>
+                    {asksListConsent ? (
+                      <>
+                    <div className="space-y-2">
+                      <FieldLabel label="Email list: agreed to marketing?" helper="In the UK and EU a list can be messaged only when its members agreed." />
+                      <Controller
+                        name="emailListConsent"
+                        control={step3Form.control}
+                        render={({ field }) => (
+                          <OptionSelect
+                            testId={wizardFieldTestId('emailListConsent')}
+                            className={wizardInputClassName}
+                            placeholder="Select"
+                            options={listConsentOptions}
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <FieldLabel label="Texting list: agreed to marketing?" helper="Answer if you have a texting list." />
+                      <Controller
+                        name="smsListConsent"
+                        control={step3Form.control}
+                        render={({ field }) => (
+                          <OptionSelect
+                            testId={wizardFieldTestId('smsListConsent')}
+                            className={wizardInputClassName}
+                            placeholder="Select"
+                            options={listConsentOptions}
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <FieldLabel label="WhatsApp list: agreed to marketing?" helper="Answer if you have a WhatsApp list." />
+                      <Controller
+                        name="whatsappListConsent"
+                        control={step3Form.control}
+                        render={({ field }) => (
+                          <OptionSelect
+                            testId={wizardFieldTestId('whatsappListConsent')}
+                            className={wizardInputClassName}
+                            placeholder="Select"
+                            options={listConsentOptions}
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </div>
+                      </>
                     ) : null}
                   </div>
 
@@ -6796,8 +6906,15 @@ export function CampaignWizardModal({
                           <SummaryField label="Time to earn back a customer's cost" value={optionLabels.label('paybackWindow', effectivePreviewStep4?.paybackWindow)} />
                           <SummaryField label="Website traffic" value={optionLabels.label('monthlyWebsiteTraffic', effectivePreviewStep4?.monthlyWebsiteTraffic)} />
                           <SummaryField label="Email list size" value={optionLabels.label('emailListSize', effectivePreviewStep4?.emailListSize)} />
-                          {asksWhatsappListSize ? (
-                            <SummaryField label="WhatsApp list size" value={optionLabels.label('whatsappListSize', previewValue(effectivePreviewStep4, 'whatsappListSize'))} />
+                          <SummaryField label="WhatsApp list size" value={optionLabels.label('whatsappListSize', previewValue(effectivePreviewStep4, 'whatsappListSize'))} />
+                          <SummaryField label="Texting list size" value={optionLabels.label('smsListSize', previewValue(effectivePreviewStep4, 'smsListSize'))} />
+                          <SummaryField label="Community size" value={optionLabels.label('communitySize', previewValue(effectivePreviewStep4, 'communitySize'))} />
+                          {asksListConsent ? (
+                            <>
+                              <SummaryField label="Email list consent" value={optionLabels.label('emailListConsent', previewValue(effectivePreviewStep4, 'emailListConsent'))} />
+                              <SummaryField label="Texting list consent" value={optionLabels.label('smsListConsent', previewValue(effectivePreviewStep4, 'smsListConsent'))} />
+                              <SummaryField label="WhatsApp list consent" value={optionLabels.label('whatsappListConsent', previewValue(effectivePreviewStep4, 'whatsappListConsent'))} />
+                            </>
                           ) : null}
                           <SummaryField label="Already running" value={optionLabels.list('existingAssets', previewValue(effectivePreviewStep4, 'existingAssets'))} />
                           <SummaryField label="Cost to win a customer" value={showMoney(previewValue(effectivePreviewStep4, 'customerAcquisitionCost'))} />

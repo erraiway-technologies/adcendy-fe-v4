@@ -624,6 +624,11 @@ function buildLegacyStepDataFromState(
       monthlyWebsiteTraffic: normalizeNullableString(step4.monthlyWebsiteTraffic),
       emailListSize: normalizeNullableString(step4.emailListSize),
       whatsappListSize: normalizeNullableString(step4.whatsappListSize),
+      smsListSize: normalizeNullableString(step4.smsListSize),
+      communitySize: normalizeNullableString(step4.communitySize),
+      emailListConsent: normalizeNullableString(step4.emailListConsent),
+      smsListConsent: normalizeNullableString(step4.smsListConsent),
+      whatsappListConsent: normalizeNullableString(step4.whatsappListConsent),
       existingAssets: normalizeStringList(step4.existingAssets),
     });
   }
@@ -753,6 +758,11 @@ function buildPreviewStep4FromState(state: WizardStateResponseV2) {
     peakSeasons: normalizeStringList(step5.peakSeasons),
     currentOffers: normalizeStringList(step5.currentOffers),
     whatsappListSize: normalizeNullableString(step4.whatsappListSize),
+    smsListSize: normalizeNullableString(step4.smsListSize),
+    communitySize: normalizeNullableString(step4.communitySize),
+    emailListConsent: normalizeNullableString(step4.emailListConsent),
+    smsListConsent: normalizeNullableString(step4.smsListConsent),
+    whatsappListConsent: normalizeNullableString(step4.whatsappListConsent),
     existingAssets: normalizeStringList(step4.existingAssets),
     customerAcquisitionCost: normalizeMoney(step6.customerAcquisitionCost),
     subscriptionOffered:
@@ -921,6 +931,11 @@ function buildStep4Payload(data: Record<string, unknown>) {
     emailListSize: normalizeNullableString(data.emailListSize),
     // v3 P6.
     whatsappListSize: normalizeNullableString(data.whatsappListSize),
+    smsListSize: normalizeNullableString(data.smsListSize),
+    communitySize: normalizeNullableString(data.communitySize),
+    emailListConsent: normalizeNullableString(data.emailListConsent),
+    smsListConsent: normalizeNullableString(data.smsListConsent),
+    whatsappListConsent: normalizeNullableString(data.whatsappListConsent),
     existingAssets: normalizeStringList(data.existingAssets),
   });
 }

@@ -280,6 +280,12 @@ export const step3Schema = z.object({
   currentOffers: z.array(tagItemSchema).max(10, 'Add up to 10 offers').default([]),
   existingAssets: z.array(tagItemSchema).max(6).default([]),
   whatsappListSize: z.string().trim().max(40).optional().or(z.literal('')),
+  // V3-158: the audiences the business owns, and each list's consent (UK/EU).
+  smsListSize: z.string().trim().max(40).optional().or(z.literal('')),
+  communitySize: z.string().trim().max(40).optional().or(z.literal('')),
+  emailListConsent: z.string().trim().max(40).optional().or(z.literal('')),
+  smsListConsent: z.string().trim().max(40).optional().or(z.literal('')),
+  whatsappListConsent: z.string().trim().max(40).optional().or(z.literal('')),
   customerAcquisitionCost: amountTextSchema,
   subscriptionOffered: z.enum(['yes', 'no']).optional().or(z.literal('')),
   subscriberMonths: z
