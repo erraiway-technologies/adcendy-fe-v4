@@ -41,6 +41,7 @@ export function SearchNoisePicker({ model, readOnly, pending, onSubmit }: Search
   const [added, setAdded] = useState<string[]>([]);
   const [draft, setDraft] = useState('');
   const [notes, setNotes] = useState('');
+  const [complete, setComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const disabled = readOnly || pending;
@@ -91,7 +92,7 @@ export function SearchNoisePicker({ model, readOnly, pending, onSubmit }: Search
   };
 
   const submit = () => {
-    const built = buildSearchNoiseAnswer({ model, included, added, notes });
+    const built = buildSearchNoiseAnswer({ model, included, added, notes, setIsComplete: complete });
     if ('error' in built) {
       setError(built.error);
       return;
@@ -249,16 +250,46 @@ export function SearchNoisePicker({ model, readOnly, pending, onSubmit }: Search
           </div>
         )}
 
+        {model.requiresDecisionPerDomain ? null : (
+          <div className="flex items-start gap-3 rounded-lg border border-border bg-background/40 p-3">
+            <Checkbox
+              id="search-noise-complete"
+              className="mt-0.5"
+              checked={complete}
+              disabled={disabled}
+              onCheckedChange={(checked) => {
+                setError(null);
+                setComplete(checked === true);
+              }}
+            />
+            <Label htmlFor="search-noise-complete" className="block flex-1 cursor-pointer space-y-1 font-normal">
+              <span className="block text-sm font-semibold text-foreground">
+                These are all the direct competitors in this market
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                Recorded with your name for this market; the plan says the set was confirmed on review, and the
+                question is not asked again.
+              </span>
+            </Label>
+          </div>
+        )}
+
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
             {changes === 0
-              ? 'Submitting with nothing marked goes on with the competitors already found.'
+              ? complete
+                ? 'The run goes on with the competitors already found, confirmed as the whole set.'
+                : 'Mark or add a competitor, or confirm the set is complete.'
               : 'Marked and added domains are verified like any other competitor before they are used.'}
           </p>
           <Button type="button" disabled={disabled} onClick={submit}>
-            {pending ? 'Submitting…' : changes === 0 ? 'Go on with these competitors' : 'Submit competitors'}
+            {pending
+              ? 'Submitting…'
+              : changes === 0
+                ? 'Confirm these are all of them'
+                : 'Submit competitors'}
           </Button>
         </div>
       </CardContent>

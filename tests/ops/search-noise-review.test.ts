@@ -104,10 +104,22 @@ test('sends only what the reviewer marked or added', () => {
   );
 });
 
-test('leaving every domain as noise is a valid answer', () => {
+// R-3r: the question holds on a count, so an answer that neither adds a
+// competitor nor confirms the set would only bring it back.
+test('an answer that marks, adds and confirms nothing is not sent', () => {
   const model = readSearchNoiseModel(detail);
   assert.ok(model);
-  assert.deepEqual(buildSearchNoiseAnswer({ model, included: [], added: [] }), { answer: {} });
+  const result = buildSearchNoiseAnswer({ model, included: [], added: [] });
+  assert.ok('error' in result);
+  assert.match(result.error, /confirm that the competitors found are all the direct competitors/);
+});
+
+test('confirming the set is complete is a valid answer on its own', () => {
+  const model = readSearchNoiseModel(detail);
+  assert.ok(model);
+  assert.deepEqual(buildSearchNoiseAnswer({ model, included: [], added: [], setIsComplete: true }), {
+    answer: { set_is_complete: true },
+  });
 });
 
 test('a typed noise domain is included rather than added', () => {

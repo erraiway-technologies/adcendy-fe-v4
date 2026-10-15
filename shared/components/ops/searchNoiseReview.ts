@@ -15,6 +15,13 @@
  * Until this form the task was answered by typing JSON into an empty box, with
  * none of the competitors the run already had in view.
  *
+ * R-3r: the question holds on a count - fewer graded direct competitors than
+ * the minimum - so an answer either adds a competitor, which raises the
+ * count, or says the competitors found are all the direct competitors in
+ * this market. That statement is recorded on the run for the market, and the
+ * plan says the set was confirmed on review. An answer that does neither
+ * would only bring the same question back, so it is not sent.
+ *
  * Pure: reads the task detail and builds the answer the backend validates
  * against the template's answer schema. No imports, so `node --test` can run
  * it directly.
@@ -71,6 +78,8 @@ export type SearchNoiseAnswer = {
   competitor_decisions?: SearchNoiseDecision[];
   additional_competitors?: string[];
   reviewer_notes?: string;
+  /** R-3r: the competitors found are all the direct competitors in this market. */
+  set_is_complete?: boolean;
 };
 
 function toRecord(value: unknown): Record<string, unknown> | null {
@@ -208,14 +217,16 @@ export function readSearchNoiseModel(task: {
 /**
  * The answer, or the reason it cannot be sent yet. The backend rejects an
  * answer outside the schema, so the form says so before the round trip.
- * Leaving every domain as noise and adding nothing is a valid answer: the run
- * goes on with the competitors it has.
+ * An answer marks or adds a competitor, or confirms the competitors found are
+ * the whole set (R-3r); one that does neither would bring the question back.
  */
 export function buildSearchNoiseAnswer(input: {
   model: SearchNoiseModel;
   included: string[];
   added: string[];
   notes?: string;
+  /** R-3r: the reviewer says these are all the direct competitors. */
+  setIsComplete?: boolean;
 }): { answer: SearchNoiseAnswer } | { error: string } {
   const listed = new Set(input.model.noiseDomains.map((entry) => entry.domain));
   const included = new Set(
@@ -269,11 +280,20 @@ export function buildSearchNoiseAnswer(input: {
   if (input.model.requiresDecisionPerDomain && decisions.length === 0) {
     return { error: 'This task lists no domains to decide on, so it cannot be answered here.' };
   }
+  // A task asked before R-3r froze a schema without the confirmation.
+  const complete = input.setIsComplete === true && !input.model.requiresDecisionPerDomain;
+  if (!input.model.requiresDecisionPerDomain && included.size === 0 && added.length === 0 && !complete) {
+    return {
+      error:
+        'Mark or add a competitor, or confirm that the competitors found are all the direct competitors in this market.',
+    };
+  }
 
   return {
     answer: {
       ...(decisions.length > 0 ? { competitor_decisions: decisions } : {}),
       ...(added.length > 0 ? { additional_competitors: added } : {}),
+      ...(complete ? { set_is_complete: true } : {}),
       // The schema a task asked before V3-66 froze takes no notes.
       ...(notes && !input.model.requiresDecisionPerDomain ? { reviewer_notes: notes } : {}),
     },
