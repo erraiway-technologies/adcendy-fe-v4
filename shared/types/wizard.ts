@@ -970,8 +970,11 @@ export interface WizardOptionsResponseV2 {
   fieldOptions: Record<string, WizardFieldOptionV2[]>;
   /** Keyed by curated market code and `global` (v3 V3-43). */
   marketLists?: Record<string, WizardMarketListV2>;
-  /** V3-158: markets where each list's marketing consent is asked (UK, EU, EEA). */
-  marketingConsentMarkets?: string[];
+  /**
+   * V3-158: whether each list needs its members' consent, by market. A market
+   * with no entry is asked for every list.
+   */
+  listConsentRules?: Record<string, Record<'email' | 'sms' | 'whatsapp', 'required' | 'not_required'>>;
 }
 
 export interface WizardStateResponseV2 {

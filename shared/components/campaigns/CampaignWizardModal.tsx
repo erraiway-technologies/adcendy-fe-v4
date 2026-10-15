@@ -2517,10 +2517,16 @@ export function CampaignWizardModal({
   const asksConsumerQuestions = watchedSellsTo !== 'businesses';
   // V3-158: the lists a business owns are asked in every market; each list's
   // marketing consent where a target market requires it (UK, EU, EEA).
-  const consentMarkets = new Set(wizardOptions?.marketingConsentMarkets ?? []);
-  const asksListConsent = watchedTargetMarkets.some((market) =>
-    consentMarkets.has(String(market).toUpperCase()),
-  );
+  const consentRules = wizardOptions?.listConsentRules ?? {};
+  const asksConsentFor = (list: 'email' | 'sms' | 'whatsapp') =>
+    watchedTargetMarkets.some((market) => {
+      const entry = consentRules[String(market).toUpperCase()];
+      return !entry || entry[list] === 'required';
+    });
+  const asksEmailConsent = asksConsentFor('email');
+  const asksSmsConsent = asksConsentFor('sms');
+  const asksWhatsappConsent = asksConsentFor('whatsapp');
+  const asksListConsent = asksEmailConsent || asksSmsConsent || asksWhatsappConsent;
   const isLeadGenerationPath = LEAD_GENERATION_PATHS.has(watchedConversionPath ?? '');
   const asksLeadGenerationQuestions = !watchedConversionPath || isLeadGenerationPath;
   const asksPurchaseQuestions = !watchedConversionPath || !isLeadGenerationPath;
@@ -3332,9 +3338,9 @@ export function CampaignWizardModal({
     whatsappListSize: step3Values.whatsappListSize || null,
     smsListSize: step3Values.smsListSize || null,
     communitySize: step3Values.communitySize || null,
-    emailListConsent: asksListConsent ? step3Values.emailListConsent || null : null,
-    smsListConsent: asksListConsent ? step3Values.smsListConsent || null : null,
-    whatsappListConsent: asksListConsent ? step3Values.whatsappListConsent || null : null,
+    emailListConsent: asksEmailConsent ? step3Values.emailListConsent || null : null,
+    smsListConsent: asksSmsConsent ? step3Values.smsListConsent || null : null,
+    whatsappListConsent: asksWhatsappConsent ? step3Values.whatsappListConsent || null : null,
     existingAssets: normalizeListItems(step3Values.existingAssets),
   });
 
@@ -5574,8 +5580,9 @@ export function CampaignWizardModal({
                     </div>
                     {asksListConsent ? (
                       <>
+                    {asksEmailConsent ? (
                     <div className="space-y-2">
-                      <FieldLabel label="Email list: agreed to marketing?" helper="In the UK and EU a list can be messaged only when its members agreed." />
+                      <FieldLabel label="Email list: agreed to marketing?" helper="Where you sell, a list can be messaged only when its members agreed." />
                       <Controller
                         name="emailListConsent"
                         control={step3Form.control}
@@ -5591,6 +5598,8 @@ export function CampaignWizardModal({
                         )}
                       />
                     </div>
+                    ) : null}
+                    {asksSmsConsent ? (
                     <div className="space-y-2">
                       <FieldLabel label="Texting list: agreed to marketing?" helper="Answer if you have a texting list." />
                       <Controller
@@ -5608,6 +5617,8 @@ export function CampaignWizardModal({
                         )}
                       />
                     </div>
+                    ) : null}
+                    {asksWhatsappConsent ? (
                     <div className="space-y-2">
                       <FieldLabel label="WhatsApp list: agreed to marketing?" helper="Answer if you have a WhatsApp list." />
                       <Controller
@@ -5625,6 +5636,7 @@ export function CampaignWizardModal({
                         )}
                       />
                     </div>
+                    ) : null}
                       </>
                     ) : null}
                   </div>
@@ -6911,9 +6923,15 @@ export function CampaignWizardModal({
                           <SummaryField label="Community size" value={optionLabels.label('communitySize', previewValue(effectivePreviewStep4, 'communitySize'))} />
                           {asksListConsent ? (
                             <>
-                              <SummaryField label="Email list consent" value={optionLabels.label('emailListConsent', previewValue(effectivePreviewStep4, 'emailListConsent'))} />
-                              <SummaryField label="Texting list consent" value={optionLabels.label('smsListConsent', previewValue(effectivePreviewStep4, 'smsListConsent'))} />
-                              <SummaryField label="WhatsApp list consent" value={optionLabels.label('whatsappListConsent', previewValue(effectivePreviewStep4, 'whatsappListConsent'))} />
+                              {asksEmailConsent ? (
+                                <SummaryField label="Email list consent" value={optionLabels.label('emailListConsent', previewValue(effectivePreviewStep4, 'emailListConsent'))} />
+                              ) : null}
+                              {asksSmsConsent ? (
+                                <SummaryField label="Texting list consent" value={optionLabels.label('smsListConsent', previewValue(effectivePreviewStep4, 'smsListConsent'))} />
+                              ) : null}
+                              {asksWhatsappConsent ? (
+                                <SummaryField label="WhatsApp list consent" value={optionLabels.label('whatsappListConsent', previewValue(effectivePreviewStep4, 'whatsappListConsent'))} />
+                              ) : null}
                             </>
                           ) : null}
                           <SummaryField label="Already running" value={optionLabels.list('existingAssets', previewValue(effectivePreviewStep4, 'existingAssets'))} />
