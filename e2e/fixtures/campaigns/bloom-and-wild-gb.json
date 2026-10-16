@@ -1,0 +1,187 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "bloom-and-wild-gb",
+  "displayName": "Bloom & Wild (GB, public facts, assumed figures)",
+  "wizard": {
+    "step1": {
+      "title": "Bloom & Wild letterbox flowers",
+      "marketingTargetType": "whole_business",
+      "focusName": "Bloom & Wild",
+      "sourceType": "website",
+      "primaryUrl": "https://www.bloomandwild.com/",
+      "targetMarkets": [
+        "GB"
+      ],
+      "primaryMarket": "GB",
+      "marketScope": "national",
+      "currency": "GBP"
+    },
+    "step2": {
+      "businessName": "Bloom & Wild",
+      "industryCategory": "ecommerce_d2c",
+      "sellsTo": "consumers",
+      "sellsVia": "own_channel",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "scaling",
+      "businessDescription": "An online florist that sends flowers and plants through the letterbox across the UK, as one-off gifts and as monthly subscriptions, ordered on its website and app.",
+      "productCategory": "Letterbox flowers and plants, sent as gifts or on subscription",
+      "productsServices": [
+        "Letterbox flower bouquets",
+        "Hand-tied bouquets",
+        "Flower subscriptions",
+        "Letterbox plants",
+        "Gift add-ons"
+      ],
+      "offerSummary": "Flowers that fit through the letterbox, so they arrive even when nobody is home, with tracked next-day delivery.",
+      "differentiators": [
+        "Letterbox delivery, no need to be home",
+        "Next-day delivery ordered by 4:30pm on weekdays",
+        "Subscriptions from about 20 pounds a month"
+      ],
+      "sensitiveCategoryFlags": [],
+      "priceRangeLow": 20,
+      "priceRangeHigh": 70,
+      "pricePosition": "about_same"
+    },
+    "step3": {
+      "primaryTargetSegment": "UK adults sending flowers as a gift for birthdays, thank-yous and occasions, and people who want flowers at home regularly.",
+      "targetPersona": "A 28 to 50 year old in the UK who wants to send a thoughtful gift that arrives on time without the recipient having to be in.",
+      "language": "english",
+      "painPoints": [
+        "Flowers left on the doorstep or returned when nobody is in",
+        "Worried the bouquet will not look like the picture",
+        "Last-minute gifts that need to arrive tomorrow"
+      ],
+      "desiredOutcome": "More first orders and more of them turning into subscriptions.",
+      "decisionProcess": "They search or see an ad near an occasion, compare a few florists on price and delivery date, and order online.",
+      "ageRanges": [
+        "25_34",
+        "35_44",
+        "45_54"
+      ],
+      "genderSkew": "mostly_women",
+      "buyingTriggers": [
+        "Mother's Day",
+        "Valentine's Day",
+        "A birthday or thank-you"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "own_website",
+          "rank": 1,
+          "salesShare": "over_60"
+        }
+      ],
+      "primaryConversionPath": "buy_online",
+      "trustSignals": [
+        "Rated 4.9 on Reviews.co.uk by 84,000+ customers"
+      ],
+      "socialHandles": [
+        {
+          "platform": "instagram",
+          "handle": "bloomandwild"
+        },
+        {
+          "platform": "facebook",
+          "handle": "bloomandwild"
+        },
+        {
+          "platform": "tiktok",
+          "handle": "bloomandwild"
+        },
+        {
+          "platform": "pinterest",
+          "handle": "bloomandwild"
+        }
+      ],
+      "digitalPresenceLinks": [],
+      "monthlyWebsiteTraffic": "1000000_plus",
+      "emailListSize": "250000_plus",
+      "googleAnalyticsConnected": true,
+      "existingAssets": [
+        "email_automation",
+        "referral_programme",
+        "creators"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "new_customers",
+      "monthlyMarketingBudget": 400000,
+      "paidAdsShare": "most",
+      "marketingHandler": "in_house_team",
+      "contentCapacity": "high",
+      "marketingHoursPerWeek": "fortyPlus",
+      "creativeCapabilities": [
+        "video",
+        "photography",
+        "copywriting",
+        "design"
+      ],
+      "deliveryDeadline": "noFixedDeadline",
+      "knownCompetitorStatus": "provided",
+      "knownCompetitors": [
+        "Moonpig",
+        "Interflora",
+        "Serenata Flowers",
+        "Patch Plants"
+      ],
+      "currentMarketingActivity": [
+        {
+          "channel": "Google Search Ads",
+          "channelId": "google_search_ads",
+          "status": "active",
+          "workingAssessment": "clearly_working",
+          "monthlySpendAmount": 150000,
+          "shareOfSpend": "30_60"
+        },
+        {
+          "channel": "Meta Ads",
+          "channelId": "meta_ads",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 90000,
+          "shareOfSpend": "10_30"
+        },
+        {
+          "channel": "Email Marketing",
+          "channelId": "email_marketing",
+          "status": "active",
+          "workingAssessment": "clearly_working"
+        }
+      ],
+      "peakSeasons": [
+        "Valentine's Day",
+        "Mother's Day",
+        "Christmas"
+      ],
+      "currentOffers": [
+        "Discount on the first subscription delivery"
+      ]
+    },
+    "step6": {
+      "averageOrderValueAmount": 38,
+      "monthlyOrderVolume": "120000",
+      "grossMarginBand": "from_40_to_60_percent",
+      "paybackWindow": "withinSixMonths",
+      "avgCustomerRetention": "some_repeat",
+      "repeatPurchaseFrequency": "every_few_months",
+      "customerAcquisitionCost": 22,
+      "subscriptionOffered": true,
+      "subscriberMonths": 6
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "power-smiles-dental-in",
+  "displayName": "Power Smiles Dental Clinic (IN, public facts, assumed figures)",
+  "wizard": {
+    "step1": {
+      "title": "Power Smiles new patients",
+      "marketingTargetType": "whole_business",
+      "focusName": "Power Smiles Dental Clinic",
+      "sourceType": "website",
+      "primaryUrl": "https://powersmilesdental.com/",
+      "targetMarkets": [
+        "IN"
+      ],
+      "primaryMarket": "IN",
+      "marketScope": "local",
+      "currency": "INR",
+      "operationalLocations": [
+        "Jayanagar, Bengaluru"
+      ]
+    },
+    "step2": {
+      "businessName": "Power Smiles Dental Clinic",
+      "industryCategory": "healthcare_clinics",
+      "sellsTo": "consumers",
+      "sellsVia": "own_channel",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "mature",
+      "businessDescription": "A single dental clinic in Jayanagar 4th Block, Bengaluru, led by an orthodontist and implantologist and a periodontist with over 20 years each. Patients book by phone or WhatsApp and are treated at the clinic.",
+      "productCategory": "Specialist dental care at a neighbourhood clinic, booked by appointment",
+      "productsServices": [
+        "Braces and invisible aligners",
+        "Dental implants",
+        "Root canal treatment",
+        "Gum treatment",
+        "Smile makeover",
+        "Children's dentistry"
+      ],
+      "offerSummary": "Specialist orthodontic and implant care from senior consultants, with a treatment plan and price agreed after a consultation.",
+      "differentiators": [
+        "Senior specialists with 24-25 years in practice",
+        "Orthodontics and implants under one roof",
+        "Rated 4.9 on Google by 400+ patients"
+      ],
+      "sensitiveCategoryFlags": [
+        "healthcare"
+      ],
+      "priceRangeLow": 800,
+      "priceRangeHigh": 150000,
+      "pricePosition": "premium",
+      "complianceSensitiveClaims": [
+        "Treatment results vary by patient"
+      ]
+    },
+    "step3": {
+      "primaryTargetSegment": "Adults and parents in south Bengaluru (Jayanagar, JP Nagar, BTM Layout, Banashankari) looking for braces, aligners or implants.",
+      "targetPersona": "A working professional aged 25 to 45 in south Bengaluru who wants aligners or an implant from an experienced specialist close to home.",
+      "language": "english",
+      "painPoints": [
+        "Not sure which clinic has a real specialist",
+        "Worried about cost before the first visit",
+        "Long treatments need a clinic close to home"
+      ],
+      "desiredOutcome": "More new patients for braces, aligners and implants.",
+      "decisionProcess": "They search for a specialist nearby, read Google and Practo reviews, then call or WhatsApp to book a consultation.",
+      "ageRanges": [
+        "18_24",
+        "25_34",
+        "35_44",
+        "45_54"
+      ],
+      "genderSkew": "even",
+      "buyingTriggers": [
+        "A wedding or event coming up",
+        "Tooth pain or a missing tooth"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "own_website",
+          "rank": 1,
+          "salesShare": "30_60"
+        },
+        {
+          "channel": "whatsapp",
+          "rank": 2,
+          "salesShare": "30_60"
+        },
+        {
+          "channel": "google_business",
+          "rank": 3,
+          "salesShare": "10_30"
+        },
+        {
+          "channel": "justdial",
+          "rank": 4,
+          "salesShare": "under_10"
+        }
+      ],
+      "primaryConversionPath": "book_appointment",
+      "trustSignals": [
+        "Rated 4.9 on Google by 400+ patients",
+        "790+ patient stories on Practo"
+      ],
+      "socialHandles": [
+        {
+          "platform": "instagram",
+          "handle": "powersmilesdentalclinic"
+        },
+        {
+          "platform": "facebook",
+          "handle": "powersmilesdentalclinic"
+        }
+      ],
+      "digitalPresenceLinks": [],
+      "monthlyWebsiteTraffic": "500_2000",
+      "emailListSize": "none",
+      "whatsappListSize": "2000_10000",
+      "googleAnalyticsConnected": "unknown",
+      "existingAssets": [
+        "none"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "new_customers",
+      "monthlyMarketingBudget": 60000,
+      "paidAdsShare": "about_half",
+      "marketingHandler": "freelancer",
+      "contentCapacity": "low",
+      "marketingHoursPerWeek": "underFive",
+      "creativeCapabilities": [
+        "photography"
+      ],
+      "deliveryDeadline": "noFixedDeadline",
+      "knownCompetitorStatus": "provided",
+      "knownCompetitors": [
+        "Manya Dental",
+        "Clove Dental Jayanagar"
+      ],
+      "currentMarketingActivity": [
+        {
+          "channel": "Google Business Profile",
+          "channelId": "google_business_profile",
+          "status": "active",
+          "workingAssessment": "clearly_working"
+        },
+        {
+          "channel": "Practo listing",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 15000,
+          "shareOfSpend": "10_30"
+        }
+      ],
+      "peakSeasons": [],
+      "currentOffers": [],
+      "constraints": [
+        "One clinic, five consultants"
+      ]
+    },
+    "step6": {
+      "averageOrderValueAmount": 25000,
+      "monthlyOrderVolume": "60",
+      "grossMarginBand": "from_40_to_60_percent",
+      "paybackWindow": "withinThreeMonths",
+      "avgCustomerRetention": "some_repeat",
+      "repeatPurchaseFrequency": "every_few_months",
+      "subscriptionOffered": false
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}

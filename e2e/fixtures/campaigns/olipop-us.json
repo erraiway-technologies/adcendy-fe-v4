@@ -1,0 +1,198 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "olipop-us",
+  "displayName": "Olipop (US, public facts, assumed figures)",
+  "wizard": {
+    "step1": {
+      "title": "Olipop retail and online growth",
+      "marketingTargetType": "whole_business",
+      "focusName": "OLIPOP",
+      "sourceType": "website",
+      "primaryUrl": "https://drinkolipop.com/",
+      "targetMarkets": [
+        "US"
+      ],
+      "primaryMarket": "US",
+      "marketScope": "national",
+      "currency": "USD"
+    },
+    "step2": {
+      "businessName": "OLIPOP",
+      "industryCategory": "food_beverage_brands",
+      "sellsTo": "consumers",
+      "sellsVia": "mix",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "scaling",
+      "businessDescription": "A prebiotic soda brand sold in US grocery chains (Walmart, Target, Whole Foods) and online through its own site with subscriptions. Each can has 2-5g of sugar, 35-45 calories and up to 9g of fiber.",
+      "productCategory": "Prebiotic soda, sold in cans by the 12-pack",
+      "productsServices": [
+        "Prebiotic soda 12-packs",
+        "Variety packs",
+        "OLIPOP Minis",
+        "Soda subscriptions"
+      ],
+      "offerSummary": "Classic soda flavours with 2-5g of sugar and added fiber, delivered to the door on subscription or bought in store.",
+      "differentiators": [
+        "2-5g sugar and 35-45 calories a can",
+        "Up to 9g of prebiotic fiber",
+        "Classic flavours such as Vintage Cola and Root Beer"
+      ],
+      "sensitiveCategoryFlags": [],
+      "priceRangeLow": 25,
+      "priceRangeHigh": 45,
+      "pricePosition": "premium",
+      "complianceSensitiveClaims": [
+        "Fiber and digestive-health claims"
+      ]
+    },
+    "step3": {
+      "primaryTargetSegment": "US adults cutting back on sugar who still want a soda.",
+      "targetPersona": "A 25 to 45 year old in the US who drinks soda but wants less sugar and reads labels in the grocery aisle.",
+      "language": "english",
+      "painPoints": [
+        "Regular soda has too much sugar",
+        "Diet sodas taste artificial",
+        "Healthy drinks do not taste like a treat"
+      ],
+      "desiredOutcome": "More people buying online on subscription and finding it in store.",
+      "decisionProcess": "They see it in store or on social media, try a can, then buy packs in store or subscribe online.",
+      "ageRanges": [
+        "18_24",
+        "25_34",
+        "35_44"
+      ],
+      "genderSkew": "mostly_women",
+      "buyingTriggers": [
+        "Trying to cut sugar",
+        "Seeing it on a store shelf or on social"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "retail_store",
+          "rank": 1,
+          "salesShare": "over_60"
+        },
+        {
+          "channel": "own_website",
+          "rank": 2,
+          "salesShare": "10_30"
+        },
+        {
+          "channel": "amazon",
+          "rank": 3,
+          "salesShare": "under_10"
+        }
+      ],
+      "primaryConversionPath": "buy_online",
+      "trustSignals": [
+        "Certified B Corp",
+        "Satisfaction guarantee"
+      ],
+      "socialHandles": [
+        {
+          "platform": "instagram",
+          "handle": "drinkolipop"
+        },
+        {
+          "platform": "tiktok",
+          "handle": "drinkolipop"
+        },
+        {
+          "platform": "youtube",
+          "handle": "OLIPOP"
+        },
+        {
+          "platform": "pinterest",
+          "handle": "drinkolipop"
+        }
+      ],
+      "digitalPresenceLinks": [],
+      "monthlyWebsiteTraffic": "250000_1000000",
+      "emailListSize": "250000_plus",
+      "googleAnalyticsConnected": true,
+      "existingAssets": [
+        "email_automation",
+        "creators"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "revenue_growth",
+      "monthlyMarketingBudget": 500000,
+      "paidAdsShare": "about_half",
+      "marketingHandler": "in_house_team",
+      "contentCapacity": "high",
+      "marketingHoursPerWeek": "fortyPlus",
+      "creativeCapabilities": [
+        "video",
+        "photography",
+        "copywriting",
+        "design"
+      ],
+      "deliveryDeadline": "noFixedDeadline",
+      "knownCompetitorStatus": "provided",
+      "knownCompetitors": [
+        "Poppi",
+        "Culture Pop",
+        "Health-Ade"
+      ],
+      "currentMarketingActivity": [
+        {
+          "channel": "Meta Ads",
+          "channelId": "meta_ads",
+          "status": "active",
+          "workingAssessment": "clearly_working",
+          "monthlySpendAmount": 120000,
+          "shareOfSpend": "30_60"
+        },
+        {
+          "channel": "Influencer Marketing",
+          "channelId": "influencer_marketing",
+          "status": "active",
+          "workingAssessment": "clearly_working",
+          "monthlySpendAmount": 60000,
+          "shareOfSpend": "10_30"
+        },
+        {
+          "channel": "Amazon Sponsored Products",
+          "channelId": "amazon_sponsored_products",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 20000,
+          "shareOfSpend": "under_10"
+        }
+      ],
+      "peakSeasons": [
+        "Summer"
+      ],
+      "currentOffers": [
+        "15% off the first order",
+        "30% off subscriptions"
+      ]
+    },
+    "step6": {
+      "averageOrderValueAmount": 45,
+      "monthlyOrderVolume": "40000",
+      "grossMarginBand": "from_40_to_60_percent",
+      "paybackWindow": "withinSixMonths",
+      "avgCustomerRetention": "mostly_repeat",
+      "repeatPurchaseFrequency": "monthly",
+      "customerAcquisitionCost": 30,
+      "subscriptionOffered": true,
+      "subscriberMonths": 5
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}
