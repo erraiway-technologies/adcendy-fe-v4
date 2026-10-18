@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useCampaignLifecycle } from '@/hooks/useCampaignLifecycle';
 import { cn } from '@/lib/utils';
 import { wizardRepository } from '@/shared/api/repositories';
-import { canAccessCampaignFiles } from '@/shared/components/campaigns/campaign-ui';
+import { CLIENT_RESULTS_TAB_VISIBLE, canAccessCampaignFiles } from '@/shared/components/campaigns/campaign-ui';
 import { SubmittedInputsSummary } from '@/shared/components/campaigns/SubmittedInputsSummary';
 import { SupportWindowCard } from '@/shared/components/campaigns/SupportWindowCard';
 import { formatCampaignStatus } from '@/shared/types/campaign';
@@ -346,12 +346,14 @@ export default function OverviewPage() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild variant="outline" className="w-full justify-between">
-              <Link href={`/app/campaigns/${campaignId}/results`}>
-                Results
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
+            {CLIENT_RESULTS_TAB_VISIBLE ? (
+              <Button asChild variant="outline" className="w-full justify-between">
+                <Link href={`/app/campaigns/${campaignId}/results`}>
+                  Results
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            ) : null}
               {legacyPerformanceEnabled ? (
                 <Button asChild variant="outline" className="w-full justify-between">
                   <Link href={`/app/campaigns/${campaignId}/weekly`}>

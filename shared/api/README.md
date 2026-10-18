@@ -127,8 +127,8 @@ runtime-config rules in `shared/runtime-config/`.
 
 **Example:**
 ```typescript
-// strategy.mock.ts - runs simulate async processing
-export const strategyMockAdapter = {
+// a run-based mock adapter - runs simulate async processing
+export const exampleRunMockAdapter = {
   async getRun(id: ID) {
     await delay(150);
     const run = mockRuns.get(id);

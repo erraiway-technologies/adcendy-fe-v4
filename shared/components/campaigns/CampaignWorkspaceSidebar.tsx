@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { Campaign } from '@/shared/types/campaign';
 import {
+  CLIENT_RESULTS_TAB_VISIBLE,
   canAccessCampaignFiles,
   type CampaignLifecycleStage,
 } from '@/shared/components/campaigns/campaign-ui';
@@ -111,11 +112,15 @@ function buildWorkspaceItems(
       href: `/app/campaigns/${campaign.id}/strategy`,
       isActive: (pathname) => pathname.includes('/strategy'),
     },
-    {
-      label: 'Results',
-      href: `/app/campaigns/${campaign.id}/results`,
-      isActive: (pathname) => pathname.includes('/results'),
-    },
+    ...(CLIENT_RESULTS_TAB_VISIBLE
+      ? [
+          {
+            label: 'Results',
+            href: `/app/campaigns/${campaign.id}/results`,
+            isActive: (pathname: string) => pathname.includes('/results'),
+          },
+        ]
+      : []),
     ...(legacyPerformanceEnabled
       ? [
           {

@@ -140,11 +140,6 @@
       "count": 1
     }
   },
-  "hooks/useStrategy.ts": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
   "hooks/useWeekly.ts": {
     "@typescript-eslint/no-unused-vars": {
       "count": 4
@@ -175,11 +170,6 @@
       "count": 2
     }
   },
-  "shared/api/mock/intelligence.mock.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 4
-    }
-  },
   "shared/api/mock/jobs.mock.ts": {
     "@typescript-eslint/no-unused-vars": {
       "count": 2
@@ -193,11 +183,6 @@
   "shared/api/mock/runsV2.mock.ts": {
     "@typescript-eslint/no-unused-vars": {
       "count": 7
-    }
-  },
-  "shared/api/mock/strategy.mock.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
     }
   },
   "shared/api/mock/weekly.mock.ts": {
@@ -252,32 +237,11 @@
       "count": 1
     }
   },
-  "shared/components/reviews/StrategyReviewWorkspace.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 3
-    }
-  },
   "shared/components/run/RunStatusCard.tsx": {
     "@typescript-eslint/no-unused-vars": {
       "count": 2
     },
     "react/no-unescaped-entities": {
-      "count": 1
-    }
-  },
-  "shared/components/strategy/StrategyFeedbackForm.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "react-hooks/incompatible-library": {
-      "count": 1
-    }
-  },
-  "shared/components/strategy/StrategyVersionList.tsx": {
-    "@typescript-eslint/no-unused-vars": {
       "count": 1
     }
   },
@@ -293,11 +257,6 @@
   },
   "shared/types/reviews.ts": {
     "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "shared/types/strategy.ts": {
-    "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
   },

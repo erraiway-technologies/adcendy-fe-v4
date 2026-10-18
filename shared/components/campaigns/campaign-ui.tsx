@@ -90,6 +90,10 @@ export function isCampaignUnderReview(campaign: Campaign) {
   return campaign.status === 'SUBMITTED_FOR_REVIEW' || campaign.status === 'IN_REVIEW';
 }
 
+// The client Results tab is hidden for now. Its page still answers at
+// /app/campaigns/:id/results, and the admin Results page is unaffected.
+export const CLIENT_RESULTS_TAB_VISIBLE = false;
+
 export function canAccessCampaignFiles(campaign: Campaign) {
   return (
     campaign.status === 'ACTIVE' ||

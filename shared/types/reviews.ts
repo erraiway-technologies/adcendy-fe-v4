@@ -24,18 +24,6 @@ export interface ReviewAssignee {
   role?: Role | string | null;
 }
 
-export interface StrategyReviewInboxItem {
-  id?: ID | null;
-  campaignId: ID;
-  campaignTitle: string;
-  status: StrategyReviewStatus;
-  createdAt?: ISODateTime | null;
-  requestedChangesNote?: string | null;
-  approvedAt?: ISODateTime | null;
-  updatedAt?: ISODateTime | null;
-  assignedReviewer?: ReviewAssignee | null;
-}
-
 export interface StrategyReviewDeliverable {
   key: string;
   label: string;
@@ -72,17 +60,6 @@ export interface CreateReviewerPayload {
   email: string;
   password: string;
   displayName?: string;
-}
-
-export interface UpdateStrategyReviewSectionPayload {
-  decision: 'APPROVED' | 'REQUEST_CHANGES';
-  note?: string;
-}
-
-export interface FinalizeStrategyReviewPayload {
-  action: 'APPROVE' | 'REQUEST_CHANGES';
-  summaryNote?: string;
-  requestedChangesNote?: string;
 }
 
 export interface AdminReviewerUser {
@@ -217,35 +194,6 @@ function normalizeAssignee(value: unknown): ReviewAssignee | null {
   };
 }
 
-function normalizeStrategyReviewInboxItem(value: unknown): StrategyReviewInboxItem | null {
-  const record = asRecord(value);
-  if (!record) {
-    return null;
-  }
-
-  const campaign = asRecord(record.campaign);
-  const campaignId = fallbackString(record.campaignId, campaign?.id);
-  if (!campaignId) {
-    return null;
-  }
-
-  return {
-    id: fallbackNullableString(record.id, record.reviewId) ?? null,
-    campaignId,
-    campaignTitle:
-      fallbackString(record.campaignTitle, record.campaignName, campaign?.title, campaign?.name) ??
-      campaignId,
-    status: fallbackString(record.status, record.reviewStatus) ?? 'PENDING_REVIEW',
-    createdAt: fallbackNullableString(record.createdAt) ?? null,
-    requestedChangesNote:
-      fallbackNullableString(record.requestedChangesNote, record.latestRequestedChangesNote) ?? null,
-    approvedAt: fallbackNullableString(record.approvedAt) ?? null,
-    updatedAt: fallbackNullableString(record.updatedAt) ?? null,
-    assignedReviewer:
-      normalizeAssignee(record.assignedReviewer ?? record.reviewer ?? record.assignee) ?? null,
-  };
-}
-
 function normalizeDeliverables(record: UnknownRecord): StrategyReviewDeliverable[] {
   const rawArray = asArray(record.deliverables ?? record.outputs ?? record.artifacts);
 
@@ -344,17 +292,6 @@ function normalizeSection(value: unknown): StrategyReviewSection | null {
       fallbackNullableString(record.deliverableKey, record.deliverable, record.parentDeliverable) ??
       null,
   };
-}
-
-export function normalizeStrategyReviewInboxResponse(payload: unknown): StrategyReviewInboxItem[] {
-  const record = asRecord(payload);
-  const items = Array.isArray(payload)
-    ? payload
-    : asArray(record?.items ?? record?.reviews ?? record?.strategyReviews);
-
-  return items
-    .map(normalizeStrategyReviewInboxItem)
-    .filter((item): item is StrategyReviewInboxItem => Boolean(item));
 }
 
 export function normalizeStrategyReviewDetail(

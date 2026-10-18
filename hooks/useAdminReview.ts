@@ -170,10 +170,6 @@ export function useDeleteAdminCampaignPermanently(campaignId: string | null) {
         queryClient.removeQueries({ queryKey: queryKeys.campaigns.byId(campaignId) });
         queryClient.removeQueries({ queryKey: queryKeys.campaigns.detail(campaignId) });
         queryClient.removeQueries({ queryKey: queryKeys.documents.list(campaignId) });
-        queryClient.removeQueries({ queryKey: queryKeys.intelligence.list(campaignId) });
-        queryClient.removeQueries({ queryKey: queryKeys.intelligence.latest(campaignId) });
-        queryClient.removeQueries({ queryKey: queryKeys.strategy.versions(campaignId) });
-        queryClient.removeQueries({ queryKey: queryKeys.strategy.latest(campaignId) });
         queryClient.removeQueries({ queryKey: queryKeys.wizard.options(campaignId) });
         queryClient.removeQueries({ queryKey: queryKeys.wizard.state(campaignId) });
         queryClient.removeQueries({ queryKey: queryKeys.wizard.steps(campaignId) });

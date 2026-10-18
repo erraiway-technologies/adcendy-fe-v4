@@ -21,13 +21,6 @@ export const queryKeys = {
     download: (campaignId: string, documentId: string) =>
       [...queryKeys.documents.all, 'download', campaignId, documentId] as const,
   },
-  strategy: {
-    all: ['strategy'] as const,
-    run: (id: string) => [...queryKeys.strategy.all, 'run', id] as const,
-    versions: (campaignId: string) => [...queryKeys.strategy.all, 'versions', campaignId] as const,
-    version: (versionId: string) => [...queryKeys.strategy.all, 'version', versionId] as const,
-    latest: (campaignId: string) => [...queryKeys.strategy.all, 'latest', campaignId] as const,
-  },
   runsV2: {
     all: ['runsV2'] as const,
     status: (runId: string) => [...queryKeys.runsV2.all, 'status', runId] as const,
@@ -61,14 +54,6 @@ export const queryKeys = {
         ? ([...queryKeys.weekly.all, 'tweaks', tweakRunId, visibility] as const)
         : ([...queryKeys.weekly.all, 'tweaks', tweakRunId] as const),
   },
-  intelligence: {
-    all: ['intelligence'] as const,
-    latest: (campaignId: string) => [...queryKeys.intelligence.all, 'latest', campaignId] as const,
-    list: (campaignId: string) => [...queryKeys.intelligence.all, 'list', campaignId] as const,
-    byId: (snapshotId: string) => [...queryKeys.intelligence.all, 'byId', snapshotId] as const,
-    snapshot: (campaignId: string) =>
-      [...queryKeys.intelligence.all, 'snapshot', campaignId] as const,
-  },
   jobs: {
     all: ['jobs'] as const,
     list: (filters?: Record<string, any>) =>
@@ -98,7 +83,6 @@ export const queryKeys = {
   },
   strategyReviews: {
     all: ['strategyReviews'] as const,
-    inbox: () => [...queryKeys.strategyReviews.all, 'inbox'] as const,
     detail: (campaignId: string) =>
       [...queryKeys.strategyReviews.all, 'detail', campaignId] as const,
   },
