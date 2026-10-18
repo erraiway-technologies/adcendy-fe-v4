@@ -14,6 +14,7 @@ import {
   useRequestOpsSectionRevision,
 } from '@/hooks/useOpsV2';
 import { ReviewStatusBadge } from '@/shared/components/reviews/ReviewStatusBadge';
+import { SectionContentView } from '@/shared/components/ops/SectionContentView';
 import {
   formatCampaignOpsStatus,
   formatOpsDateTime,
@@ -277,9 +278,7 @@ export default function SectionReviewDetailPage() {
                 <CardTitle>Section Content</CardTitle>
               </CardHeader>
               <CardContent>
-                <pre className="max-h-[420px] overflow-auto rounded-md border border-border bg-background p-3 text-xs">
-                  {toJsonPreview(detail.sectionContent)}
-                </pre>
+                <SectionContentView content={detail.sectionContent} />
               </CardContent>
             </Card>
 

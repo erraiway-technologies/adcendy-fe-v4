@@ -11,6 +11,7 @@ import {
 import type { Role } from '@/features/auth/types';
 import { ApiError } from '@/shared/api/errors';
 import { ReviewStatusBadge } from '@/shared/components/reviews/ReviewStatusBadge';
+import { SectionContentView } from '@/shared/components/ops/SectionContentView';
 import {
   formatCampaignOpsStatus,
   formatOpsDateTime,
@@ -359,9 +360,7 @@ export function SectionReviewRunWorkspace({
 
                       <div className="space-y-2">
                         <p className="text-sm font-medium text-foreground">Section Content</p>
-                        <pre className="max-h-[420px] overflow-auto rounded-md border border-border bg-background p-3 text-xs">
-                          {toJsonPreview(selectedSection.sectionContent)}
-                        </pre>
+                        <SectionContentView content={selectedSection.sectionContent} />
                       </div>
                     </>
                   ) : (
