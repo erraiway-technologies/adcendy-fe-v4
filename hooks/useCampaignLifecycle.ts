@@ -28,6 +28,8 @@ export function useCampaignLifecycle(campaignId: ID | null) {
         approvedAt: null,
         sections: workspace.sections.map((section) => ({
           callType: section.sectionId ?? section.sectionReviewTaskId,
+          sectionReviewTaskId: section.sectionReviewTaskId,
+          marketId: section.marketId ?? null,
           title: section.sectionTitle ?? section.sectionId ?? 'Section',
           content: section.sectionContent,
           status: section.status,
@@ -41,7 +43,9 @@ export function useCampaignLifecycle(campaignId: ID | null) {
   return {
     campaign,
     stage,
+    runId,
     strategyReview,
+    isStrategyReviewError: workspaceQuery.isError,
     isLoading:
       isCampaignLoading ||
       Boolean(campaign && campaign.status !== 'DRAFT' && runWorkspace.isLoading) ||

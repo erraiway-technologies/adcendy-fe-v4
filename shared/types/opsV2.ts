@@ -945,7 +945,14 @@ export function normalizeSectionReviewItem(value: unknown): SectionReviewItem | 
 
   return {
     id,
-    status: fallbackString(record.status, record.reviewStatus, record.review_status) ?? 'PENDING',
+    status:
+      fallbackString(
+        record.status,
+        record.reviewStatus,
+        record.review_status,
+        record.sectionReviewStatus,
+        record.section_review_status,
+      ) ?? 'PENDING',
     pipelineRunId:
       fallbackNullableString(record.pipelineRunId, record.pipeline_run_id, run?.id, run?.runId) ??
       null,
@@ -1088,7 +1095,10 @@ export function normalizeSectionReviewWorkspaceDetail(
   fallbackRunId = '',
 ): SectionReviewWorkspaceDetail {
   const record = asRecord(payload) ?? {};
-  const run = asRecord(record.run);
+  // The Backend groups the workspace into tabs: { pipelineRun, inputTab, sectionsTab: { items } }.
+  const run = asRecord(record.run) ?? asRecord(record.pipelineRun) ?? asRecord(record.pipeline_run);
+  const inputTab = asRecord(record.inputTab) ?? asRecord(record.input_tab);
+  const sectionsTab = asRecord(record.sectionsTab) ?? asRecord(record.sections_tab);
   const campaign = asRecord(record.campaign);
   const assignedReviewer =
     asRecord(record.assignedReviewer) ??
@@ -1096,7 +1106,8 @@ export function normalizeSectionReviewWorkspaceDetail(
     asRecord(record.reviewer);
 
   const sectionItems = pickItemsArray(
-    record.sections ??
+    sectionsTab ??
+      record.sections ??
       record.sectionReviews ??
       record.section_reviews ??
       record.sectionReviewTasks ??
@@ -1109,15 +1120,22 @@ export function normalizeSectionReviewWorkspaceDetail(
     .filter((item): item is SectionReviewWorkspaceSection => Boolean(item));
 
   return {
-    runId: fallbackString(record.runId, record.run_id, run?.id, run?.runId) ?? fallbackRunId,
+    runId:
+      fallbackString(record.runId, record.run_id, run?.id, run?.runId, run?.pipelineRunId) ?? fallbackRunId,
     status: fallbackNullableString(record.status, record.reviewStatus, record.review_status) ?? null,
     campaignId:
-      fallbackNullableString(record.campaignId, record.campaign_id, campaign?.id) ?? null,
+      fallbackNullableString(record.campaignId, record.campaign_id, campaign?.id, run?.campaignId) ?? null,
     campaignTitle:
-      fallbackNullableString(record.campaignTitle, record.campaign_title, campaign?.title, campaign?.name) ??
-      null,
+      fallbackNullableString(
+        record.campaignTitle,
+        record.campaign_title,
+        campaign?.title,
+        campaign?.name,
+        run?.campaignTitle,
+      ) ?? null,
     campaignStatus:
-      fallbackNullableString(record.campaignStatus, record.campaign_status, campaign?.status) ?? null,
+      fallbackNullableString(record.campaignStatus, record.campaign_status, campaign?.status, run?.campaignStatus) ??
+      null,
     marketId: fallbackNullableString(record.marketId, record.market_id) ?? null,
     reviewerId:
       fallbackNullableString(record.reviewerId, record.reviewer_id, assignedReviewer?.id) ?? null,
@@ -1142,6 +1160,7 @@ export function normalizeSectionReviewWorkspaceDetail(
       record.submitted_inputs,
       record.inputSnapshot,
       record.input_snapshot,
+      inputTab,
     ),
     sections: sectionItems,
   };

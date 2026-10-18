@@ -1,131 +1,83 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { Download, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Sparkles, Download } from 'lucide-react';
-import { StrategyVersionList } from '@/shared/components/strategy/StrategyVersionList';
-import { StrategyViewer } from '@/shared/components/strategy/StrategyViewer';
-import { StrategyFeedbackForm } from '@/shared/components/strategy/StrategyFeedbackForm';
-import { strategyRepository, wizardRepository } from '@/shared/api/repositories';
-import { queryKeys } from '@/shared/api/queryKeys';
+import { useCampaignLifecycle } from '@/hooks/useCampaignLifecycle';
+import { canAccessCampaignFiles } from '@/shared/components/campaigns/campaign-ui';
+import { approvedStrategySections } from '@/shared/components/strategy/approved-strategy-sections';
+import { StrategySectionsView } from '@/shared/components/strategy/StrategySectionsView';
 
+// The strategy is the approved sections of the campaign's pipeline run, read
+// from the run's section workspace. The PDF deliverables are built from the
+// same sections and are downloaded from the Files tab.
 export default function StrategyPage() {
   const params = useParams();
-  const router = useRouter();
   const campaignId = params?.campaignId as string;
-  const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
+  const { campaign, runId, strategyReview, isStrategyReviewError, isLoading } =
+    useCampaignLifecycle(campaignId);
 
-  // Fetch versions
-  const { data: versions, isLoading: versionsLoading } = useQuery({
-    queryKey: queryKeys.strategy.versions(campaignId),
-    queryFn: () => strategyRepository.listVersions(campaignId),
-  });
-  const { data: wizardState } = useQuery({
-    queryKey: queryKeys.wizard.state(campaignId),
-    queryFn: () => wizardRepository.getWizardState(campaignId),
-    enabled: Boolean(campaignId),
-  });
-
-  // Fetch selected or latest version
-  const selectedOrLatestVersionId = useMemo(() => {
-    if (selectedVersionId) return selectedVersionId;
-    if (versions && versions.length > 0) {
-      return versions[0].id;
-    }
-    return null;
-  }, [selectedVersionId, versions]);
-
-  const { data: selectedVersion, isLoading: versionLoading, error: versionError } = useQuery({
-    queryKey: queryKeys.strategy.version(selectedOrLatestVersionId ?? 'unavailable'),
-    queryFn: () =>
-      selectedOrLatestVersionId
-        ? strategyRepository.getVersion(campaignId, selectedOrLatestVersionId)
-        : null,
-    enabled: !!selectedOrLatestVersionId,
-  });
-
-  const handleGenerationAction = () => {
-    if (wizardState?.run?.runId) {
-      router.push(`/app/campaigns/${campaignId}/runs/${wizardState.run.runId}`);
-      return;
-    }
-    router.push(`/app/campaigns/${campaignId}/overview`);
-  };
-
-  const handleVersionSelect = (versionId: string) => {
-    setSelectedVersionId(versionId);
-  };
-
-  const isLoading = versionsLoading || versionLoading;
+  const sections = approvedStrategySections(strategyReview?.sections);
+  const pendingCount = (strategyReview?.sections.length ?? 0) - sections.length;
+  const filesAvailable = campaign ? canAccessCampaignFiles(campaign) : false;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-space-grotesk text-3xl font-bold text-foreground">Strategy</h1>
           <p className="text-muted-foreground mt-1">Market analysis & go-to-market planning</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" disabled size="icon" className="gap-2 bg-transparent">
-            <Download className="w-4 h-4" />
-          </Button>
-          <Button onClick={handleGenerationAction} className="gap-2">
-            <Sparkles className="w-4 h-4" />
-            {wizardState?.run?.runId ? 'View Generation' : 'Campaign Overview'}
-          </Button>
+          {filesAvailable && (
+            <Button asChild variant="outline" className="gap-2">
+              <Link href={`/app/campaigns/${campaignId}/files`}>
+                <Download className="w-4 h-4" />
+                Download PDFs
+              </Link>
+            </Button>
+          )}
+          {runId && (
+            <Button asChild variant="outline" className="gap-2">
+              <Link href={`/app/campaigns/${campaignId}/runs/${runId}`}>
+                <Sparkles className="w-4 h-4" />
+                View Generation
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Empty State */}
-      {!versionsLoading && (!versions || versions.length === 0) && (
+      {isLoading ? (
+        <div className="space-y-4">
+          {[...Array(3)].map((_, index) => (
+            <Card key={index} className="h-40 animate-pulse bg-muted" />
+          ))}
+        </div>
+      ) : isStrategyReviewError ? (
+        <Card className="p-8 border border-destructive/20 bg-destructive/5 text-center">
+          <p className="text-sm text-destructive">The strategy could not be loaded. Refresh the page to try again.</p>
+        </Card>
+      ) : sections.length === 0 ? (
         <Card className="p-12 text-center border border-border bg-card">
           <div className="space-y-4 max-w-md mx-auto">
-            <p className="text-muted-foreground">No strategy generated yet.</p>
-            <Button onClick={handleGenerationAction} size="lg" className="w-full gap-2">
-              <Sparkles className="w-4 h-4" />
-              {wizardState?.run?.runId ? 'View Generation Status' : 'Review Campaign'}
+            <p className="text-muted-foreground">
+              {pendingCount > 0
+                ? 'Your strategy is being reviewed. Sections appear here once they are approved.'
+                : 'No strategy generated yet.'}
+            </p>
+            <Button asChild size="lg" className="w-full gap-2">
+              <Link href={runId ? `/app/campaigns/${campaignId}/runs/${runId}` : `/app/campaigns/${campaignId}/overview`}>
+                <Sparkles className="w-4 h-4" />
+                {runId ? 'View Generation Status' : 'Campaign Overview'}
+              </Link>
             </Button>
           </div>
         </Card>
-      )}
-
-      {/* Main Layout */}
-      {versions && versions.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar: Version List */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-20">
-              <h2 className="text-sm font-semibold text-muted-foreground mb-3">Version History</h2>
-              <StrategyVersionList
-                versions={versions}
-                selectedVersionId={selectedOrLatestVersionId || undefined}
-                onSelect={handleVersionSelect}
-                isLoading={versionsLoading}
-              />
-            </div>
-          </div>
-
-          {/* Main: Viewer + Feedback */}
-          <div className="lg:col-span-3 space-y-6">
-            <StrategyViewer
-              version={selectedVersion || null}
-              isLoading={versionLoading}
-              error={versionError instanceof Error ? versionError.message : null}
-            />
-
-            {selectedVersion && (
-              <StrategyFeedbackForm
-                campaignId={campaignId}
-                strategyVersionId={selectedVersion.id}
-                versionNumber={selectedVersion.version}
-              />
-            )}
-          </div>
-        </div>
+      ) : (
+        <StrategySectionsView sections={sections} />
       )}
     </div>
   );

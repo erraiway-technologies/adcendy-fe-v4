@@ -9,17 +9,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCampaignLifecycle } from '@/hooks/useCampaignLifecycle';
 import { cn } from '@/lib/utils';
-import { intelligenceRepository, wizardRepository } from '@/shared/api/repositories';
+import { wizardRepository } from '@/shared/api/repositories';
 import { canAccessCampaignFiles } from '@/shared/components/campaigns/campaign-ui';
 import { SubmittedInputsSummary } from '@/shared/components/campaigns/SubmittedInputsSummary';
 import { SupportWindowCard } from '@/shared/components/campaigns/SupportWindowCard';
 import { formatCampaignStatus } from '@/shared/types/campaign';
 import { humanizeReviewValue } from '@/shared/types/reviews';
 import { useLegacyPerformanceWorkspacesEnabled } from '@/shared/runtime-config/features';
+import { markdownExcerpt } from '@/shared/markdown/markdown-excerpt';
+import {
+  approvedStrategySections,
+  isIntelligenceSection,
+} from '@/shared/components/strategy/approved-strategy-sections';
 
 function extractSectionPreview(content: unknown) {
   if (typeof content === 'string') {
-    return content;
+    return markdownExcerpt(content);
   }
 
   if (Array.isArray(content)) {
@@ -52,12 +57,6 @@ export default function OverviewPage() {
       }
     },
     enabled: Boolean(campaignId) && stage === 'waiting',
-  });
-
-  const { data: intelligenceSnapshot } = useQuery({
-    queryKey: ['campaign-overview-intelligence', campaignId],
-    queryFn: async () => intelligenceRepository.getLatestSnapshot(campaignId),
-    enabled: Boolean(campaignId) && stage === 'active',
   });
 
   if (isLoading) {
@@ -251,7 +250,8 @@ export default function OverviewPage() {
     );
   }
 
-  const latestStructuredSections = strategyReview?.sections ?? [];
+  const latestStructuredSections = approvedStrategySections(strategyReview?.sections);
+  const intelligenceSectionCount = latestStructuredSections.filter(isIntelligenceSection).length;
   const strategyUpdatedAt = strategyReview?.approvedAt ?? strategyReview?.updatedAt ?? null;
   const summarySection = latestStructuredSections.find((section) =>
     extractSectionPreview(section.content),
@@ -320,9 +320,9 @@ export default function OverviewPage() {
             <div className="rounded-2xl border border-border bg-muted/20 p-4">
               <p className="text-sm font-medium text-foreground">Intelligence</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                {intelligenceSnapshot
-                  ? `Latest intelligence snapshot refreshed ${formatDistanceToNow(new Date(intelligenceSnapshot.updatedAt), { addSuffix: true })}.`
-                  : 'No intelligence snapshot is available yet.'}
+                {intelligenceSectionCount > 0
+                  ? 'Search demand, buyer intent and competitor research for your market is in the Intelligence tab.'
+                  : 'Market intelligence appears once your strategy is approved.'}
               </p>
             </div>
             <div className="rounded-2xl border border-border bg-muted/20 p-4">
@@ -387,13 +387,13 @@ export default function OverviewPage() {
           <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {latestStructuredSections.slice(0, 6).map((section) => (
               <div
-                key={section.callType}
+                key={section.sectionReviewTaskId}
                 className="rounded-2xl border border-border bg-muted/20 p-4"
               >
                 <p className="text-sm font-medium text-foreground">
                   {section.title || humanizeReviewValue(section.callType)}
                 </p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                <p className="mt-2 line-clamp-4 text-sm leading-6 text-muted-foreground">
                   {extractSectionPreview(section.content) || 'Open the strategy page to review this section.'}
                 </p>
               </div>
