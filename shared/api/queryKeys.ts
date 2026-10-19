@@ -128,6 +128,13 @@ export const queryKeys = {
     all: ['adminOrders'] as const,
     list: (query: Record<string, unknown>) => [...queryKeys.adminOrders.all, 'list', query] as const,
   },
+  prospectScans: {
+    all: ['prospectScans'] as const,
+    list: (query: Record<string, unknown>) => [...queryKeys.prospectScans.all, 'list', query] as const,
+    summary: (batchId: string) => [...queryKeys.prospectScans.all, 'summary', batchId] as const,
+    spend: () => [...queryKeys.prospectScans.all, 'spend'] as const,
+    detail: (scanId: string) => [...queryKeys.prospectScans.all, 'detail', scanId] as const,
+  },
   opsV2: {
     all: ['opsV2'] as const,
     campaigns: () => [...queryKeys.opsV2.all, 'campaigns'] as const,

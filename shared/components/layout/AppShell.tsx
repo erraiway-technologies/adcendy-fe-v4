@@ -32,6 +32,7 @@ const allNavItems: NavItem[] = [
   { href: '/admin/settings', label: 'Settings', minimumRole: 'ADMIN', visibleFor: ['ADMIN'] },
   { href: '/admin/coupons', label: 'Coupons', minimumRole: 'ADMIN', visibleFor: ['ADMIN'] },
   { href: '/admin/orders', label: 'Orders', minimumRole: 'ADMIN', visibleFor: ['ADMIN'] },
+  { href: '/admin/prospect-scans', label: 'Prospect scans', minimumRole: 'ADMIN', visibleFor: ['ADMIN'] },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
