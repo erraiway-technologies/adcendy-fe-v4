@@ -76,7 +76,9 @@ function SubmitCard({ onSubmitted }: { onSubmitted: (batchId: string) => void })
         <CardTitle className="text-lg">Add prospects</CardTitle>
         <CardDescription>
           One row per prospect. Columns marked * are required. The competitor is the one the prospect would name
-          themselves; the hiring signal is written to follow &ldquo;I saw&rdquo;. Up to {PROSPECT_BATCH_LIMIT} a
+          themselves. Why now is optional: a public reason to write today (a funding round, a launch, a new market,
+          a first marketing hire), written to follow &ldquo;saw&rdquo;; left empty, the email opens with the comparison. Not
+          a prospect already hiring a senior marketing lead: they have chosen a person. Up to {PROSPECT_BATCH_LIMIT} a
           batch; a prospect already scanned is not paid for again.
         </CardDescription>
       </CardHeader>
@@ -86,7 +88,7 @@ function SubmitCard({ onSubmitted }: { onSubmitted: (batchId: string) => void })
             <TableRow>
               <TableHead className="w-10">#</TableHead>
               {PROSPECT_COLUMNS.map((column) => (
-                <TableHead key={column.name} className={column.name === 'hiringSignal' ? 'min-w-64' : 'min-w-36'}>
+                <TableHead key={column.name} className={column.name === 'whyNow' ? 'min-w-64' : 'min-w-36'}>
                   {column.label}
                   {column.required ? ' *' : ''}
                 </TableHead>

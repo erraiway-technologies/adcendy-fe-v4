@@ -17,17 +17,17 @@ import {
 import { prospectScansMockAdapter } from "../../shared/api/mock/prospectScans.mock.ts";
 
 const row = (cells: Partial<ProspectDraftRow>): ProspectDraftRow => ({ ...emptyProspectDraftRow(), ...cells });
-const GOOD = { targetDomain: "a.com", competitorDomain: "b.com", country: "gb", businessType: "company", hiringSignal: "you're hiring" };
+const GOOD = { targetDomain: "a.com", competitorDomain: "b.com", country: "gb", businessType: "company", whyNow: "you're hiring" };
 
 test("table rows: a filled row is read, an unstarted row is skipped, a bad row is reported by its row number", () => {
   const { rows, errors, invalidCells } = readProspectDraftRows([
-    row({ ...GOOD, targetName: "Pip & Nut", hiringSignal: " you're hiring a Head of Growth " }),
+    row({ ...GOOD, targetName: "Pip & Nut", whyNow: " you're hiring a Head of Growth " }),
     row({ country: "GB", businessType: "company" }),
     row({ ...GOOD, competitorDomain: "" }),
     row({ ...GOOD, country: "United Kingdom", businessType: "limited" }),
   ]);
   assert.deepEqual(rows, [
-    { targetDomain: "a.com", competitorDomain: "b.com", country: "GB", businessType: "company", hiringSignal: "you're hiring a Head of Growth", targetName: "Pip & Nut" },
+    { targetDomain: "a.com", competitorDomain: "b.com", country: "GB", businessType: "company", whyNow: "you're hiring a Head of Growth", targetName: "Pip & Nut" },
   ]);
   assert.equal(errors.length, 2);
   assert.match(errors[0], /^Row 3: Competitor website is empty/);
@@ -42,7 +42,7 @@ test("the table header names every field a submission carries, required ones fir
   const names = PROSPECT_COLUMNS.map((column) => column.name).sort();
   assert.deepEqual(names, Object.keys(emptyProspectDraftRow()).sort());
   const required = PROSPECT_COLUMNS.filter((column) => column.required).map((column) => column.name).sort();
-  assert.deepEqual(required, ["businessType", "competitorDomain", "country", "hiringSignal", "targetDomain"]);
+  assert.deepEqual(required, ["businessType", "competitorDomain", "country", "targetDomain"]);
 });
 
 test("every row read carries all required fields, and every other non-empty row is reported, for any mix of rows", () => {
@@ -54,6 +54,7 @@ test("every row read carries all required fields, and every other non-empty row 
     row({}),
     row({ country: "GB", businessType: "company" }),
     row({ ...GOOD, businessType: "sole_trader", country: "ie" }),
+    row({ ...GOOD, whyNow: "" }),
   ];
   for (let mask = 1; mask < 1 << candidates.length; mask += 1) {
     const chosen = candidates.filter((_, index) => mask & (1 << index));
@@ -68,6 +69,8 @@ test("every row read carries all required fields, and every other non-empty row 
         assert.ok(read[column.name], `${column.name} present`);
       }
       assert.match(read.country, /^[A-Z]{2}$/);
+      // An optional cell left empty is not sent at all, so "why now" is absent, never "".
+      assert.ok(Object.values(read).every((value) => value !== ""), "no empty value sent");
     }
   }
 });

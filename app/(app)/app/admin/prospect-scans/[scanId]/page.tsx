@@ -171,8 +171,8 @@ function InputsDialog({ scan, onClose }: { scan: ProspectScanDetail; onClose: ()
     targetName: scan.targetName ?? '',
     competitorName: scan.competitorName,
     contactFirstName: scan.contactFirstName ?? '',
-    hiringSignal: scan.hiringSignal,
-    hiringSignalUrl: scan.hiringSignalUrl ?? '',
+    whyNow: scan.whyNow ?? '',
+    whyNowUrl: scan.whyNowUrl ?? '',
     businessType: scan.businessType,
     categoryTerm: scan.operatorCategoryTerm ?? '',
   });
@@ -207,14 +207,14 @@ function InputsDialog({ scan, onClose }: { scan: ProspectScanDetail; onClose: ()
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Prospect details</DialogTitle>
-          <DialogDescription>Names and the hiring signal change the email at once; a new search term needs a re-scan, which starts when you save.</DialogDescription>
+          <DialogDescription>Names and the reason for writing change the email at once; a new search term needs a re-scan, which starts when you save.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           {text('targetName', "Prospect's brand name")}
           {text('competitorName', 'Competitor, as the prospect knows it')}
           {text('contactFirstName', 'First name of the person you email', 'Empty: "Hi there".')}
-          {text('hiringSignal', 'Why now', 'Written to follow "I saw", e.g. "you\'re hiring a Head of Growth".')}
-          {text('hiringSignalUrl', 'Where the hiring signal is')}
+          {text('whyNow', 'Why now (optional)', 'Written to follow "saw", e.g. "you\'ve just raised a seed round". Empty, the email opens with the comparison.')}
+          {text('whyNowUrl', 'Where the reason can be seen')}
           <div className="space-y-1">
             <Label>Business type</Label>
             <Select value={form.businessType} onValueChange={(value) => set('businessType', value as ProspectBusinessType)}>

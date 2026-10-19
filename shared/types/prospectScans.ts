@@ -99,8 +99,9 @@ export interface ProspectScanDetail extends ProspectScanListItem {
   competitorName: string;
   contactFirstName: string | null;
   businessType: ProspectBusinessType;
-  hiringSignal: string;
-  hiringSignalUrl: string | null;
+  /** Why the email is sent now; null opens the email with the comparison. */
+  whyNow: string | null;
+  whyNowUrl: string | null;
   categoryTerm: string | null;
   operatorCategoryTerm: string | null;
   secondaryLine: string | null;
@@ -135,8 +136,8 @@ export interface ProspectSubmission {
   competitorName?: string;
   country: string;
   businessType: ProspectBusinessType;
-  hiringSignal: string;
-  hiringSignalUrl?: string;
+  whyNow?: string;
+  whyNowUrl?: string;
   categoryTerm?: string;
 }
 
@@ -157,8 +158,8 @@ export interface ProspectInputsPatch {
   targetName?: string;
   competitorName?: string;
   contactFirstName?: string;
-  hiringSignal?: string;
-  hiringSignalUrl?: string;
+  whyNow?: string;
+  whyNowUrl?: string;
   businessType?: ProspectBusinessType;
   categoryTerm?: string;
 }
@@ -347,8 +348,8 @@ export function normalizeProspectScanDetail(value: unknown): ProspectScanDetail 
     competitorName: text(value.competitorName) || base.competitorDomain,
     contactFirstName: nullableText(value.contactFirstName),
     businessType,
-    hiringSignal: text(value.hiringSignal),
-    hiringSignalUrl: nullableText(value.hiringSignalUrl),
+    whyNow: nullableText(value.whyNow),
+    whyNowUrl: nullableText(value.whyNowUrl),
     categoryTerm: nullableText(value.categoryTerm),
     operatorCategoryTerm: nullableText(value.operatorCategoryTerm),
     secondaryLine: nullableText(value.secondaryLine),
@@ -412,8 +413,8 @@ export const PROSPECT_COLUMNS: readonly ProspectColumnSpec[] = [
   { name: 'competitorName', label: 'Competitor name', required: false, placeholder: 'e.g. Meridian' },
   { name: 'country', label: 'Country', required: true, placeholder: 'e.g. GB' },
   { name: 'businessType', label: 'Business type', required: true, placeholder: '' },
-  { name: 'hiringSignal', label: 'Hiring signal (after "I saw")', required: true, placeholder: "e.g. you're hiring a Head of Growth" },
-  { name: 'hiringSignalUrl', label: 'Hiring signal link', required: false, placeholder: 'e.g. https://…/jobs/123' },
+  { name: 'whyNow', label: 'Why now (after "saw")', required: false, placeholder: "e.g. you've just raised a seed round" },
+  { name: 'whyNowUrl', label: 'Why now link', required: false, placeholder: 'e.g. https://…/news/123' },
   { name: 'contactFirstName', label: 'Contact first name', required: false, placeholder: 'e.g. Sam' },
   { name: 'categoryTerm', label: 'Category search term', required: false, placeholder: 'e.g. peanut butter' },
 ] as const;
@@ -487,11 +488,11 @@ export function readProspectDraftRows(drafts: ProspectDraftRow[]): {
       competitorDomain: cell('competitorDomain'),
       country: country.toUpperCase(),
       businessType: businessType as ProspectBusinessType,
-      hiringSignal: cell('hiringSignal'),
       ...optional('targetName'),
       ...optional('competitorName'),
       ...optional('contactFirstName'),
-      ...optional('hiringSignalUrl'),
+      ...optional('whyNow'),
+      ...optional('whyNowUrl'),
       ...optional('categoryTerm'),
     });
   });
