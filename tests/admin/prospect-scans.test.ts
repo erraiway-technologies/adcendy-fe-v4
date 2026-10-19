@@ -102,7 +102,7 @@ test("readers keep what they understand and drop what they do not", () => {
     status: "READY",
     targetDomain: "a.com",
     competitorDomain: "b.com",
-    facts: [{ id: "f1", kind: "google_ads", state: "gap", source: "operator", valuesJson: { competitorCount: 200, competitorCountApprox: true, targetCount: 3, readFrom: "public_page" } }, { id: "f2", kind: "unknown_kind" }],
+    facts: [{ id: "f1", kind: "google_ads", state: "gap", source: "operator", valuesJson: { kind: "google_ads", competitorCount: 200, competitorCountApprox: true, targetCount: 3, readFrom: "public_page" } }, { id: "f2", kind: "unknown_kind" }],
     inputsNeeded: [{ kind: "meta_ads", priority: "recommended", why: "w", howTo: "h" }, { kind: "bogus" }],
     outreachEmail: { status: "drafted", subject: "A vs B", body: "Hi", sendable: true },
     outreaches: [{ id: "o1", status: "SENT", subject: "A vs B", body: "Hi", sentAt: "2026-10-19T00:00:00Z" }],
@@ -114,6 +114,20 @@ test("readers keep what they understand and drop what they do not", () => {
   assert.equal(detail.inputsNeeded.length, 1);
   assert.equal(detail.outreaches[0].status, "SENT");
   assert.equal(normalizeProspectScanSummary({ factRate: 0.2, withFact: 4 }).factRate, 0.2);
+});
+
+test("a reading that saw nothing shows its reason, and a floor count shows +", () => {
+  const detail = normalizeProspectScanDetail({
+    id: "s1",
+    facts: [
+      { id: "f1", kind: "meta_ads", state: "unknown", reason: "meta_api_shows_no_commercial_ads_here_enter_by_hand", valuesJson: {} },
+      { id: "f2", kind: "google_ads", state: "no_gap", reason: "x", valuesJson: { kind: "google_ads", competitorCount: 100, competitorCountExact: false, targetCount: 0, targetCountExact: true } },
+    ],
+  });
+  assert.ok(detail);
+  assert.equal(detail.facts[0].values, null);
+  assert.equal(describeFactFigures(detail.facts[0]), "");
+  assert.equal(describeFactFigures(detail.facts[1]), "competitor 100+, prospect 0");
 });
 
 test("mock: a second send is refused unless it is meant", async () => {

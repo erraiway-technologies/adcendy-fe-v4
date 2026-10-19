@@ -273,7 +273,11 @@ function normalizeFact(value: unknown): ProspectFact | null {
     reason: text(value.reason),
     verifyUrl: nullableText(value.verifyUrl),
     capturedAt: text(value.capturedAt),
-    values: isRecord(value.valuesJson) ? value.valuesJson : null,
+    // A reading that saw nothing stores no figures (or only its evidence).
+    values:
+      isRecord(value.valuesJson) && typeof value.valuesJson.kind === 'string'
+        ? value.valuesJson
+        : null,
   };
 }
 
@@ -641,7 +645,9 @@ export function describeFactFigures(fact: ProspectFact): string {
       return `"${String(read('term') ?? '')}": competitor ${read('competitorPosition') ?? 'not in top 20'}, prospect ${read('targetPosition') ?? 'not in top 20'}`;
     case 'google_ads': {
       const approx = (name: string) => (read(name) ? '~' : '');
-      return `competitor ${approx('competitorCountApprox')}${String(read('competitorCount') ?? '?')}, prospect ${approx('targetCountApprox')}${String(read('targetCount') ?? '?')}${read('readFrom') === 'public_page' ? ' (public page)' : read('competitorLookedUpAs') ? ` (read as ${String(read('competitorLookedUpAs'))})` : ''}`;
+      // A count past one page of ads is a floor: "100+".
+      const floor = (name: string) => (read(name) === false ? '+' : '');
+      return `competitor ${approx('competitorCountApprox')}${String(read('competitorCount') ?? '?')}${floor('competitorCountExact')}, prospect ${approx('targetCountApprox')}${String(read('targetCount') ?? '?')}${floor('targetCountExact')}${read('readFrom') === 'public_page' ? ' (public page)' : read('competitorLookedUpAs') ? ` (read as ${String(read('competitorLookedUpAs'))})` : ''}`;
     }
     case 'meta_ads':
       return `competitor ${String(read('competitorActive') ?? '?')} live, prospect ${String(read('targetActive') ?? '?')}`;
