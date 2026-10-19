@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertCircle, ChevronLeft, Download, Send } from 'lucide-react';
+import { AlertCircle, ChevronLeft, Download, Plus, Send, Trash2 } from 'lucide-react';
 import { useAuth } from '@/features/auth/useAuth';
 import {
   useProspectScanSpend,
@@ -25,14 +25,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatOpsDateTime } from '@/shared/components/ops/opsUtils';
 import { triggerBlobDownload } from '@/lib/download';
 import {
-  PROSPECT_PASTE_COLUMNS,
+  PROSPECT_BATCH_LIMIT,
+  PROSPECT_BUSINESS_TYPE_LABELS,
+  PROSPECT_COLUMNS,
   PROSPECT_STATUS_LABELS,
-  parseProspectRows,
+  emptyProspectDraftRow,
+  readProspectDraftRows,
   readableReason,
+  type ProspectBusinessType,
+  type ProspectDraftRow,
   type ProspectScanStatus,
 } from '@/shared/types/prospectScans';
 
@@ -40,66 +45,144 @@ function errorText(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
 }
 
-const PASTE_EXAMPLE = `${PROSPECT_PASTE_COLUMNS.slice(0, 7).join('\t')}
-pipandnut.com\tmeridianfoods.co.uk\tGB\tcompany\tyou're hiring a Head of Growth\tPip & Nut\tMeridian`;
-
 function SubmitCard({ onSubmitted }: { onSubmitted: (batchId: string) => void }) {
   const submit = useSubmitProspects();
   const { toast } = useToast();
-  const [pasted, setPasted] = useState('');
-  const parsed = useMemo(() => (pasted.trim() ? parseProspectRows(pasted) : null), [pasted]);
-  const canSubmit = Boolean(parsed && parsed.rows.length > 0 && parsed.rows.length <= 100);
+  const [drafts, setDrafts] = useState<ProspectDraftRow[]>(() => [emptyProspectDraftRow()]);
+  const read = useMemo(() => readProspectDraftRows(drafts), [drafts]);
+  // Problems show once a scan is asked for, not while a row is still being typed.
+  const [attempted, setAttempted] = useState(false);
+  const invalid = useMemo(
+    () => new Set(read.invalidCells.map((problem) => `${problem.row}:${problem.column}`)),
+    [read.invalidCells],
+  );
+  const incomplete = new Set(read.invalidCells.map((problem) => problem.row)).size;
+  const isInvalid = (index: number, name: string) => attempted && invalid.has(`${index}:${name}`);
+
+  const setCell = (index: number, name: keyof ProspectDraftRow, value: string) =>
+    setDrafts((rows) => rows.map((row, at) => (at === index ? { ...row, [name]: value } : row)));
+  const addRow = () =>
+    setDrafts((rows) => {
+      const last = rows[rows.length - 1];
+      // A new row keeps the country and business type of the one above, the usual case for a batch.
+      return [...rows, { ...emptyProspectDraftRow(), country: last?.country ?? '', businessType: last?.businessType ?? '' }];
+    });
+  const removeRow = (index: number) =>
+    setDrafts((rows) => (rows.length === 1 ? [emptyProspectDraftRow()] : rows.filter((_, at) => at !== index)));
 
   return (
     <Card className="border-border bg-card">
       <CardHeader>
         <CardTitle className="text-lg">Add prospects</CardTitle>
         <CardDescription>
-          Paste rows from a spreadsheet with a header row. Required: <code>targetDomain</code>,{' '}
-          <code>competitorDomain</code> (the competitor the prospect would name), <code>country</code>,{' '}
-          <code>businessType</code> (company, sole_trader or partnership) and <code>hiringSignal</code>{' '}
-          (written to follow &ldquo;I saw&rdquo;). Optional: targetName, competitorName, contactFirstName,
-          hiringSignalUrl, categoryTerm. Up to 100 a batch; a prospect already scanned is not paid for again.
+          One row per prospect. Columns marked * are required. The competitor is the one the prospect would name
+          themselves; the hiring signal is written to follow &ldquo;I saw&rdquo;. Up to {PROSPECT_BATCH_LIMIT} a
+          batch; a prospect already scanned is not paid for again.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        <Textarea
-          value={pasted}
-          onChange={(event) => setPasted(event.target.value)}
-          placeholder={PASTE_EXAMPLE}
-          className="min-h-36 font-mono text-xs"
-        />
-        {parsed ? (
-          <div className="space-y-1 text-sm">
-            <p className="text-muted-foreground">{parsed.rows.length} prospects read.</p>
-            {parsed.errors.map((error) => (
-              <p key={error} className="text-destructive">
-                {error}
-              </p>
+        <Table className="min-w-[1400px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-10">#</TableHead>
+              {PROSPECT_COLUMNS.map((column) => (
+                <TableHead key={column.name} className={column.name === 'hiringSignal' ? 'min-w-64' : 'min-w-36'}>
+                  {column.label}
+                  {column.required ? ' *' : ''}
+                </TableHead>
+              ))}
+              <TableHead className="w-10" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {drafts.map((draft, index) => (
+              <TableRow key={index}>
+                <TableCell className="text-muted-foreground">{index + 1}</TableCell>
+                {PROSPECT_COLUMNS.map((column) => (
+                  <TableCell key={column.name} className="p-1">
+                    {column.name === 'businessType' ? (
+                      <Select value={draft.businessType} onValueChange={(value) => setCell(index, 'businessType', value)}>
+                        <SelectTrigger
+                          aria-label={`Row ${index + 1} ${column.label}`}
+                          aria-invalid={isInvalid(index, column.name)}
+                          className={isInvalid(index, column.name) ? 'border-destructive' : undefined}
+                        >
+                          <SelectValue placeholder="Choose" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(Object.keys(PROSPECT_BUSINESS_TYPE_LABELS) as ProspectBusinessType[]).map((value) => (
+                            <SelectItem key={value} value={value}>
+                              {PROSPECT_BUSINESS_TYPE_LABELS[value]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Input
+                        aria-label={`Row ${index + 1} ${column.label}`}
+                        aria-invalid={isInvalid(index, column.name)}
+                        className={isInvalid(index, column.name) ? 'border-destructive' : undefined}
+                        value={draft[column.name]}
+                        maxLength={column.name === 'country' ? 2 : undefined}
+                        placeholder={column.placeholder}
+                        onChange={(event) => setCell(index, column.name, event.target.value)}
+                      />
+                    )}
+                  </TableCell>
+                ))}
+                <TableCell className="p-1">
+                  <Button variant="ghost" size="icon" aria-label={`Remove row ${index + 1}`} onClick={() => removeRow(index)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
             ))}
-          </div>
-        ) : null}
-        <Button
-          disabled={!canSubmit || submit.isPending}
-          onClick={() =>
-            parsed &&
-            submit.mutate(parsed.rows, {
-              onSuccess: (result) => {
-                toast({
-                  title: 'Prospects queued',
-                  description: `${result.created.length} new, ${result.existing.length} already scanned. The worker scans them one at a time.`,
-                });
-                setPasted('');
-                onSubmitted(result.batchId);
-              },
-              onError: (error) =>
-                toast({ title: 'Not queued', description: errorText(error, 'The batch was not accepted.'), variant: 'destructive' }),
-            })
-          }
-        >
-          <Send className="mr-2 h-4 w-4" />
-          {submit.isPending ? 'Queuing…' : 'Scan these prospects'}
-        </Button>
+          </TableBody>
+        </Table>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={addRow} disabled={drafts.length >= PROSPECT_BATCH_LIMIT}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add row
+          </Button>
+          <Button
+            disabled={(read.rows.length === 0 && incomplete === 0) || submit.isPending}
+            onClick={() => {
+              if (read.errors.length > 0) {
+                setAttempted(true);
+                return;
+              }
+              submit.mutate(read.rows, {
+                onSuccess: (result) => {
+                  toast({
+                    title: 'Prospects queued',
+                    description: `${result.created.length} new, ${result.existing.length} already scanned. The worker scans them one at a time.`,
+                  });
+                  setDrafts([emptyProspectDraftRow()]);
+                  setAttempted(false);
+                  onSubmitted(result.batchId);
+                },
+                onError: (error) =>
+                  toast({ title: 'Not queued', description: errorText(error, 'The batch was not accepted.'), variant: 'destructive' }),
+              });
+            }}
+          >
+            <Send className="mr-2 h-4 w-4" />
+            {submit.isPending ? 'Queuing…' : 'Scan these prospects'}
+          </Button>
+        </div>
+        <div className="space-y-1 text-sm">
+          <p className="text-muted-foreground">
+            {read.rows.length} {read.rows.length === 1 ? 'prospect' : 'prospects'} ready
+            {incomplete ? `, ${incomplete} incomplete` : ''}.
+          </p>
+          {attempted
+            ? read.errors.map((error) => (
+                <p key={error} className="text-destructive">
+                  {error}
+                </p>
+              ))
+            : null}
+        </div>
       </CardContent>
     </Card>
   );
@@ -262,7 +345,7 @@ export default function AdminProspectScansPage() {
         </Card>
       ) : scans.length === 0 ? (
         <Card className="border-border bg-card">
-          <CardContent className="p-5 text-sm text-muted-foreground">No prospects yet. Paste some above.</CardContent>
+          <CardContent className="p-5 text-sm text-muted-foreground">No prospects yet. Add some above.</CardContent>
         </Card>
       ) : (
         <Card className="border-border bg-card">

@@ -7,65 +7,67 @@ import {
   normalizeProspectScanDetail,
   normalizeProspectScanList,
   normalizeProspectScanSummary,
-  parseProspectRows,
+  PROSPECT_CARRIED_COLUMNS,
+  PROSPECT_COLUMNS,
+  emptyProspectDraftRow,
+  readProspectDraftRows,
+  type ProspectDraftRow,
   type ProspectOperatorFactKind,
 } from "../../shared/types/prospectScans.ts";
 import { prospectScansMockAdapter } from "../../shared/api/mock/prospectScans.mock.ts";
 
-const HEADER = "targetDomain\tcompetitorDomain\tcountry\tbusinessType\thiringSignal\ttargetName";
+const row = (cells: Partial<ProspectDraftRow>): ProspectDraftRow => ({ ...emptyProspectDraftRow(), ...cells });
+const GOOD = { targetDomain: "a.com", competitorDomain: "b.com", country: "gb", businessType: "company", hiringSignal: "you're hiring" };
 
-test("pasted rows: a valid row is read, every bad row is reported by line and never guessed at", () => {
-  const { rows, errors } = parseProspectRows(
-    [
-      HEADER,
-      "pipandnut.com\tmeridianfoods.co.uk\tgb\tcompany\tyou're hiring a Head of Growth\tPip & Nut",
-      "bad.com\t\tGB\tcompany\tyou're hiring",
-      "bad2.com\tx.com\tUnited Kingdom\tlimited\tyou're hiring",
-    ].join("\n"),
-  );
-  assert.equal(rows.length, 1);
-  assert.deepEqual(rows[0], {
-    targetDomain: "pipandnut.com",
-    competitorDomain: "meridianfoods.co.uk",
-    country: "GB",
-    businessType: "company",
-    hiringSignal: "you're hiring a Head of Growth",
-    targetName: "Pip & Nut",
-  });
+test("table rows: a filled row is read, an unstarted row is skipped, a bad row is reported by its row number", () => {
+  const { rows, errors, invalidCells } = readProspectDraftRows([
+    row({ ...GOOD, targetName: "Pip & Nut", hiringSignal: " you're hiring a Head of Growth " }),
+    row({ country: "GB", businessType: "company" }),
+    row({ ...GOOD, competitorDomain: "" }),
+    row({ ...GOOD, country: "United Kingdom", businessType: "limited" }),
+  ]);
+  assert.deepEqual(rows, [
+    { targetDomain: "a.com", competitorDomain: "b.com", country: "GB", businessType: "company", hiringSignal: "you're hiring a Head of Growth", targetName: "Pip & Nut" },
+  ]);
   assert.equal(errors.length, 2);
-  assert.match(errors[0], /^Line 3: competitorDomain is empty/);
-  assert.match(errors[1], /^Line 4: .*country must be two letters.*businessType must be/);
-});
-
-test("pasted rows: comma-separated with quoted commas, and a header missing a required column", () => {
-  const csv = parseProspectRows(
-    'targetDomain,competitorDomain,country,businessType,hiringSignal\na.com,b.com,IE,Sole Trader,"you\'re hiring a writer, part-time"',
+  assert.match(errors[0], /^Row 3: Competitor website is empty/);
+  assert.match(errors[1], /^Row 4: .*Country must be two letters.*Business type must be/);
+  assert.deepEqual(
+    invalidCells.map((problem) => `${problem.row}:${problem.column}`),
+    ["2:competitorDomain", "3:country", "3:businessType"],
   );
-  assert.equal(csv.errors.length, 0);
-  assert.equal(csv.rows[0].businessType, "sole_trader");
-  assert.equal(csv.rows[0].hiringSignal, "you're hiring a writer, part-time");
-  const missing = parseProspectRows("targetDomain,country\na.com,GB");
-  assert.equal(missing.rows.length, 0);
-  assert.match(missing.errors[0], /missing: competitorDomain, businessType, hiringSignal/);
 });
 
-test("every row read carries all required fields, for any mix of good and bad lines", () => {
-  const lines = [
-    "a.com\tb.com\tGB\tcompany\tyou're hiring",
-    "\tb.com\tGB\tcompany\tyou're hiring",
-    "a.com\tb.com\tGBR\tcompany\tyou're hiring",
-    "a.com\tb.com\tUS\tpartnership\tyou're hiring",
-    "a.com\tb.com\tIN\tnonsense\tyou're hiring",
+test("the table header names every field a submission carries, required ones first-class", () => {
+  const names = PROSPECT_COLUMNS.map((column) => column.name).sort();
+  assert.deepEqual(names, Object.keys(emptyProspectDraftRow()).sort());
+  const required = PROSPECT_COLUMNS.filter((column) => column.required).map((column) => column.name).sort();
+  assert.deepEqual(required, ["businessType", "competitorDomain", "country", "hiringSignal", "targetDomain"]);
+});
+
+test("every row read carries all required fields, and every other non-empty row is reported, for any mix of rows", () => {
+  const candidates = [
+    row(GOOD),
+    row({ ...GOOD, targetDomain: "" }),
+    row({ ...GOOD, country: "GBR" }),
+    row({ ...GOOD, businessType: "nonsense" }),
+    row({}),
+    row({ country: "GB", businessType: "company" }),
+    row({ ...GOOD, businessType: "sole_trader", country: "ie" }),
   ];
-  for (let mask = 1; mask < 1 << lines.length; mask += 1) {
-    const chosen = lines.filter((_, index) => mask & (1 << index));
-    const { rows, errors } = parseProspectRows([HEADER, ...chosen].join("\n"));
-    assert.equal(rows.length + errors.length, chosen.length);
-    for (const row of rows) {
-      for (const field of ["targetDomain", "competitorDomain", "country", "businessType", "hiringSignal"] as const) {
-        assert.ok(row[field], `${field} present`);
+  for (let mask = 1; mask < 1 << candidates.length; mask += 1) {
+    const chosen = candidates.filter((_, index) => mask & (1 << index));
+    const started = chosen.filter((draft) =>
+      Object.entries(draft).some(([name, value]) => !(PROSPECT_CARRIED_COLUMNS as readonly string[]).includes(name) && value.trim()),
+    );
+    const { rows, errors, invalidCells } = readProspectDraftRows(chosen);
+    assert.equal(rows.length + errors.length, started.length);
+    assert.equal(new Set(invalidCells.map((problem) => problem.row)).size, errors.length);
+    for (const read of rows) {
+      for (const column of PROSPECT_COLUMNS.filter((spec) => spec.required)) {
+        assert.ok(read[column.name], `${column.name} present`);
       }
-      assert.match(row.country, /^[A-Z]{2}$/);
+      assert.match(read.country, /^[A-Z]{2}$/);
     }
   }
 });

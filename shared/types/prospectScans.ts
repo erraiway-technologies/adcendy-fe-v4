@@ -395,106 +395,97 @@ export function normalizeProspectSubmitResult(value: unknown): ProspectSubmitRes
   };
 }
 
-// --- batch paste ---------------------------------------------------------------
+// --- batch entry ---------------------------------------------------------------
 
-/** Columns a pasted batch may carry; the first five are required. */
-export const PROSPECT_PASTE_COLUMNS = [
-  'targetDomain',
-  'competitorDomain',
-  'country',
-  'businessType',
-  'hiringSignal',
-  'targetName',
-  'competitorName',
-  'contactFirstName',
-  'hiringSignalUrl',
-  'categoryTerm',
+export interface ProspectColumnSpec {
+  name: keyof ProspectSubmission;
+  label: string;
+  required: boolean;
+  placeholder: string;
+}
+
+/** The columns of the prospect entry table, in order; the header always shows all of them. */
+export const PROSPECT_COLUMNS: readonly ProspectColumnSpec[] = [
+  { name: 'targetDomain', label: 'Prospect website', required: true, placeholder: 'e.g. pipandnut.com' },
+  { name: 'targetName', label: 'Prospect name', required: false, placeholder: 'e.g. Pip & Nut' },
+  { name: 'competitorDomain', label: 'Competitor website', required: true, placeholder: 'e.g. meridianfoods.co.uk' },
+  { name: 'competitorName', label: 'Competitor name', required: false, placeholder: 'e.g. Meridian' },
+  { name: 'country', label: 'Country', required: true, placeholder: 'e.g. GB' },
+  { name: 'businessType', label: 'Business type', required: true, placeholder: '' },
+  { name: 'hiringSignal', label: 'Hiring signal (after "I saw")', required: true, placeholder: "e.g. you're hiring a Head of Growth" },
+  { name: 'hiringSignalUrl', label: 'Hiring signal link', required: false, placeholder: 'e.g. https://…/jobs/123' },
+  { name: 'contactFirstName', label: 'Contact first name', required: false, placeholder: 'e.g. Sam' },
+  { name: 'categoryTerm', label: 'Category search term', required: false, placeholder: 'e.g. peanut butter' },
 ] as const;
 
-const REQUIRED_PASTE_COLUMNS = PROSPECT_PASTE_COLUMNS.slice(0, 5);
-const BUSINESS_TYPES: ProspectBusinessType[] = ['company', 'sole_trader', 'partnership'];
+export const PROSPECT_BUSINESS_TYPE_LABELS: Record<ProspectBusinessType, string> = {
+  company: 'Company',
+  sole_trader: 'Sole trader',
+  partnership: 'Partnership',
+};
 
-function splitRow(line: string, separator: string): string[] {
-  if (separator === '\t') return line.split('\t').map((cell) => cell.trim());
-  // Comma-separated, with "quoted, cells" and "" for a quote.
-  const cells: string[] = [];
-  let cell = '';
-  let quoted = false;
-  for (let index = 0; index < line.length; index += 1) {
-    const char = line[index];
-    if (quoted) {
-      if (char === '"' && line[index + 1] === '"') {
-        cell += '"';
-        index += 1;
-      } else if (char === '"') {
-        quoted = false;
-      } else {
-        cell += char;
-      }
-    } else if (char === '"') {
-      quoted = true;
-    } else if (char === ',') {
-      cells.push(cell.trim());
-      cell = '';
-    } else {
-      cell += char;
-    }
-  }
-  cells.push(cell.trim());
-  return cells;
+export const PROSPECT_BATCH_LIMIT = 100;
+
+/** One row of the entry table as typed: every cell is text, empty when not filled. */
+export type ProspectDraftRow = Record<ProspectColumnSpec['name'], string>;
+
+export function emptyProspectDraftRow(): ProspectDraftRow {
+  return Object.fromEntries(PROSPECT_COLUMNS.map((column) => [column.name, ''])) as ProspectDraftRow;
+}
+
+const BUSINESS_TYPES = Object.keys(PROSPECT_BUSINESS_TYPE_LABELS) as ProspectBusinessType[];
+
+/** Cells a new row copies from the row above; a row with only these filled has not been started. */
+export const PROSPECT_CARRIED_COLUMNS: readonly ProspectColumnSpec['name'][] = ['country', 'businessType'];
+
+export interface ProspectCellProblem {
+  /** Zero-based row index in the table. */
+  row: number;
+  column: ProspectColumnSpec['name'];
 }
 
 /**
- * Prospects from pasted spreadsheet rows (tab- or comma-separated) with a
- * header row naming the columns. Every row with a problem is reported by
- * its line number; no row is guessed at.
+ * Prospects from the entry table. A row with nothing typed beyond the cells
+ * copied from the row above is skipped; every other row with a problem is
+ * reported by its row number and its cells, and no row is guessed at.
  */
-export function parseProspectRows(input: string): {
+export function readProspectDraftRows(drafts: ProspectDraftRow[]): {
   rows: ProspectSubmission[];
   errors: string[];
+  invalidCells: ProspectCellProblem[];
 } {
-  const lines = input
-    .split(/\r?\n/)
-    .map((line) => line.trimEnd())
-    .filter((line) => line.trim().length > 0);
-  if (lines.length === 0) return { rows: [], errors: ['Paste a header row and at least one prospect.'] };
-  const separator = lines[0].includes('\t') ? '\t' : ',';
-  const header = splitRow(lines[0], separator);
-  const missing = REQUIRED_PASTE_COLUMNS.filter((column) => !header.includes(column));
-  if (missing.length > 0) {
-    return { rows: [], errors: [`The header row is missing: ${missing.join(', ')}.`] };
-  }
-  const unknown = header.filter(
-    (column) => column && !(PROSPECT_PASTE_COLUMNS as readonly string[]).includes(column),
-  );
-  const errors: string[] = unknown.length
-    ? [`Unknown columns, not read: ${unknown.join(', ')}.`]
-    : [];
   const rows: ProspectSubmission[] = [];
-  lines.slice(1).forEach((line, index) => {
-    const lineNumber = index + 2;
-    const cells = splitRow(line, separator);
-    const cell = (column: string) => cells[header.indexOf(column)]?.trim() ?? '';
-    const businessType = cell('businessType').toLowerCase().replace(/[\s-]+/g, '_');
+  const errors: string[] = [];
+  const invalidCells: ProspectCellProblem[] = [];
+  drafts.forEach((draft, index) => {
+    const cell = (name: ProspectColumnSpec['name']) => (draft[name] ?? '').trim();
+    const started = PROSPECT_COLUMNS.some(
+      (column) => !PROSPECT_CARRIED_COLUMNS.includes(column.name) && cell(column.name),
+    );
+    if (!started) return;
     const problems: string[] = [];
-    for (const column of REQUIRED_PASTE_COLUMNS) {
-      if (!cell(column)) problems.push(`${column} is empty`);
+    const flag = (column: ProspectColumnSpec['name'], problem: string) => {
+      problems.push(problem);
+      invalidCells.push({ row: index, column });
+    };
+    for (const column of PROSPECT_COLUMNS) {
+      if (column.required && !cell(column.name)) flag(column.name, `${column.label} is empty`);
     }
-    if (cell('country') && !/^[A-Za-z]{2}$/.test(cell('country'))) {
-      problems.push('country must be two letters, e.g. GB');
-    }
+    const country = cell('country');
+    if (country && !/^[A-Za-z]{2}$/.test(country)) flag('country', 'Country must be two letters, e.g. GB');
+    const businessType = cell('businessType');
     if (businessType && !BUSINESS_TYPES.includes(businessType as ProspectBusinessType)) {
-      problems.push('businessType must be company, sole_trader or partnership');
+      flag('businessType', 'Business type must be company, sole trader or partnership');
     }
     if (problems.length) {
-      errors.push(`Line ${lineNumber}: ${problems.join('; ')}.`);
+      errors.push(`Row ${index + 1}: ${problems.join('; ')}.`);
       return;
     }
-    const optional = (column: string) => (cell(column) ? { [column]: cell(column) } : {});
+    const optional = (name: ProspectColumnSpec['name']) => (cell(name) ? { [name]: cell(name) } : {});
     rows.push({
       targetDomain: cell('targetDomain'),
       competitorDomain: cell('competitorDomain'),
-      country: cell('country').toUpperCase(),
+      country: country.toUpperCase(),
       businessType: businessType as ProspectBusinessType,
       hiringSignal: cell('hiringSignal'),
       ...optional('targetName'),
@@ -504,10 +495,10 @@ export function parseProspectRows(input: string): {
       ...optional('categoryTerm'),
     });
   });
-  if (rows.length > 100) {
-    errors.push(`A batch holds at most 100 prospects; ${rows.length} were pasted.`);
+  if (rows.length > PROSPECT_BATCH_LIMIT) {
+    errors.push(`A batch holds at most ${PROSPECT_BATCH_LIMIT} prospects; ${rows.length} were entered.`);
   }
-  return { rows, errors };
+  return { rows, errors, invalidCells };
 }
 
 // --- hand readings -------------------------------------------------------------
