@@ -39,14 +39,16 @@ import {
   OPERATOR_FACT_FIELDS,
   PROSPECT_FACT_KIND_LABELS,
   PROSPECT_INPUT_KIND_LABELS,
-  PROSPECT_STATUS_LABELS,
+  PROSPECT_WHY_NOW_KIND_LABELS,
   buildOperatorValues,
   describeFactFigures,
+  describeScanState,
   readableReason,
   type ProspectBusinessType,
   type ProspectInputNeeded,
   type ProspectOperatorFactKind,
   type ProspectScanDetail,
+  type ProspectWhyNowKind,
 } from '@/shared/types/prospectScans';
 
 function errorText(error: unknown, fallback: string): string {
@@ -172,6 +174,7 @@ function InputsDialog({ scan, onClose }: { scan: ProspectScanDetail; onClose: ()
     competitorName: scan.competitorName,
     contactFirstName: scan.contactFirstName ?? '',
     whyNow: scan.whyNow ?? '',
+    whyNowKind: scan.whyNowKind ?? '',
     whyNowUrl: scan.whyNowUrl ?? '',
     businessType: scan.businessType,
     categoryTerm: scan.operatorCategoryTerm ?? '',
@@ -179,8 +182,17 @@ function InputsDialog({ scan, onClose }: { scan: ProspectScanDetail; onClose: ()
   const [problem, setProblem] = useState<string | null>(null);
   const set = (name: keyof typeof form, value: string) => setForm((current) => ({ ...current, [name]: value }));
 
-  const save = () =>
-    update.mutate(form, {
+  const save = () => {
+    // A reason picks the email's line about AdCendy by its kind, so the two go together.
+    if (form.whyNow.trim() && !form.whyNowKind) {
+      setProblem("Choose the kind of reason: it picks the email's line about AdCendy.");
+      return;
+    }
+    if (form.whyNowKind && !form.whyNow.trim()) {
+      setProblem('Add the reason, or set its kind to None.');
+      return;
+    }
+    update.mutate({ ...form, whyNowKind: (form.whyNowKind || null) as ProspectWhyNowKind | null }, {
       onSuccess: (result) => {
         if (result.rescanNeeded) {
           rescan.mutate(undefined, {
@@ -193,6 +205,7 @@ function InputsDialog({ scan, onClose }: { scan: ProspectScanDetail; onClose: ()
       },
       onError: (error) => setProblem(errorText(error, 'Not saved.')),
     });
+  };
 
   const text = (name: keyof typeof form, label: string, help?: string) => (
     <div className="space-y-1">
@@ -214,6 +227,23 @@ function InputsDialog({ scan, onClose }: { scan: ProspectScanDetail; onClose: ()
           {text('competitorName', 'Competitor, as the prospect knows it')}
           {text('contactFirstName', 'First name of the person you email', 'Empty: "Hi there".')}
           {text('whyNow', 'Why now (optional)', 'Written to follow "saw", e.g. "you\'ve just raised a seed round". Empty, the email opens with the comparison.')}
+          <div className="space-y-1">
+            <Label>Kind of reason</Label>
+            <Select value={form.whyNowKind || 'none'} onValueChange={(value) => set('whyNowKind', value === 'none' ? '' : value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {(Object.keys(PROSPECT_WHY_NOW_KIND_LABELS) as ProspectWhyNowKind[]).map((kind) => (
+                  <SelectItem key={kind} value={kind}>
+                    {PROSPECT_WHY_NOW_KIND_LABELS[kind]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">Required with a reason; it picks the email&apos;s line about AdCendy.</p>
+          </div>
           {text('whyNowUrl', 'Where the reason can be seen')}
           <div className="space-y-1">
             <Label>Business type</Label>
@@ -411,8 +441,16 @@ export default function ProspectScanDetailPage() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={scan.status === 'READY' ? 'default' : scan.status === 'HELD' || scan.status === 'FAILED' ? 'destructive' : 'secondary'}>
-              {PROSPECT_STATUS_LABELS[scan.status]}
+            <Badge
+              variant={
+                describeScanState(scan) === 'Email held' || scan.status === 'HELD' || scan.status === 'FAILED'
+                  ? 'destructive'
+                  : scan.status === 'READY'
+                    ? 'default'
+                    : 'secondary'
+              }
+            >
+              {describeScanState(scan)}
             </Badge>
             <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
               Edit details

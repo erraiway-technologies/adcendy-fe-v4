@@ -4,6 +4,7 @@ import {
   OPERATOR_FACT_FIELDS,
   buildOperatorValues,
   describeFactFigures,
+  describeScanState,
   normalizeProspectScanDetail,
   normalizeProspectScanList,
   normalizeProspectScanSummary,
@@ -17,7 +18,7 @@ import {
 import { prospectScansMockAdapter } from "../../shared/api/mock/prospectScans.mock.ts";
 
 const row = (cells: Partial<ProspectDraftRow>): ProspectDraftRow => ({ ...emptyProspectDraftRow(), ...cells });
-const GOOD = { targetDomain: "a.com", competitorDomain: "b.com", country: "gb", businessType: "company", whyNow: "you're hiring" };
+const GOOD = { targetDomain: "a.com", competitorDomain: "b.com", country: "gb", businessType: "company", whyNow: "you're hiring", whyNowKind: "marketing_hire" };
 
 test("table rows: a filled row is read, an unstarted row is skipped, a bad row is reported by its row number", () => {
   const { rows, errors, invalidCells } = readProspectDraftRows([
@@ -27,7 +28,7 @@ test("table rows: a filled row is read, an unstarted row is skipped, a bad row i
     row({ ...GOOD, country: "United Kingdom", businessType: "limited" }),
   ]);
   assert.deepEqual(rows, [
-    { targetDomain: "a.com", competitorDomain: "b.com", country: "GB", businessType: "company", whyNow: "you're hiring a Head of Growth", targetName: "Pip & Nut" },
+    { targetDomain: "a.com", competitorDomain: "b.com", country: "GB", businessType: "company", whyNow: "you're hiring a Head of Growth", whyNowKind: "marketing_hire", targetName: "Pip & Nut" },
   ]);
   assert.equal(errors.length, 2);
   assert.match(errors[0], /^Row 3: Competitor website is empty/);
@@ -54,7 +55,10 @@ test("every row read carries all required fields, and every other non-empty row 
     row({}),
     row({ country: "GB", businessType: "company" }),
     row({ ...GOOD, businessType: "sole_trader", country: "ie" }),
+    row({ ...GOOD, whyNow: "", whyNowKind: "" }),
+    row({ ...GOOD, whyNowKind: "" }),
     row({ ...GOOD, whyNow: "" }),
+    row({ ...GOOD, whyNowKind: "hiring" }),
   ];
   for (let mask = 1; mask < 1 << candidates.length; mask += 1) {
     const chosen = candidates.filter((_, index) => mask & (1 << index));
@@ -69,6 +73,8 @@ test("every row read carries all required fields, and every other non-empty row 
         assert.ok(read[column.name], `${column.name} present`);
       }
       assert.match(read.country, /^[A-Z]{2}$/);
+      // A reason goes with its kind, and a kind with its reason.
+      assert.equal(Boolean(read.whyNow), Boolean(read.whyNowKind));
       // An optional cell left empty is not sent at all, so "why now" is absent, never "".
       assert.ok(Object.values(read).every((value) => value !== ""), "no empty value sent");
     }
@@ -142,4 +148,16 @@ test("mock: a second send is refused unless it is meant", async () => {
   await prospectScansMockAdapter.markSent(first.id, { allowRepeat: true });
   const detail = await prospectScansMockAdapter.get(first.id);
   assert.equal(detail.outreaches.filter((outreach) => outreach.status === "SENT").length, 2);
+});
+
+test("a finished scan is headed by its email: held says held, every other state keeps its label", () => {
+  for (const status of ["PENDING", "SCANNING", "RECHECK_PENDING", "READY", "HELD", "FAILED"] as const) {
+    for (const email of [null, "drafted", "held"] as const) {
+      const label = describeScanState({
+        status,
+        outreachEmail: email ? ({ status: email } as never) : null,
+      });
+      assert.equal(label === "Email held", status === "READY" && email === "held", `${status}/${email}`);
+    }
+  }
 });

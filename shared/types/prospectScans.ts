@@ -16,6 +16,25 @@ export type ProspectScanStatus =
 
 export type ProspectBusinessType = 'company' | 'sole_trader' | 'partnership';
 
+export const PROSPECT_BUSINESS_TYPE_LABELS: Record<ProspectBusinessType, string> = {
+  company: 'Company',
+  sole_trader: 'Sole trader',
+  partnership: 'Partnership',
+};
+
+/** The kind of reason for writing now; it picks the email's line about AdCendy. */
+export type ProspectWhyNowKind = 'marketing_hire' | 'funding' | 'launch' | 'new_market' | 'other';
+
+export const PROSPECT_WHY_NOW_KIND_LABELS: Record<ProspectWhyNowKind, string> = {
+  marketing_hire: 'Marketing hire',
+  funding: 'Funding round',
+  launch: 'Launch',
+  new_market: 'New market',
+  other: 'Other',
+};
+
+const WHY_NOW_KINDS = Object.keys(PROSPECT_WHY_NOW_KIND_LABELS) as ProspectWhyNowKind[];
+
 export type ProspectFactKind =
   | 'search_presence'
   | 'google_ads'
@@ -101,6 +120,7 @@ export interface ProspectScanDetail extends ProspectScanListItem {
   businessType: ProspectBusinessType;
   /** Why the email is sent now; null opens the email with the comparison. */
   whyNow: string | null;
+  whyNowKind: ProspectWhyNowKind | null;
   whyNowUrl: string | null;
   categoryTerm: string | null;
   operatorCategoryTerm: string | null;
@@ -137,6 +157,7 @@ export interface ProspectSubmission {
   country: string;
   businessType: ProspectBusinessType;
   whyNow?: string;
+  whyNowKind?: ProspectWhyNowKind;
   whyNowUrl?: string;
   categoryTerm?: string;
 }
@@ -159,6 +180,8 @@ export interface ProspectInputsPatch {
   competitorName?: string;
   contactFirstName?: string;
   whyNow?: string;
+  /** Null clears it; required while a reason is set. */
+  whyNowKind?: ProspectWhyNowKind | null;
   whyNowUrl?: string;
   businessType?: ProspectBusinessType;
   categoryTerm?: string;
@@ -349,6 +372,9 @@ export function normalizeProspectScanDetail(value: unknown): ProspectScanDetail 
     contactFirstName: nullableText(value.contactFirstName),
     businessType,
     whyNow: nullableText(value.whyNow),
+    whyNowKind: WHY_NOW_KINDS.includes(value.whyNowKind as ProspectWhyNowKind)
+      ? (value.whyNowKind as ProspectWhyNowKind)
+      : null,
     whyNowUrl: nullableText(value.whyNowUrl),
     categoryTerm: nullableText(value.categoryTerm),
     operatorCategoryTerm: nullableText(value.operatorCategoryTerm),
@@ -396,6 +422,16 @@ export function normalizeProspectSubmitResult(value: unknown): ProspectSubmitRes
   };
 }
 
+/**
+ * The scan's state as its page heads it: a finished scan whose email is held
+ * (a missing kind of reason, the sender's details) says so, not "Email ready".
+ */
+export function describeScanState(scan: Pick<ProspectScanDetail, 'status' | 'outreachEmail'>): string {
+  return scan.status === 'READY' && scan.outreachEmail?.status === 'held'
+    ? 'Email held'
+    : PROSPECT_STATUS_LABELS[scan.status];
+}
+
 // --- batch entry ---------------------------------------------------------------
 
 export interface ProspectColumnSpec {
@@ -403,6 +439,8 @@ export interface ProspectColumnSpec {
   label: string;
   required: boolean;
   placeholder: string;
+  /** A column with options is a choice, labelled for the reader. */
+  options?: Record<string, string>;
 }
 
 /** The columns of the prospect entry table, in order; the header always shows all of them. */
@@ -412,18 +450,13 @@ export const PROSPECT_COLUMNS: readonly ProspectColumnSpec[] = [
   { name: 'competitorDomain', label: 'Competitor website', required: true, placeholder: 'e.g. meridianfoods.co.uk' },
   { name: 'competitorName', label: 'Competitor name', required: false, placeholder: 'e.g. Meridian' },
   { name: 'country', label: 'Country', required: true, placeholder: 'e.g. GB' },
-  { name: 'businessType', label: 'Business type', required: true, placeholder: '' },
+  { name: 'businessType', label: 'Business type', required: true, placeholder: '', options: PROSPECT_BUSINESS_TYPE_LABELS },
   { name: 'whyNow', label: 'Why now (after "saw")', required: false, placeholder: "e.g. you've just raised a seed round" },
+  { name: 'whyNowKind', label: 'Kind of reason', required: false, placeholder: '', options: PROSPECT_WHY_NOW_KIND_LABELS },
   { name: 'whyNowUrl', label: 'Why now link', required: false, placeholder: 'e.g. https://…/news/123' },
   { name: 'contactFirstName', label: 'Contact first name', required: false, placeholder: 'e.g. Sam' },
   { name: 'categoryTerm', label: 'Category search term', required: false, placeholder: 'e.g. peanut butter' },
 ] as const;
-
-export const PROSPECT_BUSINESS_TYPE_LABELS: Record<ProspectBusinessType, string> = {
-  company: 'Company',
-  sole_trader: 'Sole trader',
-  partnership: 'Partnership',
-};
 
 export const PROSPECT_BATCH_LIMIT = 100;
 
@@ -478,6 +511,15 @@ export function readProspectDraftRows(drafts: ProspectDraftRow[]): {
     if (businessType && !BUSINESS_TYPES.includes(businessType as ProspectBusinessType)) {
       flag('businessType', 'Business type must be company, sole trader or partnership');
     }
+    // A reason picks the email's line about AdCendy by its kind, so the two go together.
+    const whyNowKind = cell('whyNowKind');
+    if (whyNowKind && !WHY_NOW_KINDS.includes(whyNowKind as ProspectWhyNowKind)) {
+      flag('whyNowKind', 'Kind of reason is not one of the choices');
+    } else if (cell('whyNow') && !whyNowKind) {
+      flag('whyNowKind', 'Kind of reason is empty (it picks the line about AdCendy)');
+    } else if (whyNowKind && !cell('whyNow')) {
+      flag('whyNow', 'Why now is empty, or clear the kind of reason');
+    }
     if (problems.length) {
       errors.push(`Row ${index + 1}: ${problems.join('; ')}.`);
       return;
@@ -492,6 +534,7 @@ export function readProspectDraftRows(drafts: ProspectDraftRow[]): {
       ...optional('competitorName'),
       ...optional('contactFirstName'),
       ...optional('whyNow'),
+      ...optional('whyNowKind'),
       ...optional('whyNowUrl'),
       ...optional('categoryTerm'),
     });

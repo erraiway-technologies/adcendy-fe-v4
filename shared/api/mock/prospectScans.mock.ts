@@ -34,6 +34,7 @@ const scans: ProspectScanDetail[] = [
     contactFirstName: null,
     businessType: 'company',
     whyNow: "you're hiring a marketing lead",
+    whyNowKind: 'marketing_hire',
     whyNowUrl: null,
     categoryTerm: 'coffee beans | coffee subscription',
     operatorCategoryTerm: null,
@@ -167,6 +168,7 @@ export const prospectScansMockAdapter = {
         country: prospect.country,
         businessType: prospect.businessType,
         whyNow: prospect.whyNow ?? null,
+        whyNowKind: prospect.whyNowKind ?? null,
         status: 'PENDING',
         observationLine: null,
         outreaches: [],
@@ -206,6 +208,7 @@ export const prospectScansMockAdapter = {
       ...(patch.competitorName ? { competitorName: patch.competitorName } : {}),
       ...(patch.contactFirstName !== undefined ? { contactFirstName: patch.contactFirstName || null } : {}),
       ...(patch.whyNow !== undefined ? { whyNow: patch.whyNow || null } : {}),
+      ...(patch.whyNowKind !== undefined ? { whyNowKind: patch.whyNowKind } : {}),
       ...(patch.businessType ? { businessType: patch.businessType } : {}),
       ...(patch.categoryTerm !== undefined ? { operatorCategoryTerm: patch.categoryTerm || null } : {}),
     });

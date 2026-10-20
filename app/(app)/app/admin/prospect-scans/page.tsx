@@ -30,13 +30,11 @@ import { formatOpsDateTime } from '@/shared/components/ops/opsUtils';
 import { triggerBlobDownload } from '@/lib/download';
 import {
   PROSPECT_BATCH_LIMIT,
-  PROSPECT_BUSINESS_TYPE_LABELS,
   PROSPECT_COLUMNS,
   PROSPECT_STATUS_LABELS,
   emptyProspectDraftRow,
   readProspectDraftRows,
   readableReason,
-  type ProspectBusinessType,
   type ProspectDraftRow,
   type ProspectScanStatus,
 } from '@/shared/types/prospectScans';
@@ -44,6 +42,9 @@ import {
 function errorText(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
 }
+
+/** Select items cannot hold an empty value; this one stands for "nothing chosen". */
+const NO_CHOICE = '__none';
 
 function SubmitCard({ onSubmitted }: { onSubmitted: (batchId: string) => void }) {
   const submit = useSubmitProspects();
@@ -77,8 +78,9 @@ function SubmitCard({ onSubmitted }: { onSubmitted: (batchId: string) => void })
         <CardDescription>
           One row per prospect. Columns marked * are required. The competitor is the one the prospect would name
           themselves. Why now is optional: a public reason to write today (a funding round, a launch, a new market,
-          a first marketing hire), written to follow &ldquo;saw&rdquo;; left empty, the email opens with the comparison. Not
-          a prospect already hiring a senior marketing lead: they have chosen a person. Up to {PROSPECT_BATCH_LIMIT} a
+          a first marketing hire), written to follow &ldquo;saw&rdquo;, with its kind, which picks the line about AdCendy;
+          left empty, the email opens with the comparison. Not a prospect already hiring a senior marketing lead: they
+          have chosen a person. Up to {PROSPECT_BATCH_LIMIT} a
           batch; a prospect already scanned is not paid for again.
         </CardDescription>
       </CardHeader>
@@ -102,8 +104,11 @@ function SubmitCard({ onSubmitted }: { onSubmitted: (batchId: string) => void })
                 <TableCell className="text-muted-foreground">{index + 1}</TableCell>
                 {PROSPECT_COLUMNS.map((column) => (
                   <TableCell key={column.name} className="p-1">
-                    {column.name === 'businessType' ? (
-                      <Select value={draft.businessType} onValueChange={(value) => setCell(index, 'businessType', value)}>
+                    {column.options ? (
+                      <Select
+                        value={draft[column.name] || NO_CHOICE}
+                        onValueChange={(value) => setCell(index, column.name, value === NO_CHOICE ? '' : value)}
+                      >
                         <SelectTrigger
                           aria-label={`Row ${index + 1} ${column.label}`}
                           aria-invalid={isInvalid(index, column.name)}
@@ -112,9 +117,10 @@ function SubmitCard({ onSubmitted }: { onSubmitted: (batchId: string) => void })
                           <SelectValue placeholder="Choose" />
                         </SelectTrigger>
                         <SelectContent>
-                          {(Object.keys(PROSPECT_BUSINESS_TYPE_LABELS) as ProspectBusinessType[]).map((value) => (
+                          <SelectItem value={NO_CHOICE}>{column.required ? 'Choose' : 'None'}</SelectItem>
+                          {Object.entries(column.options).map(([value, label]) => (
                             <SelectItem key={value} value={value}>
-                              {PROSPECT_BUSINESS_TYPE_LABELS[value]}
+                              {label}
                             </SelectItem>
                           ))}
                         </SelectContent>
