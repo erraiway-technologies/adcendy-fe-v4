@@ -12,7 +12,7 @@ import {
   priceGroupHeading,
   separatePilotPackages,
 } from '@/shared/payments/market-catalogue';
-import { BUSINESS_TERMS, PILOT_GUARANTEE_TEXT, callBookingLink } from '@/shared/marketing/business-terms';
+import { BUSINESS_TERMS, REFUND_GUARANTEE_TEXT, callBookingLink } from '@/shared/marketing/business-terms';
 import type { BillingBundle } from '@/shared/types/billing';
 import { HOME_CTA_LABEL, HOME_PRICING as C } from '../../content/home';
 import { useStrategyCta } from '../../hooks/useStrategyCta';
@@ -84,7 +84,6 @@ export function PricingCard() {
 
 function LivePackages({ checkoutHref }: { checkoutHref: string }) {
   const catalogue = usePublicCatalogue();
-  const { isPilot } = catalogue;
   const pilotOffer = catalogue.data?.pilotOffer ?? null;
   const packages = catalogue.data?.items ?? [];
   const { pilot, regular } = separatePilotPackages(packages, pilotOffer);
@@ -101,13 +100,11 @@ function LivePackages({ checkoutHref }: { checkoutHref: string }) {
         )}
       </Reveal>
 
-      {/* The guarantee is the pilot's: it leads the prices while the pilot runs. */}
-      {isPilot && (
-        <Reveal className="border-l-2 border-white pl-5">
-          <p className="mb-1 text-base text-white">Pilot guarantee</p>
-          <p className="max-w-[70ch] text-base leading-[1.6] text-(--home-text-3)">{PILOT_GUARANTEE_TEXT}</p>
-        </Reveal>
-      )}
+      {/* The refund guarantee covers every client, so it leads the prices. */}
+      <Reveal className="border-l-2 border-white pl-5">
+        <p className="mb-1 text-base text-white">{C.guaranteeHeading}</p>
+        <p className="max-w-[70ch] text-base leading-[1.6] text-(--home-text-3)">{REFUND_GUARANTEE_TEXT}</p>
+      </Reveal>
 
       {catalogue.isPending && (
         <div className={GRID} aria-label="Loading prices">

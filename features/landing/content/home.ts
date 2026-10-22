@@ -169,6 +169,7 @@ export const HOME_PRICING = {
     `A recorded ${support.walkthroughVideo} walkthrough and one ${calls.walkthroughCallMinutes}-minute call`,
   ],
   packagesHeading: 'Priced by market',
+  guaranteeHeading: 'Refund guarantee',
   marketRuleLink: 'What counts as one market?',
   customQuote: {
     title: 'Multiple markets',

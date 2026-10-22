@@ -82,10 +82,6 @@ export const BUSINESS_TERMS = {
     /** The last day pilot prices apply, as copy ("31 December 2026"); null until it is set. */
     endsOn: null as string | null,
   },
-  pilotGuarantee: {
-    /** Fewer actionable opportunities than this and the pilot fee is refunded. */
-    minimumOpportunities: 3,
-  },
   report: {
     /** The whole package - strategy, research and guidance - as erraiway.com states it too. */
     pages: '30–50',
@@ -95,9 +91,6 @@ export const BUSINESS_TERMS = {
     planPhases: 'days 0–30, 31–90 and 91–180',
   },
 } as const;
-
-/** Worded exactly as the Refund Policy's pilot clause. */
-export const PILOT_GUARANTEE_TEXT = `If your strategy doesn't surface at least ${BUSINESS_TERMS.pilotGuarantee.minimumOpportunities} specific, actionable opportunities you didn't already know about, we'll refund the pilot fee. No questions, no forms.`;
 
 /** "within 4 business days" */
 export function deliveryWindowLabel(): string {
@@ -119,6 +112,9 @@ export function revisionRoundsLabel(
 ): string {
   return `${numberWord(count, { sentenceStart })} revision round${count === 1 ? '' : 's'}`;
 }
+
+/** The refund guarantee, for every client; to be worded exactly as the Refund Policy. */
+export const REFUND_GUARANTEE_TEXT = `Within ${BUSINESS_TERMS.refund.claimDays} days of delivery, tell us in writing which claim, number or section is wrong or unusable for your business. We correct it in one revision within ${numberWord(BUSINESS_TERMS.support.revisionBusinessDays)} business days. If that revision doesn't fix it, we refund the full amount to your original payment method. That's the whole policy. We ask for a written reason because it's how we improve the product, not to make refunds hard.`;
 
 /**
  * Where to book a call: the booking page once it exists, an email to hello@

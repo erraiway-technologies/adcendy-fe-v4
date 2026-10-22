@@ -2,11 +2,11 @@
  * The questions the FAQ section shows. Plain data, so the server can also
  * publish them as FAQPage structured data for search engines.
  */
-import { BUSINESS_TERMS as TERMS, numberWord } from '@/shared/marketing/business-terms';
+import { BUSINESS_TERMS as TERMS, REFUND_GUARANTEE_TEXT, numberWord } from '@/shared/marketing/business-terms';
 
 export type Faq = { question: string; answer: string; id?: string };
 
-const { delivery, intake, support, refund, calls, contact, prices, pilot, report } = TERMS;
+const { delivery, intake, support, calls, contact, prices, pilot, report } = TERMS;
 
 /** "₹19,900", or "₹19,900 (pilot price ₹14,900 for orders placed before …)" while the pilot runs. */
 function priceLabel(price: { list: string; pilot: string }, isPilot: boolean): string {
@@ -81,8 +81,7 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     },
     {
       question: 'What is the refund guarantee, exactly?',
-      answer:
-        `Within ${refund.claimDays} days of delivery, tell us in writing which claim, number or section is wrong or unusable for your business. We correct it in one revision within ${revisionDays} business days. If that revision doesn't fix it, we refund the full amount to your original payment method. That's the whole policy. We ask for a written reason because it's how we improve the product, not to make refunds hard.`,
+      answer: REFUND_GUARANTEE_TEXT,
     },
     {
       question: 'What does the revision cover?',

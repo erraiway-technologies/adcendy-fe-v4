@@ -39,8 +39,8 @@ export interface BillingCatalogue {
   items: BillingBundle[];
   /**
    * Whether pilot bundles are on sale. Only an explicit `true` puts pilot
-   * pricing and the pilot guarantee on the page; absent or false removes
-   * both. Regular bundles are listed either way.
+   * pricing on the page; absent or false removes it. Regular bundles are
+   * listed either way.
    */
   pilot?: boolean;
   /**
