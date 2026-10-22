@@ -33,7 +33,9 @@ export type ReportChannel = {
   rationale: string;
 };
 
-export type ReportWeek = {
+/** One step of the plan: when, what, and the target that says it worked. */
+export type ReportPlanStep = {
+  /** The phase it sits in: "Days 0–30". */
   label: string;
   task: string;
   target: string;
@@ -70,7 +72,7 @@ export type ReportPageContent =
   | {
       kind: 'plan';
       title: string;
-      weeks: ReportWeek[];
+      steps: ReportPlanStep[];
     };
 
 export type ReportChapter = {
@@ -157,17 +159,17 @@ export const SAMPLE_REPORT: SampleReport = {
       },
     },
     {
-      title: 'The first 30 days',
-      summary: 'Weekly priorities and targets',
+      title: 'The 180-day plan',
+      summary: 'Priorities and targets, phase by phase',
       pageNumber: 38,
       page: {
         kind: 'plan',
-        title: 'The first 30 days',
-        weeks: [
-          { label: 'Week 1', task: 'Launch search on the 12 priority terms', target: 'CPC under £2.10' },
-          { label: 'Week 2', task: 'Rewrite the homepage around speed', target: '+15% demo rate' },
-          { label: 'Week 3', task: 'Test three LinkedIn angles', target: 'CTR above 0.6%' },
-          { label: 'Week 4', task: 'Review numbers, cut the weakest channel', target: 'Written review' },
+        title: 'The 180-day plan',
+        steps: [
+          { label: 'Days 0–30', task: 'Launch search on the 12 priority terms', target: 'CPC under £2.10' },
+          { label: 'Days 0–30', task: 'Rewrite the homepage around speed', target: '+15% demo rate' },
+          { label: 'Days 31–90', task: 'Scale the LinkedIn angle that won its test', target: 'CTR above 0.6%' },
+          { label: 'Days 91–180', task: 'Launch content and the two partner tools', target: '20% of demos' },
         ],
       },
     },

@@ -7,6 +7,7 @@ import { BUSINESS_TERMS } from '@/shared/marketing/business-terms';
 import { SAMPLE_REPORT, chapterNumber } from './sample-report';
 
 const { delivery, intake, report } = BUSINESS_TERMS;
+const PLAN = `${report.planDays}-day plan`;
 
 /** A page the homepage links out to, and the line that links it. */
 export const LEARN_MORE_PAGES = {
@@ -32,13 +33,16 @@ export const WHAT_YOU_GET = {
       body: 'How your competitors position themselves, what they’re doing across advertising and search, and the gaps no one’s filling.',
     },
     { title: 'Positioning audit', body: 'What you’re saying vs. what your market actually hears.' },
-    { title: 'ICP refinement', body: 'The specific buyer this 30-day plan targets.' },
+    { title: 'ICP refinement', body: `The specific buyer this ${PLAN} targets.` },
     {
       title: 'Keyword & channel direction',
       body: 'Where the openings are — paid, organic, content, partnerships — with the rationale for each.',
     },
     { title: 'Messaging framework', body: 'Angles, hooks, and copy patterns built around your audience.' },
-    { title: '30-day priorities', body: 'What your team should aim at each week, in priority order.' },
+    {
+      title: `A ${PLAN}`,
+      body: `What your team should aim at in each phase (${report.planPhases}), in priority order.`,
+    },
   ],
   providesHeading: 'What AdCendy provides',
   provides: [
@@ -91,8 +95,7 @@ export const STRATEGY_QUESTIONS = {
     },
     {
       question: 'What does your team do on Monday?',
-      answer:
-        'Week-by-week priorities for the first 30 days, and the metric range that tells you it’s working.',
+      answer: `A ${PLAN} in three phases (${report.planPhases}), with priorities in order and the metric range that tells you each step is working.`,
       chapter: 4,
     },
   ] satisfies StrategyQuestionDetail[],
@@ -124,7 +127,7 @@ export const TIMELINE_DETAIL = {
     {
       day: `Day ${delivery.businessDays}`,
       title: 'Your strategy lands',
-      body: 'Not a pitch deck. A working document with the intelligence, positioning, messaging, channel direction and 30-day priorities — plus a recorded walkthrough.',
+      body: `Not a pitch deck. A working document with the intelligence, positioning, messaging, channel direction and a ${PLAN} — plus a recorded walkthrough.`,
     },
   ],
 };

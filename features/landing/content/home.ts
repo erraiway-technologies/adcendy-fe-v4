@@ -43,7 +43,7 @@ export const HOME_VALUE = {
     {
       label: 'Direction you own',
       title: 'A plan your team runs from day one',
-      body: 'Positioning, channels, messaging and 30-day priorities, each with the metric that tells you it’s working. One fee, no retainer.',
+      body: `Positioning, channels, messaging and a ${report.planDays}-day plan, each step with the metric that tells you it’s working. One fee, no retainer.`,
     },
   ],
   more: { href: '/approach', label: 'Why we work this way' },
@@ -86,7 +86,7 @@ export const HOME_QUESTIONS: StrategyQuestion[] = [
   },
   {
     question: 'What does your team do on Monday?',
-    answer: 'Week-by-week priorities for the first 30 days, and the range that tells you it’s working.',
+    answer: `A ${report.planDays}-day plan in three phases, and the range that tells you each step is working.`,
     chapter: 4,
   },
 ];

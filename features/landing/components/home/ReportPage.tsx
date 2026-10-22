@@ -169,14 +169,14 @@ function PageBody({ page }: { page: ReportPageContent }): ReactNode {
         <>
           <h3 className={PAGE_TITLE}>{page.title}</h3>
           <div className="flex flex-col">
-            {page.weeks.map((week) => (
+            {page.steps.map((step) => (
               <div
-                key={week.label}
-                className="grid grid-cols-[56px_1fr_auto] items-center gap-4 border-t border-(--home-ink)/12 py-4 max-sm:grid-cols-[56px_1fr] max-sm:gap-y-1"
+                key={step.task}
+                className="grid grid-cols-[96px_1fr_auto] items-center gap-4 border-t border-(--home-ink)/12 py-4 max-sm:grid-cols-[96px_1fr] max-sm:gap-y-1"
               >
-                <span className={cn(MONO, 'text-[13px] text-(--home-ink-2)')}>{week.label}</span>
-                <span className="text-[17px]">{week.task}</span>
-                <span className="text-[13px] whitespace-nowrap text-(--home-ink-2) max-sm:col-start-2">{week.target}</span>
+                <span className={cn(MONO, 'text-[13px] text-(--home-ink-2)')}>{step.label}</span>
+                <span className="text-[17px]">{step.task}</span>
+                <span className="text-[13px] whitespace-nowrap text-(--home-ink-2) max-sm:col-start-2">{step.target}</span>
               </div>
             ))}
           </div>

@@ -90,6 +90,9 @@ export const BUSINESS_TERMS = {
     /** The whole package - strategy, research and guidance - as erraiway.com states it too. */
     pages: '30–50',
     readingTime: '~1 hour',
+    /** The Action Plan's length, in three phases, as the Backend's roadmap builds it. */
+    planDays: 180,
+    planPhases: 'days 0–30, 31–90 and 91–180',
   },
 } as const;
 

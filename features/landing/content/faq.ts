@@ -6,7 +6,7 @@ import { BUSINESS_TERMS as TERMS, numberWord } from '@/shared/marketing/business
 
 export type Faq = { question: string; answer: string; id?: string };
 
-const { delivery, intake, support, refund, calls, contact, prices, pilot } = TERMS;
+const { delivery, intake, support, refund, calls, contact, prices, pilot, report } = TERMS;
 
 /** "₹19,900", or "₹19,900 (pilot price ₹14,900 for orders placed before …)" while the pilot runs. */
 function priceLabel(price: { list: string; pilot: string }, isPilot: boolean): string {
@@ -25,7 +25,7 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     {
       question: 'What exactly do I get?',
       answer:
-        `Five documents for one market: a Strategy Document (what to do, in what order, and the evidence behind each recommendation), a Messaging & Positioning Guide, a Setup Guide for tracking and accounts, an Asset Pack with ad copy, landing-page structure and keyword lists, and a 90-day Action Plan you can import into your task tool. Plus a ${support.walkthroughVideo} recorded walkthrough. It's a finished kit your team can act on, not a conversation.`,
+        `Five documents for one market: a Strategy Document (what to do, in what order, and the evidence behind each recommendation), a Messaging & Positioning Guide, a Setup Guide for tracking and accounts, an Asset Pack with ad copy, landing-page structure and keyword lists, and a ${report.planDays}-day Action Plan, in three phases, you can import into your task tool. Plus a ${support.walkthroughVideo} recorded walkthrough. It's a finished kit your team can act on, not a conversation.`,
     },
     {
       question: 'How is this different from asking ChatGPT or Claude?',
@@ -56,7 +56,7 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     {
       question: 'What do you need from me?',
       answer:
-        `An intake form, ${intake.formMinutes} minutes: what you sell, to whom, in which market, your website (required for e-commerce), the competitors you know of, current channels and spend, and what you want to happen in the next 90 days. We may follow up with clarifying questions by email.`,
+        `An intake form, ${intake.formMinutes} minutes: what you sell, to whom, in which market, your website (required for e-commerce), the competitors you know of, current channels and spend, and what you want to happen in the next ${report.planDays} days. We may follow up with clarifying questions by email.`,
     },
     {
       question: "What if I don't have a website yet?",
