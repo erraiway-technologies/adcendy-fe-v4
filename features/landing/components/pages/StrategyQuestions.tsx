@@ -1,9 +1,9 @@
 'use client';
 
-import { HOME_QUESTIONS, chapterReference } from '../../content/home';
-import { HomeSection, QuestionList, SectionHeader } from './primitives';
+import { STRATEGY_QUESTIONS, chapterReference } from '../../content/pages';
+import { HomeSection, QuestionList, SectionHeader } from '../home/primitives';
 
-const ITEMS = HOME_QUESTIONS.items.map((item) => ({
+const ITEMS = STRATEGY_QUESTIONS.items.map((item) => ({
   question: item.question,
   answer: item.answer,
   reference: chapterReference(item.chapter),
@@ -13,7 +13,7 @@ const ITEMS = HOME_QUESTIONS.items.map((item) => ({
 export function StrategyQuestions() {
   return (
     <HomeSection>
-      <SectionHeader title={HOME_QUESTIONS.heading} className="mb-12" />
+      <SectionHeader title={STRATEGY_QUESTIONS.heading} className="mb-12" />
       <QuestionList items={ITEMS} idPrefix="strategy-question" />
     </HomeSection>
   );

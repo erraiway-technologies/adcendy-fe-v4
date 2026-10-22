@@ -15,7 +15,7 @@ export function HomeHero({ showButton = true }: { showButton?: boolean }) {
   const textRef = useRef<HTMLDivElement>(null);
   const reducedMotion = usePrefersReducedMotion();
 
-  // Headline then button rise out of a blur, once the page is on screen.
+  // Headline, subline, then button rise out of a blur, once the page is on screen.
   useEffect(() => {
     if (reducedMotion) return;
     const items = textRef.current ? [...textRef.current.querySelectorAll<HTMLElement>('[data-intro]')] : [];
@@ -77,7 +77,7 @@ export function HomeHero({ showButton = true }: { showButton?: boolean }) {
 
       <div
         ref={textRef}
-        className="absolute inset-0 flex flex-col items-center justify-center gap-9 px-8 pb-[16vh] text-center"
+        className="absolute inset-0 flex flex-col items-center justify-center gap-7 px-8 pb-[16vh] text-center max-sm:px-6"
       >
         <h1
           data-intro
@@ -85,14 +85,22 @@ export function HomeHero({ showButton = true }: { showButton?: boolean }) {
         >
           {HOME_HERO.headline}
         </h1>
+        <p
+          data-intro
+          className="m-0 max-w-[46ch] text-[clamp(17px,1.5vw,20px)] leading-[1.5] text-pretty text-white/75"
+        >
+          {HOME_HERO.subline}
+        </p>
         {showButton && (
-          <Link
-            data-intro
-            href="/auth/signup"
-            className="home-button-primary rounded-md bg-white px-5 py-[13px] text-base whitespace-nowrap text-(--home-button-text) hover:bg-(--home-button-hover) motion-safe:transition-colors motion-safe:duration-300"
-          >
-            {HOME_CTA_LABEL}
-          </Link>
+          <div data-intro className="mt-2 flex flex-col items-center gap-4">
+            <Link
+              href="/auth/signup"
+              className="home-button-primary rounded-md bg-white px-5 py-[13px] text-base whitespace-nowrap text-(--home-button-text) hover:bg-(--home-button-hover) motion-safe:transition-colors motion-safe:duration-300"
+            >
+              {HOME_CTA_LABEL}
+            </Link>
+            <p className="m-0 font-geist-mono text-xs text-white/55">{HOME_HERO.meta}</p>
+          </div>
         )}
       </div>
 

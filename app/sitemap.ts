@@ -3,7 +3,7 @@ import { getSite } from '@/shared/seo/site';
 import { LEGAL_PAGES } from '@/shared/seo/legal-pages';
 
 /** The public pages worth a search result. */
-const PAGES = ['/', '/contact', ...Object.keys(LEGAL_PAGES)];
+const PAGES = ['/', '/what-you-get', '/approach', '/compare', '/about', '/contact', ...Object.keys(LEGAL_PAGES)];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const site = await getSite();

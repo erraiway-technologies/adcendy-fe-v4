@@ -1,6 +1,6 @@
-import { HOME_BUDGET as C } from '../../content/home';
-import { Reveal } from './Reveal';
-import { HomeSection, SectionHeader } from './primitives';
+import { BUDGET as C } from '../../content/pages';
+import { Reveal } from '../home/Reveal';
+import { HomeSection, SectionHeader } from '../home/primitives';
 
 /** "The strategy is the cheap part": what a wrong strategy really costs. */
 export function BudgetArgument() {

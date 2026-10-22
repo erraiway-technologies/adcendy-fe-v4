@@ -40,10 +40,7 @@ export function StickyCta() {
       )}
     >
       <div className="pointer-events-auto mx-auto flex max-w-[980px] flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-[10px] border border-white/8 bg-[rgba(40,40,40,.82)] py-2.5 pr-2.5 pl-5 backdrop-blur-[16px]">
-        <div className="min-w-0">
-          <p className="text-base">{C.title}</p>
-          <p className="text-sm text-(--home-text-3) max-sm:hidden">{C.body}</p>
-        </div>
+        <p className="min-w-0 text-base">{C.title}</p>
         <div className="flex items-center gap-2">
           <Link
             href={href}

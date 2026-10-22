@@ -19,9 +19,11 @@ export const BUSINESS_TERMS = {
      * copy states only this, never per-stage timings.
      */
     businessDays: 4,
+    /** Business days are Monday to Friday, excluding these holidays. */
+    holidays: 'public holidays in India',
   },
   intake: {
-    formMinutes: 15,
+    formMinutes: '20–30',
   },
   revisionRoundsIncluded: 1,
   /** Terms of Service, section 27: support after delivery. */
@@ -34,12 +36,22 @@ export const BUSINESS_TERMS = {
     /** ...and delivered within this many business days. */
     revisionBusinessDays: 3,
     walkthroughVideo: '10–15 minute',
+    /** Results checks: on these days after delivery you send your numbers... */
+    resultsCheckDays: [14, 30],
+    /** ...and get a written readout within this. */
+    readoutWithin: 'two business days',
+  },
+  /** The refund guarantee: a written claim within this many days of delivery. */
+  refund: {
+    claimDays: 7,
   },
   /** Terms of Service, section 27: calls are optional, by video, booked. */
   calls: {
     fitCallMinutes: 20,
     quoteCallMinutes: 30,
     walkthroughCallMinutes: 30,
+    /** The walkthrough call is booked at least this many hours ahead. */
+    walkthroughNoticeHours: 48,
     hours: 'Monday to Friday, 1:30–9:30 pm IST',
   },
   contact: {
@@ -49,6 +61,8 @@ export const BUSINESS_TERMS = {
     support: 'support@adcendy.com',
     /** Personal data requests. */
     privacy: 'privacy@adcendy.com',
+    /** Data access and deletion requests are completed within this many days. */
+    privacyRequestDays: 30,
     replyWithin: 'one business day',
     /**
      * The fit call's booking page (Zoho Bookings). Null sends visitors to
@@ -58,6 +72,15 @@ export const BUSINESS_TERMS = {
     bookingUrl: 'https://adcendy1.zohobookings.in/488505000000030046' as string | null,
     /** Multi-market quotes and agency partnerships: a public booking page too. */
     quoteBookingUrl: 'https://adcendy1.zohobookings.in/488505000000033035',
+  },
+  /** Per market, one-time. The checkout charges what the catalogue says; keep these the same. */
+  prices: {
+    india: { list: '₹19,900', pilot: '₹14,900' },
+    international: { list: 'US $600', pilot: '$499' },
+  },
+  pilot: {
+    /** The last day pilot prices apply, as copy ("31 December 2026"); null until it is set. */
+    endsOn: null as string | null,
   },
   pilotGuarantee: {
     /** Fewer actionable opportunities than this and the pilot fee is refunded. */

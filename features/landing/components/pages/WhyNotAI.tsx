@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
-import { HOME_WHY_NOT_AI as C } from '../../content/home';
-import { Reveal } from './Reveal';
-import { HomeSection, SectionHeader } from './primitives';
+import { WHY_NOT_AI as C } from '../../content/pages';
+import { Reveal } from '../home/Reveal';
+import { HomeSection, SectionHeader } from '../home/primitives';
 
 /** AI-generated against AI-powered, then the four things the difference rests on. */
 export function WhyNotAI() {

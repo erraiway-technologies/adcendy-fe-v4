@@ -49,7 +49,6 @@ export function ClosingCta() {
         <h2 className="max-w-[14ch] text-[clamp(40px,5.2vw,76px)] leading-[1.04] font-medium tracking-[-.03em]">
           {HOME_CLOSING.heading}
         </h2>
-        <p className="mt-6 max-w-[44ch] text-[17px] leading-[1.55] text-(--home-text-3)">{HOME_CLOSING.subline}</p>
       </Reveal>
       <Reveal delay={120} className="relative mt-14" aria-hidden="true">
         <svg viewBox="0 0 1200 180" preserveAspectRatio="none" className="block h-[180px] w-full overflow-visible">

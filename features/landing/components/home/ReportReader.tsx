@@ -2,17 +2,19 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { HOME_INSIDE } from '../../content/home';
+import { HOME_INSIDE, HOME_QUESTIONS } from '../../content/home';
 import { chapterNumber, type SampleReport } from '../../content/sample-report';
 import { usePrefersReducedMotion } from '../../hooks/useHomeMotion';
 import { Reveal } from './Reveal';
 import { ReportPage } from './ReportPage';
+import { MoreLink } from './primitives';
 
 /** How long each chapter shows before the reader turns the page. */
 const CHAPTER_MS = 6000;
 
 /**
- * "Inside a strategy": a chapter list beside one sample page at a time. It
+ * "Inside a strategy": a chapter list, each chapter named by the question it
+ * answers (the open one shows the answer), beside one sample page at a time. It
  * turns the page every six seconds, with each chapter's bar filling to show
  * when, until the reader picks a chapter. With reduced motion it never turns
  * by itself and pages swap without a transition.
@@ -42,6 +44,7 @@ export function ReportReader({ report }: { report: SampleReport }) {
         </Reveal>
         <Reveal delay={100}>
           <p className="max-w-[40ch] text-[17px] leading-[1.55] text-(--home-text-3)">{HOME_INSIDE.intro}</p>
+          <MoreLink href={HOME_INSIDE.more.href} label={HOME_INSIDE.more.label} className="mt-3" />
         </Reveal>
       </div>
 
@@ -49,6 +52,7 @@ export function ReportReader({ report }: { report: SampleReport }) {
         <Reveal className="flex max-w-[380px] flex-col">
           {chapters.map((chapter, index) => {
             const isActive = index === active;
+            const question = HOME_QUESTIONS.find((item) => item.chapter === index);
             return (
               <button
                 key={chapter.title}
@@ -66,8 +70,13 @@ export function ReportReader({ report }: { report: SampleReport }) {
                 >
                   <span className="font-geist-mono text-xs">{chapterNumber(index)}</span>
                   <span className="flex flex-col gap-1">
-                    <span className="text-[20px] tracking-[-.01em]">{chapter.title}</span>
-                    <span className="text-sm text-(--home-text-5)">{chapter.summary}</span>
+                    <span className="font-geist-mono text-xs text-(--home-text-5)">{chapter.title}</span>
+                    <span className="text-[20px] leading-[1.25] tracking-[-.01em]">
+                      {question?.question ?? chapter.summary}
+                    </span>
+                    {isActive && question && (
+                      <span className="text-sm leading-[1.5] text-(--home-text-3)">{question.answer}</span>
+                    )}
                   </span>
                 </span>
                 <span aria-hidden="true" className="block h-px overflow-hidden bg-white/8">

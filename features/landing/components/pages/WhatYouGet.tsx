@@ -1,12 +1,12 @@
-import { HOME_WHAT_YOU_GET as C } from '../../content/home';
-import { Reveal } from './Reveal';
-import { HomeSection, MONO_LABEL, MarkedList, SectionHeader } from './primitives';
+import { WHAT_YOU_GET as C } from '../../content/pages';
+import { Reveal } from '../home/Reveal';
+import { HomeSection, MONO_LABEL, MarkedList, SectionHeader } from '../home/primitives';
 
 /** The six deliverables, then what AdCendy provides and what it does not do. */
 export function WhatYouGet() {
   return (
-    <HomeSection id="what-you-get">
-      <SectionHeader title={C.heading} intro={C.intro} />
+    <HomeSection id="what-you-get" className="pt-24">
+      <SectionHeader title={C.heading} />
       <Reveal>
         <p className={`${MONO_LABEL} mb-8 normal-case tracking-[.02em]`}>{C.meta}</p>
       </Reveal>

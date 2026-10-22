@@ -1,8 +1,8 @@
 import { Fragment } from 'react';
 import { cn } from '@/lib/utils';
-import { HOME_COMPARISON as C, type ComparisonValue } from '../../content/home';
-import { Reveal } from './Reveal';
-import { HomeSection, SectionHeader } from './primitives';
+import { COMPARISON as C, type ComparisonValue } from '../../content/pages';
+import { Reveal } from '../home/Reveal';
+import { HomeSection } from '../home/primitives';
 
 const MARKS: Record<string, { glyph: string; label: string }> = {
   yes: { glyph: '✓', label: C.legend.yes },
@@ -26,11 +26,10 @@ function Value({ value, ours }: { value: ComparisonValue; ours: boolean }) {
   );
 }
 
-/** AdCendy against a freelancer and an agency: direction, hands, and the trade. */
+/** AdCendy against a freelancer and an agency: direction, hands, and the trade. The page heading names it. */
 export function ComparisonTable() {
   return (
-    <HomeSection id="comparison">
-      <SectionHeader title={C.heading} intro={C.intro} />
+    <HomeSection id="comparison" className="pt-20">
       <Reveal className="overflow-x-auto">
         <table className="w-full min-w-[680px] border-collapse text-left">
           <thead>

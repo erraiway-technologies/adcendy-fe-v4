@@ -18,19 +18,28 @@ type FooterLink = { section: LandingTarget } | { label: string; href: string };
 // The sitemap follows the homepage, in its order, with the header's labels.
 const COLUMNS: Record<string, FooterLink[]> = {
   Product: [
+    { section: S.why },
     { section: S.inside },
-    { section: S.whyNotYourTeam },
-    { section: S.whatYouGet },
     { section: S.howItWorks },
-    { section: S.benchmarks },
-    { section: S.whyNotAI },
-    { section: S.comparison },
-    { section: S.budget },
     { section: S.pricing },
     { section: S.faq },
   ],
-  'Is it for you': [{ section: T.goodFit }, { section: T.notYetFit }, { section: T.industries }],
-  Company: [{ section: S.manifesto }, { label: 'Contact', href: '/contact' }],
+  'Is it for you': [
+    { section: T.goodFit },
+    { section: T.notYetFit },
+    { section: T.compare },
+    { section: T.industries },
+  ],
+  // The full explanations the homepage keeps short.
+  'In depth': [
+    { label: 'What you get', href: '/what-you-get' },
+    { label: 'Our approach', href: '/approach' },
+    { label: 'Compare in detail', href: '/compare' },
+  ],
+  Company: [
+    { label: 'About', href: '/about' },
+    { label: 'Contact', href: '/contact' },
+  ],
 };
 
 function FooterEntry({ link }: { link: FooterLink }) {

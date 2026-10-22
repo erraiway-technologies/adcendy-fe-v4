@@ -1,5 +1,6 @@
 'use client';
 
+import { SectionLink } from '@/components/nav/section-link';
 import { cn } from '@/lib/utils';
 import { formatMinorAmount } from '@/shared/payments/razorpay';
 import { usePublicCatalogue } from '@/shared/payments/usePublicCatalogue';
@@ -15,6 +16,7 @@ import { BUSINESS_TERMS, PILOT_GUARANTEE_TEXT, callBookingLink } from '@/shared/
 import type { BillingBundle } from '@/shared/types/billing';
 import { HOME_CTA_LABEL, HOME_PRICING as C } from '../../content/home';
 import { useStrategyCta } from '../../hooks/useStrategyCta';
+import { LANDING_SUB_TARGETS } from '../../landing-sections';
 import { Reveal } from './Reveal';
 import { HomeSection, MONO_LABEL, MarkedList, PrimaryLink, SecondaryLink } from './primitives';
 
@@ -23,8 +25,8 @@ const CARD = 'flex h-full flex-col gap-6 rounded-md border p-8';
 
 /**
  * Pricing: the one-fee card, then the live packages for where the visitor is
- * (the same catalogue checkout uses), the pilot while it runs, a quote for
- * several markets, and what one market means.
+ * (the same catalogue checkout uses), the pilot while it runs, and a quote
+ * for several markets. What one market means is answered in the FAQ.
  */
 export function PricingCard() {
   const booking = callBookingLink();
@@ -37,7 +39,15 @@ export function PricingCard() {
           <div className="flex flex-col gap-[18px]">
             <span className={MONO_LABEL}>{C.eyebrow}</span>
             <h2 className="text-[clamp(34px,3.8vw,52px)] leading-[1.05] font-medium tracking-[-.025em]">{C.heading}</h2>
-            <p className="max-w-[40ch] text-[17px] leading-[1.55] text-(--home-text-3)">{C.body}</p>
+            <p className="max-w-[40ch] text-[17px] leading-[1.55] text-(--home-text-3)">
+              {C.body}{' '}
+              <SectionLink
+                sectionId={LANDING_SUB_TARGETS.oneMarket.id}
+                className="text-white underline decoration-white/30 underline-offset-4"
+              >
+                {C.marketRuleLink}
+              </SectionLink>
+            </p>
           </div>
           <div className="flex flex-wrap gap-2.5">
             <PrimaryLink href={checkoutHref}>{HOME_CTA_LABEL}</PrimaryLink>
@@ -53,18 +63,6 @@ export function PricingCard() {
       </Reveal>
 
       <LivePackages checkoutHref={checkoutHref} />
-
-      <Reveal className="mt-20">
-        <h3 className="mb-6 text-[22px] tracking-[-.01em]">{C.marketRulesHeading}</h3>
-        <ol className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-10">
-          {C.marketRules.map((rule) => (
-            <li key={rule.title} className="flex flex-col gap-2.5 border-t border-white/10 pt-5">
-              <span className="text-lg">{rule.title}</span>
-              <span className="text-base leading-[1.6] text-(--home-text-3)">{rule.body}</span>
-            </li>
-          ))}
-        </ol>
-      </Reveal>
 
       <Reveal>
         <p className="mt-14 text-base text-(--home-text-3)">

@@ -79,6 +79,21 @@ export function SecondaryLink({
   );
 }
 
+/** "Our approach →": a quiet link from a section to the page that explains it in full. */
+export function MoreLink({ href, label, className }: { href: string; label: string; className?: string }) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        'inline-block text-base text-(--home-text-3) underline decoration-white/25 underline-offset-4 hover:text-white hover:decoration-white motion-safe:transition-colors motion-safe:duration-300',
+        className,
+      )}
+    >
+      {label} →
+    </Link>
+  );
+}
+
 /** A ✓ / – list on hairlines, as in the pricing card. */
 export function MarkedList({
   items,

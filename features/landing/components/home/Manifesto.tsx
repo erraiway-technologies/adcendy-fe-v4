@@ -3,14 +3,18 @@
 import { usePublicCatalogue } from '@/shared/payments/usePublicCatalogue';
 import { HOME_MANIFESTO as C } from '../../content/home';
 import { Reveal } from './Reveal';
-import { HomeSection, SectionHeader } from './primitives';
+import { MONO_LABEL } from './primitives';
 
-/** How we think about marketing strategy, and who is behind AdCendy. */
+/** The /about page: how we think about marketing strategy, and who is behind AdCendy. */
 export function Manifesto() {
   const { isPilot } = usePublicCatalogue();
   return (
-    <HomeSection id="manifesto">
-      <SectionHeader title={C.heading} intro={C.intro} />
+    <main className="mx-auto max-w-[1280px] px-10 pt-[160px] max-sm:px-6">
+      <span className={MONO_LABEL}>About</span>
+      <h1 className="mt-4 max-w-[20ch] text-[clamp(44px,5.6vw,86px)] leading-[1.08] font-normal tracking-[-.02em] text-balance">
+        {C.heading}
+      </h1>
+      <p className="mt-6 mb-14 max-w-[52ch] text-lg leading-[1.6] text-(--home-text-2)">{C.intro}</p>
       <ol className="flex flex-col">
         {C.beliefs.map((belief, i) => (
           <Reveal
@@ -41,6 +45,6 @@ export function Manifesto() {
           .{isPilot && <> {C.pilotNote}</>}
         </p>
       </Reveal>
-    </HomeSection>
+    </main>
   );
 }

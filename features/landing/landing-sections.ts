@@ -8,17 +8,11 @@
  * resolves to exactly one element.
  */
 export const HOME_SECTIONS = {
-  whyNotYourTeam: { id: 'why-not-your-team', label: 'Why not your team' },
+  why: { id: 'why-adcendy', label: 'Why AdCendy' },
   inside: { id: 'inside', label: 'Inside a strategy' },
-  whatYouGet: { id: 'what-you-get', label: 'What you get' },
   howItWorks: { id: 'how-it-works', label: 'How it works' },
-  benchmarks: { id: 'benchmarks', label: 'Benchmarks' },
   whoItsFor: { id: 'who-its-for', label: 'Is it for you' },
-  whyNotAI: { id: 'why-not-ai', label: 'AI-powered, human-judged' },
-  comparison: { id: 'comparison', label: 'Compare' },
-  budget: { id: 'budget', label: 'Why it’s worth it' },
   pricing: { id: 'pricing', label: 'Pricing' },
-  manifesto: { id: 'manifesto', label: 'About' },
   faq: { id: 'faq', label: 'FAQ' },
 } as const;
 
@@ -26,8 +20,25 @@ export const HOME_SECTIONS = {
 export const LANDING_SUB_TARGETS = {
   goodFit: { id: 'who-its-for-fit', label: 'Who it’s for' },
   notYetFit: { id: 'who-its-for-not-yet', label: 'Who it’s not for' },
+  compare: { id: 'compare', label: 'AdCendy, freelancer or agency' },
+  // Answered in the FAQ; the pricing card links here.
+  oneMarket: { id: 'faq-one-market', label: 'What counts as one market' },
   // The audiences are described in this FAQ answer, not in a section.
-  industries: { id: 'faq-industries', label: 'SaaS, D2C & coaches' },
+  industries: { id: 'faq-industries', label: 'E-commerce, SaaS & services' },
 } as const;
 
 export type LandingTarget = { id: string; label: string };
+
+/**
+ * Sections that left the homepage for a page of their own. An old link to one
+ * (/#why-not-ai, from an email or an ad) is sent on to where it lives now.
+ */
+export const MOVED_SECTIONS: Record<string, string> = {
+  'why-not-your-team': '/approach#why-not-your-team',
+  'why-not-ai': '/approach#why-not-ai',
+  budget: '/approach#budget',
+  'what-you-get': '/what-you-get',
+  benchmarks: '/what-you-get#benchmarks',
+  comparison: '/compare',
+  manifesto: '/about',
+};

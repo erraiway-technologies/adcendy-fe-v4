@@ -1,6 +1,6 @@
-import { HOME_BENCHMARKS as C } from '../../content/home';
-import { Reveal } from './Reveal';
-import { HomeSection, SectionHeader } from './primitives';
+import { BENCHMARKS as C } from '../../content/pages';
+import { Reveal } from '../home/Reveal';
+import { HomeSection, SectionHeader } from '../home/primitives';
 
 /** "You'll know if it's working": targets, your own numbers, and help reading them. */
 export function Benchmarks() {

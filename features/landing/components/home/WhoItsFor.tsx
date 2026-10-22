@@ -1,8 +1,12 @@
+import { cn } from '@/lib/utils';
 import { HOME_WHO_ITS_FOR as C } from '../../content/home';
 import { Reveal } from './Reveal';
-import { HomeSection, MarkedList, SectionHeader } from './primitives';
+import { HomeSection, MONO_LABEL, MarkedList, MoreLink, SectionHeader } from './primitives';
 
-/** Who it is for, and who it is not for yet; each half can be linked to. */
+/**
+ * Who it is for and who it is not for yet (each half can be linked to), then
+ * where AdCendy sits next to a freelancer and an agency.
+ */
 export function WhoItsFor() {
   return (
     <HomeSection id="who-its-for">
@@ -24,6 +28,26 @@ export function WhoItsFor() {
           <MarkedList items={C.notYet} mark="–" />
         </Reveal>
       </div>
+
+      <Reveal id="compare" className="mt-16 scroll-mt-[90px]">
+        <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,260px),1fr))] gap-x-10">
+          {C.compare.map((option, i) => {
+            const ours = i === 0;
+            return (
+              <li
+                key={option.name}
+                className={cn('flex flex-col gap-2 border-t pt-5 pb-8', ours ? 'border-white' : 'border-white/10')}
+              >
+                <span className={MONO_LABEL}>{option.role}</span>
+                <span className={cn('text-[22px] tracking-[-.01em]', !ours && 'text-(--home-text-2)')}>{option.name}</span>
+                <span className="text-base leading-[1.55] text-(--home-text-3)">{option.body}</span>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-4 max-w-[44ch] text-[22px] leading-[1.35] tracking-[-.01em]">{C.verdict}</p>
+        <MoreLink href={C.more.href} label={C.more.label} className="mt-6" />
+      </Reveal>
     </HomeSection>
   );
 }

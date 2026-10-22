@@ -5,6 +5,7 @@ import { join } from "node:path";
 import {
   HOME_SECTIONS,
   LANDING_SUB_TARGETS,
+  MOVED_SECTIONS,
 } from "../../features/landing/landing-sections.ts";
 
 const ROOT = new URL("../../", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
@@ -114,4 +115,24 @@ test("each nav label is used once, so two links never claim the same place", () 
     labels.filter((label, i) => labels.indexOf(label) !== i),
     [],
   );
+});
+
+test("an old link to a moved section lands on a page and place that exist", () => {
+  const routes = publicRoutes();
+  const pageIds = declaredIds(
+    readdirSync(join(ROOT, "features/landing/components/pages"))
+      .filter((name) => name.endsWith(".tsx"))
+      .map((name) => `features/landing/components/pages/${name}`),
+  );
+  const homeIds = declaredIds(homeFiles());
+  const problems = Object.entries(MOVED_SECTIONS).flatMap(([oldId, target]) => {
+    const [path, hash] = target.split("#");
+    return [
+      ...(routes.has(path!) ? [] : [`#${oldId} goes to missing page ${path}`]),
+      ...(hash && !pageIds.includes(hash) ? [`#${oldId} goes to missing #${hash}`] : []),
+      // Still on the homepage would mean it never moved.
+      ...(homeIds.includes(oldId) ? [`#${oldId} is still on the homepage`] : []),
+    ];
+  });
+  assert.deepEqual(problems, []);
 });

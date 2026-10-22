@@ -14,7 +14,7 @@ import { useStrategyCta } from '../../hooks/useStrategyCta';
 import { HOME_SECTIONS as S } from '../../landing-sections';
 
 /** In the bar from lg up; the narrowed bar has room for these five. */
-const BAR_LINKS = [S.inside, S.howItWorks, S.whatYouGet, S.pricing, S.faq];
+const BAR_LINKS = [S.why, S.inside, S.howItWorks, S.pricing, S.faq];
 /** Behind the menu below lg: every section, in page order. */
 const MENU_LINKS = Object.values(S);
 
