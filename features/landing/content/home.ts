@@ -2,9 +2,7 @@
  * The homepage's copy. Commercial promises (days, rounds, minutes, pages) come
  * from BUSINESS_TERMS, so the page changes with them; the sample report the
  * reader shows lives in ./sample-report, and the FAQ in
- * components/sections/faq-content (shared with the server's structured data).
- *
- * Everything the earlier (v2) homepage said is here too, section by section.
+ * ./faq (shared with the server's structured data).
  */
 import {
   BUSINESS_TERMS,

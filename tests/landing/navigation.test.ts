@@ -1,52 +1,25 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   HOME_SECTIONS,
-  LANDING_SECTIONS,
   LANDING_SUB_TARGETS,
 } from "../../features/landing/landing-sections.ts";
 
 const ROOT = new URL("../../", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
 
 const NAVIGATION_SOURCES = [
-  "components/sections/marketing-footer.tsx",
-  "components/nav/marketing-nav.tsx",
-  "features/landing/components/IntelligenceStreamNav.tsx",
   "features/landing/components/home/SiteHeader.tsx",
   "features/landing/components/home/SiteFooter.tsx",
 ];
 
 const FOOTERS = [
-  "components/sections/marketing-footer.tsx",
   "features/landing/components/home/SiteFooter.tsx",
-];
-
-const LANDING_COMPOSITIONS = [
-  "features/landing/components/LandingPageV1.tsx",
-  "features/landing/components/LandingPageV2.tsx",
 ];
 
 function read(relativePath: string): string {
   return readFileSync(join(ROOT, relativePath), "utf8");
-}
-
-/** The section files each landing variant actually mounts. */
-function mountedSectionFiles(composition: string): string[] {
-  const source = read(composition);
-  const files = [
-    ...source.matchAll(/import\('@\/components\/sections\/([\w-]+)'\)/g),
-    ...source.matchAll(/from '@\/components\/sections\/([\w-]+)'/g),
-  ].map((match) => `components/sections/${match[1]}.tsx`);
-  // A section's own data module (e.g. faq-content.ts) declares ids too.
-  const siblings = files.flatMap((file) =>
-    [...read(file).matchAll(/from '\.\/([\w-]+)'/g)]
-      .map((match) => [`components/sections/${match[1]}.ts`, `components/sections/${match[1]}.tsx`])
-      .map((candidates) => candidates.find((candidate) => existsSync(join(ROOT, candidate))))
-      .filter((candidate): candidate is string => candidate !== undefined),
-  );
-  return [...new Set([...files, ...siblings])];
 }
 
 /** Every id declared on an element in these files — literal or data-driven. */
@@ -78,48 +51,29 @@ function publicRoutes(): Set<string> {
 }
 
 const ALL_TARGETS = [
-  ...Object.values(LANDING_SECTIONS),
+  ...Object.values(HOME_SECTIONS),
   ...Object.values(LANDING_SUB_TARGETS),
 ];
 
-for (const composition of LANDING_COMPOSITIONS) {
-  test(`every nav and footer target lands exactly once in ${composition.split("/").pop()}`, () => {
-    const ids = declaredIds(mountedSectionFiles(composition));
-    const problems = ALL_TARGETS.flatMap(({ id }) => {
-      const count = ids.filter((declared) => declared === id).length;
-      return count === 1 ? [] : [`#${id} declared ${count} times`];
-    });
-    assert.deepEqual(problems, []);
-  });
-}
-
-/** The v3 homepage's own files, and the FAQ data it renders. */
-function homeV3Files(): string[] {
+/** The homepage's own files, and the FAQ data it renders. */
+function homeFiles(): string[] {
   const dir = "features/landing/components/home";
   return [
-    "features/landing/components/LandingPageV3.tsx",
+    "features/landing/components/LandingPage.tsx",
     ...readdirSync(join(ROOT, dir))
       .filter((name) => name.endsWith(".tsx"))
       .map((name) => `${dir}/${name}`),
-    "components/sections/faq-content.ts",
+    "features/landing/content/faq.ts",
   ];
 }
 
-test("every nav and footer target lands exactly once on the v3 homepage", () => {
-  const ids = declaredIds(homeV3Files());
-  const targets = [...Object.values(HOME_SECTIONS), ...Object.values(LANDING_SUB_TARGETS)];
-  const problems = targets.flatMap(({ id }) => {
+test("every nav and footer target lands exactly once on the homepage", () => {
+  const ids = declaredIds(homeFiles());
+  const problems = ALL_TARGETS.flatMap(({ id }) => {
     const count = ids.filter((declared) => declared === id).length;
     return count === 1 ? [] : [`#${id} declared ${count} times`];
   });
   assert.deepEqual(problems, []);
-});
-
-test("the v3 homepage keeps every section the earlier homepage had", () => {
-  const missing = Object.values(LANDING_SECTIONS).filter(
-    (section) => !Object.values(HOME_SECTIONS).some((home) => home.id === section.id),
-  );
-  assert.deepEqual(missing, []);
 });
 
 test("every public page wears the site header and footer", () => {
@@ -130,7 +84,7 @@ test("every public page wears the site header and footer", () => {
 
 test("navs and footer link sections only through the shared list", () => {
   // A hand-written '/#pricing' can drift from the page; SectionLink with an
-  // id from LANDING_SECTIONS cannot. It also scrolls on a repeat click, which
+  // id from HOME_SECTIONS cannot. It also scrolls on a repeat click, which
   // a plain hash link does not.
   for (const source of NAVIGATION_SOURCES) {
     const handWritten = [...read(source).matchAll(/href[:=]\s*['"{`][^'"`}]*#/g)].map(

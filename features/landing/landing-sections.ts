@@ -1,16 +1,17 @@
 /**
- * The landing page's sections, in the order the page presents them, with the
- * one label every nav and the footer use for each. Labels follow what the
- * section actually says, so a link never promises something the reader does
- * not find when they land.
+ * The homepage's sections, in the order the page presents them
+ * (features/landing/components/LandingPage.tsx), with the one label every nav
+ * and the footer use for each. Labels follow what the section actually says,
+ * so a link never promises something the reader does not find when they land.
  *
  * Each id is set on the section's own component; tests check every id here
  * resolves to exactly one element.
  */
-export const LANDING_SECTIONS = {
+export const HOME_SECTIONS = {
   whyNotYourTeam: { id: 'why-not-your-team', label: 'Why not your team' },
-  howItWorks: { id: 'how-it-works', label: 'How it works' },
+  inside: { id: 'inside', label: 'Inside a strategy' },
   whatYouGet: { id: 'what-you-get', label: 'What you get' },
+  howItWorks: { id: 'how-it-works', label: 'How it works' },
   benchmarks: { id: 'benchmarks', label: 'Benchmarks' },
   whoItsFor: { id: 'who-its-for', label: 'Is it for you' },
   whyNotAI: { id: 'why-not-ai', label: 'AI-powered, human-judged' },
@@ -19,27 +20,6 @@ export const LANDING_SECTIONS = {
   pricing: { id: 'pricing', label: 'Pricing' },
   manifesto: { id: 'manifesto', label: 'About' },
   faq: { id: 'faq', label: 'FAQ' },
-} as const;
-
-/**
- * The v3 homepage's sections, in the order the page presents them
- * (features/landing/components/LandingPageV3.tsx). They keep the ids and
- * labels the earlier pages used, so links made for those still land; only
- * "Inside a strategy" is new.
- */
-export const HOME_SECTIONS = {
-  whyNotYourTeam: LANDING_SECTIONS.whyNotYourTeam,
-  inside: { id: 'inside', label: 'Inside a strategy' },
-  whatYouGet: LANDING_SECTIONS.whatYouGet,
-  howItWorks: LANDING_SECTIONS.howItWorks,
-  benchmarks: LANDING_SECTIONS.benchmarks,
-  whoItsFor: LANDING_SECTIONS.whoItsFor,
-  whyNotAI: LANDING_SECTIONS.whyNotAI,
-  comparison: LANDING_SECTIONS.comparison,
-  budget: LANDING_SECTIONS.budget,
-  pricing: LANDING_SECTIONS.pricing,
-  manifesto: LANDING_SECTIONS.manifesto,
-  faq: LANDING_SECTIONS.faq,
 } as const;
 
 /** Places inside a section that a link can land on directly. */

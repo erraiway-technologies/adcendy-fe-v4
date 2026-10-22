@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { buildFaqs } from '@/components/sections/faq-content';
+import { buildFaqs } from '@/features/landing/content/faq';
 import { usePublicCatalogue } from '@/shared/payments/usePublicCatalogue';
 import { HOME_FAQ } from '../../content/home';
 import { HomeSection, QuestionList, SectionHeader } from './primitives';

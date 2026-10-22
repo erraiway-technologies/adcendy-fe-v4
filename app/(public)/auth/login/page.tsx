@@ -5,7 +5,6 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { clearAuth, getToken, getUser, setAuthSession } from '@/features/auth/auth';
@@ -13,9 +12,7 @@ import { authRepository } from '@/shared/api/repositories';
 import { refreshSession } from '@/shared/api/http';
 import { authApi } from '@/src/lib/api/auth';
 import { getAuthRedirectUrl } from '@/src/lib/auth-redirect';
-import { X } from 'lucide-react';
 import Loading from './loading';
-import { useLandingDesignVariant } from '@/features/landing/hooks/useLandingDesignVariant';
 import { AuthV2Shell } from '@/components/auth/auth-v2-shell';
 
 function LoginContent() {
@@ -31,9 +28,6 @@ function LoginContent() {
     password: '',
   });
   const isAdminLoginFlow = pathname === '/admin/login';
-  const variant = useLandingDesignVariant();
-  // Every design but the classic v1 signs in inside the shell.
-  const inShell = variant !== 'v1';
 
   useEffect(() => {
     let isCancelled = false;
@@ -138,26 +132,6 @@ function LoginContent() {
 
   const form = (
     <>
-      {!inShell && (
-        <>
-          {/* Close button to go back to landing page */}
-          <Link 
-            href="/"
-            className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Back to home"
-          >
-            <X className="w-5 h-5" />
-          </Link>
-
-          <div className="text-center space-y-2">
-            <h1 className="font-space-grotesk text-2xl font-bold">Welcome to AdCendy</h1>
-            <p className="text-sm text-muted-foreground">
-              {isAdminLoginFlow ? 'Sign in to the admin console' : 'Sign in to your account'}
-            </p>
-          </div>
-        </>
-      )}
-
       <form
         className="space-y-4"
         onSubmit={handleLogin}
@@ -177,7 +151,7 @@ function LoginContent() {
             placeholder="your@email.com" 
             value={formData.email}
             onChange={handleInputChange}
-            className={inShell ? 'h-11 bg-white/[.04] border-white/14 text-white/90 placeholder:text-white/45 focus-visible:ring-white/35 focus-visible:border-white/50' : ''}
+            className="h-11 bg-white/[.04] border-white/14 text-white/90 placeholder:text-white/45 focus-visible:ring-white/35 focus-visible:border-white/50"
             required 
           />
         </div>
@@ -187,7 +161,7 @@ function LoginContent() {
             <Label htmlFor="password">Password</Label>
             <Link 
               href="/auth/forgot-password" 
-              className={inShell ? 'text-xs text-white/70 hover:text-white/90 transition-colors' : 'text-xs text-primary hover:underline'}
+              className="text-xs text-white/70 hover:text-white/90 transition-colors"
             >
               Forgot password?
             </Link>
@@ -199,20 +173,20 @@ function LoginContent() {
             placeholder="••••••••" 
             value={formData.password}
             onChange={handleInputChange}
-            className={inShell ? 'h-11 bg-white/[.04] border-white/14 text-white/90 placeholder:text-white/45 focus-visible:ring-white/35 focus-visible:border-white/50' : ''}
+            className="h-11 bg-white/[.04] border-white/14 text-white/90 placeholder:text-white/45 focus-visible:ring-white/35 focus-visible:border-white/50"
             required 
           />
         </div>
 
-        <Button type="submit" className={inShell ? 'w-full h-11 bg-white text-[#1E1E1E] hover:bg-[#E9E9E6] font-medium' : 'w-full'} disabled={isLoading}>
+        <Button type="submit" className="w-full h-11 bg-white text-[#1E1E1E] hover:bg-[#E9E9E6] font-medium" disabled={isLoading}>
           {isLoading ? 'Signing in...' : 'Sign In'}
         </Button>
       </form>
 
       {!isAdminLoginFlow && (
-        <div className={inShell ? 'text-center text-sm text-white/60' : 'text-center text-sm text-muted-foreground'}>
+        <div className="text-center text-sm text-white/60">
           Don't have an account?{' '}
-          <Link href={`/auth/signup${signupQuery}`} className={inShell ? 'text-white/90 hover:underline' : 'text-primary hover:underline'}>
+          <Link href={`/auth/signup${signupQuery}`} className="text-white/90 hover:underline">
             Sign up
           </Link>
         </div>
@@ -220,22 +194,14 @@ function LoginContent() {
     </>
   );
 
-  if (inShell) {
-    return (
-      <AuthV2Shell
-        title={isAdminLoginFlow ? 'Admin sign in' : 'Sign in'}
-        subtitle={isAdminLoginFlow ? 'Access the admin console' : 'Continue your intelligence journey'}
-        modal
-      >
-        {form}
-      </AuthV2Shell>
-    );
-  }
-
   return (
-    <Card className="w-full max-w-md p-8 space-y-6 border border-border bg-card relative">
+    <AuthV2Shell
+      title={isAdminLoginFlow ? 'Admin sign in' : 'Sign in'}
+      subtitle={isAdminLoginFlow ? 'Access the admin console' : 'Continue your intelligence journey'}
+      modal
+    >
       {form}
-    </Card>
+    </AuthV2Shell>
   );
 }
 

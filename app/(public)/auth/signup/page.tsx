@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,8 +13,7 @@ import { OtpInput } from '@/components/ui/otp-input';
 import { setAuthSession } from '@/features/auth/auth';
 import { authApi } from '@/src/lib/api/auth';
 import { getAuthRedirectUrl } from '@/src/lib/auth-redirect';
-import { X, ArrowLeft, Mail, Clock } from 'lucide-react';
-import { useLandingDesignVariant } from '@/features/landing/hooks/useLandingDesignVariant';
+import { ArrowLeft, Mail, Clock } from 'lucide-react';
 import { AuthV2Shell } from '@/components/auth/auth-v2-shell';
 import { legalRepository } from '@/shared/api/repositories';
 import { resolveLegalErrorMessage } from '@/shared/legal/legal-error';
@@ -61,9 +59,6 @@ function SignupContent() {
   const [error, setError] = useState<string | null>(null);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const verifyingRef = useRef(false); // Prevent duplicate API calls
-  const variant = useLandingDesignVariant();
-  // Every design but the classic v1 signs in inside the shell.
-  const inShell = variant !== 'v1';
 
   const signupLegalChecklistItems = useMemo(
     () => buildLegalChecklistItems(activeLegalDocuments, 'SIGNUP'),
@@ -348,19 +343,6 @@ function SignupContent() {
 
   const content = (
     <>
-        {!inShell && (
-          <>
-        {/* Close button to go back to landing page */}
-        <Link 
-          href="/"
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Back to home"
-        >
-          <X className="w-5 h-5" />
-        </Link>
-          </>
-        )}
-
         {step === 'credentials' ? (
           <>
             <form className="space-y-4" onSubmit={handleStartSignup}>
@@ -408,14 +390,14 @@ function SignupContent() {
                 />
               </div>
 
-              <Button type="submit" className={inShell ? 'w-full h-11 bg-white text-[#1E1E1E] hover:bg-[#E9E9E6] font-medium' : 'w-full'} disabled={isLoading}>
+              <Button type="submit" className="w-full h-11 bg-white text-[#1E1E1E] hover:bg-[#E9E9E6] font-medium" disabled={isLoading}>
                 {isLoading ? 'Loading...' : 'Continue'}
               </Button>
             </form>
 
-            <div className={inShell ? 'text-center text-sm text-white/60' : 'text-center text-sm text-muted-foreground'}>
+            <div className="text-center text-sm text-white/60">
               Already have an account?{' '}
-              <Link href={`/auth/login${loginQuery}`} className={inShell ? 'text-white/90 hover:underline' : 'text-primary hover:underline'}>
+              <Link href={`/auth/login${loginQuery}`} className="text-white/90 hover:underline">
                 Sign in
               </Link>
             </div>
@@ -432,28 +414,15 @@ function SignupContent() {
                 Back
               </button>
 
-              {inShell ? (
-                <div className="text-center space-y-2">
-                  <p className="text-sm text-white/60">
-                    We've sent a 6-digit code to
-                  </p>
-                  <div className="flex items-center justify-center gap-2 text-sm font-medium text-white/85">
-                    <Mail className="w-4 h-4 text-white/55" />
-                    {verificationState && maskEmail(verificationState.email)}
-                  </div>
+              <div className="text-center space-y-2">
+                <p className="text-sm text-white/60">
+                  We've sent a 6-digit code to
+                </p>
+                <div className="flex items-center justify-center gap-2 text-sm font-medium text-white/85">
+                  <Mail className="w-4 h-4 text-white/55" />
+                  {verificationState && maskEmail(verificationState.email)}
                 </div>
-              ) : (
-                <div className="text-center space-y-2">
-                  <h1 className="font-space-grotesk text-2xl font-bold">Verify Your Email</h1>
-                  <p className="text-sm text-muted-foreground">
-                    We've sent a 6-digit code to
-                  </p>
-                  <div className="flex items-center justify-center gap-2 text-sm font-medium">
-                    <Mail className="w-4 h-4 text-muted-foreground" />
-                    {verificationState && maskEmail(verificationState.email)}
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -529,10 +498,10 @@ function SignupContent() {
             </button>
 
             <div className="space-y-2">
-              <h2 className={inShell ? 'text-xl font-semibold text-white/90' : 'font-space-grotesk text-2xl font-bold'}>
+              <h2 className="text-xl font-semibold text-white/90">
                 Before you sign up
               </h2>
-              <p className={inShell ? 'text-sm text-white/65' : 'text-sm text-muted-foreground'}>
+              <p className="text-sm text-white/65">
                 Accept the Terms of Service to create your account. The rest is optional.
               </p>
             </div>
@@ -656,7 +625,7 @@ function SignupContent() {
 
               <Button
                 type="button"
-                className={inShell ? 'w-full h-11 bg-white text-[#1E1E1E] hover:bg-[#E9E9E6] font-medium' : 'w-full'}
+                className="w-full h-11 bg-white text-[#1E1E1E] hover:bg-[#E9E9E6] font-medium"
                 disabled={
                   isLoading ||
                   isLoadingLegalDocuments ||
@@ -674,36 +643,26 @@ function SignupContent() {
     </>
   );
 
-  if (inShell) {
-    return (
-      <AuthV2Shell
-        title={
-          step === 'credentials'
-            ? 'Create account'
-            : step === 'verify-otp'
-              ? 'Verify your email'
-              : 'Legal acceptance'
-        }
-        subtitle={
-          step === 'credentials'
-            ? 'Start your intelligence journey'
-            : step === 'verify-otp'
-              ? 'Confirm your account to continue'
-              : 'Accept the terms, and choose what else you are happy with'
-        }
-        modal
-      >
-        {content}
-      </AuthV2Shell>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4">
-      <Card className="w-full max-w-md p-8 space-y-6 border border-border bg-card relative">
-        {content}
-      </Card>
-    </div>
+    <AuthV2Shell
+      title={
+        step === 'credentials'
+          ? 'Create account'
+          : step === 'verify-otp'
+            ? 'Verify your email'
+            : 'Legal acceptance'
+      }
+      subtitle={
+        step === 'credentials'
+          ? 'Start your intelligence journey'
+          : step === 'verify-otp'
+            ? 'Confirm your account to continue'
+            : 'Accept the terms, and choose what else you are happy with'
+      }
+      modal
+    >
+      {content}
+    </AuthV2Shell>
   );
 }
 

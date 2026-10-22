@@ -1,28 +1,57 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import { useRuntimeConfigReady } from '@/shared/runtime-config/features';
-import { canOverrideLandingVariant, useLandingDesignVariant } from '../hooks/useLandingDesignVariant';
+import { SAMPLE_REPORT } from '../content/sample-report';
+import { Benchmarks } from './home/Benchmarks';
+import { BudgetArgument } from './home/BudgetArgument';
+import { ClosingCta } from './home/ClosingCta';
+import { ComparisonTable } from './home/ComparisonTable';
+import { DeliveryTimeline } from './home/DeliveryTimeline';
+import { FaqSection } from './home/FaqSection';
+import { HomeHero } from './home/HomeHero';
+import { Manifesto } from './home/Manifesto';
+import { PricingCard } from './home/PricingCard';
+import { ReportReader } from './home/ReportReader';
+import { SiteFooter } from './home/SiteFooter';
+import { SiteHeader } from './home/SiteHeader';
+import { Statement } from './home/Statement';
+import { StickyCta } from './home/StickyCta';
+import { StrategyQuestions } from './home/StrategyQuestions';
+import { WhatYouGet } from './home/WhatYouGet';
+import { WhoItsFor } from './home/WhoItsFor';
+import { WhyNotAI } from './home/WhyNotAI';
 
-const LandingPageV1 = dynamic(() => import('./LandingPageV1').then(m => ({ default: m.LandingPageV1 })));
-const LandingPageV2 = dynamic(() => import('./LandingPageV2').then(m => ({ default: m.LandingPageV2 })));
-const LandingPageV3 = dynamic(() => import('./LandingPageV3').then(m => ({ default: m.LandingPageV3 })));
-const LandingVariantToggle = dynamic(
-  () => import('./LandingVariantToggle').then(m => ({ default: m.LandingVariantToggle })),
-  { ssr: false }
-);
-
+/**
+ * The homepage: the hero and statement, a
+ * sample report reader, what you get, the questions a strategy answers, the
+ * four-day timeline, benchmarks, fit, AI vs. human review, the comparison,
+ * the budget argument, live pricing, the manifesto, the FAQ and a closing
+ * call to action. Section order matches HOME_SECTIONS. Its palette and motion
+ * live in globals.css under .home-page; every animation stops for visitors
+ * who prefer reduced motion.
+ */
 export function LandingPage() {
-  const variant = useLandingDesignVariant();
-  // The toggle depends on the runtime configuration, which the server never
-  // has: deciding before it is ready would make the browser's first render
-  // disagree with the server's HTML.
-  const runtimeConfigReady = useRuntimeConfigReady();
-
   return (
-    <>
-      {variant === 'v1' ? <LandingPageV1 /> : variant === 'v2' ? <LandingPageV2 /> : <LandingPageV3 />}
-      {runtimeConfigReady && canOverrideLandingVariant() && <LandingVariantToggle />}
-    </>
+    <div className="home-page">
+      <SiteHeader />
+      <main id="top">
+        <HomeHero />
+        <Statement />
+        <ReportReader report={SAMPLE_REPORT} />
+        <WhatYouGet />
+        <StrategyQuestions />
+        <DeliveryTimeline />
+        <Benchmarks />
+        <WhoItsFor />
+        <WhyNotAI />
+        <ComparisonTable />
+        <BudgetArgument />
+        <PricingCard />
+        <Manifesto />
+        <FaqSection />
+        <ClosingCta />
+      </main>
+      <SiteFooter />
+      <StickyCta />
+    </div>
   );
 }

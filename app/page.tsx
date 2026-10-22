@@ -1,5 +1,5 @@
 import { LandingPage } from '@/features/landing/components/LandingPage';
-import { buildFaqs } from '@/components/sections/faq-content';
+import { buildFaqs } from '@/features/landing/content/faq';
 import { StructuredData } from '@/shared/seo/StructuredData';
 import { SITE_DESCRIPTION, SITE_NAME, getSite, pageMetadata } from '@/shared/seo/site';
 
