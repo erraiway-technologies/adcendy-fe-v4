@@ -6,7 +6,7 @@ import { HomeSection, MONO_LABEL, MoreLink, SectionHeader } from './primitives';
 export function ValueProps() {
   return (
     <HomeSection id="why-adcendy">
-      <SectionHeader eyebrow={C.eyebrow} title={C.heading} />
+      <SectionHeader title={C.heading} />
       <ol className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-10">
         {C.props.map((prop, i) => (
           <Reveal

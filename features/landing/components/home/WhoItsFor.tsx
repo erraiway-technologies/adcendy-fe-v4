@@ -10,7 +10,7 @@ import { HomeSection, MONO_LABEL, MarkedList, MoreLink, SectionHeader } from './
 export function WhoItsFor() {
   return (
     <HomeSection id="who-its-for">
-      <SectionHeader eyebrow={C.eyebrow} title={C.heading} intro={C.intro} />
+      <SectionHeader title={C.heading} intro={C.intro} />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-6">
         <Reveal
           id="who-its-for-fit"

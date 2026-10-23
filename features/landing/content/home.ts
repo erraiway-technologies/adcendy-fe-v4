@@ -24,7 +24,6 @@ export const HOME_HERO = {
 
 /** The three things AdCendy is, said once each. */
 export const HOME_VALUE = {
-  eyebrow: '01 · Why AdCendy',
   heading: 'Your team can execute. We tell them what to aim at.',
   props: [
     {
@@ -47,7 +46,6 @@ export const HOME_VALUE = {
 } as const;
 
 export const HOME_INSIDE = {
-  eyebrow: '02 · Sample strategy',
   heading: 'Inside a strategy',
   intro: `The questions it answers, from a sample ${report.pages} page strategy. The core takes ${report.readingTime} to read.`,
   more: { href: '/what-you-get', label: 'Everything you get' },
@@ -97,7 +95,6 @@ export type ProcessStep = { title: string; body: string };
  * per step, only that most strategies are ready in a day or two.
  */
 export const HOME_PROCESS = {
-  eyebrow: '03 · How it works',
   heading: 'How your strategy is made',
   intro: `Most strategies are ready in ${delivery.typically}. ${revisionRoundsLabel({ sentenceStart: true })} and ${support.windowDays} days of written support come with every one.`,
   steps: [
@@ -135,7 +132,6 @@ export const HOME_PROCESS = {
 };
 
 export const HOME_WHO_ITS_FOR = {
-  eyebrow: '04 · Is it for you',
   heading: 'Who it’s for, and who it isn’t yet',
   intro: 'We’d rather you find out here than after you’ve paid.',
   fitHeading: 'A strong fit if',
@@ -172,7 +168,6 @@ export const HOME_WHO_ITS_FOR = {
 };
 
 export const HOME_PRICING = {
-  eyebrow: '05 · Pricing',
   heading: 'One market. One strategy. One fee.',
   body: 'One market is one country. No retainer and no credits; prices follow where you are.',
   includesHeading: 'Every market includes',
@@ -226,7 +221,6 @@ export const HOME_MANIFESTO = {
 };
 
 export const HOME_FAQ = {
-  eyebrow: '06 · FAQ',
   heading: 'Frequently asked questions',
   intro: 'The detail behind everything above.',
 } as const;

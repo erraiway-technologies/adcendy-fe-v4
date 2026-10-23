@@ -16,7 +16,7 @@ export function ProcessSteps() {
 
   return (
     <HomeSection id="how-it-works">
-      <SectionHeader eyebrow={C.eyebrow} title={C.heading} intro={C.intro} />
+      <SectionHeader title={C.heading} intro={C.intro} />
       <div className="relative">
         {/* The rail the step numbers sit on. */}
         <div

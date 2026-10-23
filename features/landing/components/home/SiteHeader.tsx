@@ -11,13 +11,30 @@ import { useMarketingAuth } from '@/src/lib/auth/useAuth';
 import { useScrollFrame } from '../../hooks/useHomeMotion';
 import { HOME_SECTIONS as S } from '../../landing-sections';
 
-/** In the bar from lg up; the narrowed bar has room for these five. */
-const BAR_LINKS = [S.why, S.inside, S.howItWorks, S.pricing, S.faq];
+/** In the bar from lg up: every section, so the one being read is always named. */
+const BAR_LINKS = [S.why, S.inside, S.howItWorks, S.whoItsFor, S.pricing, S.faq];
 /** Behind the menu below lg: every section, in page order. */
 const MENU_LINKS = Object.values(S);
 
 /** Scrolled past this, the bar narrows and gets its own background. */
 const COMPACT_AFTER_PX = 40;
+/** A section is the one being read once its top passes this far down the viewport. */
+const READING_LINE = 0.4;
+
+/**
+ * The homepage section being read: the last whose top has passed the reading
+ * line. A held (sticky) section stays at the top while the next slides over
+ * it, so it reads as passed until the next one crosses the line too.
+ */
+function sectionBeingRead(): string | null {
+  const line = window.innerHeight * READING_LINE;
+  let current: string | null = null;
+  for (const { id } of MENU_LINKS) {
+    const section = document.getElementById(id);
+    if (section && section.getBoundingClientRect().top <= line) current = id;
+  }
+  return current;
+}
 
 /**
  * The public site's header, on the homepage and every page around it. Section
@@ -27,13 +44,18 @@ export function SiteHeader() {
   const { status } = useMarketingAuth();
   const pathname = usePathname();
   const [compact, setCompact] = useState(false);
+  // The section being read, lit in the bar and the menu (homepage only).
+  const [reading, setReading] = useState<string | null>(null);
   // Below lg the section links sit behind a menu, open for the page it was
   // opened on, so navigating closes it.
   const [menuOpenOn, setMenuOpenOn] = useState<string | null>(null);
   const menuOpen = menuOpenOn !== null && menuOpenOn === pathname;
   const closeMenu = () => setMenuOpenOn(null);
 
-  useScrollFrame(() => setCompact(window.scrollY > COMPACT_AFTER_PX));
+  useScrollFrame(() => {
+    setCompact(window.scrollY > COMPACT_AFTER_PX);
+    setReading(pathname === '/' ? sectionBeingRead() : null);
+  });
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -66,9 +88,17 @@ export function SiteHeader() {
             <BrandLogo height={48} priority />
           </Link>
 
-          <nav aria-label="Main" className="hidden gap-x-7 text-[15px] whitespace-nowrap text-(--home-nav-link) lg:flex">
+          <nav aria-label="Main" className="hidden items-center gap-x-1 text-[15px] whitespace-nowrap text-(--home-nav-link) lg:flex">
             {BAR_LINKS.map((link) => (
-              <SectionLink key={link.id} sectionId={link.id}>
+              <SectionLink
+                key={link.id}
+                sectionId={link.id}
+                aria-current={reading === link.id ? 'location' : undefined}
+                className={cn(
+                  'rounded-full px-3 py-1.5 motion-safe:transition-colors motion-safe:duration-300',
+                  reading === link.id ? 'bg-white/12 text-white' : 'hover:text-white',
+                )}
+              >
                 {link.label}
               </SectionLink>
             ))}
@@ -105,7 +135,16 @@ export function SiteHeader() {
             className="mt-2.5 flex max-h-[calc(100dvh-110px)] flex-col overflow-y-auto border-t border-white/8 pt-1 text-[17px] text-(--home-nav-link) lg:hidden"
           >
             {MENU_LINKS.map((link) => (
-              <SectionLink key={link.id} sectionId={link.id} onClick={closeMenu} className="py-2.5">
+              <SectionLink
+                key={link.id}
+                sectionId={link.id}
+                onClick={closeMenu}
+                aria-current={reading === link.id ? 'location' : undefined}
+                className={cn('py-2.5', reading === link.id && 'text-white')}
+              >
+                {reading === link.id && (
+                  <span aria-hidden="true" className="mr-2.5 inline-block size-1.5 rounded-full bg-white align-middle" />
+                )}
                 {link.label}
               </SectionLink>
             ))}

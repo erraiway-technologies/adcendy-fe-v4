@@ -34,7 +34,6 @@ export function ReportReader({ report }: { report: SampleReport }) {
   return (
     <HomeSection id="inside">
       <SectionHeader
-        eyebrow={HOME_INSIDE.eyebrow}
         title={HOME_INSIDE.heading}
         intro={
           <>

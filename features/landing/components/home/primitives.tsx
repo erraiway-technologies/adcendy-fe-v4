@@ -43,25 +43,19 @@ export function HomeSection({ id, className, children, ...props }: ComponentProp
   );
 }
 
-/**
- * The heading row every section opens with: a label ("02 · Inside a
- * strategy"), the title left, a line of context right.
- */
+/** The heading row every section opens with: the title left, a line of context right. */
 export function SectionHeader({
-  eyebrow,
   title,
   intro,
   className,
 }: {
-  eyebrow?: string;
   title: ReactNode;
   intro?: ReactNode;
   className?: string;
 }) {
   return (
     <div className={cn('mb-14 flex flex-wrap items-end justify-between gap-x-12 gap-y-5', className)}>
-      <Reveal className="flex flex-col gap-5">
-        {eyebrow && <span className={MONO_LABEL}>{eyebrow}</span>}
+      <Reveal>
         <h2 className={cn(H2, 'max-w-[22ch]')}>{title}</h2>
       </Reveal>
       {intro && (

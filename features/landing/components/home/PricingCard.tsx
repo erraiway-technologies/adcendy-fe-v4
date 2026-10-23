@@ -35,7 +35,6 @@ export function PricingCard() {
   return (
     <HomeSection id="pricing">
       <SectionHeader
-        eyebrow={C.eyebrow}
         title={C.heading}
         intro={
           <>
