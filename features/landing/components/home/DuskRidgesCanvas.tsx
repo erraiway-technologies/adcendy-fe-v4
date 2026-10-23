@@ -10,7 +10,10 @@ const BACK_RGB = [74, 68, 76] as const;
 const FRONT_RGB = [35, 35, 35] as const;
 /** Ridges are sampled this many CSS pixels apart. */
 const STEP_PX = 6;
-const MAX_DPR = 2;
+/** Soft hills look the same at this density, at a fraction of the pixels a 2x screen would draw. */
+const MAX_DPR = 1.25;
+/** Drawing waits this long after the last scroll event, so scrolling gets the frame to itself. */
+const SCROLL_PAUSE_MS = 180;
 
 type Particle = { x: number; y: number; speed: number; phase: number };
 
@@ -118,8 +121,10 @@ export function DuskRidgesCanvas({ className }: { className?: string }) {
 
     let frame = 0;
     let visible = true;
+    // The hills drift too slowly for a pause to show; scrolling needs the frame more.
+    let scrollingUntil = 0;
     const loop = (t: number) => {
-      if (visible) draw(t, true);
+      if (visible && t >= scrollingUntil) draw(t, true);
       frame = requestAnimationFrame(loop);
     };
     frame = requestAnimationFrame(loop);
@@ -132,12 +137,17 @@ export function DuskRidgesCanvas({ className }: { className?: string }) {
     const onPointer = (event: MouseEvent) => {
       pointerTarget = event.clientX / window.innerWidth - 0.5;
     };
+    const onScroll = () => {
+      scrollingUntil = performance.now() + SCROLL_PAUSE_MS;
+    };
     window.addEventListener('mousemove', onPointer, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
 
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
       window.removeEventListener('mousemove', onPointer);
+      window.removeEventListener('scroll', onScroll);
     };
   }, [reducedMotion]);
 

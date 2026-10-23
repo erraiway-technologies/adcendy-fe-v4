@@ -11,8 +11,6 @@ import { useSceneStack } from '../../hooks/useHomeMotion';
 export function PageBackdrop() {
   useSceneStack();
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 bg-(image:--home-backdrop)">
-      <div className="absolute inset-0 bg-[url('/textures/grain.png')] opacity-40 mix-blend-overlay" />
-    </div>
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 bg-(image:--home-backdrop)" />
   );
 }

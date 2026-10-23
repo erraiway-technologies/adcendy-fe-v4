@@ -16,19 +16,28 @@ export const MONO_LABEL = 'font-geist-mono text-xs tracking-[.06em] text-(--home
 /**
  * A section of the page, as a scene: a full-width sheet with rounded top
  * corners that slides up over the section before it, which holds still and
- * fades back (useSceneStack sets its sticky offset and the fade). Every sheet
- * paints the page's one backdrop. `className` styles the 1280px column.
+ * sinks back (useSceneStack holds it; globals.css runs the transitions). The
+ * sky is the page's backdrop, fixed and clipped to the sheet, so every
+ * section shares one surface. `className` styles the 1280px column.
  */
 export function HomeSection({ id, className, children, ...props }: ComponentProps<'section'>) {
   return (
     <section
       id={id}
       data-scene
-      className="home-scene rounded-t-[28px] border-t border-white/10 shadow-[0_-28px_56px_-16px_rgba(0,0,0,.55)] motion-safe:sticky max-sm:rounded-t-[20px]"
+      className="home-scene relative rounded-t-[28px] border-t border-white/10 motion-safe:sticky max-sm:rounded-t-[20px]"
       {...props}
     >
-      <div className={cn('mx-auto max-w-[1280px] px-10 py-[clamp(88px,10vw,136px)] max-sm:px-6', className)}>
-        {children}
+      <div aria-hidden="true" className="home-scene-sky" />
+      <div className="home-scene-cover">
+        <div
+          className={cn(
+            'home-scene-content mx-auto max-w-[1280px] px-10 py-[clamp(88px,10vw,136px)] max-sm:px-6',
+            className,
+          )}
+        >
+          {children}
+        </div>
       </div>
     </section>
   );

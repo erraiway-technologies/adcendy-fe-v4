@@ -299,13 +299,59 @@
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
 }
-/* A homepage section: it paints the same backdrop, held to the viewport, so
-   the page reads as one surface while each section slides over the last
-   (useSceneStack). Where fixed backgrounds are unsupported (iOS) it simply
-   scrolls with the section. */
+/* A homepage section is a sheet that slides over the one before
+   (useSceneStack). Its backdrop is a fixed layer clipped to the sheet, so the
+   page reads as one surface and scrolling never repaints it (a fixed
+   background-attachment would repaint every section on every frame). */
 .home-page .home-scene {
+  clip-path: inset(0 round 28px 28px 0 0);
+}
+@media (width < 40rem) {
+  .home-page .home-scene {
+    clip-path: inset(0 round 20px 20px 0 0);
+  }
+}
+.home-page .home-scene-sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background: var(--home-backdrop);
-  background-attachment: fixed;
+}
+/* A faint light along the sheet's top edge. */
+.home-page .home-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 160px;
+  pointer-events: none;
+  background: linear-gradient(rgba(255, 255, 255, .04), transparent);
+}
+
+/* The transitions, run by the browser against the scroll itself (smooth, on
+   the compositor): an arriving sheet's content brightens; a held sheet sinks
+   back as the next one covers it. useSceneStack names the timelines and sets
+   the ranges; browsers without scroll timelines get its script instead. */
+@keyframes home-scene-arrive {
+  from { opacity: .35; }
+}
+@keyframes home-scene-cover {
+  to { opacity: .12; transform: translateY(-48px) scale(.94); }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home-page .home-scene[data-scene-ready] .home-scene-content {
+      animation: home-scene-arrive linear both;
+      animation-timeline: var(--scene-timeline);
+      animation-range: var(--scene-arrive-range);
+    }
+    .home-page .home-scene[data-scene-next] > .home-scene-cover {
+      transform-origin: center top;
+      animation: home-scene-cover linear both;
+      animation-timeline: var(--scene-next-timeline);
+      animation-range: var(--scene-cover-range);
+    }
+  }
 }
 .home-page a:hover {
   color: #FFFFFF;
