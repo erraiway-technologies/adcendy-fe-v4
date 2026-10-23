@@ -3,9 +3,9 @@ import { Reveal } from '../home/Reveal';
 import { HomeSection, SectionHeader } from '../home/primitives';
 
 /** "You'll know if it's working": targets, your own numbers, and help reading them. */
-export function Benchmarks() {
+export function Benchmarks({ tone }: { tone?: 'plain' | 'deep' }) {
   return (
-    <HomeSection id="benchmarks">
+    <HomeSection id="benchmarks" tone={tone}>
       <SectionHeader title={C.heading} intro={C.intro} />
       <ol className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-10">
         {C.points.map((point, i) => (

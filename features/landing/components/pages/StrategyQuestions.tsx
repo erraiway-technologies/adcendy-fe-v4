@@ -10,9 +10,9 @@ const ITEMS = STRATEGY_QUESTIONS.items.map((item) => ({
 }));
 
 /** "Questions your strategy answers": each answer names the chapter it comes from. */
-export function StrategyQuestions() {
+export function StrategyQuestions({ tone }: { tone?: 'plain' | 'deep' }) {
   return (
-    <HomeSection>
+    <HomeSection tone={tone}>
       <SectionHeader title={STRATEGY_QUESTIONS.heading} className="mb-12" />
       <QuestionList items={ITEMS} idPrefix="strategy-question" />
     </HomeSection>

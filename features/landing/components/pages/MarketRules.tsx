@@ -3,9 +3,9 @@ import { Reveal } from '../home/Reveal';
 import { HomeSection, SectionHeader } from '../home/primitives';
 
 /** One market is one country, national only, and where your city still counts. */
-export function MarketRules() {
+export function MarketRules({ tone }: { tone?: 'plain' | 'deep' }) {
   return (
-    <HomeSection id="one-market">
+    <HomeSection id="one-market" tone={tone}>
       <SectionHeader title={C.heading} />
       <ol className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-10">
         {C.rules.map((rule, i) => (

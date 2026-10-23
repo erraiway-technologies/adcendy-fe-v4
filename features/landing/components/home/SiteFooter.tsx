@@ -59,7 +59,7 @@ export function SiteFooter() {
   const columns = legalLinks.length > 0 ? { ...COLUMNS, Legal: legalLinks } : COLUMNS;
 
   return (
-    <footer className="mx-auto max-w-[1280px] px-10 pt-40 pb-12 max-sm:px-6">
+    <footer className="mx-auto max-w-[1280px] px-10 pt-20 pb-12 max-sm:px-6">
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-x-10 gap-y-12 border-t border-white/8 pt-12">
         <div className="flex flex-col gap-3">
           <Link href="/" className="w-fit">
@@ -84,7 +84,6 @@ export function SiteFooter() {
         <span>
           © {new Date().getFullYear()} {BUSINESS_TERMS.company.legalName}
         </span>
-        <span>{SITE_TAGLINE}</span>
       </div>
     </footer>
   );

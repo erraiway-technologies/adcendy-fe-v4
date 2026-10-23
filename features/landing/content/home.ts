@@ -9,11 +9,7 @@
  * on /what-you-get, /approach and /compare (./pages), and on /about
  * (HOME_MANIFESTO). A section's `more` links to the page that explains it.
  */
-import {
-  BUSINESS_TERMS,
-  numberWord,
-  revisionRoundsLabel,
-} from '@/shared/marketing/business-terms';
+import { BUSINESS_TERMS, revisionRoundsLabel } from '@/shared/marketing/business-terms';
 
 const { delivery, intake, support, calls, report, company } = BUSINESS_TERMS;
 
@@ -22,12 +18,13 @@ export const HOME_CTA_LABEL = 'Get your strategy →';
 export const HOME_HERO = {
   headline: 'Market intelligence your team can act on',
   subline:
-    'We read your market, a person checks every recommendation, and your team gets a strategy it can run from day one.',
-  meta: `One market · one fee · in writing within ${delivery.businessDays} business days`,
+    'Current data on your competitors and buyers, a strategy built on it, and a person who checks every recommendation before it reaches you.',
+  meta: `One market · one fee · most strategies ready in ${delivery.typically}`,
 } as const;
 
 /** The three things AdCendy is, said once each. */
 export const HOME_VALUE = {
+  eyebrow: '01 · Why AdCendy',
   heading: 'Your team can execute. We tell them what to aim at.',
   props: [
     {
@@ -50,6 +47,7 @@ export const HOME_VALUE = {
 } as const;
 
 export const HOME_INSIDE = {
+  eyebrow: '02 · Sample strategy',
   heading: 'Inside a strategy',
   intro: `The questions it answers, from a sample ${report.pages} page strategy. The core takes ${report.readingTime} to read.`,
   more: { href: '/what-you-get', label: 'Everything you get' },
@@ -91,35 +89,54 @@ export const HOME_QUESTIONS: StrategyQuestion[] = [
   },
 ];
 
-export const HOME_TIMELINE = {
-  heading: `${numberWord(delivery.businessDays, { sentenceStart: true })} days, in writing`,
-  intro: `No calls required. ${revisionRoundsLabel({ sentenceStart: true })} and ${support.windowDays} days of written support included.`,
+export type ProcessStep = { title: string; body: string };
+
+/**
+ * How a strategy is made, in the order the work happens. Steps 4 and 5 repeat
+ * until the reviewer is satisfied (`loop` names them); nothing is promised
+ * per step, only that most strategies are ready in a day or two.
+ */
+export const HOME_PROCESS = {
+  eyebrow: '03 · How it works',
+  heading: 'How your strategy is made',
+  intro: `Most strategies are ready in ${delivery.typically}. ${revisionRoundsLabel({ sentenceStart: true })} and ${support.windowDays} days of written support come with every one.`,
   steps: [
     {
-      day: 'Day 0',
-      title: `A ${intake.formMinutes}-minute intake`,
-      body: 'Your product, audience, goals and the team you have. We read your website too, if you have one.',
+      title: 'Intake',
+      body: `A ${intake.formMinutes}-minute form: your product, buyers, goals and the team you have.`,
     },
     {
-      day: 'Days 1–2',
-      title: 'We map your market',
-      body: 'Your competitors, their ads and search, and where the openings are.',
+      title: 'Market map',
+      body: 'Your competitors, their ads and search, and where buyer demand is moving.',
     },
     {
-      day: 'Day 3',
-      title: 'A strategist reviews it',
-      body: 'Every recommendation checked against the evidence, your budget and your team.',
+      title: 'Initial strategy draft',
+      body: 'Positioning, channels, messaging and the plan, built on the market map.',
     },
     {
-      day: `Day ${delivery.businessDays}`,
-      title: 'Your strategy lands',
-      body: 'A working document your team owns, with a recorded walkthrough.',
+      title: 'Reviewer intake & improvements',
+      body: 'A strategist reads the draft against the evidence and your intake, and says what must change.',
     },
-  ],
+    {
+      title: 'Strategy rewrite',
+      body: 'The draft is rewritten to answer every note, with more data where the reviewer asked for it.',
+    },
+    {
+      title: 'Reviewer approval',
+      body: 'A final read, end to end. Nothing ships until the reviewer signs it off.',
+    },
+    {
+      title: 'Delivery',
+      body: 'Your strategy, the documents that come with it, and a recorded walkthrough.',
+    },
+  ] satisfies ProcessStep[],
+  /** The steps (0-based, inclusive) that repeat until the reviewer is satisfied. */
+  loop: { from: 3, to: 4, label: 'Repeats until the reviewer is satisfied' },
 };
 
 export const HOME_WHO_ITS_FOR = {
-  heading: 'Built for teams with hands, but no head',
+  eyebrow: '04 · Is it for you',
+  heading: 'Who it’s for, and who it isn’t yet',
   intro: 'We’d rather you find out here than after you’ve paid.',
   fitHeading: 'A strong fit if',
   fit: [
@@ -138,7 +155,7 @@ export const HOME_WHO_ITS_FOR = {
     {
       name: 'AdCendy',
       role: 'Direction',
-      body: `Intelligence and a strategy your team owns. One fee, ready in ${delivery.businessDays} business days.`,
+      body: `Intelligence and a strategy your team owns. One fee, usually ready in ${delivery.typically}.`,
     },
     {
       name: 'Freelancer',
@@ -151,15 +168,13 @@ export const HOME_WHO_ITS_FOR = {
       body: 'Runs your marketing. A monthly retainer, and 30–90 days to ramp up.',
     },
   ],
-  verdict: 'Start with AdCendy to know what to do. Bring in freelancers or an agency to do it.',
   more: { href: '/compare', label: 'Compare in detail' },
 };
 
 export const HOME_PRICING = {
-  eyebrow: 'Pricing',
+  eyebrow: '05 · Pricing',
   heading: 'One market. One strategy. One fee.',
   body: 'One market is one country. No retainer and no credits; prices follow where you are.',
-  callLabel: `Book a ${calls.fitCallMinutes}-min call`,
   includesHeading: 'Every market includes',
   includes: [
     'Market intelligence, and a strategy built on it that your team owns',
@@ -168,8 +183,10 @@ export const HOME_PRICING = {
     `${support.windowDays} days of written support, answered within ${support.answerWithin}, with two reviews of your numbers`,
     `A recorded ${support.walkthroughVideo} walkthrough and one ${calls.walkthroughCallMinutes}-minute call`,
   ],
-  packagesHeading: 'Priced by market',
   guaranteeHeading: 'Refund guarantee',
+  pilotCta: 'Claim a pilot seat',
+  callLead: 'Not sure yet?',
+  callLabel: `Book a ${calls.fitCallMinutes}-minute call about scope and fit`,
   marketRuleLink: 'What counts as one market?',
   customQuote: {
     title: 'Multiple markets',
@@ -200,7 +217,7 @@ export const HOME_MANIFESTO = {
     },
     {
       title: 'The process is the product, not the output.',
-      body: `Lots of tools can generate a marketing strategy in 10 seconds. Ours takes up to ${delivery.businessDays} business days — because we spend them collecting real data about your actual market, analyzing it properly, and checking every recommendation against the evidence before it reaches you. The time is intentional. The rigour is the value.`,
+      body: `Lots of tools can generate a marketing strategy in 10 seconds. Ours takes ${delivery.typically}, and never more than ${delivery.businessDays} business days — because we spend that time collecting real data about your actual market, analyzing it properly, and checking every recommendation against the evidence before it reaches you. The time is intentional. The rigour is the value.`,
     },
   ],
   company: { lead: 'AdCendy is a product of', name: company.legalName, url: company.url },
@@ -209,15 +226,15 @@ export const HOME_MANIFESTO = {
 };
 
 export const HOME_FAQ = {
+  eyebrow: '06 · FAQ',
   heading: 'Frequently asked questions',
   intro: 'The detail behind everything above.',
 } as const;
 
 export const HOME_CLOSING = {
-  heading: 'Your team has the hands. We bring direction.',
-  lineLabel: 'Today',
+  heading: 'Start with one market.',
+  note: `A ${intake.formMinutes}-minute form. Most strategies are ready in ${delivery.typically}.`,
   callLabel: `Prefer to talk first? Book a ${calls.fitCallMinutes}-minute call`,
-  note: `A ${intake.formMinutes}-minute form, and your strategy within ${delivery.businessDays} business days.`,
 } as const;
 
 export const HOME_STICKY_CTA = {

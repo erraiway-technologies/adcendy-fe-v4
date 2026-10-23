@@ -8,9 +8,7 @@ import { cn } from '@/lib/utils';
 import { BrandLogo } from '@/shared/components/BrandLogo';
 import { SectionLink } from '@/components/nav/section-link';
 import { useMarketingAuth } from '@/src/lib/auth/useAuth';
-import { HOME_CTA_LABEL } from '../../content/home';
 import { useScrollFrame } from '../../hooks/useHomeMotion';
-import { useStrategyCta } from '../../hooks/useStrategyCta';
 import { HOME_SECTIONS as S } from '../../landing-sections';
 
 /** In the bar from lg up; the narrowed bar has room for these five. */
@@ -27,7 +25,6 @@ const COMPACT_AFTER_PX = 40;
  */
 export function SiteHeader() {
   const { status } = useMarketingAuth();
-  const ctaHref = useStrategyCta();
   const pathname = usePathname();
   const [compact, setCompact] = useState(false);
   // Below lg the section links sit behind a menu, open for the page it was
@@ -75,19 +72,18 @@ export function SiteHeader() {
                 {link.label}
               </SectionLink>
             ))}
-            <Link href={account.href}>{account.label}</Link>
           </nav>
 
           <div className="flex items-center gap-2">
+            {/* Signing in sits where a call to action would; the page has its own. */}
             <Link
-              href={ctaHref}
+              href={account.href}
               className={cn(
-                'home-button-primary rounded-md bg-white px-4 py-2.5 text-[15px] whitespace-nowrap text-(--home-button-text) hover:bg-(--home-button-hover)',
+                'rounded-md border border-white/18 px-4 py-2.5 text-[15px] whitespace-nowrap text-white hover:bg-white/5',
                 'motion-safe:transition-colors motion-safe:duration-300',
-                'max-[400px]:hidden',
               )}
             >
-              {HOME_CTA_LABEL}
+              {account.label}
             </Link>
             <button
               type="button"
@@ -115,12 +111,6 @@ export function SiteHeader() {
             ))}
             <Link href="/contact" onClick={closeMenu} className="py-2.5">
               Contact
-            </Link>
-            <Link href={account.href} onClick={closeMenu} className="py-2.5">
-              {account.label}
-            </Link>
-            <Link href={ctaHref} onClick={closeMenu} className="py-2.5 min-[401px]:hidden">
-              {HOME_CTA_LABEL}
             </Link>
           </nav>
         )}

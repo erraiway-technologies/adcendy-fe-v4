@@ -35,7 +35,7 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     {
       question: 'How is it different from a consultant or a fractional CMO?',
       answer:
-        `It's roughly the first month of their work, at a fixed price, inside ${days} business days: the research, the positioning, the channel plan, the setup. It isn't a replacement for them. A consultant or CMO brings ongoing judgment, relationships and execution; we bring the evidence they'd otherwise spend their first month assembling. Many clients hand the kit to whoever they hire next.`,
+        `It's roughly the first month of their work, at a fixed price, usually ready in ${delivery.typically}: the research, the positioning, the channel plan, the setup. It isn't a replacement for them. A consultant or CMO brings ongoing judgment, relationships and execution; we bring the evidence they'd otherwise spend their first month assembling. Many clients hand the kit to whoever they hire next.`,
     },
     {
       question: 'Why pay for a strategy at all?',
@@ -66,7 +66,7 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     {
       question: 'How long does it take?',
       answer:
-        `Up to ${days} business days from a complete intake and confirmed payment. The clock pauses while we're waiting on information from you. You get status emails at start, review and delivery. Business days are Monday to Friday, excluding ${delivery.holidays}.`,
+        `Most strategies are ready in ${delivery.typically}, and never more than ${days} business days from a complete intake and confirmed payment. The clock pauses while we're waiting on information from you. You get status emails at start, review and delivery. Business days are Monday to Friday, excluding ${delivery.holidays}.`,
     },
     {
       question: 'How much does it cost?',

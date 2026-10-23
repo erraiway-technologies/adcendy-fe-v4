@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import { SAMPLE_REPORT } from '../content/sample-report';
 import { MOVED_SECTIONS } from '../landing-sections';
 import { ClosingCta } from './home/ClosingCta';
-import { DeliveryTimeline } from './home/DeliveryTimeline';
 import { FaqSection } from './home/FaqSection';
 import { HomeHero } from './home/HomeHero';
 import { PricingCard } from './home/PricingCard';
+import { ProcessSteps } from './home/ProcessSteps';
 import { ReportReader } from './home/ReportReader';
 import { SiteFooter } from './home/SiteFooter';
 import { SiteHeader } from './home/SiteHeader';
@@ -18,7 +18,7 @@ import { WhoItsFor } from './home/WhoItsFor';
 
 /**
  * The homepage: the hero, three value props, a sample report reader (each
- * chapter as the question it answers), the delivery timeline, fit and where
+ * chapter as the question it answers), how a strategy is made, fit and where
  * AdCendy sits next to freelancers and agencies, live pricing, the FAQ and a
  * closing call to action. Each thing is said once; the longer explanations
  * are FAQ answers, and the manifesto is /about. Section order matches
@@ -41,7 +41,7 @@ export function LandingPage() {
         <HomeHero />
         <ValueProps />
         <ReportReader report={SAMPLE_REPORT} />
-        <DeliveryTimeline />
+        <ProcessSteps />
         <WhoItsFor />
         <PricingCard />
         <FaqSection />

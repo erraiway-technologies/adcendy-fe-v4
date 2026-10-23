@@ -106,30 +106,42 @@ export function chapterReference(chapter: number): string {
   return `Chapter ${chapterNumber(chapter)} · ${SAMPLE_REPORT.chapters[chapter]?.title ?? ''}`;
 }
 
+/** How a strategy is made, each step in full; the homepage shows it in brief. */
 export const TIMELINE_DETAIL = {
   heading: 'How it works, step by step',
+  intro: `Most strategies are ready in ${delivery.typically}, and never take more than ${delivery.businessDays} business days.`,
   steps: [
     {
-      day: 'Day 0',
-      title: `A ${intake.formMinutes}-minute intake`,
-      body: 'A guided intake captures your product, audience, goals, and the team you have to execute. If you have a website, we analyze it for positioning, trust signals, and how it converts.',
+      title: 'Intake',
+      body: `A guided ${intake.formMinutes}-minute intake captures your product, audience, goals, and the team you have to execute. If you have a website, we analyze it for positioning, trust signals, and how it converts.`,
     },
     {
-      day: 'Days 1–2',
-      title: 'We map your market',
+      title: 'Market map',
       body: 'What your competitors are doing across advertising and search, where the keyword and channel opportunities sit, and how your market positions itself — as it stands today.',
     },
     {
-      day: 'Day 3',
-      title: 'A strategist reviews it',
-      body: 'Every recommendation is traced to the market data behind it and checked against your budget, team and goals. Anything we couldn’t verify is marked unknown, never filled in with a guess.',
+      title: 'Initial strategy draft',
+      body: `Positioning, channels, messaging and the ${PLAN}, built on the market map. Every recommendation is tied to the evidence behind it from the start.`,
     },
     {
-      day: `Day ${delivery.businessDays}`,
-      title: 'Your strategy lands',
+      title: 'Reviewer intake & improvements',
+      body: 'A strategist reads the draft against the market data and your intake: is every claim supported, does it fit your budget, team and goals, is anything unverified slipping through? They send back what must change, or ask for more data.',
+    },
+    {
+      title: 'Strategy rewrite',
+      body: 'The draft is rewritten to answer every note. Anything the evidence can’t support is cut, and anything we couldn’t verify is marked unknown, never filled in with a guess.',
+    },
+    {
+      title: 'Reviewer approval',
+      body: 'A final read, end to end. The reviewer can still reject it or send it back; nothing ships until they sign it off.',
+    },
+    {
+      title: 'Delivery',
       body: `Not a pitch deck. A working document with the intelligence, positioning, messaging, channel direction and a ${PLAN} — plus a recorded walkthrough.`,
     },
   ],
+  /** Steps 4 and 5 (0-based 3 and 4) repeat until the reviewer is satisfied. */
+  loop: { from: 3, to: 4, label: 'Steps 4 and 5 repeat until the reviewer is satisfied.' },
 };
 
 export const BENCHMARKS = {
@@ -285,7 +297,7 @@ export const COMPARISON = {
       heading: 'The trade',
       rows: [
         { label: 'How you pay', values: ['Once, no retainer', 'Per task or hourly', 'Monthly retainer, 10–50× the cost'] },
-        { label: 'Direction ready in', values: [`${delivery.businessDays} business days`, 'Depends on the task', '30–90 days to ramp'] },
+        { label: 'Direction ready in', values: [`Usually ${delivery.typically}`, 'Depends on the task', '30–90 days to ramp'] },
       ],
     },
   ] satisfies Array<{ heading: string; rows: Array<{ label: string; values: ComparisonValue[] }> }>,

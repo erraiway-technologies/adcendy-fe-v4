@@ -9,12 +9,12 @@ import { HomeSection, MONO_LABEL, MarkedList, MoreLink, SectionHeader } from './
  */
 export function WhoItsFor() {
   return (
-    <HomeSection id="who-its-for">
-      <SectionHeader title={C.heading} intro={C.intro} />
+    <HomeSection id="who-its-for" tone="deep">
+      <SectionHeader eyebrow={C.eyebrow} title={C.heading} intro={C.intro} />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-6">
         <Reveal
           id="who-its-for-fit"
-          className="scroll-mt-[90px] rounded-md border border-white/10 bg-(--home-surface) p-[clamp(28px,3.5vw,44px)]"
+          className="scroll-mt-[90px] rounded-xl border border-white/10 bg-(--home-surface) p-[clamp(28px,3.5vw,44px)]"
         >
           <h3 className="mb-5 text-[24px] tracking-[-.015em]">{C.fitHeading}</h3>
           <MarkedList items={C.fit} />
@@ -22,7 +22,7 @@ export function WhoItsFor() {
         <Reveal
           id="who-its-for-not-yet"
           delay={120}
-          className="scroll-mt-[90px] rounded-md border border-white/8 p-[clamp(28px,3.5vw,44px)]"
+          className="scroll-mt-[90px] rounded-xl border border-white/8 p-[clamp(28px,3.5vw,44px)]"
         >
           <h3 className="mb-5 text-[24px] tracking-[-.015em] text-(--home-text-2)">{C.notYetHeading}</h3>
           <MarkedList items={C.notYet} mark="–" />
@@ -45,8 +45,7 @@ export function WhoItsFor() {
             );
           })}
         </ul>
-        <p className="mt-4 max-w-[44ch] text-[22px] leading-[1.35] tracking-[-.01em]">{C.verdict}</p>
-        <MoreLink href={C.more.href} label={C.more.label} className="mt-6" />
+        <MoreLink href={C.more.href} label={C.more.label} className="mt-4" />
       </Reveal>
     </HomeSection>
   );

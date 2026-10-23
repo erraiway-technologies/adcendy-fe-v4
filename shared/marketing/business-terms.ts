@@ -19,6 +19,12 @@ export const BUSINESS_TERMS = {
      * copy states only this, never per-stage timings.
      */
     businessDays: 4,
+    /**
+     * How long most strategies actually take. Copy leads with this; the
+     * policy's ceiling above is said only where the commitment matters
+     * (the FAQ, the policy itself), never as the headline.
+     */
+    typically: 'a day or two',
     /** Business days are Monday to Friday, excluding these holidays. */
     holidays: 'public holidays in India',
   },

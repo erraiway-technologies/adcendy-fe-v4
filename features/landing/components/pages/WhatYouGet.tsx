@@ -3,9 +3,9 @@ import { Reveal } from '../home/Reveal';
 import { HomeSection, MONO_LABEL, MarkedList, SectionHeader } from '../home/primitives';
 
 /** The six deliverables, then what AdCendy provides and what it does not do. */
-export function WhatYouGet() {
+export function WhatYouGet({ tone }: { tone?: 'plain' | 'deep' }) {
   return (
-    <HomeSection id="what-you-get" className="pt-24">
+    <HomeSection id="what-you-get" tone={tone}>
       <SectionHeader title={C.heading} />
       <Reveal>
         <p className={`${MONO_LABEL} mb-8 normal-case tracking-[.02em]`}>{C.meta}</p>

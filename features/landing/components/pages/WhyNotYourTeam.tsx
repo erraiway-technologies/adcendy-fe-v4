@@ -1,10 +1,11 @@
 import { WHY_NOT_YOUR_TEAM as C } from '../../content/pages';
 import { Reveal } from '../home/Reveal';
+import { HomeSection } from '../home/primitives';
 
 /** Why the hard part is not your team's to staff: the /approach page opens with it. */
-export function WhyNotYourTeam() {
+export function WhyNotYourTeam({ tone }: { tone?: 'plain' | 'deep' }) {
   return (
-    <section id="why-not-your-team" className="mx-auto max-w-[1280px] scroll-mt-[90px] px-10 pt-24 max-sm:px-6">
+    <HomeSection id="why-not-your-team" tone={tone}>
       <Reveal>
         <p className="max-w-[30ch] text-[clamp(28px,3.4vw,46px)] leading-[1.25] tracking-[-.015em] text-pretty text-white">
           {C.lead} <span className="text-(--home-text-4)">{C.aside}</span>
@@ -23,6 +24,6 @@ export function WhyNotYourTeam() {
           </p>
         ))}
       </Reveal>
-    </section>
+    </HomeSection>
   );
 }

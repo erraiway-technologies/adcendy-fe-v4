@@ -13,42 +13,55 @@ import { Reveal } from './Reveal';
 export const H2 = 'text-[clamp(36px,4vw,56px)] leading-[1.05] font-medium tracking-[-.025em] text-balance';
 export const MONO_LABEL = 'font-geist-mono text-xs tracking-[.06em] text-(--home-text-4) uppercase';
 
-/** A section of the page: 1280px column, 40px sides, generous space above. */
+/**
+ * A section of the page: a full-width band with a hairline above it, and the
+ * 1280px column inside. Sections alternate `tone`, so each reads as its own
+ * block. `className` styles the column.
+ */
 export function HomeSection({
   id,
+  tone = 'plain',
   className,
   children,
   ...props
-}: ComponentProps<'section'>) {
+}: ComponentProps<'section'> & { tone?: 'plain' | 'deep' }) {
   return (
     <section
       id={id}
-      className={cn('mx-auto max-w-[1280px] scroll-mt-[90px] px-10 pt-[200px] max-sm:px-6', className)}
+      className={cn('border-t border-white/8', tone === 'deep' && 'bg-(--home-band)')}
       {...props}
     >
-      {children}
+      <div className={cn('mx-auto max-w-[1280px] px-10 py-[clamp(88px,10vw,136px)] max-sm:px-6', className)}>
+        {children}
+      </div>
     </section>
   );
 }
 
-/** The heading row most sections open with: title left, a line of context right. */
+/**
+ * The heading row every section opens with: a label ("02 · Inside a
+ * strategy"), the title left, a line of context right.
+ */
 export function SectionHeader({
+  eyebrow,
   title,
   intro,
   className,
 }: {
+  eyebrow?: string;
   title: ReactNode;
   intro?: ReactNode;
   className?: string;
 }) {
   return (
     <div className={cn('mb-14 flex flex-wrap items-end justify-between gap-x-12 gap-y-5', className)}>
-      <Reveal>
+      <Reveal className="flex flex-col gap-5">
+        {eyebrow && <span className={MONO_LABEL}>{eyebrow}</span>}
         <h2 className={cn(H2, 'max-w-[22ch]')}>{title}</h2>
       </Reveal>
       {intro && (
-        <Reveal delay={100}>
-          <p className="max-w-[40ch] text-[17px] leading-[1.55] text-(--home-text-3)">{intro}</p>
+        <Reveal delay={100} className="max-w-[40ch] text-[17px] leading-[1.55] text-(--home-text-3)">
+          {intro}
         </Reveal>
       )}
     </div>
@@ -79,17 +92,24 @@ export function SecondaryLink({
   );
 }
 
-/** "Our approach →": a quiet link from a section to the page that explains it in full. */
+/** "Our approach →": a section's way to the page that explains it in full. */
 export function MoreLink({ href, label, className }: { href: string; label: string; className?: string }) {
   return (
     <Link
       href={href}
       className={cn(
-        'inline-block text-base text-(--home-text-3) underline decoration-white/25 underline-offset-4 hover:text-white hover:decoration-white motion-safe:transition-colors motion-safe:duration-300',
+        'group inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/[.04] py-1.5 pr-1.5 pl-5 text-[15px] text-white',
+        'hover:border-white/40 hover:bg-white/[.08] motion-safe:transition-colors motion-safe:duration-300',
         className,
       )}
     >
-      {label} →
+      {label}
+      <span
+        aria-hidden="true"
+        className="inline-flex size-8 items-center justify-center rounded-full bg-white text-(--home-button-text) motion-safe:transition-transform motion-safe:duration-300 group-hover:translate-x-0.5"
+      >
+        →
+      </span>
     </Link>
   );
 }

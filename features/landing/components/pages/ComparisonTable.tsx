@@ -27,9 +27,9 @@ function Value({ value, ours }: { value: ComparisonValue; ours: boolean }) {
 }
 
 /** AdCendy against a freelancer and an agency: direction, hands, and the trade. The page heading names it. */
-export function ComparisonTable() {
+export function ComparisonTable({ tone }: { tone?: 'plain' | 'deep' }) {
   return (
-    <HomeSection id="comparison" className="pt-20">
+    <HomeSection id="comparison" tone={tone}>
       <Reveal className="overflow-x-auto">
         <table className="w-full min-w-[680px] border-collapse text-left">
           <thead>

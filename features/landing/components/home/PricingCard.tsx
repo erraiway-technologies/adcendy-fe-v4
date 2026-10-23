@@ -8,25 +8,25 @@ import {
   bundleOriginalPrice,
   marketCountDescription,
   marketCountLabel,
-  pilotSeatsLabel,
-  priceGroupHeading,
   separatePilotPackages,
 } from '@/shared/payments/market-catalogue';
 import { BUSINESS_TERMS, REFUND_GUARANTEE_TEXT, callBookingLink } from '@/shared/marketing/business-terms';
-import type { BillingBundle } from '@/shared/types/billing';
-import { HOME_CTA_LABEL, HOME_PRICING as C } from '../../content/home';
+import type { BillingBundle, BillingPilotOffer } from '@/shared/types/billing';
+import { HOME_PRICING as C } from '../../content/home';
 import { useStrategyCta } from '../../hooks/useStrategyCta';
 import { LANDING_SUB_TARGETS } from '../../landing-sections';
 import { Reveal } from './Reveal';
-import { HomeSection, MONO_LABEL, MarkedList, PrimaryLink, SecondaryLink } from './primitives';
+import { HomeSection, MONO_LABEL, PrimaryLink, SecondaryLink, SectionHeader } from './primitives';
 
-const GRID = 'grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] gap-6';
-const CARD = 'flex h-full flex-col gap-6 rounded-md border p-8';
+const GRID = 'grid grid-cols-[repeat(auto-fill,minmax(min(100%,320px),1fr))] gap-4';
+const CARD = 'flex h-full flex-col gap-8 rounded-xl border p-7';
+const LINK = 'text-white underline decoration-white/30 underline-offset-4 hover:decoration-white';
 
 /**
- * Pricing: the one-fee card, then the live packages for where the visitor is
- * (the same catalogue checkout uses), the pilot while it runs, and a quote
- * for several markets. What one market means is answered in the FAQ.
+ * Pricing, top to bottom: what one market means, the pilot while it runs, the
+ * live packages for where the visitor is (the catalogue checkout uses) with a
+ * quote for more markets, then what every market includes beside the refund
+ * guarantee, and a call for anyone not sure yet.
  */
 export function PricingCard() {
   const booking = callBookingLink();
@@ -34,45 +34,59 @@ export function PricingCard() {
 
   return (
     <HomeSection id="pricing">
-      <Reveal className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] rounded-md border border-white/10 bg-(--home-surface)">
-        <div className="flex flex-col justify-between gap-10 p-[clamp(32px,4.5vw,56px)]">
-          <div className="flex flex-col gap-[18px]">
-            <span className={MONO_LABEL}>{C.eyebrow}</span>
-            <h2 className="text-[clamp(34px,3.8vw,52px)] leading-[1.05] font-medium tracking-[-.025em]">{C.heading}</h2>
-            <p className="max-w-[40ch] text-[17px] leading-[1.55] text-(--home-text-3)">
-              {C.body}{' '}
-              <SectionLink
-                sectionId={LANDING_SUB_TARGETS.oneMarket.id}
-                className="text-white underline decoration-white/30 underline-offset-4"
-              >
-                {C.marketRuleLink}
-              </SectionLink>
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2.5">
-            <PrimaryLink href={checkoutHref}>{HOME_CTA_LABEL}</PrimaryLink>
-            <SecondaryLink href={booking.href} external={booking.external}>
-              {C.callLabel}
-            </SecondaryLink>
-          </div>
-        </div>
-        <div className="border-l border-white/8 p-[clamp(32px,4.5vw,56px)]">
-          <span className={cn(MONO_LABEL, 'mb-3 block')}>{C.includesHeading}</span>
-          <MarkedList items={C.includes} />
-        </div>
-      </Reveal>
+      <SectionHeader
+        eyebrow={C.eyebrow}
+        title={C.heading}
+        intro={
+          <>
+            {C.body}{' '}
+            <SectionLink sectionId={LANDING_SUB_TARGETS.oneMarket.id} className={LINK}>
+              {C.marketRuleLink}
+            </SectionLink>
+          </>
+        }
+      />
 
       <LivePackages checkoutHref={checkoutHref} />
 
-      <Reveal>
-        <p className="mt-14 text-base text-(--home-text-3)">
-          {C.partnership.lead}{' '}
+      <div className="mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-4">
+        <Reveal className="rounded-xl border border-white/10 bg-(--home-surface) p-[clamp(28px,3.5vw,40px)]">
+          <span className={MONO_LABEL}>{C.includesHeading}</span>
+          <ul className="mt-6 flex flex-col gap-4">
+            {C.includes.map((item) => (
+              <li key={item} className="grid grid-cols-[24px_1fr] gap-2 text-base leading-[1.5] text-(--home-nav-link)">
+                <span aria-hidden="true" className="text-white">
+                  ✓
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+        <Reveal
+          delay={100}
+          className="flex flex-col gap-4 rounded-xl border border-white/10 p-[clamp(28px,3.5vw,40px)]"
+        >
+          <span className={MONO_LABEL}>{C.guaranteeHeading}</span>
+          <p className="text-base leading-[1.65] text-(--home-text-2)">{REFUND_GUARANTEE_TEXT}</p>
+        </Reveal>
+      </div>
+
+      <Reveal className="mt-12 flex flex-col gap-2 text-base text-(--home-text-3)">
+        <p>
+          {C.callLead}{' '}
           <a
-            href={BUSINESS_TERMS.contact.quoteBookingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-white underline decoration-white/30 underline-offset-4"
+            href={booking.href}
+            {...(booking.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            className={LINK}
           >
+            {C.callLabel}
+          </a>
+          .
+        </p>
+        <p>
+          {C.partnership.lead}{' '}
+          <a href={BUSINESS_TERMS.contact.quoteBookingUrl} target="_blank" rel="noopener noreferrer" className={LINK}>
             {C.partnership.link}
           </a>{' '}
           {C.partnership.tail}
@@ -89,167 +103,136 @@ function LivePackages({ checkoutHref }: { checkoutHref: string }) {
   const { pilot, regular } = separatePilotPackages(packages, pilotOffer);
   const unavailable = catalogue.isError || (catalogue.isSuccess && packages.length === 0);
 
+  if (catalogue.isPending) {
+    return (
+      <div className={GRID} aria-label="Loading prices">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="h-72 rounded-xl border border-white/8 bg-(--home-surface) motion-safe:animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  if (unavailable) {
+    return (
+      <div className="rounded-xl border border-white/10 p-6">
+        <p className="text-base text-(--home-text-3)">Live pricing is temporarily unavailable.</p>
+        <button type="button" onClick={() => void catalogue.refetch()} className={cn('mt-3 cursor-pointer text-base', LINK)}>
+          Retry loading prices
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="mt-20 flex flex-col gap-10">
-      <Reveal className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
-        <h3 className="text-[clamp(28px,3vw,40px)] leading-[1.1] font-medium tracking-[-.02em]">{C.packagesHeading}</h3>
-        {pilotOffer && !pilotOffer.soldOut && (
-          <span className="rounded-md border border-white/18 px-3 py-1.5 font-geist-mono text-xs text-white">
-            {pilotOffer.label} — {pilotSeatsLabel(pilotOffer)}
-          </span>
-        )}
-      </Reveal>
-
-      {/* The refund guarantee covers every client, so it leads the prices. */}
-      <Reveal className="border-l-2 border-white pl-5">
-        <p className="mb-1 text-base text-white">{C.guaranteeHeading}</p>
-        <p className="max-w-[70ch] text-base leading-[1.6] text-(--home-text-3)">{REFUND_GUARANTEE_TEXT}</p>
-      </Reveal>
-
-      {catalogue.isPending && (
-        <div className={GRID} aria-label="Loading prices">
-          {[0, 1].map((i) => (
-            <div key={i} className="h-72 rounded-md border border-white/8 bg-(--home-surface) motion-safe:animate-pulse" />
-          ))}
-        </div>
-      )}
-
-      {unavailable && (
-        <div className="rounded-md border border-white/10 p-6">
-          <p className="text-base text-(--home-text-3)">Live pricing is temporarily unavailable.</p>
-          <button
-            type="button"
-            onClick={() => void catalogue.refetch()}
-            className="mt-3 cursor-pointer text-base text-white underline decoration-white/30 underline-offset-4"
-          >
-            Retry loading prices
-          </button>
-        </div>
-      )}
-
-      {catalogue.isSuccess && packages.length > 0 && (
-        <>
-          {pilotOffer && pilot.length > 0 && (
-            <div className="flex flex-col gap-4">
-              <div>
-                <p className="text-lg">{priceGroupHeading(pilotOffer.label)}</p>
-                <p className="text-sm text-(--home-text-3)">
-                  {pilotOffer.soldOut
-                    ? 'The pilot is full. Regular prices apply.'
-                    : `${pilotOffer.note ?? 'Pilot pricing'} — for a limited number of clients. Everyone after them pays the regular price.`}
-                </p>
-              </div>
-              <div className={GRID}>
-                {pilot.map((bundle) => (
-                  <PackageCard
-                    key={bundle.sku}
-                    bundle={bundle}
-                    pilotLabel={pilotOffer.label}
-                    soldOut={pilotOffer.soldOut}
-                    href={checkoutHref}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="flex flex-col gap-4">
-            {regular.length > 0 && pilot.length > 0 && <p className="text-lg">Regular price</p>}
-            <div className={GRID}>
-              {regular.map((bundle) => (
-                <PackageCard key={bundle.sku} bundle={bundle} href={checkoutHref} />
-              ))}
-              <CustomQuoteCard />
-            </div>
-          </div>
-
-          <p className="font-geist-mono text-xs text-(--home-text-4)">
-            Prices from catalogue {catalogue.data?.catalogueVersion}
-          </p>
-        </>
-      )}
+    <div className="flex flex-col gap-4">
+      {pilotOffer && pilot.length > 0 && <PilotStrip offer={pilotOffer} bundles={pilot} href={checkoutHref} />}
+      <div className={GRID}>
+        {regular.map((bundle, i) => (
+          <PackageCard key={bundle.sku} bundle={bundle} href={checkoutHref} primary={i === 0} delay={i * 80} />
+        ))}
+        <CustomQuoteCard delay={regular.length * 80} />
+      </div>
     </div>
   );
 }
 
-/** One priced package; the pilot's card is set apart and shows its saving. */
+/** The pilot, while it runs: its price for each package, set apart above the regular prices. */
+function PilotStrip({ offer, bundles, href }: { offer: BillingPilotOffer; bundles: BillingBundle[]; href: string }) {
+  return (
+    <Reveal className="flex flex-col gap-5 rounded-xl border border-white/40 bg-(--home-surface) p-7">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <span className="rounded-full bg-white px-3 py-1 font-geist-mono text-xs text-(--home-button-text) uppercase">
+          {offer.label}
+        </span>
+        <span className="text-sm text-(--home-text-3)">
+          {offer.soldOut
+            ? 'The pilot is full. Regular prices apply.'
+            : `${offer.note ?? 'Pilot pricing'} — for a limited number of clients. Everyone after them pays the regular price.`}
+        </span>
+      </div>
+      {bundles.map((bundle) => {
+        const original = bundleOriginalPrice(bundle);
+        return (
+          <div key={bundle.sku} className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
+            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+              <span className="text-[22px] tracking-[-.01em]">{marketCountLabel(bundle.credits)}</span>
+              <span className="text-[34px] leading-none tracking-[-.03em]">{formatMinorAmount(bundle)}</span>
+              {original && (
+                <span className="text-sm text-(--home-text-3)">
+                  <span className="line-through">{formatMinorAmount(original)}</span>
+                  {bundle.discountPercent ? <span className="ml-2 text-white">Save {bundle.discountPercent}%</span> : null}
+                </span>
+              )}
+            </div>
+            {offer.soldOut ? (
+              <span className="text-base text-(--home-text-3)">All pilot seats are taken</span>
+            ) : (
+              <PrimaryLink href={href}>{C.pilotCta}</PrimaryLink>
+            )}
+          </div>
+        );
+      })}
+    </Reveal>
+  );
+}
+
+/** One priced package; the first is the way in, so its button leads. */
 function PackageCard({
   bundle,
-  pilotLabel,
-  soldOut = false,
   href,
+  primary,
+  delay,
 }: {
   bundle: BillingBundle;
-  /** Set for a pilot package. */
-  pilotLabel?: string;
-  soldOut?: boolean;
   href: string;
+  primary: boolean;
+  delay: number;
 }) {
-  const isPilot = pilotLabel !== undefined;
   const original = bundleOriginalPrice(bundle);
+  const Button = primary ? PrimaryLink : SecondaryLink;
   return (
-    <div className={cn(CARD, 'bg-(--home-surface)', isPilot ? 'border-white/40' : 'border-white/10')}>
+    <Reveal delay={delay} className={cn(CARD, 'border-white/10 bg-(--home-surface)')}>
       <div className="flex flex-col gap-1.5">
-        <div className="flex flex-wrap items-center gap-2">
-          <h4 className="text-[22px] tracking-[-.01em]">{marketCountLabel(bundle.credits)}</h4>
-          <span className={cn(MONO_LABEL, 'rounded border border-white/14 px-1.5 py-0.5 text-[10px]')}>
-            {isPilot ? pilotLabel : 'One-time'}
-          </span>
-        </div>
-        <p className="text-sm text-(--home-text-3)">{marketCountDescription(bundle.credits)}</p>
+        <h3 className="text-[22px] tracking-[-.01em]">{marketCountLabel(bundle.credits)}</h3>
+        <p className="text-sm leading-[1.5] text-(--home-text-3)">{marketCountDescription(bundle.credits)}</p>
       </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-[40px] leading-none tracking-[-.03em]">{formatMinorAmount(bundle)}</p>
-        {original && (
-          <p className="text-sm text-(--home-text-3)">
-            <span className="line-through">{formatMinorAmount(original)}</span>
-            {bundle.discountPercent ? <span className="ml-2 text-white">Save {bundle.discountPercent}%</span> : null}
-          </p>
-        )}
+      <div className="flex flex-col gap-2">
+        <p className="text-[44px] leading-none tracking-[-.03em]">{formatMinorAmount(bundle)}</p>
         <p className="font-geist-mono text-xs text-(--home-text-4)">
-          {isPilot ? 'pilot price, one-time purchase' : 'one-time purchase'}
+          {original ? (
+            <>
+              <span className="line-through">{formatMinorAmount(original)}</span>
+              {bundle.discountPercent ? <span className="ml-2 text-white">Save {bundle.discountPercent}%</span> : null}
+              {' · '}
+            </>
+          ) : null}
+          one-time
         </p>
       </div>
-      <div className="mt-auto">
-        {soldOut ? (
-          <p className="rounded-md border border-white/10 px-5 py-3.5 text-center text-base text-(--home-text-3)">
-            All pilot seats are taken
-          </p>
-        ) : isPilot ? (
-          <PrimaryLink href={href} className="w-full">
-            Claim a pilot seat
-          </PrimaryLink>
-        ) : (
-          <SecondaryLink href={href} className="w-full">
-            {bundle.credits === 1 ? 'Start one market' : 'Choose this package'}
-          </SecondaryLink>
-        )}
-      </div>
-    </div>
+      <Button href={href} className="mt-auto w-full">
+        {bundle.credits === 1 ? 'Start one market' : 'Choose this package'}
+      </Button>
+    </Reveal>
   );
 }
 
 /** The multi-market quote, in a package card's shape, with "Let's talk" for a price. */
-function CustomQuoteCard() {
+function CustomQuoteCard({ delay }: { delay: number }) {
   const q = C.customQuote;
   return (
-    <div className={cn(CARD, 'border-white/10')}>
+    <Reveal delay={delay} className={cn(CARD, 'border-dashed border-white/18')}>
       <div className="flex flex-col gap-1.5">
-        <div className="flex flex-wrap items-center gap-2">
-          <h4 className="text-[22px] tracking-[-.01em]">{q.title}</h4>
-          <span className={cn(MONO_LABEL, 'rounded border border-white/14 px-1.5 py-0.5 text-[10px]')}>Custom</span>
-        </div>
-        <p className="text-sm leading-[1.55] text-(--home-text-3)">{q.body}</p>
+        <h3 className="text-[22px] tracking-[-.01em]">{q.title}</h3>
+        <p className="text-sm leading-[1.5] text-(--home-text-3)">{q.body}</p>
       </div>
-      <div className="flex flex-col gap-1">
-        <p className="text-[40px] leading-none tracking-[-.03em]">{q.price}</p>
+      <div className="flex flex-col gap-2">
+        <p className="text-[44px] leading-none tracking-[-.03em]">{q.price}</p>
         <p className="font-geist-mono text-xs text-(--home-text-4)">{q.priceNote}</p>
       </div>
-      <div className="mt-auto">
-        <SecondaryLink href={BUSINESS_TERMS.contact.quoteBookingUrl} external className="w-full">
-          {q.cta}
-        </SecondaryLink>
-      </div>
-    </div>
+      <SecondaryLink href={BUSINESS_TERMS.contact.quoteBookingUrl} external className="mt-auto w-full">
+        {q.cta}
+      </SecondaryLink>
+    </Reveal>
   );
 }

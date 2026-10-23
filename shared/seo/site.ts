@@ -6,7 +6,7 @@ import { BUSINESS_TERMS } from '@/shared/marketing/business-terms';
 
 export const SITE_NAME = 'AdCendy';
 export const SITE_TITLE = 'AdCendy - Market Intelligence & Strategy Reports';
-export const SITE_DESCRIPTION = `Competitive intelligence and a human-reviewed marketing strategy your team can own, delivered within ${BUSINESS_TERMS.delivery.businessDays} business days.`;
+export const SITE_DESCRIPTION = `Competitive intelligence and a human-reviewed marketing strategy your team can own, usually ready in ${BUSINESS_TERMS.delivery.typically}.`;
 
 /**
  * Where this deployment is served from, and whether search engines may index

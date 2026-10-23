@@ -7,7 +7,7 @@ import { chapterNumber, type SampleReport } from '../../content/sample-report';
 import { usePrefersReducedMotion } from '../../hooks/useHomeMotion';
 import { Reveal } from './Reveal';
 import { ReportPage } from './ReportPage';
-import { MoreLink } from './primitives';
+import { HomeSection, MoreLink, SectionHeader } from './primitives';
 
 /** How long each chapter shows before the reader turns the page. */
 const CHAPTER_MS = 6000;
@@ -32,21 +32,17 @@ export function ReportReader({ report }: { report: SampleReport }) {
   };
 
   return (
-    <section
-      id="inside"
-      className="mx-auto max-w-[1280px] scroll-mt-[90px] px-10 pt-[180px] max-sm:px-6"
-    >
-      <div className="mb-14 flex flex-wrap items-end justify-between gap-x-12 gap-y-5">
-        <Reveal>
-          <h2 className="text-[clamp(36px,4vw,56px)] leading-[1.05] font-medium tracking-[-.025em]">
-            {HOME_INSIDE.heading}
-          </h2>
-        </Reveal>
-        <Reveal delay={100}>
-          <p className="max-w-[40ch] text-[17px] leading-[1.55] text-(--home-text-3)">{HOME_INSIDE.intro}</p>
-          <MoreLink href={HOME_INSIDE.more.href} label={HOME_INSIDE.more.label} className="mt-3" />
-        </Reveal>
-      </div>
+    <HomeSection id="inside" tone="deep">
+      <SectionHeader
+        eyebrow={HOME_INSIDE.eyebrow}
+        title={HOME_INSIDE.heading}
+        intro={
+          <>
+            <p>{HOME_INSIDE.intro}</p>
+            <MoreLink href={HOME_INSIDE.more.href} label={HOME_INSIDE.more.label} className="mt-5" />
+          </>
+        }
+      />
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] items-start gap-10">
         <Reveal className="flex max-w-[380px] flex-col">
@@ -126,6 +122,6 @@ export function ReportReader({ report }: { report: SampleReport }) {
           })}
         </Reveal>
       </div>
-    </section>
+    </HomeSection>
   );
 }
