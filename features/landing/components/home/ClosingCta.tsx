@@ -12,7 +12,7 @@ export function ClosingCta() {
   const booking = callBookingLink();
 
   return (
-    <section className="border-t border-white/8">
+    <section data-scene data-closing className="border-t border-white/8">
       <Reveal className="mx-auto flex max-w-[1280px] flex-col items-center gap-6 px-10 py-[clamp(96px,11vw,152px)] text-center max-sm:px-6">
         <h2 className="text-[clamp(40px,5.2vw,72px)] leading-[1.04] font-medium tracking-[-.03em]">
           {HOME_CLOSING.heading}

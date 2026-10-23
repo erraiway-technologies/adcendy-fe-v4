@@ -97,3 +97,38 @@ export function useScrollReveal(ref: RefObject<HTMLElement | null>, delayMs = 0)
     };
   }, [ref, delayMs]);
 }
+
+/** How far into the viewport (as a share of its height) a section takes to fade fully in, or out. */
+const SCENE_EDGE = 0.3;
+/** How far a section drifts while it fades: up from below on the way in, up and away on the way out. */
+const SCENE_DRIFT_PX = { in: 48, out: 24 };
+
+const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+
+/**
+ * Turns the page into scenes: every `[data-scene]` element fades and rises in
+ * as it enters from below, and fades away as it leaves at the top, so the
+ * section going out dissolves while the next one arrives. Styles are written
+ * directly, so scrolling never re-renders React; the server's HTML and a
+ * visitor who prefers reduced motion see every section as it is.
+ */
+export function useSceneFades(): void {
+  const reducedMotion = usePrefersReducedMotion();
+  useScrollFrame(() => {
+    const viewport = window.innerHeight || 800;
+    const edge = viewport * SCENE_EDGE;
+    for (const scene of document.querySelectorAll<HTMLElement>('[data-scene]')) {
+      if (reducedMotion) {
+        scene.style.opacity = '';
+        scene.style.transform = '';
+        continue;
+      }
+      const { top, bottom } = scene.getBoundingClientRect();
+      const arriving = clamp01((viewport - top) / edge);
+      const leaving = clamp01(bottom / edge);
+      scene.style.opacity = String(Math.min(arriving, leaving));
+      const drift = (1 - arriving) * SCENE_DRIFT_PX.in - (1 - leaving) * SCENE_DRIFT_PX.out;
+      scene.style.transform = drift ? `translateY(${drift.toFixed(1)}px)` : '';
+    }
+  });
+}

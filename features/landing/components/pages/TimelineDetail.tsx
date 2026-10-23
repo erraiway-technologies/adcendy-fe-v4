@@ -15,7 +15,7 @@ export function TimelineDetail({ tone }: { tone?: 'plain' | 'deep' }) {
         {C.steps.slice(0, from).map((step, i) => (
           <Row key={step.title} step={step} number={i + 1} />
         ))}
-        <li className="my-2 -mx-5 rounded-xl border border-dashed border-white/25 bg-white/[.02] px-5">
+        <li className="-mx-3 my-2 rounded-xl border border-dashed border-white/25 bg-white/[.02] px-3 sm:-mx-5 sm:px-5">
           <ol className="flex flex-col">
             {C.steps.slice(from, to + 1).map((step, i) => (
               <Row key={step.title} step={step} number={from + i + 1} />

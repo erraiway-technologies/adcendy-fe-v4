@@ -7,6 +7,7 @@ import { MOVED_SECTIONS } from '../landing-sections';
 import { ClosingCta } from './home/ClosingCta';
 import { FaqSection } from './home/FaqSection';
 import { HomeHero } from './home/HomeHero';
+import { PageBackdrop } from './home/PageBackdrop';
 import { PricingCard } from './home/PricingCard';
 import { ProcessSteps } from './home/ProcessSteps';
 import { ReportReader } from './home/ReportReader';
@@ -36,6 +37,7 @@ export function LandingPage() {
 
   return (
     <div className="home-page">
+      <PageBackdrop />
       <SiteHeader />
       <main id="top">
         <HomeHero />

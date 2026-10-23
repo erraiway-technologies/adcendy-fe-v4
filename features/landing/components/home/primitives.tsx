@@ -15,8 +15,10 @@ export const MONO_LABEL = 'font-geist-mono text-xs tracking-[.06em] text-(--home
 
 /**
  * A section of the page: a full-width band with a hairline above it, and the
- * 1280px column inside. Sections alternate `tone`, so each reads as its own
- * block. `className` styles the column.
+ * 1280px column inside. Sections alternate `tone` (clear over the page's
+ * backdrop, or darkened), so each reads as its own block, and each is a scene
+ * that fades in and out as it scrolls (useSceneFades). `className` styles the
+ * column.
  */
 export function HomeSection({
   id,
@@ -28,7 +30,8 @@ export function HomeSection({
   return (
     <section
       id={id}
-      className={cn('border-t border-white/8', tone === 'deep' && 'bg-(--home-band)')}
+      data-scene
+      className={cn('border-t border-white/8', tone === 'deep' && 'bg-black/30')}
       {...props}
     >
       <div className={cn('mx-auto max-w-[1280px] px-10 py-[clamp(88px,10vw,136px)] max-sm:px-6', className)}>

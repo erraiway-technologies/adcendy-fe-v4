@@ -22,8 +22,11 @@ export function StickyCta() {
   useScrollFrame(() => {
     const scrollable = document.documentElement.scrollHeight - window.innerHeight;
     const share = scrollable > 0 ? window.scrollY / scrollable : 0;
-    // Gone again over the closing section and footer, which say the same.
-    const nearEnd = scrollable - window.scrollY < 900;
+    // Gone again once the closing section, which says the same, comes into view.
+    const closing = document.querySelector('[data-closing]');
+    const nearEnd = closing
+      ? closing.getBoundingClientRect().top < window.innerHeight
+      : scrollable - window.scrollY < 900;
     setVisible((share > 0.6 || window.scrollY > 2000) && !nearEnd);
   });
 
@@ -40,11 +43,12 @@ export function StickyCta() {
       )}
     >
       <div className="pointer-events-auto mx-auto flex max-w-[980px] flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-[10px] border border-white/8 bg-[rgba(40,40,40,.82)] py-2.5 pr-2.5 pl-5 backdrop-blur-[16px]">
-        <p className="min-w-0 text-base">{C.title}</p>
-        <div className="flex items-center gap-2">
+        {/* A phone has room for the button alone. */}
+        <p className="min-w-0 text-base max-sm:hidden">{C.title}</p>
+        <div className="flex items-center gap-2 max-sm:w-full max-sm:justify-between">
           <Link
             href={href}
-            className="home-button-primary rounded-md bg-white px-4 py-2.5 text-[15px] whitespace-nowrap text-(--home-button-text) hover:bg-(--home-button-hover) motion-safe:transition-colors motion-safe:duration-300"
+            className="home-button-primary rounded-md bg-white px-4 py-2.5 text-center text-[15px] whitespace-nowrap text-(--home-button-text) hover:bg-(--home-button-hover) motion-safe:transition-colors motion-safe:duration-300 max-sm:flex-1"
           >
             {C.cta} →
           </Link>

@@ -30,7 +30,37 @@ function Value({ value, ours }: { value: ComparisonValue; ours: boolean }) {
 export function ComparisonTable({ tone }: { tone?: 'plain' | 'deep' }) {
   return (
     <HomeSection id="comparison" tone={tone}>
-      <Reveal className="overflow-x-auto">
+      {/* A phone gets each row as its own block: too narrow for four columns. */}
+      <div className="flex flex-col gap-10 md:hidden">
+        {C.categories.map((category) => (
+          <Reveal key={category.heading}>
+            <h3 className="mb-2 font-geist-mono text-xs tracking-[.06em] text-(--home-text-4) uppercase">
+              {category.heading}
+            </h3>
+            <ul>
+              {category.rows.map((row) => (
+                <li key={row.label} className="border-t border-white/8 py-4">
+                  <p className="text-base text-(--home-nav-link)">{row.label}</p>
+                  <dl className="mt-3 grid grid-cols-3 gap-2">
+                    {row.values.map((value, i) => (
+                      <div
+                        key={C.columns[i]!.name}
+                        className={cn('rounded-md px-2 py-2.5 text-center', i === 0 ? 'bg-(--home-surface)' : 'border border-white/8')}
+                      >
+                        <dt className="text-[11px] text-(--home-text-4)">{C.columns[i]!.name}</dt>
+                        <dd className="mt-1 leading-tight">
+                          <Value value={value} ours={i === 0} />
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+        ))}
+      </div>
+      <Reveal className="overflow-x-auto max-md:hidden">
         <table className="w-full min-w-[680px] border-collapse text-left">
           <thead>
             <tr className="border-b border-white/14">

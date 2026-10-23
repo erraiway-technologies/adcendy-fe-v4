@@ -271,8 +271,6 @@
 .home-page {
   --home-bg: #232323;
   --home-surface: #282828;
-  /* Every other homepage section sits on this, so each reads as its own block. */
-  --home-band: #1B1B1B;
   --home-surface-2: #363636;
   --home-text: #F5F5F4;
   --home-text-2: #C4C4C0;
@@ -289,6 +287,8 @@
   --home-ease: cubic-bezier(.2, .7, .2, 1);
 
   background: var(--home-bg);
+  /* PageBackdrop's fixed layer sits between this background and the content. */
+  isolation: isolate;
   color: var(--home-text);
   font-family: var(--font-outfit);
   -webkit-font-smoothing: antialiased;

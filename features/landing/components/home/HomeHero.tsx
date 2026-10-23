@@ -57,7 +57,8 @@ export function HomeHero({ showButton = true }: { showButton?: boolean }) {
     <section
       ref={heroRef}
       className="relative h-screen min-h-[640px] overflow-hidden"
-      style={{ background: HERO_BACKGROUND }}
+      // Its foot dissolves into the page's backdrop.
+      style={{ background: HERO_BACKGROUND, maskImage: 'linear-gradient(180deg, #000 76%, transparent)' }}
     >
       {/* Warmth at the horizon. */}
       <div
@@ -69,10 +70,6 @@ export function HomeHero({ showButton = true }: { showButton?: boolean }) {
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[url('/textures/grain.png')] opacity-55 mix-blend-overlay"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[22%] bg-linear-to-b from-transparent to-(--home-bg)"
       />
 
       <div

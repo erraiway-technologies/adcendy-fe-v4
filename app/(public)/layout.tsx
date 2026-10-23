@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
+import { PageBackdrop } from '@/features/landing/components/home/PageBackdrop';
 import { SiteFooter } from '@/features/landing/components/home/SiteFooter';
 import { SiteHeader } from '@/features/landing/components/home/SiteHeader';
 
@@ -13,6 +14,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
   return (
     <div className="home-page min-h-screen">
+      <PageBackdrop />
       <SiteHeader />
       {children}
       {!isAuthRoute && <SiteFooter />}

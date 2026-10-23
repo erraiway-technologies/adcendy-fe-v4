@@ -27,7 +27,7 @@ export function ProcessSteps() {
           {before.map((step, i) => (
             <Step key={step.title} step={step} number={i + 1} />
           ))}
-          <li className="relative my-3 lg:col-span-2 lg:my-0">
+          <li className="relative mt-3 mb-12 lg:col-span-2 lg:my-0">
             <div
               aria-hidden="true"
               className="absolute -inset-x-3 -top-3 -bottom-3 rounded-xl border border-dashed border-white/25 bg-white/[.02] lg:-top-4"
@@ -53,7 +53,11 @@ export function ProcessSteps() {
 
 function Step({ step, number, last = false }: { step: ProcessStep; number: number; last?: boolean }) {
   return (
-    <Reveal as="li" delay={(number - 1) * 70} className="relative flex flex-col gap-2 pb-10 pl-12 lg:pt-14 lg:pb-0 lg:pl-0">
+    <Reveal
+      as="li"
+      delay={(number - 1) * 70}
+      className={cn('relative flex flex-col gap-2 pl-12 lg:pt-14 lg:pb-0 lg:pl-0', last ? 'pb-0' : 'pb-10')}
+    >
       <span
         className={cn(
           'absolute top-0 left-0 flex size-8 items-center justify-center rounded-full border font-geist-mono text-xs',
