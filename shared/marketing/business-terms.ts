@@ -25,8 +25,6 @@ export const BUSINESS_TERMS = {
      * (the FAQ, the policy itself), never as the headline.
      */
     typically: 'a day or two',
-    /** Business days are Monday to Friday, excluding these holidays. */
-    holidays: 'public holidays in India',
   },
   intake: {
     formMinutes: '20–30',
@@ -58,7 +56,6 @@ export const BUSINESS_TERMS = {
     walkthroughCallMinutes: 30,
     /** The walkthrough call is booked at least this many hours ahead. */
     walkthroughNoticeHours: 48,
-    hours: 'Monday to Friday, 1:30–9:30 pm IST',
   },
   contact: {
     /** Before buying: questions, quotes, partnerships. */
@@ -78,15 +75,6 @@ export const BUSINESS_TERMS = {
     bookingUrl: 'https://adcendy1.zohobookings.in/488505000000030046' as string | null,
     /** Multi-market quotes and agency partnerships: a public booking page too. */
     quoteBookingUrl: 'https://adcendy1.zohobookings.in/488505000000033035',
-  },
-  /** Per market, one-time. The checkout charges what the catalogue says; keep these the same. */
-  prices: {
-    india: { list: '₹19,900', pilot: '₹14,900' },
-    international: { list: 'US $600', pilot: '$499' },
-  },
-  pilot: {
-    /** The last day pilot prices apply, as copy ("31 December 2026"); null until it is set. */
-    endsOn: null as string | null,
   },
   report: {
     /** The whole package - strategy, research and guidance - as erraiway.com states it too. */

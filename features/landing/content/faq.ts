@@ -6,18 +6,10 @@ import { BUSINESS_TERMS as TERMS, REFUND_GUARANTEE_TEXT, numberWord } from '@/sh
 
 export type Faq = { question: string; answer: string; id?: string };
 
-const { delivery, intake, support, calls, contact, prices, pilot, report } = TERMS;
+const { delivery, intake, support, calls, contact, report } = TERMS;
 
-/** "₹19,900", or "₹19,900 (pilot price ₹14,900 for orders placed before …)" while the pilot runs. */
-function priceLabel(price: { list: string; pilot: string }, isPilot: boolean): string {
-  if (!isPilot) return price.list;
-  const until = pilot.endsOn ? `for orders placed before ${pilot.endsOn}` : 'while the pilot runs';
-  return `${price.list} (pilot price ${price.pilot} ${until})`;
-}
-
-// Pilot-only promises are said only while the server says the pilot is on.
 // An entry with an `id` can be linked to directly, and opens when it is.
-export function buildFaqs(isPilot: boolean): Faq[] {
+export function buildFaqs(): Faq[] {
   const days = numberWord(delivery.businessDays);
   const revisionDays = numberWord(support.revisionBusinessDays);
   const [firstCheck, lastCheck] = support.resultsCheckDays;
@@ -66,12 +58,7 @@ export function buildFaqs(isPilot: boolean): Faq[] {
     {
       question: 'How long does it take?',
       answer:
-        `Most strategies are ready in ${delivery.typically}, and never more than ${days} business days from a complete intake and confirmed payment. The clock pauses while we're waiting on information from you. You get status emails at start, review and delivery. Business days are Monday to Friday, excluding ${delivery.holidays}.`,
-    },
-    {
-      question: 'How much does it cost?',
-      answer:
-        `Per market, one-time, no retainer. India: ${priceLabel(prices.india, isPilot)}. All other countries: ${priceLabel(prices.international, isPilot)}. A second market is a second purchase; email us for multi-market quotes.`,
+        `Most strategies are ready in ${delivery.typically}, and never more than ${days} business days from a complete intake and confirmed payment. The clock pauses while we're waiting on information from you. You get status emails at start, review and delivery.`,
     },
     {
       id: 'faq-one-market',
@@ -99,21 +86,6 @@ export function buildFaqs(isPilot: boolean): Faq[] {
         `Every recommendation comes with the metric that tells you it's working and the range you should expect it to move into, grounded in your category and your unit economics. You check your own numbers against those ranges: in range, you're on track; outside it, you know early, not three months in. During your ${support.windowDays}-day support window, if a number's off we help you work out why — a setup issue, an execution gap, or a real reason to adjust the plan. Honest ranges, not vanity promises: wide enough to mean something, specific enough to act on.`,
     },
     {
-      question: 'Can we talk on a call?',
-      answer:
-        `Yes, where it helps. A free ${calls.fitCallMinutes}-minute fit call before buying covers scope, process and price, not marketing advice. One ${calls.walkthroughCallMinutes}-minute walkthrough call after delivery, as above. Everything else is email, on purpose: written answers are checkable and searchable, and they're the record. The written deliverable always prevails over anything said on a call. No phone, WhatsApp or DMs.`,
-    },
-    {
-      question: 'How do you stop the AI from making things up?',
-      answer:
-        "By not letting it decide anything. Measurements come from the market, not from the AI. What the measurements mean is decided by fixed rules. The AI's job is to explain those decisions clearly and draft the copy, within limits we set. Missing or unverifiable data is marked as such and left out of the reasoning. A human reviewer reads the whole kit before delivery and can remove anything the evidence doesn't support. We don't publish a claim about your market we couldn't check.",
-    },
-    {
-      question: 'Is a human actually involved?',
-      answer:
-        "Yes. Rules decide what the evidence says and AI drafts the explanation and copy. Before delivery, every kit is read end to end by a human reviewer who is not the system that produced it. The reviewer checks that each claim is supported by the evidence, that the documents agree with each other and with your intake, and that nothing unverified has slipped in — and can reject the kit, send it back for more data, or remove any recommendation the evidence doesn't support.",
-    },
-    {
       question: 'Do you run the campaigns, review my ads, or stay on as advisors?',
       answer:
         "No. We don't manage or audit ad accounts, review creatives, landing pages or copy, or provide ongoing advice. The Setup Guide and Action Plan are written so your team or a freelancer can execute without us.",
@@ -122,16 +94,6 @@ export function buildFaqs(isPilot: boolean): Faq[] {
       question: 'What about my data and confidentiality?',
       answer:
         `Your intake, your results and your kit are used for your strategy only. They are seen by our reviewers, who work under confidentiality agreements, and by no one else. Calls aren't recorded unless both sides agree. Data access or deletion requests go to ${contact.privacy} and are completed within ${contact.privacyRequestDays} days.`,
-    },
-    {
-      question: "I'm in India. Is this right for me?",
-      answer:
-        "It depends on where your buyers are. If they find you mainly through Google search, our evidence is thinner in India than in the US or UK, and we'll tell you so on the fit call. Where the kit holds up well in India is positioning, messaging, competitor mapping and outreach channels. If search is your main channel in India, ask us before you buy.",
-    },
-    {
-      question: "What if I'm not sure it's a fit?",
-      answer:
-        'Fill in the free snapshot form. You get a short, written view of your market and whether the full kit is worth buying for your business. No call required and no obligation.',
     },
   ];
 }

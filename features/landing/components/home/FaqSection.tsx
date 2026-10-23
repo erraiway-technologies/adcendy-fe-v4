@@ -2,24 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { buildFaqs } from '@/features/landing/content/faq';
-import { usePublicCatalogue } from '@/shared/payments/usePublicCatalogue';
 import { HOME_FAQ } from '../../content/home';
 import { HomeSection, QuestionList, SectionHeader } from './primitives';
 
 /**
- * The FAQ. Pilot-only promises appear while the server says the pilot is on.
- * A link straight to an answer (#faq-industries) opens it, on arrival and on
+ * The FAQ. A link straight to an answer (#faq-industries) opens it, on arrival and on
  * every click after, since SectionLink announces the hash even when unchanged.
  */
 export function FaqSection() {
-  const { isPilot } = usePublicCatalogue();
-  const faqs = buildFaqs(isPilot);
+  const faqs = buildFaqs();
   const [open, setOpen] = useState(-1);
 
   useEffect(() => {
     const openLinked = () => {
-      // The pilot changes answers, never order, so either list gives the index.
-      const linked = buildFaqs(false).findIndex((faq) => faq.id && `#${faq.id}` === window.location.hash);
+      const linked = buildFaqs().findIndex((faq) => faq.id && `#${faq.id}` === window.location.hash);
       if (linked !== -1) setOpen(linked);
     };
     openLinked();

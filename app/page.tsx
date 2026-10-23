@@ -26,7 +26,7 @@ export default async function Home() {
         data={{
           '@context': 'https://schema.org',
           '@type': 'FAQPage',
-          mainEntity: buildFaqs(false).map((faq) => ({
+          mainEntity: buildFaqs().map((faq) => ({
             '@type': 'Question',
             name: faq.question,
             acceptedAnswer: { '@type': 'Answer', text: faq.answer },

@@ -36,8 +36,7 @@ export default function ContactPage() {
       <span className="font-geist-mono text-xs tracking-[.06em] text-(--home-text-4) uppercase">Contact</span>
       <h1 className="mt-4 text-[clamp(44px,5.6vw,86px)] leading-[1.08] font-normal tracking-[-.02em]">Talk to us</h1>
       <p className="mt-6 max-w-[52ch] text-lg leading-[1.6] text-(--home-text-2)">
-        We work in writing: email is our channel of record, and we reply within {TERMS.contact.replyWithin} (Monday
-        to Friday, excluding public holidays in India).
+        We work in writing: email is our channel of record, and we reply within {TERMS.contact.replyWithin}.
       </p>
 
       <ul className="mt-16 border-b border-white/10">
@@ -63,10 +62,10 @@ export default function ContactPage() {
               Book a {TERMS.calls.fitCallMinutes}-minute video call
             </a>
             <p className="mt-2 text-sm leading-[1.55] text-(--home-text-4)">
-              About scope, process, fit and price — not marketing advice. {TERMS.calls.hours};{' '}
+              About scope, process, fit and price — not marketing advice.{' '}
               {TERMS.contact.bookingUrl
-                ? 'the booking page shows the times in your own time zone.'
-                : `email ${TERMS.contact.hello} with a few times that suit you.`}
+                ? 'The booking page shows the open times in your own time zone.'
+                : `Email ${TERMS.contact.hello} with a few times that suit you.`}
             </p>
           </div>
         </li>
@@ -77,7 +76,7 @@ export default function ContactPage() {
               Book a {TERMS.calls.quoteCallMinutes}-minute call for a quote
             </a>
             <p className="mt-2 text-sm leading-[1.55] text-(--home-text-4)">
-              We scope the countries or the partnership with you and price the package. Same hours; or email{' '}
+              We scope the countries or the partnership with you and price the package. Or email{' '}
               {TERMS.contact.hello}.
             </p>
           </div>
