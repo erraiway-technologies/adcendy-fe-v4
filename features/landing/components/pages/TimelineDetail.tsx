@@ -6,10 +6,10 @@ import { HomeSection, SectionHeader } from '../home/primitives';
 type Step = (typeof C.steps)[number];
 
 /** How a strategy is made, each step in full, with the review steps that repeat boxed as a loop. */
-export function TimelineDetail({ tone }: { tone?: 'plain' | 'deep' }) {
+export function TimelineDetail() {
   const { from, to, label } = C.loop;
   return (
-    <HomeSection id="how-it-works-in-detail" tone={tone}>
+    <HomeSection id="how-it-works-in-detail">
       <SectionHeader title={C.heading} intro={C.intro} />
       <ol className="flex flex-col">
         {C.steps.slice(0, from).map((step, i) => (

@@ -3,9 +3,9 @@ import { Reveal } from '../home/Reveal';
 import { HomeSection, MarkedList, SectionHeader } from '../home/primitives';
 
 /** Who it is for and not for yet, in full; the homepage shows the short lists. */
-export function FitDetail({ tone }: { tone?: 'plain' | 'deep' }) {
+export function FitDetail() {
   return (
-    <HomeSection id="fit" tone={tone}>
+    <HomeSection id="fit">
       <SectionHeader title={C.heading} intro={C.intro} />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-6">
         <Reveal className="rounded-xl border border-white/10 bg-(--home-surface) p-[clamp(28px,3.5vw,44px)]">

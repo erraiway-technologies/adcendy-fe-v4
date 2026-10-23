@@ -14,24 +14,17 @@ export const H2 = 'text-[clamp(36px,4vw,56px)] leading-[1.05] font-medium tracki
 export const MONO_LABEL = 'font-geist-mono text-xs tracking-[.06em] text-(--home-text-4) uppercase';
 
 /**
- * A section of the page: a full-width band with a hairline above it, and the
- * 1280px column inside. Sections alternate `tone` (clear over the page's
- * backdrop, or darkened), so each reads as its own block, and each is a scene
- * that fades in and out as it scrolls (useSceneFades). `className` styles the
- * column.
+ * A section of the page, as a scene: a full-width sheet with rounded top
+ * corners that slides up over the section before it, which holds still and
+ * fades back (useSceneStack sets its sticky offset and the fade). Every sheet
+ * paints the page's one backdrop. `className` styles the 1280px column.
  */
-export function HomeSection({
-  id,
-  tone = 'plain',
-  className,
-  children,
-  ...props
-}: ComponentProps<'section'> & { tone?: 'plain' | 'deep' }) {
+export function HomeSection({ id, className, children, ...props }: ComponentProps<'section'>) {
   return (
     <section
       id={id}
       data-scene
-      className={cn('border-t border-white/8', tone === 'deep' && 'bg-black/30')}
+      className="home-scene rounded-t-[28px] border-t border-white/10 shadow-[0_-28px_56px_-16px_rgba(0,0,0,.55)] motion-safe:sticky max-sm:rounded-t-[20px]"
       {...props}
     >
       <div className={cn('mx-auto max-w-[1280px] px-10 py-[clamp(88px,10vw,136px)] max-sm:px-6', className)}>

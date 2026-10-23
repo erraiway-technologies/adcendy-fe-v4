@@ -4,9 +4,9 @@ import { Reveal } from '../home/Reveal';
 import { HomeSection, SectionHeader } from '../home/primitives';
 
 /** AI-generated against AI-powered, then the four things the difference rests on. */
-export function WhyNotAI({ tone }: { tone?: 'plain' | 'deep' }) {
+export function WhyNotAI() {
   return (
-    <HomeSection id="why-not-ai" tone={tone}>
+    <HomeSection id="why-not-ai">
       <SectionHeader title={C.heading} intro={C.intro} />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] gap-6">
         {C.contrast.map((side, i) => {

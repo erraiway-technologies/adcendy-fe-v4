@@ -25,11 +25,11 @@ export function WhatYouGetPage() {
   return (
     <main>
       <PageIntro {...WHAT_YOU_GET_PAGE} />
-      <WhatYouGet tone="deep" />
+      <WhatYouGet />
       <StrategyQuestions />
-      <TimelineDetail tone="deep" />
+      <TimelineDetail />
       <Benchmarks />
-      <MarketRules tone="deep" />
+      <MarketRules />
       <ClosingCta />
     </main>
   );
@@ -40,9 +40,9 @@ export function ApproachPage() {
   return (
     <main>
       <PageIntro {...APPROACH_PAGE} />
-      <WhyNotYourTeam tone="deep" />
+      <WhyNotYourTeam />
       <WhyNotAI />
-      <BudgetArgument tone="deep" />
+      <BudgetArgument />
       <ClosingCta />
     </main>
   );
@@ -53,7 +53,7 @@ export function ComparePage() {
   return (
     <main>
       <PageIntro {...COMPARE_PAGE} />
-      <ComparisonTable tone="deep" />
+      <ComparisonTable />
       <FitDetail />
       <ClosingCta />
     </main>

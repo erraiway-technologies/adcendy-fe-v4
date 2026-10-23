@@ -98,37 +98,73 @@ export function useScrollReveal(ref: RefObject<HTMLElement | null>, delayMs = 0)
   }, [ref, delayMs]);
 }
 
-/** How far into the viewport (as a share of its height) a section takes to fade fully in, or out. */
-const SCENE_EDGE = 0.3;
-/** How far a section drifts while it fades: up from below on the way in, up and away on the way out. */
-const SCENE_DRIFT_PX = { in: 48, out: 24 };
+/** How far back a covered section sinks: its opacity, scale and lift once the next one fully covers it. */
+const SCENE_COVERED = { opacity: 0.12, scale: 0.94, liftPx: 48 };
+/** An arriving section's content starts this faint and is fully there once its top is 45% up the viewport. */
+const SCENE_ARRIVING = { opacity: 0.35, distance: 0.55 };
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 
 /**
- * Turns the page into scenes: every `[data-scene]` element fades and rises in
- * as it enters from below, and fades away as it leaves at the top, so the
- * section going out dissolves while the next one arrives. Styles are written
- * directly, so scrolling never re-renders React; the server's HTML and a
- * visitor who prefers reduced motion see every section as it is.
+ * Turns the page into a stack of scenes. Every `[data-scene]` section is
+ * sticky (from CSS): this sets where it holds, at the top or, when it is
+ * taller than the viewport, once its end is in view, and stacks each above
+ * the one before. As the next section slides up over it, the held one's
+ * content fades, shrinks and lifts away; an arriving section's content
+ * brightens as it comes in. Styles are written directly, so scrolling never
+ * re-renders React. With reduced motion nothing is held or faded (the CSS
+ * drops `sticky` too), and the server's HTML is the plain page.
  */
-export function useSceneFades(): void {
+export function useSceneStack(): void {
   const reducedMotion = usePrefersReducedMotion();
-  useScrollFrame(() => {
+  const update = () => {
     const viewport = window.innerHeight || 800;
-    const edge = viewport * SCENE_EDGE;
-    for (const scene of document.querySelectorAll<HTMLElement>('[data-scene]')) {
+    const scenes = [...document.querySelectorAll<HTMLElement>('[data-scene]')];
+    scenes.forEach((scene, index) => {
+      const content = scene.firstElementChild as HTMLElement | null;
       if (reducedMotion) {
-        scene.style.opacity = '';
-        scene.style.transform = '';
-        continue;
+        scene.style.top = '';
+        scene.style.zIndex = '';
+        if (content) {
+          content.style.opacity = '';
+          content.style.transform = '';
+        }
+        return;
       }
-      const { top, bottom } = scene.getBoundingClientRect();
-      const arriving = clamp01((viewport - top) / edge);
-      const leaving = clamp01(bottom / edge);
-      scene.style.opacity = String(Math.min(arriving, leaving));
-      const drift = (1 - arriving) * SCENE_DRIFT_PX.in - (1 - leaving) * SCENE_DRIFT_PX.out;
-      scene.style.transform = drift ? `translateY(${drift.toFixed(1)}px)` : '';
-    }
+      const height = scene.offsetHeight;
+      scene.style.top = `${Math.min(0, viewport - height)}px`;
+      scene.style.zIndex = String(index + 1);
+      if (!content) return;
+
+      // Covered from the moment the next section rises into this one: at its
+      // foot for a short section, at the viewport's foot for a tall one.
+      const next = scenes[index + 1];
+      const reach = Math.min(viewport, height);
+      const covered = next ? clamp01(1 - next.getBoundingClientRect().top / reach) : 0;
+      const arriving = clamp01((viewport - scene.getBoundingClientRect().top) / (viewport * SCENE_ARRIVING.distance));
+      const opacity = Math.min(
+        SCENE_ARRIVING.opacity + (1 - SCENE_ARRIVING.opacity) * arriving,
+        1 - (1 - SCENE_COVERED.opacity) * covered,
+      );
+      content.style.opacity = opacity >= 0.999 ? '' : opacity.toFixed(3);
+      content.style.transformOrigin = 'center top';
+      content.style.transform = covered
+        ? `translateY(${(-covered * SCENE_COVERED.liftPx).toFixed(1)}px) scale(${(1 - covered * (1 - SCENE_COVERED.scale)).toFixed(4)})`
+        : '';
+    });
+  };
+  useScrollFrame(update);
+
+  // A section that changes height without a scroll (an FAQ answer opening)
+  // needs its hold point again.
+  const latest = useRef(update);
+  useEffect(() => {
+    latest.current = update;
   });
+  useEffect(() => {
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => latest.current());
+    document.querySelectorAll('[data-scene]').forEach((scene) => observer.observe(scene));
+    return () => observer.disconnect();
+  }, []);
 }

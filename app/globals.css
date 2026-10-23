@@ -285,6 +285,11 @@
   --home-button-text: #1E1E1E;
   --home-button-hover: #E9E9E6;
   --home-ease: cubic-bezier(.2, .7, .2, 1);
+  /* The dusk sky behind the whole site: cool light top left, warmth low right. */
+  --home-backdrop:
+    radial-gradient(1100px 760px at 8% -8%, rgba(138, 154, 184, .2), transparent 62%),
+    radial-gradient(1200px 820px at 92% 108%, rgba(232, 172, 132, .17), transparent 62%),
+    linear-gradient(180deg, #1C1E23 0%, #222327 45%, #211F1F 100%);
 
   background: var(--home-bg);
   /* PageBackdrop's fixed layer sits between this background and the content. */
@@ -293,6 +298,14 @@
   font-family: var(--font-outfit);
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
+}
+/* A homepage section: it paints the same backdrop, held to the viewport, so
+   the page reads as one surface while each section slides over the last
+   (useSceneStack). Where fixed backgrounds are unsupported (iOS) it simply
+   scrolls with the section. */
+.home-page .home-scene {
+  background: var(--home-backdrop);
+  background-attachment: fixed;
 }
 .home-page a:hover {
   color: #FFFFFF;

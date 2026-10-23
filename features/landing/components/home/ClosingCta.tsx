@@ -4,7 +4,7 @@ import { callBookingLink } from '@/shared/marketing/business-terms';
 import { HOME_CLOSING, HOME_CTA_LABEL } from '../../content/home';
 import { useStrategyCta } from '../../hooks/useStrategyCta';
 import { Reveal } from './Reveal';
-import { PrimaryLink } from './primitives';
+import { HomeSection, PrimaryLink } from './primitives';
 
 /** The closing call to action: one line, the button, and a call for anyone not ready. */
 export function ClosingCta() {
@@ -12,8 +12,8 @@ export function ClosingCta() {
   const booking = callBookingLink();
 
   return (
-    <section data-scene data-closing className="border-t border-white/8">
-      <Reveal className="mx-auto flex max-w-[1280px] flex-col items-center gap-6 px-10 py-[clamp(96px,11vw,152px)] text-center max-sm:px-6">
+    <HomeSection data-closing className="py-[clamp(96px,11vw,152px)]">
+      <Reveal className="flex flex-col items-center gap-6 text-center">
         <h2 className="text-[clamp(40px,5.2vw,72px)] leading-[1.04] font-medium tracking-[-.03em]">
           {HOME_CLOSING.heading}
         </h2>
@@ -31,6 +31,6 @@ export function ClosingCta() {
           </a>
         </div>
       </Reveal>
-    </section>
+    </HomeSection>
   );
 }

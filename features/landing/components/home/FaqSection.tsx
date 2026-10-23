@@ -28,7 +28,7 @@ export function FaqSection() {
   }, []);
 
   return (
-    <HomeSection id="faq" tone="deep">
+    <HomeSection id="faq">
       <SectionHeader eyebrow={HOME_FAQ.eyebrow} title={HOME_FAQ.heading} intro={HOME_FAQ.intro} className="mb-12" />
       <QuestionList
         items={faqs.map((faq) => ({ question: faq.question, answer: faq.answer, id: faq.id }))}

@@ -3,9 +3,9 @@ import { Reveal } from '../home/Reveal';
 import { HomeSection, SectionHeader } from '../home/primitives';
 
 /** "The strategy is the cheap part": what a wrong strategy really costs. */
-export function BudgetArgument({ tone }: { tone?: 'plain' | 'deep' }) {
+export function BudgetArgument() {
   return (
-    <HomeSection id="budget" tone={tone}>
+    <HomeSection id="budget">
       <SectionHeader title={C.heading} intro={C.intro} />
       <ol className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-10">
         {C.costs.map((cost, i) => (

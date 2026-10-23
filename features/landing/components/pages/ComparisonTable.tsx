@@ -27,9 +27,9 @@ function Value({ value, ours }: { value: ComparisonValue; ours: boolean }) {
 }
 
 /** AdCendy against a freelancer and an agency: direction, hands, and the trade. The page heading names it. */
-export function ComparisonTable({ tone }: { tone?: 'plain' | 'deep' }) {
+export function ComparisonTable() {
   return (
-    <HomeSection id="comparison" tone={tone}>
+    <HomeSection id="comparison">
       {/* A phone gets each row as its own block: too narrow for four columns. */}
       <div className="flex flex-col gap-10 md:hidden">
         {C.categories.map((category) => (

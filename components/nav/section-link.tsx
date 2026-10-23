@@ -9,6 +9,32 @@ type SectionLinkProps = Omit<ComponentProps<typeof Link>, 'href'> & {
 };
 
 /**
+ * Where `target` sits in the page's own flow, less its scroll margin. The
+ * homepage's sections are sticky scenes, so one already passed is held at
+ * the top and its on-screen position says nothing about where it lives: a
+ * scene's place is where its parent starts plus the scenes before it, and a
+ * target inside one is offset from that by its offsetTop chain.
+ */
+function flowTop(target: HTMLElement): number {
+  const scrollMargin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+  const scene = target.closest<HTMLElement>('[data-scene]');
+  const parent = scene?.parentElement;
+  if (!scene || !parent || getComputedStyle(scene).position !== 'sticky') {
+    return target.getBoundingClientRect().top + window.scrollY - scrollMargin;
+  }
+  let sceneTop = parent.getBoundingClientRect().top + window.scrollY;
+  for (const sibling of parent.children) {
+    if (sibling === scene) break;
+    sceneTop += (sibling as HTMLElement).offsetHeight;
+  }
+  let inside = 0;
+  for (let node: Element | null = target; node && node !== scene; node = (node as HTMLElement).offsetParent) {
+    inside += (node as HTMLElement).offsetTop;
+  }
+  return sceneTop + inside - scrollMargin;
+}
+
+/**
  * A link to a landing-page section that works every time it is clicked.
  *
  * A plain `/#pricing` link does nothing once `#pricing` is already in the URL,
@@ -34,7 +60,7 @@ export function SectionLink({ sectionId, onClick, ...props }: SectionLinkProps) 
 
     event.preventDefault();
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+    window.scrollTo({ top: flowTop(target), behavior: reducedMotion ? 'auto' : 'smooth' });
     if (window.location.hash !== `#${sectionId}`) {
       window.history.pushState(null, '', href);
     }

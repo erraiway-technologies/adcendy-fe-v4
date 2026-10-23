@@ -3,9 +3,9 @@ import { Reveal } from '../home/Reveal';
 import { HomeSection } from '../home/primitives';
 
 /** Why the hard part is not your team's to staff: the /approach page opens with it. */
-export function WhyNotYourTeam({ tone }: { tone?: 'plain' | 'deep' }) {
+export function WhyNotYourTeam() {
   return (
-    <HomeSection id="why-not-your-team" tone={tone}>
+    <HomeSection id="why-not-your-team">
       <Reveal>
         <p className="max-w-[30ch] text-[clamp(28px,3.4vw,46px)] leading-[1.25] tracking-[-.015em] text-pretty text-white">
           {C.lead} <span className="text-(--home-text-4)">{C.aside}</span>
