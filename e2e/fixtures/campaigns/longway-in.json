@@ -1,0 +1,172 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "longway-in",
+  "displayName": "Longway (IN, marketplace-led appliances, public facts, assumed figures)",
+  "wizard": {
+    "step1": {
+      "title": "Longway sales growth",
+      "marketingTargetType": "whole_business",
+      "focusName": "Longway",
+      "sourceType": "website",
+      "primaryUrl": "https://longwayindia.com/",
+      "targetMarkets": [
+        "IN"
+      ],
+      "primaryMarket": "IN",
+      "marketScope": "national",
+      "currency": "INR",
+      "operationalLocations": []
+    },
+    "step2": {
+      "businessName": "Longway",
+      "industryCategory": "ecommerce_d2c",
+      "sellsTo": "consumers",
+      "sellsVia": "mix",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "scaling",
+      "businessDescription": "An Indian home-appliance brand selling ceiling fans, room heaters, geysers and kitchen appliances, mostly on Amazon and also from its own store.",
+      "productCategory": "Home and kitchen appliances",
+      "productsServices": [
+        "BLDC ceiling fans",
+        "Room heaters",
+        "Electric geysers",
+        "Mixer grinders and blenders",
+        "Air fryers",
+        "Gas stoves, irons and kettles"
+      ],
+      "offerSummary": "Energy-efficient fans and everyday appliances at lower prices than the national brands.",
+      "differentiators": [
+        "BEE 5-star rated BLDC fans",
+        "Up to five years warranty on fans"
+      ],
+      "sensitiveCategoryFlags": [
+        "none"
+      ],
+      "priceRangeLow": 319,
+      "priceRangeHigh": 8999,
+      "pricePosition": "cheaper",
+      "complianceSensitiveClaims": []
+    },
+    "step3": {
+      "primaryTargetSegment": "Households across India replacing or adding fans and kitchen appliances.",
+      "targetPersona": "A 28 to 50 year old homeowner comparing fans or appliances on Amazon by price, ratings and power use.",
+      "language": "english",
+      "painPoints": [
+        "Big brands cost more for the same features",
+        "High electricity bills from old fans",
+        "Unsure whether a smaller brand is reliable"
+      ],
+      "desiredOutcome": "More sales at a lower advertising cost per sale.",
+      "decisionProcess": "They search on Amazon, compare ratings, price and warranty across brands, and buy during a sale.",
+      "ageRanges": [
+        "25_34",
+        "35_44",
+        "45_54"
+      ],
+      "genderSkew": "even",
+      "buyingTriggers": [
+        "Summer heat",
+        "Moving home",
+        "A festive sale"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "amazon",
+          "rank": 1,
+          "salesShare": "over_60"
+        },
+        {
+          "channel": "own_website",
+          "rank": 2,
+          "salesShare": "10_30"
+        },
+        {
+          "channel": "flipkart",
+          "rank": 3,
+          "salesShare": "under_10"
+        }
+      ],
+      "primaryConversionPath": "buy_online",
+      "trustSignals": [
+        "4,600+ ratings on its top Amazon.in listing"
+      ],
+      "socialHandles": [],
+      "digitalPresenceLinks": [],
+      "monthlyWebsiteTraffic": "10000_50000",
+      "emailListSize": "none",
+      "whatsappListSize": "unknown",
+      "googleAnalyticsConnected": "unknown",
+      "existingAssets": [
+        "none"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "revenue_growth",
+      "monthlyMarketingBudget": 1500000,
+      "paidAdsShare": "most",
+      "marketingHandler": "in_house_team",
+      "contentCapacity": "medium",
+      "marketingHoursPerWeek": "tenToTwenty",
+      "creativeCapabilities": [
+        "photography",
+        "video",
+        "design"
+      ],
+      "deliveryDeadline": "withinSixMonths",
+      "knownCompetitorStatus": "provided",
+      "knownCompetitors": [
+        "Havells",
+        "Crompton",
+        "Bajaj Electricals",
+        "Orient Electric"
+      ],
+      "currentMarketingActivity": [
+        {
+          "channel": "Amazon Sponsored Products",
+          "channelId": "amazon_sponsored_products",
+          "status": "active",
+          "workingAssessment": "clearly_working",
+          "monthlySpendAmount": 700000,
+          "shareOfSpend": "over_60"
+        },
+        {
+          "channel": "Google Search Ads",
+          "channelId": "google_search_ads",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 200000,
+          "shareOfSpend": "10_30"
+        }
+      ],
+      "peakSeasons": [
+        "summer",
+        "diwali"
+      ],
+      "currentOffers": [],
+      "constraints": []
+    },
+    "step6": {
+      "averageOrderValueAmount": 2200,
+      "monthlyOrderVolume": "8000",
+      "grossMarginBand": "from_20_to_40_percent",
+      "paybackWindow": "firstOrder",
+      "avgCustomerRetention": "one_time_buyers",
+      "repeatPurchaseFrequency": "never",
+      "subscriptionOffered": false
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}

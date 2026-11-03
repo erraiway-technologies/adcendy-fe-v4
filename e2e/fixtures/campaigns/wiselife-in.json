@@ -1,0 +1,176 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "wiselife-in",
+  "displayName": "WiseLife (IN, under a giant, public facts, assumed figures)",
+  "wizard": {
+    "step1": {
+      "title": "WiseLife revenue growth",
+      "marketingTargetType": "whole_business",
+      "focusName": "WiseLife",
+      "sourceType": "website",
+      "primaryUrl": "https://wiselife.in/",
+      "targetMarkets": [
+        "IN"
+      ],
+      "primaryMarket": "IN",
+      "marketScope": "national",
+      "currency": "INR",
+      "operationalLocations": []
+    },
+    "step2": {
+      "businessName": "WiseLife",
+      "industryCategory": "wellness_fitness",
+      "sellsTo": "consumers",
+      "sellsVia": "mix",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "scaling",
+      "businessDescription": "A yoga and home-fitness brand selling yoga mats, props, yoga wear and wellness tools from its own store and on Amazon.",
+      "productCategory": "Yoga mats, props and home fitness equipment",
+      "productsServices": [
+        "Yoga mats (TPE, rubber and travel)",
+        "Yoga props and straps",
+        "Home fitness equipment",
+        "Yoga wear",
+        "Wellness tools (jal neti kit, gua sha, kansa wand)"
+      ],
+      "offerSummary": "Better-made yoga mats and props for people who practise at home.",
+      "differentiators": [
+        "Premium and everyday mat ranges",
+        "Yoga wear and props from one brand"
+      ],
+      "sensitiveCategoryFlags": [
+        "none"
+      ],
+      "priceRangeLow": 199,
+      "priceRangeHigh": 10995,
+      "pricePosition": "premium",
+      "complianceSensitiveClaims": []
+    },
+    "step3": {
+      "primaryTargetSegment": "Adults in Indian cities who practise yoga or work out at home.",
+      "targetPersona": "A 25 to 45 year old who practises yoga at home several times a week and wants a better mat than the cheapest one.",
+      "language": "english",
+      "painPoints": [
+        "Cheap mats slip and wear out",
+        "Hard to judge mat quality online"
+      ],
+      "desiredOutcome": "More sales on the own store, not only on Amazon.",
+      "decisionProcess": "They search for a yoga mat on Google or Amazon, compare with the big sports retailer, read reviews, then buy.",
+      "ageRanges": [
+        "25_34",
+        "35_44",
+        "45_54"
+      ],
+      "genderSkew": "mostly_women",
+      "buyingTriggers": [
+        "New Year fitness goals",
+        "International Yoga Day"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "own_website",
+          "rank": 1,
+          "salesShare": "30_60"
+        },
+        {
+          "channel": "amazon",
+          "rank": 2,
+          "salesShare": "30_60"
+        },
+        {
+          "channel": "flipkart",
+          "rank": 3,
+          "salesShare": "under_10"
+        }
+      ],
+      "primaryConversionPath": "buy_online",
+      "trustSignals": [
+        "3,469 ratings on its top Amazon.in listing, 4.2 average"
+      ],
+      "socialHandles": [],
+      "digitalPresenceLinks": [],
+      "monthlyWebsiteTraffic": "50000_250000",
+      "emailListSize": "10000_50000",
+      "whatsappListSize": "2000_10000",
+      "googleAnalyticsConnected": true,
+      "existingAssets": [
+        "email_automation"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "revenue_growth",
+      "monthlyMarketingBudget": 800000,
+      "paidAdsShare": "most",
+      "marketingHandler": "in_house_team",
+      "contentCapacity": "high",
+      "marketingHoursPerWeek": "twentyToForty",
+      "creativeCapabilities": [
+        "photography",
+        "video",
+        "design",
+        "copywriting"
+      ],
+      "deliveryDeadline": "noFixedDeadline",
+      "knownCompetitorStatus": "provided",
+      "knownCompetitors": [
+        "Decathlon",
+        "Boldfit"
+      ],
+      "currentMarketingActivity": [
+        {
+          "channel": "Google Search Ads",
+          "channelId": "google_search_ads",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 250000,
+          "shareOfSpend": "30_60"
+        },
+        {
+          "channel": "Meta Ads",
+          "channelId": "meta_ads",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 200000,
+          "shareOfSpend": "30_60"
+        },
+        {
+          "channel": "Amazon Sponsored Products",
+          "channelId": "amazon_sponsored_products",
+          "status": "active",
+          "workingAssessment": "clearly_working",
+          "monthlySpendAmount": 100000,
+          "shareOfSpend": "10_30"
+        }
+      ],
+      "peakSeasons": [
+        "new_year",
+        "summer"
+      ],
+      "currentOffers": [],
+      "constraints": []
+    },
+    "step6": {
+      "averageOrderValueAmount": 1500,
+      "monthlyOrderVolume": "3000",
+      "grossMarginBand": "from_40_to_60_percent",
+      "paybackWindow": "firstOrder",
+      "avgCustomerRetention": "some_repeat",
+      "repeatPurchaseFrequency": "every_few_months",
+      "subscriptionOffered": false
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}

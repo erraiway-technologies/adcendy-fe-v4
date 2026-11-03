@@ -1,0 +1,150 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "12for-collection-in",
+  "displayName": "12FOR COLLECTION (IN, Amazon-only, public facts, assumed figures)",
+  "wizard": {
+    "step1": {
+      "title": "12FOR COLLECTION sales growth",
+      "marketingTargetType": "whole_business",
+      "focusName": "12FOR COLLECTION",
+      "sourceType": "digital_presence_only",
+      "primaryUrl": "https://www.amazon.in/dp/B0BZ7TB3R8",
+      "targetMarkets": [
+        "IN"
+      ],
+      "primaryMarket": "IN",
+      "marketScope": "national",
+      "currency": "INR",
+      "operationalLocations": []
+    },
+    "step2": {
+      "businessName": "12FOR COLLECTION",
+      "industryCategory": "ecommerce_d2c",
+      "sellsTo": "consumers",
+      "sellsVia": "marketplaces",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "growth",
+      "businessDescription": "A home-storage seller with no website of its own, selling stainless steel kitchen racks, shelves and organisers through its own Amazon.in store.",
+      "productCategory": "Stainless steel kitchen racks and storage organisers",
+      "productsServices": [
+        "Countertop kitchen racks (2 and 3 tier)",
+        "Expandable dish racks and cabinet shelves",
+        "Wall-mount spice and utensil organisers",
+        "Rice pot drainer and tawa stands",
+        "Artificial flowers for home decor"
+      ],
+      "offerSummary": "Low-priced stainless steel storage for small Indian kitchens.",
+      "differentiators": [
+        "Stainless steel at entry-level prices"
+      ],
+      "sensitiveCategoryFlags": [
+        "none"
+      ],
+      "priceRangeLow": 189,
+      "priceRangeHigh": 599,
+      "pricePosition": "cheaper",
+      "complianceSensitiveClaims": []
+    },
+    "step3": {
+      "primaryTargetSegment": "Households in Indian cities organising small kitchens on a budget.",
+      "targetPersona": "A 25 to 45 year old running a home in a rented city flat who shops for kitchen storage on Amazon by price and ratings.",
+      "language": "english",
+      "painPoints": [
+        "Small kitchens with no counter space",
+        "Cheap racks rust quickly"
+      ],
+      "desiredOutcome": "More orders on Amazon at a lower advertising cost per order.",
+      "decisionProcess": "They search Amazon for a kitchen rack, sort by price and ratings, and buy the same day.",
+      "ageRanges": [
+        "25_34",
+        "35_44",
+        "45_54"
+      ],
+      "genderSkew": "mostly_women",
+      "buyingTriggers": [
+        "Moving home",
+        "Diwali cleaning"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "amazon",
+          "rank": 1,
+          "salesShare": "over_60"
+        }
+      ],
+      "primaryConversionPath": "buy_online",
+      "trustSignals": [
+        "3,586 ratings on its top Amazon.in listing, 4.1 average"
+      ],
+      "socialHandles": [],
+      "digitalPresenceLinks": [
+        {
+          "type": "amazon",
+          "url": "https://www.amazon.in/dp/B0BZ7TB3R8",
+          "label": "Top Amazon.in listing"
+        }
+      ],
+      "monthlyWebsiteTraffic": "",
+      "emailListSize": "none",
+      "whatsappListSize": "none",
+      "googleAnalyticsConnected": "",
+      "existingAssets": [
+        "none"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "revenue_growth",
+      "monthlyMarketingBudget": 50000,
+      "paidAdsShare": "all",
+      "marketingHandler": "founder_led",
+      "contentCapacity": "low",
+      "marketingHoursPerWeek": "underFive",
+      "creativeCapabilities": [
+        "photography"
+      ],
+      "deliveryDeadline": "noFixedDeadline",
+      "knownCompetitorStatus": "unknown",
+      "knownCompetitors": [],
+      "currentMarketingActivity": [
+        {
+          "channel": "Amazon Sponsored Products",
+          "channelId": "amazon_sponsored_products",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 40000,
+          "shareOfSpend": "over_60"
+        }
+      ],
+      "peakSeasons": [
+        "diwali"
+      ],
+      "currentOffers": [],
+      "constraints": [
+        "No website of its own"
+      ]
+    },
+    "step6": {
+      "averageOrderValueAmount": 300,
+      "monthlyOrderVolume": "1500",
+      "grossMarginBand": "from_20_to_40_percent",
+      "paybackWindow": "firstOrder",
+      "avgCustomerRetention": "one_time_buyers",
+      "repeatPurchaseFrequency": "never",
+      "subscriptionOffered": false
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "zenma-coffee-in",
+  "displayName": "Zenma Coffee (IN, thin D2C, public facts, assumed figures)",
+  "wizard": {
+    "step1": {
+      "title": "Zenma Coffee new customers",
+      "marketingTargetType": "whole_business",
+      "focusName": "Zenma Coffee",
+      "sourceType": "website",
+      "primaryUrl": "https://zenmacoffee.com/",
+      "targetMarkets": [
+        "IN"
+      ],
+      "primaryMarket": "IN",
+      "marketScope": "national",
+      "currency": "INR",
+      "operationalLocations": []
+    },
+    "step2": {
+      "businessName": "Zenma Coffee",
+      "industryCategory": "food_beverage_brands",
+      "sellsTo": "consumers",
+      "sellsVia": "mix",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "growth",
+      "businessDescription": "A coffee brand selling ready-to-mix coffee concentrates and roasted coffee from its own online store and on quick-commerce apps, delivering in a handful of metro cities.",
+      "productCategory": "Ready-to-mix coffee concentrate and roasted coffee",
+      "productsServices": [
+        "Coffee concentrate (Reserve and Filter)",
+        "Flavoured coffee concentrates (Hazelnut, Vanilla, Mocha)",
+        "Medium roast coffee",
+        "Assorted tasting box"
+      ],
+      "offerSummary": "Cafe-style coffee at home in under a minute: add the concentrate to milk or water.",
+      "differentiators": [
+        "Ready in under a minute, no machine needed",
+        "Concentrates in several flavours"
+      ],
+      "sensitiveCategoryFlags": [
+        "none"
+      ],
+      "priceRangeLow": 149,
+      "priceRangeHigh": 5386,
+      "pricePosition": "premium",
+      "complianceSensitiveClaims": []
+    },
+    "step3": {
+      "primaryTargetSegment": "Young working adults in Indian metros who drink coffee daily and want cafe taste at home.",
+      "targetPersona": "A 22 to 35 year old professional in a metro who buys cafe coffee several times a week and wants something as good at home without a machine.",
+      "language": "english",
+      "painPoints": [
+        "Instant coffee does not taste like cafe coffee",
+        "Cafe coffee every day is expensive",
+        "No time or equipment to brew at home"
+      ],
+      "desiredOutcome": "More repeat customers ordering from the own store.",
+      "decisionProcess": "They see the brand on Instagram or a quick-commerce app, try a small pack, and reorder when it runs out.",
+      "ageRanges": [
+        "18_24",
+        "25_34",
+        "35_44"
+      ],
+      "genderSkew": "even",
+      "buyingTriggers": [
+        "Running out of coffee",
+        "A new flavour launch"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "own_website",
+          "rank": 1,
+          "salesShare": "over_60"
+        },
+        {
+          "channel": "quick_commerce",
+          "rank": 2,
+          "salesShare": "10_30"
+        }
+      ],
+      "primaryConversionPath": "buy_online",
+      "trustSignals": [],
+      "socialHandles": [],
+      "digitalPresenceLinks": [],
+      "monthlyWebsiteTraffic": "2000_10000",
+      "emailListSize": "500_2000",
+      "whatsappListSize": "under_500",
+      "googleAnalyticsConnected": true,
+      "existingAssets": [
+        "none"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "new_customers",
+      "monthlyMarketingBudget": 100000,
+      "paidAdsShare": "about_half",
+      "marketingHandler": "founder_led",
+      "contentCapacity": "medium",
+      "marketingHoursPerWeek": "fiveToTen",
+      "creativeCapabilities": [
+        "photography",
+        "copywriting"
+      ],
+      "deliveryDeadline": "noFixedDeadline",
+      "knownCompetitorStatus": "provided",
+      "knownCompetitors": [
+        "Sleepy Owl",
+        "Blue Tokai"
+      ],
+      "currentMarketingActivity": [
+        {
+          "channel": "Meta Ads",
+          "channelId": "meta_ads",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 30000,
+          "shareOfSpend": "30_60"
+        }
+      ],
+      "peakSeasons": [],
+      "currentOffers": [],
+      "constraints": [
+        "Delivers in a few metro cities only"
+      ]
+    },
+    "step6": {
+      "averageOrderValueAmount": 900,
+      "monthlyOrderVolume": "400",
+      "grossMarginBand": "from_40_to_60_percent",
+      "paybackWindow": "withinThreeMonths",
+      "avgCustomerRetention": "some_repeat",
+      "repeatPurchaseFrequency": "monthly",
+      "subscriptionOffered": false
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}

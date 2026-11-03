@@ -1,0 +1,167 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "iyurved-in",
+  "displayName": "Iyurved (IN, regulated claims, public facts, assumed figures)",
+  "wizard": {
+    "step1": {
+      "title": "Iyurved new customers",
+      "marketingTargetType": "whole_business",
+      "focusName": "Iyurved",
+      "sourceType": "website",
+      "primaryUrl": "https://iyurved.com/",
+      "targetMarkets": [
+        "IN"
+      ],
+      "primaryMarket": "IN",
+      "marketScope": "national",
+      "currency": "INR",
+      "operationalLocations": []
+    },
+    "step2": {
+      "businessName": "Iyurved",
+      "industryCategory": "food_beverage_brands",
+      "sellsTo": "consumers",
+      "sellsVia": "mix",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "growth",
+      "businessDescription": "A nutrition brand selling a nut-and-herb chocolate spread for children and teens, add-on calming and detox products, and online therapy and yoga programmes, from its own store and on Amazon, with nutrition consultations on WhatsApp.",
+      "productCategory": "Children's nutrition spread with Ayurvedic herbs",
+      "productsServices": [
+        "Kids and Teens Brain Booster Chocolate Spread",
+        "Magnesium Calming Oil",
+        "Pancha Haridra Detox Blend",
+        "Gluten Free Protein Atta",
+        "Online Beginner Therapy School (recorded sessions)",
+        "20-Day Yoga and Brain Gym Program"
+      ],
+      "offerSummary": "A daily spread of nuts, seeds and Ayurvedic herbs for children, with nutrition consultations.",
+      "differentiators": [
+        "No gluten, dairy, refined sugar or palm oil",
+        "Nutrition consultations by WhatsApp or call"
+      ],
+      "sensitiveCategoryFlags": [
+        "supplements",
+        "childrenMinors",
+        "wellness"
+      ],
+      "priceRangeLow": 850,
+      "priceRangeHigh": 3999,
+      "pricePosition": "premium",
+      "complianceSensitiveClaims": [
+        "Improves focus, attention, eye contact, memory, behaviour and speech development",
+        "Strengthens the frontal cortex and speech pathways",
+        "Backed by research, approved by experts and doctors"
+      ]
+    },
+    "step3": {
+      "primaryTargetSegment": "Parents in India worried about their child's focus, behaviour or speech.",
+      "targetPersona": "A 28 to 45 year old parent of a child aged 3 to 15 who is looking for a natural food-based option alongside therapy.",
+      "language": "english",
+      "painPoints": [
+        "Worried about a child who is slow to speak or cannot focus",
+        "Wary of medicines for children",
+        "Children refuse healthy food"
+      ],
+      "desiredOutcome": "More first orders from new parents, and more of them reordering.",
+      "decisionProcess": "They find the brand through Instagram or Facebook ads, read reviews and parent stories, often message on WhatsApp, then order a jar.",
+      "ageRanges": [
+        "25_34",
+        "35_44",
+        "45_54"
+      ],
+      "genderSkew": "mostly_women",
+      "buyingTriggers": [
+        "A teacher's or doctor's concern about the child",
+        "A new school year"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "own_website",
+          "rank": 1,
+          "salesShare": "over_60"
+        },
+        {
+          "channel": "amazon",
+          "rank": 2,
+          "salesShare": "10_30"
+        },
+        {
+          "channel": "whatsapp",
+          "rank": 3,
+          "salesShare": "under_10"
+        }
+      ],
+      "primaryConversionPath": "buy_online",
+      "trustSignals": [
+        "335 reviews on the Brain Booster spread",
+        "306 ratings on Amazon.in",
+        "FSSAI licensed"
+      ],
+      "socialHandles": [],
+      "digitalPresenceLinks": [],
+      "monthlyWebsiteTraffic": "10000_50000",
+      "emailListSize": "2000_10000",
+      "whatsappListSize": "2000_10000",
+      "googleAnalyticsConnected": "unknown",
+      "existingAssets": [
+        "community"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "new_customers",
+      "monthlyMarketingBudget": 300000,
+      "paidAdsShare": "most",
+      "marketingHandler": "founder_led",
+      "contentCapacity": "medium",
+      "marketingHoursPerWeek": "tenToTwenty",
+      "creativeCapabilities": [
+        "video",
+        "copywriting"
+      ],
+      "deliveryDeadline": "noFixedDeadline",
+      "knownCompetitorStatus": "none_known",
+      "knownCompetitors": [],
+      "currentMarketingActivity": [
+        {
+          "channel": "Meta Ads",
+          "channelId": "meta_ads",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 200000,
+          "shareOfSpend": "over_60"
+        }
+      ],
+      "peakSeasons": [
+        "back_to_school"
+      ],
+      "currentOffers": [
+        "Buy 2, save Rs. 50",
+        "Free shipping on prepaid orders"
+      ],
+      "constraints": []
+    },
+    "step6": {
+      "averageOrderValueAmount": 1400,
+      "monthlyOrderVolume": "900",
+      "grossMarginBand": "from_60_to_80_percent",
+      "paybackWindow": "withinThreeMonths",
+      "avgCustomerRetention": "mostly_repeat",
+      "repeatPurchaseFrequency": "monthly",
+      "subscriptionOffered": false
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}

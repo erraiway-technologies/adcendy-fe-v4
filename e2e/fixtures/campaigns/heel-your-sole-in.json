@@ -1,0 +1,164 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureStatus": "ready",
+  "slug": "heel-your-sole-in",
+  "displayName": "Heel Your Sole (IN, COD and returns, public facts, assumed figures)",
+  "wizard": {
+    "step1": {
+      "title": "Heel Your Sole new customers",
+      "marketingTargetType": "whole_business",
+      "focusName": "Heel Your Sole",
+      "sourceType": "website",
+      "primaryUrl": "https://heelyoursole.world/",
+      "targetMarkets": [
+        "IN"
+      ],
+      "primaryMarket": "IN",
+      "marketScope": "national",
+      "currency": "INR",
+      "operationalLocations": []
+    },
+    "step2": {
+      "businessName": "Heel Your Sole",
+      "industryCategory": "fashion_apparel",
+      "sellsTo": "consumers",
+      "sellsVia": "mix",
+      "audienceModel": "single_sided",
+      "lifecycleStage": "growth",
+      "businessDescription": "A footwear brand founded in 2023 selling women's flats, heels and wedges and a newer men's range, from its own store and on Nykaa.",
+      "productCategory": "Women's and men's comfort footwear",
+      "productsServices": [
+        "Women's flats and ballerinas",
+        "Women's heels and wedges",
+        "Men's loafers and dress shoes",
+        "Sneakers"
+      ],
+      "offerSummary": "Comfortable, fashionable shoes for everyday and occasion wear.",
+      "differentiators": [
+        "Comfort-first heels",
+        "Women's and men's ranges"
+      ],
+      "sensitiveCategoryFlags": [
+        "none"
+      ],
+      "priceRangeLow": 1377,
+      "priceRangeHigh": 7990,
+      "pricePosition": "about_same",
+      "complianceSensitiveClaims": []
+    },
+    "step3": {
+      "primaryTargetSegment": "Working women in Indian cities who want fashionable shoes they can wear all day.",
+      "targetPersona": "A 24 to 40 year old woman in a metro or large city who buys shoes online for work and occasions and is put off by uncomfortable heels.",
+      "language": "english",
+      "painPoints": [
+        "Heels that hurt after an hour",
+        "Unsure about size when buying online"
+      ],
+      "desiredOutcome": "More first orders, with fewer orders returned undelivered.",
+      "decisionProcess": "They see the shoes on Instagram or Nykaa, check reviews and sizing, and often order cash on delivery.",
+      "ageRanges": [
+        "18_24",
+        "25_34",
+        "35_44"
+      ],
+      "genderSkew": "mostly_women",
+      "buyingTriggers": [
+        "A wedding or festive occasion",
+        "A new job"
+      ]
+    },
+    "step4": {
+      "salesChannels": [
+        {
+          "channel": "own_website",
+          "rank": 1,
+          "salesShare": "30_60"
+        },
+        {
+          "channel": "nykaa",
+          "rank": 2,
+          "salesShare": "30_60"
+        },
+        {
+          "channel": "amazon",
+          "rank": 3,
+          "salesShare": "under_10"
+        }
+      ],
+      "primaryConversionPath": "buy_online",
+      "trustSignals": [
+        "About 650 reviews on Nykaa"
+      ],
+      "socialHandles": [],
+      "digitalPresenceLinks": [],
+      "monthlyWebsiteTraffic": "10000_50000",
+      "emailListSize": "2000_10000",
+      "whatsappListSize": "500_2000",
+      "googleAnalyticsConnected": "unknown",
+      "existingAssets": [
+        "none"
+      ]
+    },
+    "step5": {
+      "primaryGoal": "new_customers",
+      "monthlyMarketingBudget": 400000,
+      "paidAdsShare": "most",
+      "marketingHandler": "in_house_marketer",
+      "contentCapacity": "medium",
+      "marketingHoursPerWeek": "tenToTwenty",
+      "creativeCapabilities": [
+        "photography",
+        "video"
+      ],
+      "deliveryDeadline": "noFixedDeadline",
+      "knownCompetitorStatus": "unknown",
+      "knownCompetitors": [],
+      "currentMarketingActivity": [
+        {
+          "channel": "Meta Ads",
+          "channelId": "meta_ads",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 150000,
+          "shareOfSpend": "30_60"
+        },
+        {
+          "channel": "Google Search Ads",
+          "channelId": "google_search_ads",
+          "status": "active",
+          "workingAssessment": "unclear",
+          "monthlySpendAmount": 80000,
+          "shareOfSpend": "10_30"
+        }
+      ],
+      "peakSeasons": [
+        "wedding_season",
+        "diwali"
+      ],
+      "currentOffers": [],
+      "constraints": [
+        "Cash on delivery orders are often refused and returned"
+      ]
+    },
+    "step6": {
+      "averageOrderValueAmount": 3200,
+      "monthlyOrderVolume": "700",
+      "grossMarginBand": "from_40_to_60_percent",
+      "paybackWindow": "firstOrder",
+      "avgCustomerRetention": "some_repeat",
+      "repeatPurchaseFrequency": "every_few_months",
+      "subscriptionOffered": false
+    },
+    "step7": {
+      "confirmFocus": true,
+      "confirmBusiness": true,
+      "confirmAudience": true,
+      "confirmGoals": true,
+      "confirmEconomics": true,
+      "readyToGenerate": true,
+      "dataConsentOptIn": false,
+      "privacyProcessingConsent": true,
+      "aiProcessingConsent": true
+    }
+  }
+}
