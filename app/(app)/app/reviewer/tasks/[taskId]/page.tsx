@@ -54,6 +54,13 @@ import {
 } from '@/shared/components/ops/productNounConfirmation';
 import { SearchNoisePicker } from '@/shared/components/ops/SearchNoisePicker';
 import { BusinessProfileHoldForm } from '@/shared/components/ops/BusinessProfileHoldForm';
+import { OrderValueHoldForm } from '@/shared/components/ops/OrderValueHoldForm';
+import {
+  isOrderValueHoldTask,
+  readOrderValueHoldModel,
+  readOrderValueRefusal,
+  type OrderValueHoldAnswer,
+} from '@/shared/components/ops/orderValueHold';
 import { UnmatchedChannelHoldForm } from '@/shared/components/ops/UnmatchedChannelHoldForm';
 import {
   isUnmatchedChannelHoldTask,
@@ -1022,6 +1029,7 @@ export default function ReviewerTaskDetailPage() {
   /** Why the backend refused the last business-profile answer (V3-94). */
   const [profileHoldRefusal, setProfileHoldRefusal] = useState<string | null>(null);
   const [channelHoldRefusal, setChannelHoldRefusal] = useState<string | null>(null);
+  const [orderValueRefusal, setOrderValueRefusal] = useState<string | null>(null);
 
   useEffect(() => {
     setStoredCampaignId(getStoredCampaignIdForTask(taskId));
@@ -1301,6 +1309,33 @@ export default function ReviewerTaskDetailPage() {
   // reviewer maps each to the channel it is, or flags it as new.
   const unmatchedChannelHoldModel =
     task && isUnmatchedChannelHoldTask(task.failureMode) ? readUnmatchedChannelHoldModel(task) : null;
+
+  // V3-266: the intake's order value does not fit the price range or the
+  // market's currency; the reviewer confirms or corrects it, with a reason.
+  const orderValueHoldModel = task && isOrderValueHoldTask(task.failureMode) ? readOrderValueHoldModel(task) : null;
+
+  const handleOrderValueHoldSubmit = async (answer: OrderValueHoldAnswer) => {
+    setOrderValueRefusal(null);
+    try {
+      const result = await respondMutation.mutateAsync({ answer });
+      setLastActionResult(result);
+      toast({
+        title: answer.decision === 'confirm' ? 'Order value confirmed' : 'Order value corrected',
+        description: result.resumeOutcome ? `Resume outcome: ${result.resumeOutcome}` : 'Task response accepted.',
+      });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.opsV2.all });
+      router.replace('/app/reviewer/strategy-reviews');
+    } catch (error) {
+      // A refused answer leaves the task open: say why beside the form.
+      const refusal = readOrderValueRefusal(error instanceof Error ? error.message : null);
+      setOrderValueRefusal(refusal);
+      toast({
+        title: refusal ? 'The answer was refused' : 'Unable to submit the order value',
+        description: refusal ?? (error instanceof Error ? error.message : 'Unknown error'),
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleUnmatchedChannelHoldSubmit = async (answer: UnmatchedChannelHoldAnswer) => {
     setChannelHoldRefusal(null);
@@ -2078,6 +2113,17 @@ export default function ReviewerTaskDetailPage() {
               pending={respondMutation.isPending}
               refusal={profileHoldRefusal}
               onSubmit={(answer) => void handleBusinessProfileHoldSubmit(answer)}
+            />
+          ) : null}
+
+          {orderValueHoldModel ? (
+            <OrderValueHoldForm
+              key={task.id}
+              model={orderValueHoldModel}
+              readOnly={!isAnswerableTaskStatus(task.status)}
+              pending={respondMutation.isPending}
+              refusal={orderValueRefusal}
+              onSubmit={(answer) => void handleOrderValueHoldSubmit(answer)}
             />
           ) : null}
 
