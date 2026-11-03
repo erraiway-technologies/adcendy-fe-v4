@@ -418,8 +418,8 @@ export class CampaignWizardPage {
     if (step.googleAnalyticsConnected !== undefined && step.googleAnalyticsConnected !== '') {
       await this.chooseSelect('googleAnalyticsConnected', String(step.googleAnalyticsConnected));
     }
-    // v3 P6: the WhatsApp list is asked in India only.
-    if (step.whatsappListSize && this.fixture.wizard.step1.targetMarkets[0] === 'IN') {
+    // Owned audiences are asked in every market (V3-158).
+    if (step.whatsappListSize) {
       await this.chooseSelect('whatsappListSize', step.whatsappListSize);
     }
     for (const asset of step.existingAssets ?? []) {
@@ -678,17 +678,13 @@ export class CampaignWizardPage {
         await this.assertReviewField(goals, 'Current marketing activity', `${spend} a month`);
       }
     }
-    // The WhatsApp list is asked, and shown, in India only.
-    if (step1.targetMarkets[0] === 'IN') {
-      if (step4.whatsappListSize) {
-        await this.assertReviewField(
-          economics,
-          'WhatsApp list size',
-          optionLabel('whatsappListSize', step4.whatsappListSize),
-        );
-      }
-    } else {
-      await expect(economics.getByText('WhatsApp list size', { exact: true })).toHaveCount(0);
+    // Owned audiences are asked, and shown, in every market (V3-158).
+    if (step4.whatsappListSize) {
+      await this.assertReviewField(
+        economics,
+        'WhatsApp list size',
+        optionLabel('whatsappListSize', step4.whatsappListSize),
+      );
     }
     for (const asset of step4.existingAssets ?? []) {
       await this.assertReviewField(economics, 'Already running', optionLabel('existingAssets', asset));

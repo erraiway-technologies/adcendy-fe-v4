@@ -1,0 +1,142 @@
+/* AdCendy strategy report - v2, aligned with adcendy.com
+   Warm paper, near-black ink, Outfit + Geist Mono, one warm accent. */
+
+@font-face { font-family: "Outfit"; font-weight: 300; src: url("fonts/outfit-latin-300-normal.woff2") format("woff2"); }
+@font-face { font-family: "Outfit"; font-weight: 400; src: url("fonts/outfit-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Outfit"; font-weight: 500; src: url("fonts/outfit-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Outfit"; font-weight: 600; src: url("fonts/outfit-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Geist Mono"; font-weight: 400; src: url("fonts/geist-mono-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Geist Mono"; font-weight: 500; src: url("fonts/geist-mono-latin-500-normal.woff2") format("woff2"); }
+
+:root {
+  /* From the site's design tokens */
+  --paper:      #F4F3EF;   /* page (site --card) */
+  --paper-2:    #ECEAE5;   /* cards, table header (site --background) */
+  --paper-3:    #E0DED8;   /* bar track, dividers on cards (site --muted) */
+  --ink:        #1F1F1F;   /* headings, bars, primary (site --foreground) */
+  --body:       #3E3D3A;   /* running text */
+  --muted:      #6E6C66;   /* labels, captions (site --muted-foreground) */
+  --faint:      #A6A6A2;   /* chrome */
+  --rule:       rgba(31,31,31,.12);
+  --night:      #232323;   /* cover, dark blocks (site dark sections) */
+  --cream:      #EDE8DC;   /* logo / text on dark */
+
+  /* Accents: used sparingly, from the site's chart palette */
+  --clay:       #B9785A;   /* highlight, "watch" */
+  --clay-tint:  #F1E6DF;
+  --slate:      #5F6B85;   /* secondary series */
+  --red:        #B4473F;   /* risk only */
+  --red-tint:   #F3E3E1;
+  --green:      #4F7A5A;   /* positive status only */
+  --green-tint: #E3ECE5;
+}
+
+@page { size: A4; margin: 24mm 20mm 20mm 20mm; background: #F4F3EF; }
+html { background: var(--paper); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0; font-family: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  font-size: 10.5pt; line-height: 1.6; color: var(--body); font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.mono, .eyebrow, .tag, thead th, .chip, .step .n, .kpi .label-mono {
+  font-family: "Geist Mono", ui-monospace, monospace;
+}
+
+/* ---------- Section opener ---------- */
+.section { break-before: page; }
+.section:first-of-type { break-before: auto; }
+.meta-row {
+  display: flex; justify-content: space-between; font-family: "Geist Mono", monospace;
+  font-size: 7.5pt; letter-spacing: .04em; text-transform: uppercase; color: var(--muted);
+  padding-bottom: 10pt; border-bottom: 1px solid var(--rule); margin-bottom: 26pt;
+}
+h1 {
+  font-size: 30pt; line-height: 1.08; font-weight: 400; letter-spacing: -.02em;
+  color: var(--ink); margin: 0 0 10pt;
+}
+.lead { font-size: 13pt; line-height: 1.45; color: var(--muted); font-weight: 300; margin: 0 0 24pt; max-width: 145mm; }
+
+h2 {
+  font-size: 15pt; font-weight: 500; letter-spacing: -.01em; color: var(--ink);
+  margin: 26pt 0 8pt; line-height: 1.25; break-after: avoid;
+}
+h2 .idx { font-family: "Geist Mono", monospace; font-size: 8pt; font-weight: 400; color: var(--faint);
+          letter-spacing: .04em; margin-right: 8pt; vertical-align: 2pt; }
+h3 { font-size: 11pt; font-weight: 500; color: var(--ink); margin: 0 0 4pt; break-after: avoid; }
+p { margin: 0 0 9pt; orphans: 3; widows: 3; }
+strong { font-weight: 500; color: var(--ink); }
+.eyebrow { font-size: 7.5pt; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 8pt; }
+
+/* ---------- Key figures (site style: big light numbers, no boxes) ---------- */
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 18pt; margin: 0 0 8pt; break-inside: avoid; }
+.kpi { border-top: 1px solid var(--ink); padding-top: 10pt; }
+.kpi .value { font-size: 30pt; font-weight: 400; letter-spacing: -.03em; color: var(--ink); line-height: 1; }
+.kpi .value small { font-size: 11pt; color: var(--muted); letter-spacing: 0; margin-left: 2pt; }
+.kpi .label { font-size: 9pt; color: var(--muted); margin-top: 6pt; line-height: 1.4; }
+
+/* ---------- Cards ---------- */
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8pt; margin: 6pt 0 14pt; }
+.card { background: var(--paper-2); border: 1px solid var(--rule); border-radius: 4pt; padding: 12pt 12pt 8pt; break-inside: avoid; }
+.tag { font-size: 6.8pt; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.card h3 { margin: 3pt 0 9pt; }
+.card .row { display: flex; justify-content: space-between; gap: 8pt; font-size: 9pt; padding: 4pt 0; border-top: 1px solid var(--rule); }
+.card .row dd { margin: 0; color: var(--ink); font-weight: 500; }
+.card dl { margin: 0; }
+
+/* ---------- Bar list (site-style dark bars) ---------- */
+.bars { margin: 6pt 0 14pt; break-inside: avoid; }
+.bar { display: grid; grid-template-columns: 52mm 1fr 18mm; align-items: center; gap: 8pt; font-size: 9pt; padding: 3pt 0; }
+.bar .track { height: 9pt; background: var(--paper-3); border-radius: 1.5pt; overflow: hidden; }
+.bar .fill { height: 100%; background: var(--ink); }
+.bar .fill.s2 { background: var(--slate); }
+.bar .fill.s3 { background: var(--clay); }
+.bar .n { text-align: right; color: var(--ink); font-weight: 500; }
+.legend { display: flex; gap: 14pt; font-family: "Geist Mono", monospace; font-size: 7pt; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-top: 6pt; }
+.legend i { display: inline-block; width: 8pt; height: 8pt; border-radius: 1.5pt; margin-right: 5pt; vertical-align: -1pt; }
+
+/* ---------- Tables ---------- */
+table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 6pt 0 14pt; break-inside: avoid; }
+thead th { font-size: 7pt; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+           text-align: left; padding: 7pt 8pt; background: var(--paper-2); border-bottom: 1px solid var(--ink); }
+tbody td { padding: 7pt 8pt; border-bottom: 1px solid var(--rule); vertical-align: top; }
+td.num, th.num { text-align: right; }
+
+/* ---------- Stage flow ---------- */
+.flow { display: grid; grid-template-columns: 1fr 12pt 1fr 12pt 1fr 12pt .85fr; margin: 8pt 0 14pt; break-inside: avoid; }
+.step { background: var(--paper-2); border: 1px solid var(--rule); border-radius: 4pt; padding: 9pt 10pt; }
+.step .n { font-size: 6.8pt; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.step .t { font-weight: 500; color: var(--ink); font-size: 10.5pt; margin: 2pt 0 3pt; }
+.step .d { font-size: 8.5pt; color: var(--muted); line-height: 1.4; }
+.step.goal { background: var(--night); border-color: var(--night); }
+.step.goal .n { color: var(--faint); } .step.goal .t { color: var(--cream); } .step.goal .d { color: #B8B4AA; }
+.arrow { display: flex; align-items: center; justify-content: center; color: var(--faint); }
+
+/* ---------- Callouts (site style: thin left rule) ---------- */
+.callout { border-left: 2px solid var(--ink); padding: 2pt 0 2pt 14pt; margin: 12pt 0 14pt; break-inside: avoid; }
+.callout .eyebrow { margin-bottom: 3pt; }
+.callout p { margin: 0; font-size: 11pt; line-height: 1.5; color: var(--body); }
+.callout.watch { border-color: var(--clay); } .callout.watch .eyebrow { color: var(--clay); }
+.callout.risk  { border-color: var(--red); }  .callout.risk .eyebrow  { color: var(--red); }
+
+/* ---------- Chips ---------- */
+.chip { display: inline-block; font-size: 6.8pt; letter-spacing: .05em; text-transform: uppercase;
+        padding: 2pt 6pt; border-radius: 99pt; border: 1px solid var(--rule); color: var(--ink); background: var(--paper); }
+.chip.good { background: var(--green-tint); border-color: transparent; color: var(--green); }
+.chip.watch { background: var(--clay-tint); border-color: transparent; color: #8C5236; }
+.chip.risk { background: var(--red-tint); border-color: transparent; color: var(--red); }
+
+ul, ol { margin: 0 0 9pt; padding-left: 14pt; } li { margin-bottom: 3pt; } li::marker { color: var(--faint); }
+
+/* ---------- Cover (rendered as its own page, no running header) ---------- */
+.cover { width: 210mm; height: 297mm; background: var(--night); color: var(--cream); position: relative; overflow: hidden; }
+.cover .logo { position: absolute; top: 22mm; left: 20mm; width: 34mm; color: var(--cream); }
+.cover .top-meta { position: absolute; top: 25mm; right: 20mm; font-family: "Geist Mono", monospace; font-size: 7.5pt; letter-spacing: .06em; text-transform: uppercase; color: #8A8A86; }
+.cover .titleblock { position: absolute; left: 20mm; right: 20mm; top: 92mm; }
+.cover .kicker { font-family: "Geist Mono", monospace; font-size: 8pt; letter-spacing: .08em; text-transform: uppercase; color: #A6A6A2; margin-bottom: 14pt; }
+.cover h1 { color: #fff; font-size: 44pt; font-weight: 300; letter-spacing: -.03em; line-height: 1.02; margin: 0 0 14pt; }
+.cover .sub { font-size: 14pt; font-weight: 300; color: #C4C4C0; max-width: 130mm; }
+.cover .hills { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; }
+.cover .foot { position: absolute; left: 20mm; right: 20mm; bottom: 16mm; display: flex; justify-content: space-between;
+               font-family: "Geist Mono", monospace; font-size: 7pt; letter-spacing: .06em; text-transform: uppercase; color: #8A8A86; }
+.keep { break-inside: avoid; }
