@@ -10,7 +10,10 @@ import type {
   CampaignCostSummary,
   CampaignHealthItem,
   CampaignOverviewV2,
+  DeliverableKitReleaseReviewV2,
   GenerateDeliverableKitV2Payload,
+  ReleaseDeliverableKitV2Payload,
+  ReleasedDeliverableKitV2,
   OpsListFilters,
   QueuedDeliverableKitV2,
   ReviewerOutcomesSummary,
@@ -361,6 +364,29 @@ export const opsV2RealAdapter = {
   ): Promise<QueuedDeliverableKitV2> {
     const response = await http<ApiResponse<QueuedDeliverableKitV2>>(
       `/api/v2/admin/runs/${runId}/deliverable-kits`,
+      {
+        method: 'POST',
+        body: payload,
+      },
+    );
+    return response.data;
+  },
+
+  async getAdminDeliverableKitReview(
+    runId: string,
+  ): Promise<DeliverableKitReleaseReviewV2> {
+    const response = await http<ApiResponse<DeliverableKitReleaseReviewV2>>(
+      `/api/v2/admin/runs/${runId}/deliverable-kit/review`,
+    );
+    return response.data;
+  },
+
+  async releaseAdminDeliverableKit(
+    runId: string,
+    payload: ReleaseDeliverableKitV2Payload,
+  ): Promise<ReleasedDeliverableKitV2> {
+    const response = await http<ApiResponse<ReleasedDeliverableKitV2>>(
+      `/api/v2/admin/runs/${runId}/deliverable-kit/release`,
       {
         method: 'POST',
         body: payload,

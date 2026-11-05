@@ -9,7 +9,10 @@ import type {
   CampaignCostSummary,
   CampaignHealthItem,
   CampaignOverviewV2,
+  DeliverableKitReleaseReviewV2,
   GenerateDeliverableKitV2Payload,
+  ReleaseDeliverableKitV2Payload,
+  ReleasedDeliverableKitV2,
   OpsListFilters,
   QueuedDeliverableKitV2,
   ReviewerOutcomesSummary,
@@ -157,6 +160,21 @@ export const opsV2Repository = {
     payload: GenerateDeliverableKitV2Payload,
   ): Promise<QueuedDeliverableKitV2> {
     return adapter.generateAdminDeliverableKit(runId, payload);
+  },
+
+  /** V3-285: the assembled kit and its findings sheet, read before release. */
+  async getAdminDeliverableKitReview(
+    runId: string,
+  ): Promise<DeliverableKitReleaseReviewV2> {
+    return adapter.getAdminDeliverableKitReview(runId);
+  },
+
+  /** V3-285: release the kit read on the sheet to the campaign owner. */
+  async releaseAdminDeliverableKit(
+    runId: string,
+    payload: ReleaseDeliverableKitV2Payload,
+  ): Promise<ReleasedDeliverableKitV2> {
+    return adapter.releaseAdminDeliverableKit(runId, payload);
   },
 
   /** What went wrong lately, across runs - the admin anomalies screen. */

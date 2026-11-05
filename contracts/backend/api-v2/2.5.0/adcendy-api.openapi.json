@@ -351,6 +351,21 @@
         ],
         "type": "object"
       },
+      "CancelPipelineRunRequestV2": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "description": "Why the run is stopped; recorded on the run.",
+            "maxLength": 2000,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "type": "object"
+      },
       "ConfirmSectionRevisionImpactEnvelopeV2": {
         "additionalProperties": false,
         "properties": {
@@ -434,6 +449,110 @@
         },
         "required": [
           "decision"
+        ],
+        "type": "object"
+      },
+      "DeliverableKitReleaseReviewEnvelopeV2": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DeliverableKitReleaseReviewV2"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "meta"
+        ],
+        "type": "object"
+      },
+      "DeliverableKitReleaseReviewV2": {
+        "additionalProperties": false,
+        "properties": {
+          "assembledAt": {
+            "nullable": true,
+            "type": "string"
+          },
+          "documents": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "deliverableKey": {
+                  "type": "string"
+                },
+                "market": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "deliverableKey",
+                "market",
+                "title"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "findingCount": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "kitGenerationId": {
+            "nullable": true,
+            "type": "string"
+          },
+          "notCheckableCount": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "outputMode": {
+            "nullable": true,
+            "type": "string"
+          },
+          "pipelineRunId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "releasedAt": {
+            "nullable": true,
+            "type": "string"
+          },
+          "sheetMarkdown": {
+            "description": "The kit check findings, one page, as Markdown.",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "awaiting_release",
+              "released",
+              "none"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "pipelineRunId",
+          "state",
+          "outputMode",
+          "kitGenerationId",
+          "assembledAt",
+          "releasedAt",
+          "findingCount",
+          "notCheckableCount",
+          "documents",
+          "sheetMarkdown"
         ],
         "type": "object"
       },
@@ -1583,6 +1702,79 @@
           "status",
           "statusUrl",
           "telemetryUrl"
+        ],
+        "type": "object"
+      },
+      "ReleaseDeliverableKitV2Request": {
+        "additionalProperties": false,
+        "properties": {
+          "kitGenerationId": {
+            "description": "The kit read on the findings sheet; a release of any other kit is refused.",
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ReleasedDeliverableKitEnvelopeV2": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ReleasedDeliverableKitV2"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ResponseMeta"
+          },
+          "success": {
+            "enum": [
+              true
+            ],
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success",
+          "data",
+          "meta"
+        ],
+        "type": "object"
+      },
+      "ReleasedDeliverableKitV2": {
+        "additionalProperties": false,
+        "properties": {
+          "kitGenerationId": {
+            "nullable": true,
+            "type": "string"
+          },
+          "ownerNotified": {
+            "type": "boolean"
+          },
+          "pipelineRunId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "publishedDocumentCount": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "releasedAt": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "released"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "pipelineRunId",
+          "state",
+          "kitGenerationId",
+          "releasedAt",
+          "publishedDocumentCount",
+          "ownerNotified"
         ],
         "type": "object"
       },
@@ -6923,6 +7115,1848 @@
         ]
       }
     },
+    "/api/v2/admin/prospect-scans": {
+      "get": {
+        "operationId": "listProspectScansV2",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      },
+      "post": {
+        "operationId": "submitProspectScansV2",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenericRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      }
+    },
+    "/api/v2/admin/prospect-scans/export": {
+      "get": {
+        "operationId": "exportProspectScansV2",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      }
+    },
+    "/api/v2/admin/prospect-scans/export.csv": {
+      "get": {
+        "operationId": "exportProspectScansCsvV2",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      }
+    },
+    "/api/v2/admin/prospect-scans/requeue": {
+      "post": {
+        "operationId": "requeueProspectScansV2",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenericRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      }
+    },
+    "/api/v2/admin/prospect-scans/spend": {
+      "get": {
+        "operationId": "getProspectScanSpendV2",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      }
+    },
+    "/api/v2/admin/prospect-scans/summary": {
+      "get": {
+        "operationId": "getProspectScanSummaryV2",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      }
+    },
+    "/api/v2/admin/prospect-scans/{scanId}": {
+      "get": {
+        "operationId": "getProspectScanV2",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scanId",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      },
+      "patch": {
+        "operationId": "updateProspectInputsV2",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scanId",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenericRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      }
+    },
+    "/api/v2/admin/prospect-scans/{scanId}/facts": {
+      "post": {
+        "operationId": "addProspectOperatorFactV2",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scanId",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenericRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      }
+    },
+    "/api/v2/admin/prospect-scans/{scanId}/outreach/sent": {
+      "post": {
+        "operationId": "markProspectOutreachSentV2",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scanId",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenericRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      }
+    },
+    "/api/v2/admin/prospect-scans/{scanId}/recheck": {
+      "post": {
+        "operationId": "recheckProspectV2",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scanId",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenericRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      }
+    },
+    "/api/v2/admin/prospect-scans/{scanId}/rescan": {
+      "post": {
+        "operationId": "rescanProspectV2",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scanId",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenericRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericSuccessEnvelope"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "ProspectScanV2Controller"
+        ]
+      }
+    },
     "/api/v2/admin/runs": {
       "get": {
         "operationId": "listRunsV2",
@@ -7194,6 +9228,300 @@
         ],
         "tags": [
           "AdminRunsV2Controller"
+        ]
+      }
+    },
+    "/api/v2/admin/runs/{runId}/deliverable-kit/release": {
+      "post": {
+        "operationId": "releaseDeliverableKitForRunV2",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReleaseDeliverableKitV2Request"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReleasedDeliverableKitEnvelopeV2"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "AdminOutputV2Controller"
+        ]
+      }
+    },
+    "/api/v2/admin/runs/{runId}/deliverable-kit/review": {
+      "get": {
+        "operationId": "readDeliverableKitReleaseForRunV2",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliverableKitReleaseReviewEnvelopeV2"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "AdminOutputV2Controller"
         ]
       }
     },
@@ -11492,6 +13820,190 @@
         "x-adcendy-roles": [
           "CLIENT",
           "REVIEWER",
+          "ADMIN"
+        ]
+      }
+    },
+    "/api/v2/pipeline/runs/{runId}/cancel": {
+      "post": {
+        "operationId": "cancelRunV2",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelPipelineRunRequestV2"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PipelineRunStatusEnvelopeV2"
+                }
+              }
+            },
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Run or campaign not found",
+            "headers": {
+              "Cache-Control": {
+                "description": "Authenticated and application responses are not cacheable by browsers, reverse proxies, or CDNs.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-Request-Id": {
+                "description": "Request correlation identifier generated or validated by Backend.",
+                "schema": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "PipelineV2Controller"
+        ],
+        "x-adcendy-roles": [
           "ADMIN"
         ]
       }

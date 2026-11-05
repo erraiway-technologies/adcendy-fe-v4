@@ -8,7 +8,10 @@ import type {
   CampaignCostSummary,
   CampaignHealthItem,
   CampaignOverviewV2,
+  DeliverableKitReleaseReviewV2,
   GenerateDeliverableKitV2Payload,
+  ReleaseDeliverableKitV2Payload,
+  ReleasedDeliverableKitV2,
   OpsListFilters,
   QueuedDeliverableKitV2,
   ReviewerOutcomesSummary,
@@ -880,6 +883,53 @@ trailer
       status: 'queued',
       statusUrl: `/api/v2/pipeline/runs/${runId}`,
       telemetryUrl: `/api/v2/telemetry/runs/${runId}/aggregate`,
+    };
+  },
+
+  async getAdminDeliverableKitReview(
+    runId: string,
+  ): Promise<DeliverableKitReleaseReviewV2> {
+    await delay(160);
+    return {
+      pipelineRunId: runId,
+      state: 'awaiting_release',
+      outputMode: 'complete_kit',
+      kitGenerationId: 'mock-kit-1',
+      assembledAt: new Date().toISOString(),
+      releasedAt: null,
+      findingCount: 1,
+      notCheckableCount: 0,
+      documents: [
+        { deliverableKey: 'strategy_document', market: 'US', title: 'Strategy Document' },
+        { deliverableKey: 'action_plan', market: 'US', title: 'Action Plan' },
+      ],
+      sheetMarkdown: [
+        '# Kit check',
+        '',
+        `Run ${runId}, kit mock-kit-1.`,
+        '',
+        '1 finding. None held the kit; each is for you to read before the client does.',
+        '',
+        '## 2. One plan state (1)',
+        '',
+        '- **channel_state_disagrees** (V3-150, strategy_document, US): the plan starts Email Marketing now; this line says it already runs. Line: "with email automation already in place"',
+        '',
+      ].join('\n'),
+    };
+  },
+
+  async releaseAdminDeliverableKit(
+    runId: string,
+    payload: ReleaseDeliverableKitV2Payload,
+  ): Promise<ReleasedDeliverableKitV2> {
+    await delay(220);
+    return {
+      pipelineRunId: runId,
+      state: 'released',
+      kitGenerationId: payload.kitGenerationId ?? 'mock-kit-1',
+      releasedAt: new Date().toISOString(),
+      publishedDocumentCount: 2,
+      ownerNotified: true,
     };
   },
 

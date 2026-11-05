@@ -237,6 +237,35 @@ export function useOpsCampaignCost(campaignId: string | null, enabled = true) {
   });
 }
 
+/** V3-285: the assembled kit and its findings sheet, read before release. */
+export function useAdminDeliverableKitReview(runId: string | null) {
+  return useQuery({
+    queryKey: runId
+      ? queryKeys.opsV2.deliverableKitReview(runId)
+      : queryKeys.opsV2.all,
+    queryFn: () => opsV2Repository.getAdminDeliverableKitReview(runId as string),
+    enabled: Boolean(runId),
+  });
+}
+
+/** V3-285: release the kit read on the sheet; the review reloads after. */
+export function useReleaseAdminDeliverableKit(runId: string | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (kitGenerationId: string | null) =>
+      opsV2Repository.releaseAdminDeliverableKit(runId as string, {
+        ...(kitGenerationId ? { kitGenerationId } : {}),
+      }),
+    onSuccess: () => {
+      if (runId) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.opsV2.deliverableKitReview(runId),
+        });
+      }
+    },
+  });
+}
+
 export function useOpsCampaignHealth(params?: { limit?: number; onlyUnhealthy?: boolean }, enabled = true) {
   return useQuery({
     queryKey: queryKeys.opsV2.campaignHealth(params),

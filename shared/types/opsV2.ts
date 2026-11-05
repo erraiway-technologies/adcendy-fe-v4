@@ -190,6 +190,16 @@ export type GenerateDeliverableKitV2Payload =
 export type QueuedDeliverableKitV2 =
   components['schemas']['QueuedDeliverableKitV2'];
 
+/** V3-285: an assembled kit waits for release, read first on its findings sheet. */
+export type DeliverableKitReleaseReviewV2 =
+  components['schemas']['DeliverableKitReleaseReviewV2'];
+
+export type ReleaseDeliverableKitV2Payload =
+  components['schemas']['ReleaseDeliverableKitV2Request'];
+
+export type ReleasedDeliverableKitV2 =
+  components['schemas']['ReleasedDeliverableKitV2'];
+
 export type AdminCampaignTriggerType =
   | 'pipeline'
   | 'intelligence'

@@ -45,3 +45,40 @@ test('admin UI exposes approval-gated kit generation and explicit owner notifica
   assert.match(adminCampaignSource, /Generate and notify owner/);
   assert.match(adminCampaignSource, /Generate without email/);
 });
+
+// V3-285 (operator decision 2026-11-05): an assembled kit waits for release;
+// the admin reads its findings sheet, then releases it.
+const releasePanelSource = fs.readFileSync(
+  path.resolve(
+    process.cwd(),
+    'shared',
+    'components',
+    'ops',
+    'DeliverableKitReleasePanel.tsx',
+  ),
+  'utf8',
+);
+
+test('the release gate reads the kit review and posts the kit read on the sheet', () => {
+  assert.match(
+    realAdapterSource,
+    /`\/api\/v2\/admin\/runs\/\$\{runId\}\/deliverable-kit\/review`/,
+  );
+  assert.match(
+    realAdapterSource,
+    /`\/api\/v2\/admin\/runs\/\$\{runId\}\/deliverable-kit\/release`/,
+  );
+  assert.match(repositorySource, /getAdminDeliverableKitReview/);
+  assert.match(repositorySource, /releaseAdminDeliverableKit/);
+  assert.match(repositorySource, /DeliverableKitReleaseReviewV2/);
+  assert.match(repositorySource, /ReleaseDeliverableKitV2Payload/);
+});
+
+test('the admin page shows the findings sheet before the release button', () => {
+  assert.match(adminCampaignSource, /<DeliverableKitReleasePanel runId=\{latestRunId\} \/>/);
+  const sheetAt = releasePanelSource.indexOf('review.sheetMarkdown');
+  const buttonAt = releasePanelSource.indexOf('Release to client');
+  assert.ok(sheetAt > 0 && buttonAt > sheetAt);
+  assert.match(releasePanelSource, /Release this kit to the client\?/);
+  assert.match(releasePanelSource, /review\?\.kitGenerationId/);
+});

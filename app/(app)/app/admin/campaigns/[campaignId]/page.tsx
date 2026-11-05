@@ -29,6 +29,7 @@ import { opsV2Repository, runsV2Repository } from '@/shared/api/repositories';
 import { createIdempotencyKey } from '@/shared/run/idempotency';
 import { toJsonPreview } from '@/shared/components/ops/opsUtils';
 import { CampaignCostPanel } from '@/shared/components/ops/CampaignCostPanel';
+import { DeliverableKitReleasePanel } from '@/shared/components/ops/DeliverableKitReleasePanel';
 import { ReviewStatusBadge } from '@/shared/components/reviews/ReviewStatusBadge';
 import { CampaignDocumentUploader } from '@/shared/components/campaigns/CampaignDocumentUploader';
 import { Button } from '@/components/ui/button';
@@ -1014,7 +1015,7 @@ export default function AdminCampaignDetailPage() {
                         tooltip="Generate the five official deliverables from approved V2 sections. The job remains blocked until every selected section is approved."
                         tooltipTitle="Approval-gated Deliverable Kit"
                         badge="5 documents"
-                        description="Strategy Document, Action Plan, Setup Guide, Messaging Guide and Asset Pack."
+                        description="Strategy Document, Action Plan, Setup Guide, Messaging Guide and Asset Pack. The kit waits under Kit release until you release it."
                         onClick={() => setIsDeliverableKitDialogOpen(true)}
                         disabled={generateDeliverableKitMutation.isPending || !latestRunId}
                         pending={generateDeliverableKitMutation.isPending}
@@ -1114,6 +1115,8 @@ export default function AdminCampaignDetailPage() {
                   )}
                 </CardContent>
               </Card>
+
+              <DeliverableKitReleasePanel runId={latestRunId} />
             </div>
 
             <CampaignCostPanel campaignId={campaignId} />
@@ -1292,8 +1295,8 @@ export default function AdminCampaignDetailPage() {
           <DialogHeader>
             <DialogTitle>Notify the campaign owner?</DialogTitle>
             <DialogDescription>
-              The complete kit requires every selected section to be approved. Choose whether to send the owner one
-              email after all five documents finish successfully.
+              The complete kit requires every selected section to be approved. It then waits under Kit release
+              until you release it. Choose whether releasing it also sends the owner one email.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3 py-2">
