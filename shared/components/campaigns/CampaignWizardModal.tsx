@@ -63,7 +63,7 @@ import { ApiError } from '@/shared/api/errors';
 import { queryKeys } from '@/shared/api/queryKeys';
 import { campaignsRepository, legalRepository, wizardRepository } from '@/shared/api/repositories';
 import { createIdempotencyKey } from '@/shared/run/idempotency';
-import { CAMPAIGN_PLAN_ROUTE } from '@/shared/payments/campaign-entitlement';
+import { campaignPlanRouteForDraft, WIZARD_DRAFT_LIMIT_CODE } from '@/shared/payments/campaign-entitlement';
 import { resolveLegalErrorMessage } from '@/shared/legal/legal-error';
 import {
   areWizardRequiredConsentsSatisfied,
@@ -162,6 +162,7 @@ const EMPTY_STEP_2_VALUES: Step2FormData = {
   businessDescription: '',
   productCategory: '',
   productOrService: [],
+  priorityOffering: '',
   offerSummary: '',
   priceRange: '',
   priceRangeLow: '',
@@ -224,6 +225,8 @@ const EMPTY_STEP_3_VALUES: Step3FormData = {
   closeRateBand: 'not_tracked',
   paybackWindow: '',
   monthlyOrderVolume: '',
+  customersToDate: '',
+  customersFoundBy: '',
   productCost: '',
   monthlyOrdersPerSubscriber: '',
   monthlyChurnRate: '',
@@ -231,6 +234,7 @@ const EMPTY_STEP_3_VALUES: Step3FormData = {
   repeatPurchaseFrequency: '',
   salesCycleLength: '',
   googleAnalyticsConnected: '',
+  closedSalesSentToAdPlatforms: '',
   monthlyWebsiteTraffic: '',
   emailListSize: '',
   knownCompetitors: [],
@@ -1662,6 +1666,13 @@ function fromGoogleAnalyticsSelectValue(value: string): GoogleAnalyticsConnected
   return '';
 }
 
+function formatYesNoUnknown(value: boolean | 'unknown' | null | undefined) {
+  if (value === true) return 'Yes';
+  if (value === false) return 'No';
+  if (value === 'unknown') return "Don't know";
+  return null;
+}
+
 function formatGoogleAnalyticsConnected(value: boolean | 'unknown' | null | undefined) {
   if (value === true) {
     return 'Connected';
@@ -2741,6 +2752,7 @@ export function CampaignWizardModal({
           const fallbackFocus = normalizeString(step1SnapshotRef.current.focusName);
           return fallbackFocus ? [fallbackFocus] : [];
         })(),
+      priorityOffering: normalizeString(savedData.priorityOffering as string | undefined),
       offerSummary: normalizeString(savedData.offerSummary as string | undefined),
       priceRange:
         normalizeString(savedData.priceRange as string | undefined) ||
@@ -2937,6 +2949,11 @@ export function CampaignWizardModal({
         typeof savedEconomicsData.monthlyOrderVolume === 'number'
           ? String(savedEconomicsData.monthlyOrderVolume)
           : normalizeString(savedEconomicsData.monthlyOrderVolume as string | undefined),
+      customersToDate:
+        typeof savedEconomicsData.customersToDate === 'number'
+          ? String(savedEconomicsData.customersToDate)
+          : normalizeString(savedEconomicsData.customersToDate as string | undefined),
+      customersFoundBy: normalizeString(savedEconomicsData.customersFoundBy as string | undefined),
       productCost:
         typeof savedEconomicsData.productCost === 'number'
           ? String(savedEconomicsData.productCost)
@@ -2947,6 +2964,7 @@ export function CampaignWizardModal({
       repeatPurchaseFrequency: (savedEconomicsData.repeatPurchaseFrequency as Step3FormData['repeatPurchaseFrequency']) || '',
       salesCycleLength: normalizeString(savedEconomicsData.salesCycleLength as string | undefined),
       googleAnalyticsConnected: normalizeGoogleAnalyticsConnected(savedChannelsData.googleAnalyticsConnected),
+      closedSalesSentToAdPlatforms: normalizeGoogleAnalyticsConnected(savedChannelsData.closedSalesSentToAdPlatforms),
       monthlyWebsiteTraffic: (savedChannelsData.monthlyWebsiteTraffic as Step3FormData['monthlyWebsiteTraffic']) || '',
       emailListSize: (savedChannelsData.emailListSize as Step3FormData['emailListSize']) || '',
       knownCompetitors: normalizedKnownCompetitors,
@@ -3136,7 +3154,8 @@ export function CampaignWizardModal({
     }
     setSuccessMessage(null);
     onOpenChange(false);
-    router.push(CAMPAIGN_PLAN_ROUTE);
+    // V3-371: after paying, checkout brings the client back to this draft.
+    router.push(campaignPlanRouteForDraft(activeCampaignId));
     return true;
   };
 
@@ -3232,7 +3251,9 @@ export function CampaignWizardModal({
     },
     onError: (error: unknown) => {
       if (redirectToPlanForEntitlementError(error)) return;
-      if (error instanceof ApiError && error.status === 409) {
+      // V3-371: the open-draft cap, not a save conflict.
+      const draftLimit = error instanceof ApiError && error.code === WIZARD_DRAFT_LIMIT_CODE;
+      if (error instanceof ApiError && error.status === 409 && !draftLimit) {
         setShowConflictDialog(true);
       }
       setSuccessMessage(null);
@@ -3260,6 +3281,7 @@ export function CampaignWizardModal({
           productCategory: normalizeString(data.productCategory),
           productOrService: normalizeListItems(data.productOrService),
           productsServices: normalizeListItems(data.productOrService),
+          priorityOffering: normalizeString(data.priorityOffering),
           offerSummary: normalizeString(data.offerSummary),
           priceRange: normalizeString(data.priceRange),
           priceRangeLow: toMoneyAnswer(data.priceRangeLow, campaignCurrency),
@@ -3332,6 +3354,10 @@ export function CampaignWizardModal({
       step3Values.googleAnalyticsConnected === ''
         ? undefined
         : step3Values.googleAnalyticsConnected,
+    closedSalesSentToAdPlatforms:
+      step3Values.closedSalesSentToAdPlatforms === ''
+        ? undefined
+        : step3Values.closedSalesSentToAdPlatforms,
     monthlyWebsiteTraffic: step3Values.monthlyWebsiteTraffic || null,
     emailListSize: step3Values.emailListSize || null,
     // V3-158: the audiences the business owns, in every market; consent where asked.
@@ -3411,6 +3437,8 @@ export function CampaignWizardModal({
     closeRateBand: data.closeRateBand ?? 'not_tracked',
     paybackWindow: normalizeStringOptionValue(data.paybackWindow, paybackWindowOptions) || undefined,
     monthlyOrderVolume: normalizeNullableString(data.monthlyOrderVolume),
+    customersToDate: normalizeNullableString(data.customersToDate),
+    customersFoundBy: normalizeNullableString(data.customersFoundBy),
     productCost: normalizeNullableString(data.productCost),
     monthlyOrdersPerSubscriber: normalizeNullableString(data.monthlyOrdersPerSubscriber),
     monthlyChurnRate: normalizeNullableString(data.monthlyChurnRate),
@@ -3724,6 +3752,8 @@ export function CampaignWizardModal({
       effectivePreviewStep4?.averageContractValue ||
       effectivePreviewStep4?.monthlyRevenue ||
       effectivePreviewStep4?.monthlyOrderVolume ||
+      effectivePreviewStep4?.customersToDate != null ||
+      effectivePreviewStep4?.customersFoundBy ||
       effectivePreviewStep4?.productCost ||
       effectivePreviewStep4?.avgCustomerRetention ||
       effectivePreviewStep4?.repeatPurchaseFrequency,
@@ -4609,6 +4639,26 @@ export function CampaignWizardModal({
                         error={getArrayFieldError(step2Form.formState.errors.productOrService)}
                       />
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <FieldLabel
+                      label="Which product or service do you most want to grow?"
+                      helper="The one that matters most for revenue or margin. Optional; we use it to decide which searches to build for first."
+                    />
+                    <Input
+                      data-testid={wizardFieldTestId('priorityOffering')}
+                      className={cn(wizardInputClassName, 'max-w-[480px]')}
+                      list="wizard-priority-offering-options"
+                      placeholder="e.g. one of the products above"
+                      {...step2Form.register('priorityOffering')}
+                    />
+                    <datalist id="wizard-priority-offering-options">
+                      {watchedProductOrService.map((item) => (
+                        <option key={item} value={item} />
+                      ))}
+                    </datalist>
+                    <FieldMeta error={step2Form.formState.errors.priorityOffering?.message} />
                   </div>
 
                   <InlineDivider />
@@ -5686,6 +5736,36 @@ export function CampaignWizardModal({
                       )}
                     />
                   </div>
+
+                  <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-border/80 bg-muted/60 p-4">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-foreground/90">Closed sales sent back to your ad platforms</p>
+                      <p className="text-xs leading-5 text-foreground/75">
+                        If your sales close after an enquiry or a booking: do you send the ones that became sales back to
+                        Google or Meta (an offline-conversion upload or a CRM link)? It decides whether ads can bid on sales
+                        or only on enquiries.
+                      </p>
+                    </div>
+                    <Controller
+                      name="closedSalesSentToAdPlatforms"
+                      control={step3Form.control}
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={(value) => field.onChange(fromGoogleAnalyticsSelectValue(value))}
+                          value={toGoogleAnalyticsSelectValue(field.value)}
+                        >
+                          <SelectTrigger data-testid={wizardFieldTestId('closedSalesSentToAdPlatforms')} className="h-11 min-w-[190px] rounded-xl border-border/80 bg-card/95 text-sm text-foreground">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">Yes</SelectItem>
+                            <SelectItem value="false">No</SelectItem>
+                            <SelectItem value="unknown">{"Don't know"}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
                 </WizardSectionCard>
               </form>
             ) : null}
@@ -6628,6 +6708,27 @@ export function CampaignWizardModal({
                     </div>
                     ) : null}
                     <div className="space-y-2">
+                      <FieldLabel label="Paying customers so far" />
+                      <Input
+                        data-testid={wizardFieldTestId('customersToDate')}
+                        className={wizardInputClassName}
+                        inputMode="numeric"
+                        placeholder="e.g. 4 (0 if none yet)"
+                        {...step3Form.register('customersToDate')}
+                      />
+                      <FieldMeta error={step3Form.formState.errors.customersToDate?.message} />
+                    </div>
+                    <div className="space-y-2">
+                      <FieldLabel label="How did most of them find you?" />
+                      <Input
+                        data-testid={wizardFieldTestId('customersFoundBy')}
+                        className={wizardInputClassName}
+                        placeholder="e.g. friends and former colleagues, LinkedIn posts"
+                        {...step3Form.register('customersFoundBy')}
+                      />
+                      <FieldMeta error={step3Form.formState.errors.customersFoundBy?.message} />
+                    </div>
+                    <div className="space-y-2">
                       <FieldLabel label="Product cost" />
                       <Input
                         data-testid={wizardFieldTestId('productCost')}
@@ -6805,6 +6906,7 @@ export function CampaignWizardModal({
                           <SummaryField label="Price range" value={showPriceRange(effectivePreviewStep2)} />
                           <SummaryField label="Price position" value={optionLabels.label('pricePosition', previewValue(effectivePreviewStep2, 'pricePosition'))} />
                           <SummaryField label="Sales channels" value={formatRankedSalesChannels(effectivePreviewStep2?.salesChannels, optionLabels, campaignMarketCode)} className="md:col-span-2" />
+                          <SummaryField label="Most wants to grow" value={effectivePreviewStep2?.priorityOffering} />
                           <SummaryField label="Offer summary" value={effectivePreviewStep2?.offerSummary} />
                           <SummaryField label="Differentiators" value={formatStringList(effectivePreviewStep2?.differentiators)} />
                           <SummaryField label="Sensitive category flags" value={optionLabels.list('sensitiveCategoryFlags', effectivePreviewStep2?.sensitiveCategoryFlags)} />
@@ -6909,6 +7011,11 @@ export function CampaignWizardModal({
                             value={showMoney(effectivePreviewStep4?.monthlyRevenueAmount) ?? formatMonthlyRevenue(effectivePreviewStep4?.monthlyRevenue)}
                           />
                           <SummaryField label="Monthly order volume" value={effectivePreviewStep4?.monthlyOrderVolume} />
+                          <SummaryField
+                            label="Paying customers so far"
+                            value={effectivePreviewStep4?.customersToDate != null ? String(effectivePreviewStep4.customersToDate) : null}
+                          />
+                          <SummaryField label="How most of them found you" value={effectivePreviewStep4?.customersFoundBy} />
                           <SummaryField label="Product cost" value={effectivePreviewStep4?.productCost} />
                           <SummaryField label="Orders per subscriber" value={effectivePreviewStep4?.monthlyOrdersPerSubscriber} />
                           <SummaryField label="Monthly churn rate" value={effectivePreviewStep4?.monthlyChurnRate} />
@@ -6948,6 +7055,7 @@ export function CampaignWizardModal({
                             })()}
                           />
                           <SummaryField label="Google Analytics" value={formatGoogleAnalyticsConnected(effectivePreviewStep4?.googleAnalyticsConnected as boolean | 'unknown' | undefined)} />
+                          <SummaryField label="Closed sales sent to ad platforms" value={formatYesNoUnknown(effectivePreviewStep4?.closedSalesSentToAdPlatforms as boolean | 'unknown' | undefined)} />
                         </ReviewGrid>
                       </ReviewSection>
 

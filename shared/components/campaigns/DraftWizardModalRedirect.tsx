@@ -9,8 +9,6 @@ import {
   getCampaignWorkspaceHref,
 } from '@/shared/components/campaigns/campaign-ui';
 import { resolveWizardResumeStep, resolveWizardStep } from '@/shared/components/campaigns/CampaignWizardModal';
-import { useCampaignEntitlement } from '@/hooks/useCampaignEntitlement';
-import { CAMPAIGN_PLAN_ROUTE } from '@/shared/payments/campaign-entitlement';
 
 interface DraftWizardModalRedirectProps {
   step?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
@@ -21,18 +19,10 @@ export function DraftWizardModalRedirect({ step }: DraftWizardModalRedirectProps
   const router = useRouter();
   const campaignId = params?.campaignId as string;
   const { campaign, isLoading } = useCampaign(campaignId);
-  const {
-    canStartCampaign,
-    isLoading: isEntitlementLoading,
-  } = useCampaignEntitlement();
+  // V3-371: a draft opens without a credit; the credit is checked at submit.
 
   useEffect(() => {
-    if (isLoading || isEntitlementLoading || !campaign) {
-      return;
-    }
-
-    if (!canStartCampaign) {
-      router.replace(CAMPAIGN_PLAN_ROUTE);
+    if (isLoading || !campaign) {
       return;
     }
 
@@ -73,8 +63,6 @@ export function DraftWizardModalRedirect({ step }: DraftWizardModalRedirectProps
     };
   }, [
     campaign,
-    canStartCampaign,
-    isEntitlementLoading,
     isLoading,
     router,
     step,

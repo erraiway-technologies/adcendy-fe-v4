@@ -39,6 +39,7 @@ import {
   pilotSeatsLabel,
   splitPilotCatalogue,
 } from "@/shared/payments/market-catalogue";
+import { safeReturnPath } from "@/shared/payments/campaign-entitlement";
 import { useAuth } from "@/features/auth/useAuth";
 import ENV from "@/lib/env";
 import {
@@ -133,6 +134,10 @@ function errorMessage(error: unknown, fallback: string): string {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  // V3-371: where to go after paying (the draft being submitted), read once.
+  const [returnTo] = useState<string | null>(() =>
+    typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get("returnTo"),
+  );
   const queryClient = useQueryClient();
   const { user } = useAuth();
   // SKUs are the server's to name, so nothing is preselected by name: until
@@ -264,7 +269,8 @@ export default function CheckoutPage() {
           queryKey: queryKeys.profile.me(),
         });
       } finally {
-        if (!cancelled) router.replace("/app");
+        // V3-371: back to the draft being submitted, when checkout came from one.
+        if (!cancelled) router.replace(safeReturnPath(returnTo));
       }
     };
 
@@ -272,7 +278,7 @@ export default function CheckoutPage() {
     return () => {
       cancelled = true;
     };
-  }, [displayedOrder?.status, queryClient, router]);
+  }, [displayedOrder?.status, queryClient, router, returnTo]);
 
   // "Your markets will appear" would contradict the refund message beside it.
   const statusSuccess = refundedForIndianPayment

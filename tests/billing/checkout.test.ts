@@ -244,7 +244,7 @@ test("frontend CSP permits the Razorpay-hosted Standard Checkout only over HTTPS
   assert.doesNotMatch(csp, /http:\/\/.*razorpay/);
 });
 
-test("a captured payment refreshes entitlement and returns to the main dashboard", () => {
+test("a captured payment refreshes entitlement and returns to the draft it came from, else the main dashboard", () => {
   const checkoutPage = readFileSync(
     new URL("../../app/(app)/app/checkout/page.tsx", import.meta.url),
     "utf8",
@@ -252,7 +252,9 @@ test("a captured payment refreshes entitlement and returns to the main dashboard
 
   assert.match(checkoutPage, /displayedOrder\?\.status !== "PAID"/);
   assert.match(checkoutPage, /queryKeys\.profile\.me\(\)/);
-  assert.match(checkoutPage, /router\.replace\("\/app"\)/);
+  // V3-371: back to the draft being submitted; safeReturnPath falls back to
+  // "/app" for anything that isn't a path inside the app (draft-credit-routes test).
+  assert.match(checkoutPage, /router\.replace\(safeReturnPath\(returnTo\)\)/);
 });
 
 test("each pilot price sits beside the regular price for the same markets", async () => {

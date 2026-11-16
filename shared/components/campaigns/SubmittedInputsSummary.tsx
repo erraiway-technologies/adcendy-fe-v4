@@ -155,6 +155,7 @@ function buildSubmittedInputSections(
         { label: 'Market Scope', value: formatMarketScope(step2?.marketScope || campaign.marketScope || null) },
         { label: 'Product Category', value: step2?.productCategory },
         { label: 'Product / Service', value: normalizeStringOrList(step2?.productOrService) },
+        { label: 'Most wants to grow', value: step2?.priorityOffering },
         { label: 'Offer Summary', value: step2?.offerSummary },
         { label: 'Price Range', value: step2?.priceRange },
         { label: 'Differentiators', value: normalizeList(step2?.differentiators) },
@@ -186,12 +187,28 @@ function buildSubmittedInputSections(
         { label: 'Biggest Frustration', value: step4?.biggestFrustration },
         { label: 'Monthly Revenue', value: formatMonthlyRevenue(step4?.monthlyRevenue) },
         { label: 'Monthly Order Volume', value: normalizeStringOrList(step4?.monthlyOrderVolume) },
+        {
+          label: 'Paying Customers So Far',
+          value: step4?.customersToDate != null && step4.customersToDate !== '' ? String(step4.customersToDate) : null,
+        },
+        { label: 'How Most Found You', value: step4?.customersFoundBy },
         { label: 'Product Cost', value: normalizeStringOrList(step4?.productCost) },
         { label: 'Retention Pattern', value: labels.label('avgCustomerRetention', step4?.avgCustomerRetention) },
         { label: 'Repeat Purchase Frequency', value: labels.label('repeatPurchaseFrequency', step4?.repeatPurchaseFrequency) },
         { label: 'Website Traffic', value: labels.label('monthlyWebsiteTraffic', step4?.monthlyWebsiteTraffic) },
         { label: 'Email List Size', value: labels.label('emailListSize', step4?.emailListSize) },
         { label: 'Google Analytics', value: formatGoogleAnalyticsConnected(step4?.googleAnalyticsConnected) },
+        {
+          label: 'Closed sales sent to ad platforms',
+          value:
+            step4?.closedSalesSentToAdPlatforms === true
+              ? 'Yes'
+              : step4?.closedSalesSentToAdPlatforms === false
+                ? 'No'
+                : step4?.closedSalesSentToAdPlatforms === 'unknown'
+                  ? "Don't know"
+                  : null,
+        },
         { label: 'Known Competitors', value: normalizeList(step4?.knownCompetitors) },
         { label: 'Additional Context', value: step4?.additionalContext },
       ],

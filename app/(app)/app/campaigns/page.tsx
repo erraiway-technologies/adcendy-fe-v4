@@ -11,9 +11,18 @@ import { useLastCampaign } from '@/hooks/useLastCampaign';
 import { CampaignListItem } from '@/shared/components/campaigns/CampaignListItem';
 import { useWizardOptionLabels } from '@/shared/components/campaigns/useWizardOptionLabels';
 import { CampaignWizardModal, resolveWizardResumeStep, resolveWizardStep } from '@/shared/components/campaigns/CampaignWizardModal';
-import { wizardRepository } from '@/shared/api/repositories';
-import { useCampaignEntitlement } from '@/hooks/useCampaignEntitlement';
-import { CAMPAIGN_PLAN_ROUTE } from '@/shared/payments/campaign-entitlement';
+import { campaignsRepository, wizardRepository } from '@/shared/api/repositories';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { draftWizardAddressStepV2 } from '@/shared/components/campaigns/draftWizardAddress';
 import {
   formatBusinessModel,
   formatBusinessType,
@@ -29,12 +38,13 @@ interface WizardModalState {
 export default function CampaignsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { campaigns, isLoading, error } = useCampaigns();
+  const { campaigns, isLoading, error, refetch } = useCampaigns();
   const optionLabels = useWizardOptionLabels();
-  const {
-    canStartCampaign,
-    isLoading: isEntitlementLoading,
-  } = useCampaignEntitlement();
+  // V3-371: drafts are free up to the open-draft cap; the credit is checked
+  // and spent only when a draft is submitted.
+  const [draftNotice, setDraftNotice] = useState<string | null>(null);
+  const [draftToDelete, setDraftToDelete] = useState<Campaign | null>(null);
+  const [isDeletingDraft, setIsDeletingDraft] = useState(false);
   const { setLastCampaignId } = useLastCampaign();
   const [wizardModalState, setWizardModalState] = useState<WizardModalState | null>(null);
   // A successful commit closes the modal and routes to the new run. Closing
@@ -43,6 +53,11 @@ export default function CampaignsPage() {
   const commitNavigationRef = useRef(false);
   const [searchQuery, setSearchQuery] = useState('');
   const isWizardModalOpen = wizardModalState !== null;
+  const openDraftId = wizardModalState?.campaignId ?? null;
+  // The draft whose wizard was just closed: its old address must not reopen it.
+  const closingDraftRef = useRef<string | null>(null);
+  // The draft the address named the last time the page looked.
+  const previousDraftRef = useRef<string | null>(null);
 
   const filteredCampaigns = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -80,14 +95,17 @@ export default function CampaignsPage() {
     );
   }, [campaigns, searchQuery, optionLabels]);
 
-  const openCreateWizard = () => {
-    if (isEntitlementLoading) {
-      return;
+  const openCreateWizard = async () => {
+    try {
+      const allowance = await campaignsRepository.getDraftAllowance();
+      if (!allowance.canStart) {
+        setDraftNotice(allowance.message);
+        return;
+      }
+    } catch {
+      // The server checks the cap again when the draft is first saved.
     }
-    if (!canStartCampaign) {
-      router.push(CAMPAIGN_PLAN_ROUTE);
-      return;
-    }
+    setDraftNotice(null);
     setWizardModalState({
       campaignId: null,
       initialStep: 1,
@@ -95,13 +113,6 @@ export default function CampaignsPage() {
   };
 
   const openDraftWizard = async (campaign: Campaign) => {
-    if (isEntitlementLoading) {
-      return;
-    }
-    if (!canStartCampaign) {
-      router.push(CAMPAIGN_PLAN_ROUTE);
-      return;
-    }
     setLastCampaignId(campaign.id);
     let step = resolveWizardStep(campaign.currentStep);
 
@@ -123,8 +134,23 @@ export default function CampaignsPage() {
     const draftCampaignId = searchParams.get('draftCampaignId');
     const wizardStepParam = Number(searchParams.get('wizardStep'));
 
-    if (!draftCampaignId) {
+    // V3-369: the draft wizard is open exactly while the address names it.
+    const addressStep = draftWizardAddressStepV2({
+      draftCampaignId,
+      closingDraftId: closingDraftRef.current,
+      openDraftId,
+      previousDraftCampaignId: previousDraftRef.current,
+    });
+    previousDraftRef.current = draftCampaignId;
+    if (addressStep === 'ignore') {
+      return;
+    }
+    if (addressStep === 'close' || addressStep === 'none' || !draftCampaignId) {
       commitNavigationRef.current = false;
+      closingDraftRef.current = null;
+      if (addressStep === 'close') {
+        setWizardModalState(null);
+      }
       return;
     }
 
@@ -132,15 +158,6 @@ export default function CampaignsPage() {
     // committed campaign reads as missing here - without this the cleanup
     // below would replace the run route with the campaign list.
     if (commitNavigationRef.current) {
-      return;
-    }
-
-    if (isEntitlementLoading) {
-      return;
-    }
-    if (!canStartCampaign) {
-      setWizardModalState(null);
-      router.replace(CAMPAIGN_PLAN_ROUTE);
       return;
     }
 
@@ -213,10 +230,9 @@ export default function CampaignsPage() {
     };
   }, [
     campaigns,
-    canStartCampaign,
-    isEntitlementLoading,
     isLoading,
     isWizardModalOpen,
+    openDraftId,
     router,
     searchParams,
   ]);
@@ -241,6 +257,10 @@ export default function CampaignsPage() {
           <p className="text-sm text-muted-foreground">
             Select a campaign to open its current workspace state.
           </p>
+          <p className="text-xs text-muted-foreground">
+            Drafts are free to start and fill in. A credit is used only when you submit a campaign for its
+            strategy.
+          </p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -255,17 +275,21 @@ export default function CampaignsPage() {
           </div>
 
           {!isLoading && campaigns.length > 0 ? (
-            <Button
-              className="gap-2"
-              onClick={openCreateWizard}
-              disabled={isEntitlementLoading}
-            >
+            <Button className="gap-2" onClick={() => void openCreateWizard()}>
               <Plus className="h-4 w-4" />
               New Campaign
             </Button>
           ) : null}
         </div>
       </div>
+
+      {draftNotice ? (
+        <Card className="border-amber-300 bg-amber-50" data-testid="draft-limit-notice">
+          <CardContent className="py-4">
+            <p className="text-sm text-amber-900">{draftNotice}</p>
+          </CardContent>
+        </Card>
+      ) : null}
 
       {isLoading ? (
         <div className="grid gap-3">
@@ -284,11 +308,7 @@ export default function CampaignsPage() {
                 Create your first campaign to set up business context, review readiness, and generate
                 a strategy workspace.
               </p>
-              <Button
-                className="mt-3 gap-2"
-                onClick={openCreateWizard}
-                disabled={isEntitlementLoading}
-              >
+              <Button className="mt-3 gap-2" onClick={() => void openCreateWizard()}>
                 <Plus className="h-4 w-4" />
                 Create First Campaign
               </Button>
@@ -309,11 +329,53 @@ export default function CampaignsPage() {
               campaign={campaign}
               onOpen={(campaignId) => setLastCampaignId(campaignId)}
               onOpenDraftWizard={openDraftWizard}
+              onDeleteDraft={(draft) => setDraftToDelete(draft)}
               labels={optionLabels}
             />
           ))}
         </div>
       )}
+
+      <AlertDialog
+        open={draftToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && !isDeletingDraft) setDraftToDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this draft?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {`"${draftToDelete?.title || draftToDelete?.name || 'Untitled Campaign'}" and its answers will be removed from your campaigns. No credit is used or returned: drafts are free.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeletingDraft}>Keep it</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDeletingDraft}
+              onClick={async (event) => {
+                event.preventDefault();
+                if (!draftToDelete) return;
+                setIsDeletingDraft(true);
+                try {
+                  await campaignsRepository.deleteDraftCampaign(draftToDelete.id);
+                  setDraftNotice(null);
+                  await refetch();
+                } catch (deleteError) {
+                  setDraftNotice(
+                    deleteError instanceof Error ? deleteError.message : 'The draft could not be deleted.',
+                  );
+                } finally {
+                  setIsDeletingDraft(false);
+                  setDraftToDelete(null);
+                }
+              }}
+            >
+              {isDeletingDraft ? 'Deleting...' : 'Delete draft'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <CampaignWizardModal
         open={Boolean(wizardModalState)}
@@ -324,6 +386,7 @@ export default function CampaignsPage() {
         }}
         onOpenChange={(open) => {
           if (!open) {
+            closingDraftRef.current = searchParams.get('draftCampaignId');
             setWizardModalState(null);
             if (commitNavigationRef.current) {
               return;

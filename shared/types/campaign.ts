@@ -107,6 +107,15 @@ export function formatCampaignStatus(value: CampaignStatus | string | null | und
   return formatCampaignEnumValue(value, CAMPAIGN_STATUS_LABELS);
 }
 
+/** V3-371: whether the client may start another (free) draft now. */
+export interface DraftAllowance {
+  canStart: boolean;
+  openDrafts: number;
+  maxOpenDrafts: number;
+  /** Why not, in the client's words; null when they can. */
+  message: string | null;
+}
+
 export interface Campaign {
   id: ID;
   title: string;

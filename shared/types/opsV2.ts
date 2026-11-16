@@ -63,6 +63,8 @@ export interface ReviewerTaskItem {
   updatedAt?: ISODateTime | null;
   attemptNumber?: number | null;
   failureMode?: string | null;
+  /** The inbox section: a required review's own category, else a blocker. */
+  category?: string | null;
   questionPayload?: UnknownRecord | null;
 }
 
@@ -760,6 +762,7 @@ export function normalizeReviewerTaskItem(value: unknown): ReviewerTaskItem | nu
         questionPayload?.failureMode,
         questionPayload?.failure_mode,
       ) ?? null,
+    category: fallbackNullableString(record.category, questionPayload?.category) ?? null,
     questionPayload: questionPayload ?? null,
   };
 }

@@ -1,4 +1,4 @@
-import type { Campaign, CreateCampaignPayload, UpdateCampaignPayload } from '@/shared/types/campaign';
+import type { Campaign, CreateCampaignPayload, DraftAllowance, UpdateCampaignPayload } from '@/shared/types/campaign';
 import type { ID } from '@/shared/types/common';
 
 export const mockCampaignState = {
@@ -67,6 +67,16 @@ export const campaignsMockAdapter = {
       throw new Error(`Campaign ${id} not found`);
     }
     return campaign;
+  },
+
+  async getDraftAllowance(): Promise<DraftAllowance> {
+    await delay(100);
+    return { canStart: true, openDrafts: 0, maxOpenDrafts: 3, message: null };
+  },
+
+  async deleteDraftCampaign(id: ID): Promise<void> {
+    await delay(100);
+    mockCampaignState.campaigns = mockCampaignState.campaigns.filter((campaign) => campaign.id !== id);
   },
 
   async createDraftCampaign(): Promise<Campaign> {

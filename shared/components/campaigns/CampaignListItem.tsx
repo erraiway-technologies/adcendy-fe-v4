@@ -27,6 +27,7 @@ export function CampaignListItem({
   campaign,
   onOpen,
   onOpenDraftWizard,
+  onDeleteDraft,
   labels,
 }: {
   campaign: Campaign;
@@ -34,6 +35,8 @@ export function CampaignListItem({
   labels: WizardOptionLabels;
   onOpen?: (campaignId: string) => void;
   onOpenDraftWizard?: (campaign: Campaign) => void;
+  /** V3-371: an unfinished draft can be deleted to free a slot. */
+  onDeleteDraft?: (campaign: Campaign) => void;
 }) {
   const router = useRouter();
   const entryHref = `/app/campaigns/${campaign.id}`;
@@ -80,6 +83,20 @@ export function CampaignListItem({
       }}
     >
       <div className="min-w-0 space-y-3">
+        {campaign.status === 'DRAFT' && onDeleteDraft ? (
+          <button
+            type="button"
+            data-testid={`delete-draft-${campaign.id}`}
+            className="float-right rounded-md border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onClick={(event) => {
+              event.stopPropagation();
+              onDeleteDraft(campaign);
+            }}
+            onKeyDown={(event) => event.stopPropagation()}
+          >
+            Delete draft
+          </button>
+        ) : null}
         <div className="inline-flex max-w-full rounded-lg border border-primary/20 bg-primary/10 px-3 py-1.5">
           <h2 className="truncate font-space-grotesk text-2xl font-extrabold tracking-tight text-foreground transition-colors group-hover:text-primary">
             {campaign.title || campaign.name}

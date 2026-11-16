@@ -169,6 +169,8 @@ export const step2Schema = z.object({
   businessDescription: z.string().trim().min(1, 'Business description is required').max(1000, 'Keep the description under 1000 characters'),
   productCategory: z.string().trim().min(1, 'Product category is required').max(160, 'Keep the category under 160 characters'),
   productOrService: z.array(tagItemSchema).min(1, 'Add at least one product or service').max(10, 'Add up to 10 items').default([]),
+  // V3-359: optional - the product or service the business most wants to grow.
+  priorityOffering: z.string().trim().max(240, 'Keep this under 240 characters').optional().or(z.literal('')),
   offerSummary: z.string().trim().max(500, 'Keep the offer summary under 500 characters').optional().or(z.literal('')),
   // v3: two amounts. A draft from before them keeps its free-text range,
   // which still saves; the step asks for the amounts instead.
@@ -350,6 +352,14 @@ export const step3Schema = z.object({
   // `economicsStepAnswersSchema`, for the reason given for the bands above.
   paybackWindow: optionAnswerSchema,
   monthlyOrderVolume: z.string().trim().max(120, 'Keep this under 120 characters').optional().or(z.literal('')),
+  // Step 20: paying customers so far (a whole number) and how most found you.
+  customersToDate: z
+    .string()
+    .trim()
+    .regex(/^\d*$/, 'Enter a whole number, or leave it blank')
+    .optional()
+    .or(z.literal('')),
+  customersFoundBy: z.string().trim().max(200, 'Keep this under 200 characters').optional().or(z.literal('')),
   productCost: z.string().trim().max(120, 'Keep this under 120 characters').optional().or(z.literal('')),
   monthlyOrdersPerSubscriber: z.string().trim().max(120, 'Keep this under 120 characters').optional().or(z.literal('')),
   monthlyChurnRate: z.string().trim().max(120, 'Keep this under 120 characters').optional().or(z.literal('')),
@@ -357,6 +367,8 @@ export const step3Schema = z.object({
   repeatPurchaseFrequency: z.enum(REPEAT_PURCHASE_FREQUENCY_VALUES).optional().or(z.literal('')),
   salesCycleLength: z.string().trim().max(120, 'Keep this under 120 characters').optional().or(z.literal('')),
   googleAnalyticsConnected: googleAnalyticsConnectedSchema.default(''),
+  // Step 14: whether closed sales go back to the ad platforms (yes / no / don't know).
+  closedSalesSentToAdPlatforms: googleAnalyticsConnectedSchema.default(''),
   monthlyWebsiteTraffic: z.enum(MONTHLY_WEBSITE_TRAFFIC_VALUES).optional().or(z.literal('')),
   emailListSize: z.enum(EMAIL_LIST_SIZE_VALUES).optional().or(z.literal('')),
   additionalContext: z.string().trim().max(1200, 'Keep this under 1200 characters').optional().or(z.literal('')),

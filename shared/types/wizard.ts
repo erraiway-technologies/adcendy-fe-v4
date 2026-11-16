@@ -788,6 +788,8 @@ export interface WizardPreviewStep2 {
   productCategory?: string;
   productOrService?: string | string[];
   productsServices?: string[];
+  /** V3-359: the product or service the business most wants to grow (optional). */
+  priorityOffering?: string;
   offerSummary?: string;
   priceRange?: string;
   priceRangeLow?: MoneyAnswer | null;
@@ -853,6 +855,9 @@ export interface WizardPreviewStep4 {
   biggestFrustration?: string | null;
   monthlyRevenue?: MonthlyRevenue | string | null;
   monthlyOrderVolume?: string | null;
+  /** Step 20: paying customers so far; how most of them found the business. */
+  customersToDate?: number | string | null;
+  customersFoundBy?: string | null;
   productCost?: string | null;
   monthlyOrdersPerSubscriber?: string | null;
   monthlyChurnRate?: string | null;
@@ -861,6 +866,8 @@ export interface WizardPreviewStep4 {
   salesCycleLength?: string | null;
   paybackWindow?: PaybackWindow | string | null;
   googleAnalyticsConnected?: boolean | 'unknown';
+  /** Step 14: whether closed sales go back to the ad platforms. */
+  closedSalesSentToAdPlatforms?: boolean | 'unknown';
   monthlyWebsiteTraffic?: MonthlyWebsiteTraffic | null;
   emailListSize?: EmailListSize | null;
   knownCompetitorStatus?: string | null;

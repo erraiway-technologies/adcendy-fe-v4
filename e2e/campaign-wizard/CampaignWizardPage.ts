@@ -662,10 +662,14 @@ export class CampaignWizardPage {
     }
     for (const activity of step5.currentMarketingActivity ?? []) {
       if (activity.shareOfSpend) {
+        // The review names a catalogue channel by its display name ("Meta Ads
+        // (Facebook + Instagram)"), so the channel and its status are checked
+        // apart.
+        await this.assertReviewField(goals, 'Current marketing activity', activity.channel);
         await this.assertReviewField(
           goals,
           'Current marketing activity',
-          `${activity.channel} (${optionLabel('currentMarketingActivityStatus', activity.status)})`,
+          `(${optionLabel('currentMarketingActivityStatus', activity.status)})`,
         );
         await this.assertReviewField(
           goals,

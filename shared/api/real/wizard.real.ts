@@ -1,4 +1,5 @@
 import { http } from '../index';
+import { normalizeWholeNumber } from '@/shared/components/campaigns/wholeNumber';
 import { ApiError } from '../errors';
 import type { ApiResponse } from '../types';
 import type { CampaignStatus } from '@/shared/types/campaign';
@@ -584,6 +585,7 @@ function buildLegacyStepDataFromState(
       productCategory: normalizeNullableString(step2.productCategory),
       productOrService: normalizedProductsServices,
       productsServices: normalizedProductsServices,
+      priorityOffering: normalizeNullableString(step2.priorityOffering),
       offerSummary: normalizeNullableString(step2.offerSummary),
       priceRange: normalizeNullableString(step2.priceRange),
       priceRangeLow: normalizeMoney(step2.priceRangeLow),
@@ -621,6 +623,7 @@ function buildLegacyStepDataFromState(
       digitalPresenceLinks: normalizeDigitalPresenceLinks(step4.digitalPresenceLinks),
       trustSignals: normalizeStringList(step4.trustSignals),
       googleAnalyticsConnected: normalizeGoogleAnalyticsConnected(step4.googleAnalyticsConnected),
+      closedSalesSentToAdPlatforms: normalizeGoogleAnalyticsConnected(step4.closedSalesSentToAdPlatforms),
       monthlyWebsiteTraffic: normalizeNullableString(step4.monthlyWebsiteTraffic),
       emailListSize: normalizeNullableString(step4.emailListSize),
       whatsappListSize: normalizeNullableString(step4.whatsappListSize),
@@ -679,6 +682,8 @@ function buildLegacyStepDataFromState(
       paybackWindow: normalizeNullableString(step6.paybackWindow),
       monthlyRevenue: normalizeNullableString(step6.monthlyRevenue),
       monthlyOrderVolume: normalizeNullableString(step6.monthlyOrderVolume),
+      customersToDate: normalizeWholeNumber(step6.customersToDate),
+      customersFoundBy: normalizeNullableString(step6.customersFoundBy),
       productCost: normalizeNullableString(step6.productCost),
       monthlyOrdersPerSubscriber: normalizeNullableString(step6.monthlyOrdersPerSubscriber),
       monthlyChurnRate: normalizeNullableString(step6.monthlyChurnRate),
@@ -737,6 +742,8 @@ function buildPreviewStep4FromState(state: WizardStateResponseV2) {
     biggestFrustration: normalizeNullableString(step5.biggestFrustration),
     monthlyRevenue: normalizeNullableString(step6.monthlyRevenue),
     monthlyOrderVolume: normalizeNullableString(step6.monthlyOrderVolume),
+    customersToDate: normalizeWholeNumber(step6.customersToDate),
+    customersFoundBy: normalizeNullableString(step6.customersFoundBy),
     productCost: normalizeNullableString(step6.productCost),
     monthlyOrdersPerSubscriber: normalizeNullableString(step6.monthlyOrdersPerSubscriber),
     monthlyChurnRate: normalizeNullableString(step6.monthlyChurnRate),
@@ -746,6 +753,7 @@ function buildPreviewStep4FromState(state: WizardStateResponseV2) {
     paybackWindow: normalizeNullableString(step6.paybackWindow),
     trustSignals: normalizeStringList(step4.trustSignals),
     googleAnalyticsConnected: normalizeGoogleAnalyticsConnected(step4.googleAnalyticsConnected),
+    closedSalesSentToAdPlatforms: normalizeGoogleAnalyticsConnected(step4.closedSalesSentToAdPlatforms),
     monthlyWebsiteTraffic: normalizeNullableString(step4.monthlyWebsiteTraffic),
     emailListSize: normalizeNullableString(step4.emailListSize),
     knownCompetitorStatus: normalizeNullableString(step5.knownCompetitorStatus),
@@ -851,6 +859,7 @@ function buildStep2Payload(data: Record<string, unknown>) {
     businessDescription: normalizeNullableString(data.businessDescription),
     productCategory: normalizeNullableString(data.productCategory),
     productsServices: normalizedProductsServices.length ? normalizedProductsServices : undefined,
+    priorityOffering: normalizeNullableString(data.priorityOffering),
     offerSummary: normalizeNullableString(data.offerSummary),
     priceRange: normalizeNullableString(data.priceRange),
     priceRangeLow: normalizeMoney(data.priceRangeLow),
@@ -927,6 +936,7 @@ function buildStep4Payload(data: Record<string, unknown>) {
     digitalPresenceLinks: normalizeDigitalPresenceLinks(data.digitalPresenceLinks),
     trustSignals: normalizeStringList(data.trustSignals),
     googleAnalyticsConnected: normalizeGoogleAnalyticsConnected(data.googleAnalyticsConnected),
+    closedSalesSentToAdPlatforms: normalizeGoogleAnalyticsConnected(data.closedSalesSentToAdPlatforms),
     monthlyWebsiteTraffic: normalizeNullableString(data.monthlyWebsiteTraffic),
     emailListSize: normalizeNullableString(data.emailListSize),
     // v3 P6.
@@ -1005,6 +1015,8 @@ function buildStep6Payload(data: Record<string, unknown>) {
   const grossMarginPercentage = normalizeNumericString(data.grossMarginPercentage);
   const monthlyRevenue = normalizeNullableString(data.monthlyRevenue);
   const monthlyOrderVolume = normalizeNullableString(data.monthlyOrderVolume);
+  const customersToDate = normalizeWholeNumber(data.customersToDate);
+  const customersFoundBy = normalizeNullableString(data.customersFoundBy);
   const productCost = normalizeNullableString(data.productCost);
   const monthlyOrdersPerSubscriber = normalizeNumericString(data.monthlyOrdersPerSubscriber);
   const monthlyChurnRate = normalizeNumericString(data.monthlyChurnRate);
@@ -1024,6 +1036,8 @@ function buildStep6Payload(data: Record<string, unknown>) {
     grossMarginPercentage,
     monthlyRevenue,
     monthlyOrderVolume,
+    customersToDate,
+    customersFoundBy,
     productCost,
     monthlyOrdersPerSubscriber,
     monthlyChurnRate,

@@ -1,4 +1,4 @@
-import type { Campaign, CreateCampaignPayload, UpdateCampaignPayload } from '@/shared/types/campaign';
+import type { Campaign, CreateCampaignPayload, DraftAllowance, UpdateCampaignPayload } from '@/shared/types/campaign';
 import type { ID } from '@/shared/types/common';
 import { campaignsMockAdapter } from '../mock/campaigns.mock';
 import { campaignsRealAdapter } from '../real/campaigns.real';
@@ -16,6 +16,8 @@ export const campaignsRepository = {
   listCampaigns: async (): Promise<Campaign[]> => adapter.listCampaigns(),
   getCampaign: async (id: ID): Promise<Campaign> => adapter.getCampaign(id),
   createDraftCampaign: async (): Promise<Campaign> => adapter.createDraftCampaign(),
+  getDraftAllowance: async (): Promise<DraftAllowance> => adapter.getDraftAllowance(),
+  deleteDraftCampaign: async (id: ID): Promise<void> => adapter.deleteDraftCampaign(id),
   createCampaign: async (payload: CreateCampaignPayload): Promise<Campaign> =>
     adapter.createCampaign(payload),
   updateCampaign: async (id: ID, payload: UpdateCampaignPayload): Promise<Campaign> =>

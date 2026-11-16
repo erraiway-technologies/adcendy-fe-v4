@@ -1,4 +1,5 @@
 import { http } from '../index';
+import { readAllPages } from './allPages';
 import type { ApiResponse } from '../types';
 import type {
   BusinessModel,
@@ -6,6 +7,7 @@ import type {
   Campaign,
   CampaignStatus,
   CreateCampaignPayload,
+  DraftAllowance,
   MarketScope,
   UpdateCampaignPayload,
 } from '@/shared/types/campaign';
@@ -145,6 +147,23 @@ function coerceCampaignStatus(value: unknown) {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+/** Whether the list says another page follows; false when it doesn't say. */
+function listHasNextPage(payload: unknown): boolean {
+  if (!isRecord(payload)) return false;
+  if (isRecord(payload.meta) && typeof payload.meta.hasNext === 'boolean') {
+    return payload.meta.hasNext;
+  }
+  return 'data' in payload ? listHasNextPage(payload.data) : false;
+}
+
+/** V3-371: every campaign, page by page (the list answers 100 at a time). */
+async function fetchAllCampaignDtos(): Promise<CampaignDto[]> {
+  return readAllPages(async (page) => {
+    const response = await http<unknown>(`/api/v2/campaigns?page=${page}&pageSize=100`);
+    return { items: extractCampaignItems(response), hasNext: listHasNextPage(response) };
+  });
 }
 
 function extractCampaignItems(payload: unknown): CampaignDto[] {
@@ -622,8 +641,7 @@ function mapCampaignDtoToCampaign(dto: unknown): Campaign {
 
 export const campaignsRealAdapter = {
   async listCampaigns(): Promise<Campaign[]> {
-    const response = await http<unknown>('/api/v2/campaigns');
-    const mapped = extractCampaignItems(response).map(mapCampaignDtoToCampaign);
+    const mapped = (await fetchAllCampaignDtos()).map(mapCampaignDtoToCampaign);
 
     return Promise.all(
       mapped.map(async (campaign) => {
@@ -643,8 +661,7 @@ export const campaignsRealAdapter = {
 
   async getCampaign(id: string): Promise<Campaign> {
     try {
-      const listResponse = await http<unknown>('/api/v2/campaigns');
-      const match = extractCampaignItems(listResponse)
+      const match = (await fetchAllCampaignDtos())
         .map(mapCampaignDtoToCampaign)
         .find((campaign) => campaign.id === id);
 
@@ -668,14 +685,22 @@ export const campaignsRealAdapter = {
     return mapCampaignDtoToCampaign(response.data);
   },
 
+  // V3-371: drafts are free, up to the open-draft cap; the credit is
+  // checked and spent at submit.
   async createDraftCampaign(): Promise<Campaign> {
-    const response = await http<ApiResponse<CampaignDto>>('/v1/campaigns', {
+    const response = await http<ApiResponse<CampaignDto> | CampaignDto>('/api/v2/wizard/drafts', {
       method: 'POST',
-      body: {
-        title: 'Untitled Campaign',
-      },
     });
-    return mapCampaignDtoToCampaign(response.data);
+    return mapCampaignDtoToCampaign(unwrapResponseData(response));
+  },
+
+  async getDraftAllowance(): Promise<DraftAllowance> {
+    const response = await http<ApiResponse<DraftAllowance> | DraftAllowance>('/api/v2/wizard/drafts/allowance');
+    return unwrapResponseData(response);
+  },
+
+  async deleteDraftCampaign(id: string): Promise<void> {
+    await http(`/api/v2/wizard/drafts/${id}`, { method: 'DELETE' });
   },
 
   async createCampaign(payload: CreateCampaignPayload): Promise<Campaign> {

@@ -4,6 +4,7 @@ import { Check } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { optionSelectChange } from './optionSelectChange';
 
 export type WizardChoiceOption = { value: string; label: string };
 
@@ -89,7 +90,7 @@ export function OptionSelect({
   className?: string;
 }) {
   return (
-    <Select onValueChange={onChange} value={value || undefined}>
+    <Select onValueChange={(next) => optionSelectChange(next, onChange)} value={value || undefined}>
       <SelectTrigger data-testid={testId} className={className}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>

@@ -1,56 +1,45 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
-import { AlertCircle, Inbox, RefreshCw } from 'lucide-react';
+import { useMemo, useState, type ReactNode } from 'react';
+import { AlertCircle, ChevronRight, RefreshCw, Search, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/features/auth/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useOpsReviewerTasks, useOpsSectionReviews, useStartOpsSectionReview } from '@/hooks/useOpsV2';
-import { ReviewStatusBadge } from '@/shared/components/reviews/ReviewStatusBadge';
 import type { Role } from '@/features/auth/types';
+import { isResearchSetupReviewItem } from '@/shared/components/ops/researchSetupReview';
 import {
   getSectionReviewForbiddenMessage,
   inferSectionReviewForbiddenReason,
 } from '@/shared/components/ops/reviewAccess';
 import {
-  formatCampaignOpsStatus,
-  formatOpsDateTime,
-  formatOpsStatus,
-  formatOpsStep,
-} from '@/shared/components/ops/opsUtils';
-import { humanizeReviewValue } from '@/shared/types/reviews';
+  filterInboxGroups,
+  formatInboxTime,
+  groupInboxItems,
+  humanizeInboxValue,
+  inboxClientName,
+  reviewerTaskHeadline,
+  type InboxGroup,
+} from '@/shared/components/ops/reviewerInbox';
 import type { OpsListFilters, ReviewerTaskItem, SectionReviewItem } from '@/shared/types/opsV2';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-type SortBy = 'updatedAt' | 'createdAt';
-type SortOrder = 'asc' | 'desc';
 type ReviewStatusFilter = 'ALL' | 'PENDING_REVIEW' | 'CHANGES_REQUESTED' | 'APPROVED';
+type InboxTab = 'researchSetup' | 'blockers' | 'strategy';
 
-const STATUS_OPTIONS = [
-  'ALL',
-  'PENDING_REVIEW',
-  'CHANGES_REQUESTED',
-  'APPROVED',
-] as const;
-
-const LIMIT_OPTIONS = [10, 20, 50, 100] as const;
-const OPEN_DETAIL_BUTTON_CLASS =
-  'bg-sky-600 text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-sky-700 hover:shadow-md';
-const RUN_CONTEXT_BUTTON_CLASS =
-  'bg-emerald-600 text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-md';
+const STATUS_OPTIONS: ReadonlyArray<{ value: ReviewStatusFilter; label: string }> = [
+  { value: 'PENDING_REVIEW', label: 'Waiting for review' },
+  { value: 'CHANGES_REQUESTED', label: 'Changes requested' },
+  { value: 'APPROVED', label: 'Approved' },
+  { value: 'ALL', label: 'All' },
+];
+// The list endpoints return at most 200; the inbox shows everything waiting.
+const INBOX_LIMIT = 200;
 const REVIEWER_TASK_CAMPAIGN_MAP_KEY = 'adcendy_reviewer_task_campaign_map_v1';
 const OUTPUT_CONSTRAINT_MODE = 'output_constraint_violation';
 
@@ -224,56 +213,19 @@ function getOutputConstraintContext(task: ReviewerTaskItem): OutputConstraintTas
   };
 }
 
-function formatSectionCountLabel(count: number | null) {
-  if (!count || count <= 1) {
-    return '1 blocked section';
-  }
 
-  return `${count} blocked sections`;
-}
-
-function pluralizeBlockLabel(count: number | null, fallback: string | null): string {
-  if (fallback) {
-    return fallback;
-  }
-
-  return formatSectionCountLabel(count);
-}
-
-function formatViolationSummary(blockedSection: BlockedSectionPreview): string | null {
-  if (!blockedSection.violationSummary && !blockedSection.sectionLabel && !blockedSection.sectionId) {
+/** "3 blocked sections: Asset Copy, Roadmap…" for an output-constraint blocker. */
+function blockedSectionsLine(task: ReviewerTaskItem): string | null {
+  const context = getOutputConstraintContext(task);
+  if (!context) {
     return null;
   }
-
-  if (blockedSection.violationSummary) {
-    const subject = blockedSection.sectionLabel ?? blockedSection.sectionId;
-    return subject ? `${subject}: ${blockedSection.violationSummary}` : blockedSection.violationSummary;
-  }
-
-  return blockedSection.sectionLabel ?? blockedSection.sectionId ?? 'Blocked section';
-}
-
-function formatTaskSectionLabel(sectionId?: string | null): string | null {
-  const normalizedSectionId = toNonEmptyString(sectionId);
-  if (!normalizedSectionId) {
-    return null;
-  }
-
-  const strippedSectionId = normalizedSectionId.replace(/^section(?:[_-]\d+)?[_-]+/i, '');
-  return humanizeReviewValue(strippedSectionId || normalizedSectionId);
-}
-
-function formatTaskCampaignTitle(task: ReviewerTaskItem): string {
-  const businessName = toNonEmptyString(task.campaignBusinessName) ?? toNonEmptyString(task.clientName);
-  const marketId = toNonEmptyString(task.marketId);
-  const campaignId = toNonEmptyString(task.campaignId);
-
-  if (businessName) {
-    const heading = [businessName, marketId].filter(Boolean).join(' ');
-    return campaignId ? `${heading} (id: ${campaignId})` : heading;
-  }
-
-  return toNonEmptyString(task.campaignTitle) ?? campaignId ?? 'Unknown Client';
+  const names = context.blockedSections
+    .map((section) => section.sectionLabel ?? section.sectionId)
+    .filter((name): name is string => Boolean(name));
+  const count = context.blockedSectionCount ?? context.blockedSections.length;
+  const head = count === 1 ? '1 blocked section' : `${count} blocked sections`;
+  return names.length > 0 ? `${head}: ${[...new Set(names)].join(', ')}` : head;
 }
 
 function mapStatusFilterToBackend(status: ReviewStatusFilter): string | undefined {
@@ -293,12 +245,10 @@ function rememberTaskCampaign(taskId: string, campaignId?: string | null) {
   if (typeof window === 'undefined') {
     return;
   }
-
   const normalizedCampaignId = typeof campaignId === 'string' ? campaignId.trim() : '';
   if (!normalizedCampaignId) {
     return;
   }
-
   try {
     const existingRaw = window.localStorage.getItem(REVIEWER_TASK_CAMPAIGN_MAP_KEY);
     const existingParsed: unknown = existingRaw ? JSON.parse(existingRaw) : {};
@@ -306,7 +256,6 @@ function rememberTaskCampaign(taskId: string, campaignId?: string | null) {
       existingParsed && typeof existingParsed === 'object' && !Array.isArray(existingParsed)
         ? (existingParsed as Record<string, unknown>)
         : {};
-
     const nextMap: Record<string, string> = Object.fromEntries(
       Object.entries(existingMap)
         .filter(([key, value]) => typeof key === 'string' && typeof value === 'string' && key.trim() && value.trim())
@@ -319,308 +268,284 @@ function rememberTaskCampaign(taskId: string, campaignId?: string | null) {
   }
 }
 
-function ReviewerTaskRow({ task }: { task: ReviewerTaskItem }) {
-  const campaignTitle = formatTaskCampaignTitle(task);
-  const sectionLabel = formatTaskSectionLabel(task.sectionId);
-  const failureLabel = task.failureMode ? formatOpsStatus(task.failureMode) : null;
-  const detailHref = task.campaignId
-    ? `/app/reviewer/tasks/${task.id}?campaignId=${encodeURIComponent(task.campaignId)}`
-    : `/app/reviewer/tasks/${task.id}`;
-  const outputConstraintContext = getOutputConstraintContext(task);
-  const persistContext = () => rememberTaskCampaign(task.id, task.campaignId);
-  const outputConstraintBadgeCount = outputConstraintContext
-    ? outputConstraintContext.blockedSectionCount ?? outputConstraintContext.blockedSections.length
-    : 0;
-  const isMultipleBlockedIssues =
-    isOutputConstraintMode(task.failureMode) && outputConstraintBadgeCount > 1;
+/** Joins the known parts with a dot; unknown parts are left out. */
+function Meta({ parts }: { parts: Array<string | null | undefined | false> }) {
+  const known = parts.filter((part): part is string => Boolean(part));
+  return known.length > 0 ? <p className="truncate text-xs text-muted-foreground">{known.join(' · ')}</p> : null;
+}
 
+function StatusChip({ status }: { status: string | null | undefined }) {
+  if (!status || status.toLowerCase() === 'pending_review') {
+    return null;
+  }
+  const tone =
+    status.toLowerCase() === 'approved'
+      ? 'border-emerald-500/40 text-emerald-400'
+      : status.toLowerCase() === 'changes_requested'
+        ? 'border-amber-500/40 text-amber-400'
+        : 'border-border text-muted-foreground';
   return (
-    <Card className="border-border bg-card">
-      <CardContent className="flex flex-col gap-4 p-5">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-2">
-            <Link
-              href={detailHref}
-              onClick={persistContext}
-              className="text-base font-semibold text-foreground underline-offset-4 hover:underline"
-            >
-              {campaignTitle}
-            </Link>
-            {task.marketId ? <p className="text-xs text-muted-foreground">Market: {task.marketId}</p> : null}
-          </div>
-          <div className="flex items-center gap-2">
-            <Link href={detailHref} onClick={persistContext}>
-              <Button size="sm" className={OPEN_DETAIL_BUTTON_CLASS}>Open Detail</Button>
-            </Link>
-            {task.pipelineRunId && (
-              <Link href={`/app/reviewer/runs/${task.pipelineRunId}`}>
-                <Button size="sm" className={RUN_CONTEXT_BUTTON_CLASS}>
-                  Run Context
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <ReviewStatusBadge status={task.status} label={formatOpsStatus(task.status)} />
-          <ReviewStatusBadge status={task.runStatus} label={`Run ${formatOpsStatus(task.runStatus)}`} />
-          <ReviewStatusBadge
-            status={task.campaignStatus}
-            label={formatCampaignOpsStatus(task.campaignStatus)}
-          />
-          <ReviewStatusBadge status={String(task.currentStep ?? 'UNKNOWN')} label={formatOpsStep(task.currentStep)} />
-        </div>
-
-        <div className="grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
-          <p>Campaign: {campaignTitle}</p>
-          <p>Section: {sectionLabel ?? 'Not available'}</p>
-          <p>Failure: {failureLabel ?? 'Not available'}</p>
-          <p>Updated: {formatOpsDateTime(task.updatedAt)}</p>
-          <p>Created: {formatOpsDateTime(task.createdAt)}</p>
-          <p>Attempt: {typeof task.attemptNumber === 'number' ? task.attemptNumber : 'Not available'}</p>
-          {outputConstraintContext ? (
-            <p>
-              Blocked Sections:{' '}
-              <span className="font-semibold text-foreground">
-                {formatSectionCountLabel(outputConstraintBadgeCount || null)}
-              </span>
-            </p>
-          ) : null}
-        </div>
-        {outputConstraintContext ? (
-          <details className="rounded-md border border-border/70 bg-background/40 p-3 text-sm">
-            <summary className="cursor-pointer font-medium text-amber-600">
-              {pluralizeBlockLabel(
-                outputConstraintContext.blockedSectionCount,
-                outputConstraintContext.sectionLabel,
-              )}
-            </summary>
-            {isMultipleBlockedIssues ? (
-              <ul className="mt-2 space-y-2 pl-4 text-muted-foreground">
-                {outputConstraintContext.blockedSections.map((blockedSection, index) => (
-                  <li key={`${blockedSection.sectionId || blockedSection.sectionLabel || 'section'}-${index}`}>
-                    <span className="text-foreground">
-                      {blockedSection.sectionLabel ?? blockedSection.sectionId ?? 'Unknown section'}
-                    </span>
-                    {blockedSection.violationSummary ? ` - ${blockedSection.violationSummary}` : null}
-                    {blockedSection.marketId ? (
-                      <span className="ml-1 text-xs text-muted-foreground">(market: {blockedSection.marketId})</span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-2">
-                {formatViolationSummary(outputConstraintContext.blockedSections[0] ?? {})}
-              </p>
-            )}
-          </details>
-        ) : null}
-      </CardContent>
-    </Card>
+    <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${tone}`}>
+      {humanizeInboxValue(status)}
+    </span>
   );
 }
 
-function SectionReviewRow({ review, role }: { review: SectionReviewItem; role: Extract<Role, 'REVIEWER' | 'ADMIN'> }) {
+function GroupCard<T>({ group, children }: { group: InboxGroup<T>; children: ReactNode }) {
+  return (
+    <section className="overflow-hidden rounded-xl border border-border bg-card">
+      <header className="flex items-baseline justify-between gap-3 border-b border-border/70 px-4 py-2.5">
+        <h2 className="truncate text-sm font-semibold text-foreground">
+          {group.client}
+          {group.market ? <span className="ml-2 text-xs font-normal text-muted-foreground">{group.market}</span> : null}
+        </h2>
+        {group.items.length > 1 ? (
+          <span className="shrink-0 text-xs text-muted-foreground">{group.items.length} items</span>
+        ) : null}
+      </header>
+      <ul className="divide-y divide-border/60">{children}</ul>
+    </section>
+  );
+}
+
+function ReviewerTaskLine({ task, required }: { task: ReviewerTaskItem; required: boolean }) {
+  const href = task.campaignId
+    ? `/app/reviewer/tasks/${task.id}?campaignId=${encodeURIComponent(task.campaignId)}`
+    : `/app/reviewer/tasks/${task.id}`;
+  const attempt = typeof task.attemptNumber === 'number' && task.attemptNumber > 1 ? `attempt ${task.attemptNumber}` : null;
+  return (
+    <li className="group relative flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03]">
+      <span
+        aria-hidden
+        className={`size-2 shrink-0 rounded-full ${required ? 'bg-sky-400' : 'bg-amber-400'}`}
+      />
+      <div className="min-w-0 flex-1 space-y-0.5">
+        <Link
+          href={href}
+          onClick={() => rememberTaskCampaign(task.id, task.campaignId)}
+          className="block truncate text-sm font-medium text-foreground after:absolute after:inset-0"
+        >
+          {reviewerTaskHeadline(task)}
+        </Link>
+        <Meta parts={[blockedSectionsLine(task), formatInboxTime(task.updatedAt ?? task.createdAt), attempt]} />
+      </div>
+      <StatusChip status={task.status} />
+      {task.pipelineRunId ? (
+        <Link
+          href={`/app/reviewer/runs/${task.pipelineRunId}`}
+          className="relative z-10 shrink-0 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-white/5 hover:text-foreground"
+        >
+          Run
+        </Link>
+      ) : null}
+      <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+    </li>
+  );
+}
+
+function SectionReviewLine({ review, role }: { review: SectionReviewItem; role: Extract<Role, 'REVIEWER' | 'ADMIN'> }) {
   const router = useRouter();
   const { toast } = useToast();
   const startReviewMutation = useStartOpsSectionReview(review.pipelineRunId ?? null);
-
-  const workspacePath =
-    review.pipelineRunId
-      ? role === 'ADMIN'
-        ? `/app/admin/runs/${review.pipelineRunId}`
-        : `/app/reviewer/runs/${review.pipelineRunId}`
+  const workspacePath = review.pipelineRunId
+    ? role === 'ADMIN'
+      ? `/app/admin/runs/${review.pipelineRunId}`
+      : `/app/reviewer/runs/${review.pipelineRunId}`
+    : null;
+  const title =
+    review.sectionTitle || (review.sectionId ? humanizeInboxValue(review.sectionId.replace(/^section(?:[_-]\d+)?[_-]+/i, '')) : 'Section');
+  const revisions =
+    typeof review.revisionCount === 'number' && review.revisionCount > 0
+      ? review.revisionCount === 1
+        ? '1 revision'
+        : `${review.revisionCount} revisions`
       : null;
 
   const openWorkspace = async () => {
-    if (!review.pipelineRunId || !workspacePath) {
-      toast({
-        title: 'Run ID missing',
-        description: 'This section review task does not include a pipeline run id.',
-        variant: 'destructive',
-      });
+    if (!workspacePath) {
+      toast({ title: 'Run missing', description: 'This review is not linked to a run.', variant: 'destructive' });
       return;
     }
-
     if (role === 'ADMIN') {
       router.push(workspacePath);
       return;
     }
-
     try {
       await startReviewMutation.mutateAsync();
-      toast({
-        title: 'Review started',
-        description: 'Workspace is now unlocked for this run.',
-      });
       router.push(workspacePath);
     } catch (error) {
       const reason = inferSectionReviewForbiddenReason(error);
-      if (reason) {
-        const message = getSectionReviewForbiddenMessage(role, reason);
-        toast({
-          title: message.title,
-          description: message.description,
-          variant: 'destructive',
-        });
-        return;
-      }
-
+      const message = reason ? getSectionReviewForbiddenMessage(role, reason) : null;
       toast({
-        title: 'Unable to start review',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        title: message?.title ?? 'Unable to start review',
+        description: message?.description ?? (error instanceof Error ? error.message : 'Unknown error'),
         variant: 'destructive',
       });
     }
   };
 
   return (
-    <Card className="border-border bg-card">
-      <CardContent className="flex flex-col gap-4 p-5">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div className="space-y-2">
-            {role === 'ADMIN' ? (
-              <Link
-                href={`/app/reviewer/section-reviews/${review.id}`}
-                className="text-base font-semibold text-foreground underline-offset-4 hover:underline"
-              >
-                {review.sectionTitle || review.sectionId || `Section Review ${review.id}`}
-              </Link>
-            ) : (
-              <p className="text-base font-semibold text-foreground">
-                {review.sectionTitle || review.sectionId || `Section Review ${review.id}`}
-              </p>
-            )}
-            {review.marketId ? <p className="text-xs text-muted-foreground">Market: {review.marketId}</p> : null}
-          </div>
-          <div className="flex items-center gap-2">
-            {role === 'REVIEWER' ? (
-              <Button
-                size="sm"
-                className={RUN_CONTEXT_BUTTON_CLASS}
-                onClick={() => void openWorkspace()}
-                disabled={startReviewMutation.isPending || !review.pipelineRunId}
-              >
-                {startReviewMutation.isPending ? 'Starting...' : 'Review'}
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                className={RUN_CONTEXT_BUTTON_CLASS}
-                onClick={() => void openWorkspace()}
-                disabled={!review.pipelineRunId}
-              >
-                Open Workspace
-              </Button>
-            )}
-            {role === 'ADMIN' && (
-              <Link href={`/app/reviewer/section-reviews/${review.id}`}>
-                <Button size="sm" className={OPEN_DETAIL_BUTTON_CLASS}>Open Detail</Button>
-              </Link>
-            )}
-            {workspacePath && (
-              <Link href={workspacePath}>
-                <Button size="sm" variant="outline">
-                  Run Context
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <ReviewStatusBadge status={review.status} label={formatOpsStatus(review.status)} />
-          <ReviewStatusBadge status={review.runStatus} label={`Run ${formatOpsStatus(review.runStatus)}`} />
-          <ReviewStatusBadge
-            status={review.campaignStatus}
-            label={formatCampaignOpsStatus(review.campaignStatus)}
-          />
-          <ReviewStatusBadge
-            status={String(review.currentStep ?? 'UNKNOWN')}
-            label={formatOpsStep(review.currentStep)}
-          />
-        </div>
-
-        <div className="grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
-          <p>Campaign: {review.campaignTitle || review.campaignId || 'Not available'}</p>
-          <p>Revision Count: {typeof review.revisionCount === 'number' ? review.revisionCount : 0}</p>
-          <p>Latest Revision: {review.latestRevisionSummary || 'None'}</p>
-          <p>Updated: {formatOpsDateTime(review.updatedAt)}</p>
-        </div>
-      </CardContent>
-    </Card>
+    <li className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.03]">
+      <span aria-hidden className="size-2 shrink-0 rounded-full bg-violet-400" />
+      <div className="min-w-0 flex-1 space-y-0.5">
+        <p className="truncate text-sm font-medium text-foreground">{title}</p>
+        <Meta
+          parts={[
+            formatInboxTime(review.updatedAt ?? review.createdAt),
+            revisions,
+            review.latestRevisionSummary ? `latest: ${review.latestRevisionSummary}` : null,
+          ]}
+        />
+      </div>
+      <StatusChip status={review.status} />
+      {role === 'ADMIN' ? (
+        <Link
+          href={`/app/reviewer/section-reviews/${review.id}`}
+          className="shrink-0 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-white/5 hover:text-foreground"
+        >
+          Details
+        </Link>
+      ) : null}
+      <Button
+        size="sm"
+        variant="secondary"
+        className="h-7 shrink-0 px-3 text-xs"
+        onClick={() => void openWorkspace()}
+        disabled={!workspacePath || startReviewMutation.isPending}
+      >
+        {startReviewMutation.isPending ? 'Opening…' : role === 'ADMIN' ? 'Open' : 'Review'}
+      </Button>
+    </li>
   );
 }
 
-function InboxEmpty({ title, description }: { title: string; description: string }) {
+function QuietState({ children }: { children: ReactNode }) {
   return (
-    <Card className="border-border bg-card">
-      <CardContent className="py-10">
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <Inbox className="size-5" />
-            </EmptyMedia>
-            <EmptyTitle>{title}</EmptyTitle>
-            <EmptyDescription>{description}</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      </CardContent>
-    </Card>
+    <div className="rounded-xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
+      {children}
+    </div>
   );
 }
+
+function TabBody<T>({
+  query,
+  error,
+  groups,
+  empty,
+  filtered,
+  render,
+}: {
+  query: { isLoading: boolean };
+  error: unknown;
+  groups: InboxGroup<T>[];
+  empty: string;
+  filtered: boolean;
+  render: (group: InboxGroup<T>) => ReactNode;
+}) {
+  if (query.isLoading) {
+    return (
+      <div className="space-y-3">
+        {[0, 1].map((k) => (
+          <div key={k} className="h-24 animate-pulse rounded-xl border border-border bg-card" />
+        ))}
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="rounded-xl border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+        {error instanceof Error ? error.message : 'Could not load this list.'}
+      </div>
+    );
+  }
+  if (groups.length === 0) {
+    return <QuietState>{filtered ? 'Nothing matches this filter.' : empty}</QuietState>;
+  }
+  // Client groups flow into columns on wide screens; a group never splits.
+  return <div className="gap-3 lg:columns-2 2xl:columns-3 [&>section]:mb-3 [&>section]:break-inside-avoid">{groups.map(render)}</div>;
+}
+
+function TabLabel({ label, count }: { label: string; count: number }) {
+  return (
+    <span className="flex items-center gap-2">
+      {label}
+      <span
+        className={`min-w-5 rounded-full px-1.5 text-[11px] font-semibold leading-5 ${
+          count > 0 ? 'bg-foreground/10 text-current' : 'text-muted-foreground/60'
+        }`}
+      >
+        {count}
+      </span>
+    </span>
+  );
+}
+
+const TAB_TRIGGER_CLASS =
+  'flex-none rounded-md px-3 py-1.5 text-sm text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm';
 
 export default function ReviewerStrategyReviewsPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const initialStatus = (searchParams.get('status')?.toUpperCase() ?? 'PENDING_REVIEW') as ReviewStatusFilter;
   const [status, setStatus] = useState<ReviewStatusFilter>(
-    STATUS_OPTIONS.includes(initialStatus) ? initialStatus : 'PENDING_REVIEW',
+    STATUS_OPTIONS.some((o) => o.value === initialStatus) ? initialStatus : 'PENDING_REVIEW',
   );
-  const [pipelineRunId, setPipelineRunId] = useState(searchParams.get('pipelineRunId') ?? '');
-  const [marketId, setMarketId] = useState(searchParams.get('marketId') ?? '');
-  const [sortBy, setSortBy] = useState<SortBy>(
-    searchParams.get('sortBy') === 'createdAt' ? 'createdAt' : 'updatedAt',
-  );
-  const [sortOrder, setSortOrder] = useState<SortOrder>(
-    searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc',
-  );
-  const [limit, setLimit] = useState<number>(() => {
-    const raw = Number(searchParams.get('limit'));
-    return Number.isFinite(raw) && raw > 0 ? raw : 20;
-  });
+  const pipelineRunId = searchParams.get('pipelineRunId')?.trim() || '';
+  const [search, setSearch] = useState(searchParams.get('marketId') ?? '');
+  const [tab, setTab] = useState<InboxTab | null>(null);
 
   const isOpsRole = user?.role === 'REVIEWER' || user?.role === 'ADMIN';
 
-  const filters = useMemo<OpsListFilters>(
+  const taskFilters = useMemo<OpsListFilters>(
     () => ({
-      status: mapStatusFilterToBackend(status),
-      pipelineRunId: pipelineRunId.trim() || undefined,
-      marketId: marketId.trim() || undefined,
-      sortBy,
-      sortOrder,
-      limit,
-    }),
-    [limit, marketId, pipelineRunId, sortBy, sortOrder, status],
-  );
-
-  const reviewerTaskFilters = useMemo<OpsListFilters>(
-    () => ({
-      ...filters,
       status: 'pending_review',
+      pipelineRunId: pipelineRunId || undefined,
+      sortBy: 'updatedAt',
+      sortOrder: 'desc',
+      limit: INBOX_LIMIT,
     }),
-    [filters],
+    [pipelineRunId],
+  );
+  const sectionFilters = useMemo<OpsListFilters>(
+    () => ({ ...taskFilters, status: mapStatusFilterToBackend(status) }),
+    [status, taskFilters],
   );
 
-  const reviewerTasksQuery = useOpsReviewerTasks(reviewerTaskFilters, isOpsRole);
-  const sectionReviewsQuery = useOpsSectionReviews(filters, isOpsRole);
+  const reviewerTasksQuery = useOpsReviewerTasks(taskFilters, isOpsRole);
+  const sectionReviewsQuery = useOpsSectionReviews(sectionFilters, isOpsRole);
+
+  // V3-329: required reviews (every run) apart from blockers (something went
+  // wrong); the task's category decides, not its phase.
+  const tasks = reviewerTasksQuery.data ?? [];
+  const setupGroups = filterInboxGroups(groupInboxItems(tasks.filter(isResearchSetupReviewItem), inboxClientName), search);
+  const blockerGroups = filterInboxGroups(
+    groupInboxItems(
+      tasks.filter((task) => !isResearchSetupReviewItem(task)),
+      inboxClientName,
+    ),
+    search,
+  );
+  const strategyGroups = filterInboxGroups(
+    groupInboxItems(sectionReviewsQuery.data ?? [], (review) => inboxClientName(review)),
+    search,
+  );
+  const count = (groups: InboxGroup<unknown>[]) => groups.reduce((n, g) => n + g.items.length, 0);
+  const counts: Record<InboxTab, number> = {
+    researchSetup: count(setupGroups),
+    blockers: count(blockerGroups),
+    strategy: count(strategyGroups),
+  };
+  // Open on the first tab with something in it, until the reviewer picks one.
+  const activeTab: InboxTab =
+    tab ?? (counts.researchSetup > 0 ? 'researchSetup' : counts.blockers > 0 ? 'blockers' : counts.strategy > 0 ? 'strategy' : 'researchSetup');
+  const filtered = search.trim().length > 0;
+  const fetching = reviewerTasksQuery.isFetching || sectionReviewsQuery.isFetching;
 
   if (isAuthLoading) {
-    return <div className="p-6 text-sm text-muted-foreground">Loading reviewer inbox...</div>;
+    return <div className="p-6 text-sm text-muted-foreground">Loading reviewer inbox…</div>;
   }
 
   if (!isOpsRole) {
@@ -631,9 +556,7 @@ export default function ReviewerStrategyReviewsPage() {
             <AlertCircle className="h-10 w-10 text-destructive" />
             <div className="space-y-1">
               <p className="text-lg font-semibold">Permission denied</p>
-              <p className="text-sm text-muted-foreground">
-                This workspace is available to reviewer and admin users.
-              </p>
+              <p className="text-sm text-muted-foreground">This workspace is available to reviewer and admin users.</p>
             </div>
           </CardContent>
         </Card>
@@ -642,192 +565,145 @@ export default function ReviewerStrategyReviewsPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="space-y-2">
-        <h1 className="font-space-grotesk text-3xl font-bold text-foreground">Reviewer Ops Inbox</h1>
-        <p className="text-muted-foreground">
-          Unified queue for intelligence blockers and mandatory strategy review approvals.
-        </p>
+    <div className="w-full space-y-5 p-6">
+      <div className="flex items-end justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="font-space-grotesk text-2xl font-bold text-foreground">Reviewer Inbox</h1>
+          <p className="text-sm text-muted-foreground">
+            {counts.researchSetup + counts.blockers + counts.strategy === 0
+              ? 'Nothing is waiting for you.'
+              : 'Approvals runs are waiting on, grouped by client.'}
+          </p>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground"
+          onClick={() => {
+            void reviewerTasksQuery.refetch();
+            void sectionReviewsQuery.refetch();
+          }}
+          disabled={fetching}
+        >
+          <RefreshCw className={`mr-1.5 size-3.5 ${fetching ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
-      <Card className="border-border bg-card">
-        <CardContent className="grid gap-4 p-5 md:grid-cols-2 lg:grid-cols-6">
-          <div className="space-y-2">
-            <Label htmlFor="status-filter">Status</Label>
-            <Select
-              value={status}
-              onValueChange={(value) =>
-                setStatus(STATUS_OPTIONS.includes(value as ReviewStatusFilter) ? (value as ReviewStatusFilter) : 'PENDING_REVIEW')
-              }
-            >
-              <SelectTrigger id="status-filter">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option === 'ALL' ? 'All statuses' : formatOpsStatus(option)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="pipeline-run-filter">Pipeline Run</Label>
-            <Input
-              id="pipeline-run-filter"
-              value={pipelineRunId}
-              onChange={(event) => setPipelineRunId(event.target.value)}
-              placeholder="run id"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="market-filter">Market</Label>
-            <Input
-              id="market-filter"
-              value={marketId}
-              onChange={(event) => setMarketId(event.target.value)}
-              placeholder="market id"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="sort-by-filter">Sort By</Label>
-            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortBy)}>
-              <SelectTrigger id="sort-by-filter">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="updatedAt">Updated Time</SelectItem>
-                <SelectItem value="createdAt">Created Time</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="sort-order-filter">Order</Label>
-            <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as SortOrder)}>
-              <SelectTrigger id="sort-order-filter">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="desc">Newest First</SelectItem>
-                <SelectItem value="asc">Oldest First</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="limit-filter">Page Size</Label>
-            <div className="flex gap-2">
-              <Select value={String(limit)} onValueChange={(value) => setLimit(Number(value))}>
-                <SelectTrigger id="limit-filter">
+      <Tabs value={activeTab} onValueChange={(value) => setTab(value as InboxTab)} className="space-y-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <TabsList className="h-auto w-fit gap-1 rounded-lg bg-muted/40 p-1">
+            <TabsTrigger value="researchSetup" className={TAB_TRIGGER_CLASS}>
+              <TabLabel label="Research Setup" count={counts.researchSetup} />
+            </TabsTrigger>
+            <TabsTrigger value="blockers" className={TAB_TRIGGER_CLASS}>
+              <TabLabel label="Blockers" count={counts.blockers} />
+            </TabsTrigger>
+            <TabsTrigger value="strategy" className={TAB_TRIGGER_CLASS}>
+              <TabLabel label="Strategy" count={counts.strategy} />
+            </TabsTrigger>
+          </TabsList>
+          <div className="flex items-center gap-2">
+            {activeTab === 'strategy' ? (
+              <Select value={status} onValueChange={(value) => setStatus(value as ReviewStatusFilter)}>
+                <SelectTrigger className="h-8 w-44 text-xs" aria-label="Status">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {LIMIT_OPTIONS.map((option) => (
-                    <SelectItem key={option} value={String(option)}>
-                      {option}
+                  {STATUS_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  void reviewerTasksQuery.refetch();
-                  void sectionReviewsQuery.refetch();
-                }}
-                disabled={reviewerTasksQuery.isFetching || sectionReviewsQuery.isFetching}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
+            ) : null}
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Client or market"
+                aria-label="Filter by client or market"
+                className="h-8 w-52 pl-8 text-xs"
+              />
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Tabs defaultValue="reviewerTasks" className="space-y-4">
-        <TabsList className="h-auto w-full justify-start gap-1 rounded-xl border border-border bg-card p-1">
-          <TabsTrigger
-            value="reviewerTasks"
-            className="flex-none rounded-md border border-transparent bg-transparent px-4 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground data-[state=active]:border-white data-[state=active]:bg-white data-[state=active]:text-[#1E1E1E] data-[state=active]:shadow-sm"
-          >
-            Intelligence Blockers ({reviewerTasksQuery.data?.length ?? 0})
-          </TabsTrigger>
-          <TabsTrigger
-            value="sectionReviews"
-            className="flex-none rounded-md border border-transparent bg-transparent px-4 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground data-[state=active]:border-white data-[state=active]:bg-white data-[state=active]:text-[#1E1E1E] data-[state=active]:shadow-sm"
-          >
-            Strategy Review ({sectionReviewsQuery.data?.length ?? 0})
-          </TabsTrigger>
-        </TabsList>
+        {pipelineRunId ? (
+          <div className="flex w-fit items-center gap-2 rounded-full border border-border bg-card py-1 pl-3 pr-1 text-xs text-muted-foreground">
+            One run only: <span className="font-mono text-foreground">{pipelineRunId}</span>
+            <button
+              type="button"
+              aria-label="Show all runs"
+              className="rounded-full p-1 hover:bg-white/5 hover:text-foreground"
+              onClick={() => router.replace('/app/reviewer/strategy-reviews')}
+            >
+              <X className="size-3" />
+            </button>
+          </div>
+        ) : null}
 
-        <TabsContent value="reviewerTasks" className="space-y-4">
-          {reviewerTasksQuery.isLoading ? (
-            <Card className="border-border bg-card">
-              <CardContent className="p-5 text-sm text-muted-foreground">
-                Loading reviewer tasks...
-              </CardContent>
-            </Card>
-          ) : reviewerTasksQuery.error ? (
-            <Card className="border-destructive/40 bg-destructive/5">
-              <CardContent className="p-5 text-sm text-destructive">
-                {reviewerTasksQuery.error instanceof Error
-                  ? reviewerTasksQuery.error.message
-                  : 'Failed to load reviewer tasks.'}
-              </CardContent>
-            </Card>
-          ) : (reviewerTasksQuery.data ?? []).length === 0 ? (
-            <InboxEmpty
-              title="No intelligence blockers in this filter"
-              description="When intelligence blockers require reviewer input, tasks will appear here."
-            />
-          ) : (
-            <div className="space-y-3">
-              {(reviewerTasksQuery.data ?? []).map((task) => (
-                <ReviewerTaskRow key={task.id} task={task} />
-              ))}
-            </div>
-          )}
+        <TabsContent value="researchSetup" className="mt-0 space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Required on every run: approve what competitor research is based on before it starts.
+          </p>
+          <TabBody
+            query={reviewerTasksQuery}
+            error={reviewerTasksQuery.error}
+            groups={setupGroups}
+            filtered={filtered}
+            empty="No research setup reviews waiting."
+            render={(group) => (
+              <GroupCard key={group.key} group={group}>
+                {group.items.map((task) => (
+                  <ReviewerTaskLine key={task.id} task={task} required />
+                ))}
+              </GroupCard>
+            )}
+          />
         </TabsContent>
 
-        <TabsContent value="sectionReviews" className="space-y-4">
-          <div className="flex justify-end">
-            <Link href="/app/reviewer/section-reviews">
-              <Button variant="outline" size="sm">
-                Open Full Strategy Review Inbox
-              </Button>
+        <TabsContent value="blockers" className="mt-0 space-y-3">
+          <p className="text-xs text-muted-foreground">A run stopped and needs your answer to continue.</p>
+          <TabBody
+            query={reviewerTasksQuery}
+            error={reviewerTasksQuery.error}
+            groups={blockerGroups}
+            filtered={filtered}
+            empty="No blocked runs."
+            render={(group) => (
+              <GroupCard key={group.key} group={group}>
+                {group.items.map((task) => (
+                  <ReviewerTaskLine key={task.id} task={task} required={false} />
+                ))}
+              </GroupCard>
+            )}
+          />
+        </TabsContent>
+
+        <TabsContent value="strategy" className="mt-0 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground">Every strategy section needs approval before delivery.</p>
+            <Link href="/app/reviewer/section-reviews" className="shrink-0 text-xs text-muted-foreground hover:text-foreground">
+              Full strategy inbox →
             </Link>
           </div>
-          {sectionReviewsQuery.isLoading ? (
-            <Card className="border-border bg-card">
-              <CardContent className="p-5 text-sm text-muted-foreground">
-                Loading section review tasks...
-              </CardContent>
-            </Card>
-          ) : sectionReviewsQuery.error ? (
-            <Card className="border-destructive/40 bg-destructive/5">
-              <CardContent className="p-5 text-sm text-destructive">
-                {sectionReviewsQuery.error instanceof Error
-                  ? sectionReviewsQuery.error.message
-                  : 'Failed to load section review tasks.'}
-              </CardContent>
-            </Card>
-          ) : (sectionReviewsQuery.data ?? []).length === 0 ? (
-            <InboxEmpty
-              title="No strategy review tasks in this filter"
-              description="Mandatory section approvals and revision requests will show up here."
-            />
-          ) : (
-            <div className="space-y-3">
-              {(sectionReviewsQuery.data ?? []).map((review) => (
-                <SectionReviewRow
-                  key={review.id}
-                  review={review}
-                  role={isAdmin ? 'ADMIN' : 'REVIEWER'}
-                />
-              ))}
-            </div>
-          )}
+          <TabBody
+            query={sectionReviewsQuery}
+            error={sectionReviewsQuery.error}
+            groups={strategyGroups}
+            filtered={filtered}
+            empty={status === 'PENDING_REVIEW' ? 'No sections waiting for review.' : 'No sections with this status.'}
+            render={(group) => (
+              <GroupCard key={group.key} group={group}>
+                {group.items.map((review) => (
+                  <SectionReviewLine key={review.id} review={review} role={isAdmin ? 'ADMIN' : 'REVIEWER'} />
+                ))}
+              </GroupCard>
+            )}
+          />
         </TabsContent>
       </Tabs>
     </div>

@@ -41,6 +41,24 @@ import { cn } from '@/lib/utils';
 import { CampaignDocumentUploader } from '@/shared/components/campaigns/CampaignDocumentUploader';
 import { CompetitorSelectionPicker } from '@/shared/components/ops/CompetitorSelectionPicker';
 import { ProductNounPicker } from '@/shared/components/ops/ProductNounPicker';
+import { ResearchSetupReviewForm } from '@/shared/components/ops/ResearchSetupReviewForm';
+import { ResearchKeywordsReviewForm } from '@/shared/components/ops/ResearchKeywordsReviewForm';
+import { CompetitorReviewForm } from '@/shared/components/ops/CompetitorReviewForm';
+import {
+  isCompetitorReviewTask,
+  readCompetitorReviewModel,
+  type CompetitorReviewAnswer,
+} from '@/shared/components/ops/competitorReview';
+import {
+  isResearchKeywordsTask,
+  readResearchKeywordsModel,
+  type ResearchKeywordsAnswer,
+} from '@/shared/components/ops/researchKeywordsReview';
+import {
+  isResearchSetupTask,
+  readResearchSetupModel,
+  type ResearchSetupAnswer,
+} from '@/shared/components/ops/researchSetupReview';
 import {
   isAnswerableTaskStatus,
   isCompetitorSelectionTask,
@@ -1296,6 +1314,15 @@ export default function ReviewerTaskDetailPage() {
   const productNounModel =
     task && isProductNounTask(task.failureMode) ? readProductNounModel(task) : null;
 
+  // V3-329: the Research Setup Review - a required review on every run, not a
+  // blocker. The reviewer chooses the searches competitor research starts from.
+  const researchSetupModel = task && isResearchSetupTask(task.failureMode) ? readResearchSetupModel(task) : null;
+  const researchKeywordsModel =
+    task && isResearchKeywordsTask(task.failureMode) ? readResearchKeywordsModel(task) : null;
+  // V3-338: the third Research Setup Review - the direct competitors, approved.
+  const competitorReviewModel =
+    task && isCompetitorReviewTask(task.failureMode) ? readCompetitorReviewModel(task) : null;
+
   // The search-noise question (V3-66): the competitors the run holds beside the
   // domains left out as noise, answered by marking or adding competitors. It
   // replaces the JSON box, which offered an empty object and a schema example.
@@ -1396,6 +1423,63 @@ export default function ReviewerTaskDetailPage() {
     } catch (error) {
       toast({
         title: 'Unable to submit the competitor set',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleCompetitorReviewSubmit = async (answer: CompetitorReviewAnswer) => {
+    try {
+      const result = await respondMutation.mutateAsync({ answer });
+      setLastActionResult(result);
+      toast({
+        title: 'Competitors approved',
+        description: 'Your choice is recorded on this run.',
+      });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.opsV2.all });
+      router.replace('/app/reviewer/strategy-reviews');
+    } catch (error) {
+      toast({
+        title: 'Unable to approve the competitors',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleResearchKeywordsSubmit = async (answer: ResearchKeywordsAnswer) => {
+    try {
+      const result = await respondMutation.mutateAsync({ answer });
+      setLastActionResult(result);
+      toast({
+        title: 'Keywords approved',
+        description: 'Your choice is recorded on this run.',
+      });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.opsV2.all });
+      router.replace('/app/reviewer/strategy-reviews');
+    } catch (error) {
+      toast({
+        title: 'Unable to approve the keywords',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleResearchSetupSubmit = async (answer: ResearchSetupAnswer) => {
+    try {
+      const result = await respondMutation.mutateAsync({ answer });
+      setLastActionResult(result);
+      toast({
+        title: 'Searches approved',
+        description: 'Your choice is recorded on this run.',
+      });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.opsV2.all });
+      router.replace('/app/reviewer/strategy-reviews');
+    } catch (error) {
+      toast({
+        title: 'Unable to approve the searches',
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: 'destructive',
       });
@@ -1800,7 +1884,12 @@ export default function ReviewerTaskDetailPage() {
           </p>
           <h1 className="font-space-grotesk text-3xl font-bold text-foreground">Campaign Review Detail</h1>
           <p className="text-sm text-muted-foreground">
-            Structured view for reviewer diagnostics and blocker-response submission.
+            {task &&
+            (isResearchSetupTask(task.failureMode) ||
+              isResearchKeywordsTask(task.failureMode) ||
+              isCompetitorReviewTask(task.failureMode))
+              ? 'A required review: approve what research for this run is based on.'
+              : 'Structured view for reviewer diagnostics and blocker-response submission.'}
           </p>
         </div>
       </div>
@@ -1821,6 +1910,40 @@ export default function ReviewerTaskDetailPage() {
         </Card>
       ) : (
         <>
+          {/* A required review is the reason the reviewer is here: it comes first. */}
+          {competitorReviewModel ? (
+            <CompetitorReviewForm
+              key={task.id}
+              model={competitorReviewModel}
+              submitted={task.submittedAnswer}
+              readOnly={!isAnswerableTaskStatus(task.status)}
+              pending={respondMutation.isPending}
+              onSubmit={(answer) => void handleCompetitorReviewSubmit(answer)}
+            />
+          ) : null}
+
+          {researchKeywordsModel ? (
+            <ResearchKeywordsReviewForm
+              key={task.id}
+              model={researchKeywordsModel}
+              submitted={task.submittedAnswer}
+              readOnly={!isAnswerableTaskStatus(task.status)}
+              pending={respondMutation.isPending}
+              onSubmit={(answer) => void handleResearchKeywordsSubmit(answer)}
+            />
+          ) : null}
+
+          {researchSetupModel ? (
+            <ResearchSetupReviewForm
+              key={task.id}
+              model={researchSetupModel}
+              submitted={task.submittedAnswer}
+              readOnly={!isAnswerableTaskStatus(task.status)}
+              pending={respondMutation.isPending}
+              onSubmit={(answer) => void handleResearchSetupSubmit(answer)}
+            />
+          ) : null}
+
           <CampaignDocumentUploader campaignId={task.campaignId} />
 
           {isAdmin ? (
