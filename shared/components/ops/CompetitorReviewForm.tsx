@@ -16,6 +16,7 @@ import {
   type CompetitorReviewAnswer,
   type CompetitorReviewModel,
 } from './competitorReview';
+import { LabelledCompetitorReview } from './LabelledCompetitorReview';
 
 type CompetitorReviewFormProps = {
   model: CompetitorReviewModel;
@@ -31,7 +32,13 @@ type CompetitorReviewFormProps = {
  * the check said, each with its reason and the page's own words. The
  * confirmed ones are ticked; tick or untick any candidate.
  */
-export function CompetitorReviewForm({ model, submitted, readOnly, pending, onSubmit }: CompetitorReviewFormProps) {
+export function CompetitorReviewForm(props: CompetitorReviewFormProps) {
+  // Backend V3-398: a run whose review takes labels gets the labelled form;
+  // one frozen before them keeps the tick list it can answer.
+  return props.model.labels ? <LabelledCompetitorReview {...props} /> : <TickListCompetitorReview {...props} />;
+}
+
+function TickListCompetitorReview({ model, submitted, readOnly, pending, onSubmit }: CompetitorReviewFormProps) {
   const [given] = useState(() => readCompetitorReviewSubmitted(submitted, model));
   const [choice, setChoice] = useState<string[]>(() => given?.choice ?? initialCompetitorChoice(model));
   const [notes, setNotes] = useState(given?.notes ?? '');

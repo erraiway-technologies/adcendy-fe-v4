@@ -2,6 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   buildCompetitorReviewAnswer,
+  buildLabelledCompetitorAnswer,
+  competitorLabelOf,
+  initialCompetitorLabelling,
+  moveDirectCompetitor,
+  setCompetitorLabel,
   COMPETITOR_REVIEW_VERDICTS,
   competitorKey,
   groupCompetitorCandidates,
@@ -178,4 +183,71 @@ test('property: an answered competitor review starts from its approved list, in 
     assert.equal(read.notes, `n${seed}`);
   }
   assert.equal(readCompetitorReviewSubmitted(undefined, model), null);
+});
+
+// Backend V3-398: the reviewer labels each candidate direct, nearby or not a
+// competitor, and orders the direct ones.
+test('V3-398: the labels flag comes from the task; a run frozen before labels keeps the tick list', () => {
+  assert.equal(readCompetitorReviewModel(task)!.labels, false);
+  const labelled = { ...task, questionPayload: { ...task.questionPayload, competitorLabels: true } };
+  assert.equal(readCompetitorReviewModel(labelled)!.labels, true);
+});
+
+test('V3-398: the form starts from the check - confirmed direct, nearby nearby, the rest not a competitor', () => {
+  const model = readCompetitorReviewModel(task)!;
+  const start = initialCompetitorLabelling(model);
+  for (const candidate of model.candidates) {
+    const expected = candidate.verdict === 'direct' ? 'direct' : candidate.verdict === 'nearby' ? 'nearby' : 'none';
+    assert.equal(competitorLabelOf(start, candidate.name), expected, candidate.name);
+  }
+  // an answer already given wins
+  const given = initialCompetitorLabelling(model, { competitors: ['Sock Hut'], nearby: ['Stride Co'] });
+  assert.deepEqual(given, { direct: ['Sock Hut'], nearby: ['Stride Co'] });
+});
+
+test('property (V3-398): any sequence of label changes and moves keeps every candidate in at most one list, each once; the answer is exactly the lists', () => {
+  const model = readCompetitorReviewModel(task)!;
+  const names = model.candidates.map((c) => c.name);
+  let seed = 398;
+  const r = (n: number) => {
+    seed = (seed * 1103515245 + 12345) % 2147483648;
+    return seed % n;
+  };
+  const LABELS = ['direct', 'nearby', 'none'] as const;
+  for (let run = 0; run < 500; run += 1) {
+    let labelling = initialCompetitorLabelling(model);
+    for (let step = 0; step < 12; step += 1) {
+      const name = names[r(names.length)];
+      if (r(3) === 0) {
+        const before = labelling.direct;
+        labelling = moveDirectCompetitor(labelling, name, r(2) === 0 ? -1 : 1);
+        assert.deepEqual([...labelling.direct].sort(), [...before].sort(), 'a move only reorders');
+      } else {
+        const label = LABELS[r(3)];
+        labelling = setCompetitorLabel(labelling, name, label);
+        assert.equal(competitorLabelOf(labelling, name), label);
+        if (label === 'direct') {
+          assert.ok(labelling.direct.map(competitorKey).includes(competitorKey(name)));
+        }
+      }
+      const all = [...labelling.direct, ...labelling.nearby].map(competitorKey);
+      assert.equal(new Set(all).size, all.length, 'no candidate twice');
+    }
+    const built = buildLabelledCompetitorAnswer({ model, labelling, notes: 'a reason for fewer' });
+    if (labelling.direct.length === 0) {
+      assert.ok('error' in built && built.error.includes('Label at least one competitor direct'));
+    } else {
+      assert.ok('answer' in built);
+      assert.deepEqual(built.answer.competitors, labelling.direct);
+      assert.deepEqual(built.answer.nearby, labelling.nearby);
+    }
+  }
+});
+
+test('V3-398: moving the first up or the last down changes nothing; a move swaps neighbours', () => {
+  const labelling = { direct: ['A', 'B', 'C'], nearby: [] };
+  assert.deepEqual(moveDirectCompetitor(labelling, 'A', -1), labelling);
+  assert.deepEqual(moveDirectCompetitor(labelling, 'C', 1), labelling);
+  assert.deepEqual(moveDirectCompetitor(labelling, 'B', -1).direct, ['B', 'A', 'C']);
+  assert.deepEqual(moveDirectCompetitor(labelling, 'B', 1).direct, ['A', 'C', 'B']);
 });
