@@ -546,6 +546,30 @@ function renderValue(value: unknown): ReactNode {
   );
 }
 
+/**
+ * Admin tools folded away on a required Research Setup Review: the review
+ * form is the page; run controls and raw task fields stay one click away.
+ */
+function AdminDisclosure({
+  collapse,
+  summary,
+  children,
+}: {
+  collapse: boolean;
+  summary: string;
+  children: ReactNode;
+}) {
+  if (!collapse) {
+    return <>{children}</>;
+  }
+  return (
+    <details className="rounded-xl border border-border bg-card/60 px-4 py-3">
+      <summary className="cursor-pointer text-sm text-muted-foreground">{summary}</summary>
+      <div className="mt-4 space-y-6">{children}</div>
+    </details>
+  );
+}
+
 function FieldCard({ label, value }: { label: string; value: unknown }) {
   return (
     <div className="space-y-2">
@@ -1322,6 +1346,13 @@ export default function ReviewerTaskDetailPage() {
   // V3-338: the third Research Setup Review - the direct competitors, approved.
   const competitorReviewModel =
     task && isCompetitorReviewTask(task.failureMode) ? readCompetitorReviewModel(task) : null;
+  // The three required Research Setup Reviews: their form is the page.
+  const isResearchSetupReview = Boolean(
+    task &&
+      (isResearchSetupTask(task.failureMode) ||
+        isResearchKeywordsTask(task.failureMode) ||
+        isCompetitorReviewTask(task.failureMode)),
+  );
 
   // The search-noise question (V3-66): the competitors the run holds beside the
   // domains left out as noise, answered by marking or adding competitors. It
@@ -1947,6 +1978,7 @@ export default function ReviewerTaskDetailPage() {
           <CampaignDocumentUploader campaignId={task.campaignId} />
 
           {isAdmin ? (
+            <AdminDisclosure collapse={isResearchSetupReview} summary="Admin tools: run controls and raw payloads">
             <Card className="relative overflow-hidden border-border bg-card/95 shadow-[0_18px_48px_rgba(0,0,0,0.35)]">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-r from-white/5 via-white/[.02] to-transparent" />
               <CardHeader>
@@ -2226,6 +2258,7 @@ export default function ReviewerTaskDetailPage() {
                 </div>
               </CardContent>
             </Card>
+            </AdminDisclosure>
           ) : null}
 
           {businessProfileHoldModel ? (
@@ -2293,6 +2326,7 @@ export default function ReviewerTaskDetailPage() {
             />
           ) : null}
 
+          <AdminDisclosure collapse={isResearchSetupReview} summary="Raw task fields">
           {isBlockerSnapshotTask ? (
             <Card className="border-border bg-card">
               <CardHeader>
@@ -2369,6 +2403,7 @@ export default function ReviewerTaskDetailPage() {
               </CardContent>
             </Card>
           )}
+          </AdminDisclosure>
         </>
       )}
     </div>
