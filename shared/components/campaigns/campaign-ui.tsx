@@ -129,7 +129,7 @@ export function getCampaignLifecycleStatus(stage: CampaignLifecycleStage, campai
         campaign.status === 'FAILED' ||
         campaign.status === 'DELIVERABLE_GENERATION_FAILED'
           ? 'attention'
-          : campaign.status === 'ARCHIVED'
+          : campaign.status === 'ARCHIVED' || campaign.status === 'STOPPED'
             ? 'archived'
             : 'waiting',
     };

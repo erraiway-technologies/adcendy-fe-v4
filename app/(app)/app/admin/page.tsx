@@ -26,7 +26,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ReviewStatusBadge } from '@/shared/components/reviews/ReviewStatusBadge';
-import { formatCampaignStatus } from '@/shared/types/campaign';
+import { formatAdminCampaignStatus } from '@/shared/types/campaign';
 
 function formatCurrency(value?: number | null) {
   if (typeof value !== 'number') {
@@ -289,7 +289,7 @@ export default function AdminPage() {
                   <div className="flex items-center gap-2">
                     <ReviewStatusBadge
                       status={campaign.status}
-                      label={formatCampaignStatus(campaign.status)}
+                      label={formatAdminCampaignStatus(campaign.status)}
                     />
                     <Link href={`/admin/campaigns/${campaign.id}`}>
                       <Button variant="ghost" size="sm">

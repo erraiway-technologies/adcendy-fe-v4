@@ -1,4 +1,4 @@
-import type { CampaignStatus } from './campaign';
+import type { AdminCampaignStatus, CampaignStatus } from './campaign';
 import type { Role } from './common';
 import type {
   AdminAiCallSummary,
@@ -152,7 +152,7 @@ export interface AdminReviewAdapter {
     page?: number;
     pageSize?: number;
     q?: string;
-    status?: CampaignStatus;
+    status?: CampaignStatus | AdminCampaignStatus;
   }) => Promise<AdminCampaignSummary[]>;
   getAdminCampaignDetail: (
     campaignId: string,

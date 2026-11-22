@@ -49,7 +49,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import {
-  formatCampaignStatus,
+  formatAdminCampaignStatus,
   formatBusinessModel,
   formatBusinessType,
   formatMarketScope,
@@ -763,7 +763,7 @@ export default function AdminCampaignDetailPage() {
                 <div className="mt-2">
                   <ReviewStatusBadge
                     status={campaignDetail.campaign.status}
-                    label={formatCampaignStatus(campaignDetail.campaign.status)}
+                    label={formatAdminCampaignStatus(campaignDetail.campaign.status)}
                   />
                 </div>
               </CardContent>

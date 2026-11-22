@@ -5,7 +5,11 @@ import { useState } from 'react';
 import { AlertCircle, ArrowRight, Eye } from 'lucide-react';
 import { useAuth } from '@/features/auth/useAuth';
 import { useAdminCampaigns } from '@/hooks/useAdminReview';
-import { formatCampaignStatus, type CampaignStatus } from '@/shared/types/campaign';
+import {
+  ADMIN_CAMPAIGN_STATUS_VALUES,
+  formatAdminCampaignStatus,
+  type AdminCampaignStatus,
+} from '@/shared/types/campaign';
 import { ReviewStatusBadge } from '@/shared/components/reviews/ReviewStatusBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,7 +44,7 @@ function formatDate(value: string) {
 export default function AdminCampaignsPage() {
   const { user, isLoading } = useAuth();
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<'ALL' | CampaignStatus>('ALL');
+  const [status, setStatus] = useState<'ALL' | AdminCampaignStatus>('ALL');
   const campaignsQuery = useAdminCampaigns({
     q: search.trim() || undefined,
     status: status === 'ALL' ? undefined : status,
@@ -101,14 +105,12 @@ export default function AdminCampaignsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All statuses</SelectItem>
-                <SelectItem value="DRAFT">In Setup</SelectItem>
-                <SelectItem value="SUBMITTED_FOR_REVIEW">Generating</SelectItem>
-                <SelectItem value="IN_REVIEW">Under Review</SelectItem>
-                <SelectItem value="GENERATING_DELIVERABLES">Preparing Files</SelectItem>
-                <SelectItem value="DELIVERABLE_GENERATION_FAILED">File Generation Failed</SelectItem>
-                <SelectItem value="ACTIVE">Active</SelectItem>
-                <SelectItem value="FAILED">Needs Attention</SelectItem>
-                <SelectItem value="ARCHIVED">Archived</SelectItem>
+                {/* V3-449: the backend's own values, in the admin's words. */}
+                {ADMIN_CAMPAIGN_STATUS_VALUES.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {formatAdminCampaignStatus(value)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -154,7 +156,7 @@ export default function AdminCampaignsPage() {
                       <TableCell>
                         <ReviewStatusBadge
                           status={campaign.status}
-                          label={formatCampaignStatus(campaign.status)}
+                          label={formatAdminCampaignStatus(campaign.status)}
                         />
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">{campaign.ownerEmail}</TableCell>

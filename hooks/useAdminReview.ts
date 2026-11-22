@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminReviewRepository } from '@/shared/api/repositories';
 import { queryKeys } from '@/shared/api/queryKeys';
-import type { CampaignStatus } from '@/shared/types/campaign';
+import type { AdminCampaignStatus, CampaignStatus } from '@/shared/types/campaign';
 import type { CampaignOverviewV2 } from '@/shared/types/opsV2';
 import type { CreateReviewerPayload } from '@/shared/types/reviews';
 import type { AdminCampaignDetail, AdminUserUpdate } from '@/shared/types/admin';
@@ -116,7 +116,7 @@ export function useAdminCampaigns(
     page?: number;
     pageSize?: number;
     q?: string;
-    status?: CampaignStatus;
+    status?: CampaignStatus | AdminCampaignStatus;
   },
   enabled = true,
 ) {

@@ -11,6 +11,7 @@ import type {
   MarketScope,
   UpdateCampaignPayload,
 } from '@/shared/types/campaign';
+import { CAMPAIGN_STATUS_VALUES } from '@/shared/types/campaign';
 
 type CampaignDto = Record<string, unknown>;
 
@@ -125,20 +126,8 @@ function coerceCampaignStatus(value: unknown) {
     return 'DRAFT';
   }
 
-  if (normalized === 'STRATEGY_GENERATION') {
-    return 'SUBMITTED_FOR_REVIEW';
-  }
-
-  if (
-    normalized === 'DRAFT' ||
-    normalized === 'SUBMITTED_FOR_REVIEW' ||
-    normalized === 'IN_REVIEW' ||
-    normalized === 'GENERATING_DELIVERABLES' ||
-    normalized === 'DELIVERABLE_GENERATION_FAILED' ||
-    normalized === 'ACTIVE' ||
-    normalized === 'FAILED' ||
-    normalized === 'ARCHIVED'
-  ) {
+  // V3-449: every status the backend writes reads as itself.
+  if ((CAMPAIGN_STATUS_VALUES as readonly string[]).includes(normalized)) {
     return normalized as CampaignStatus;
   }
 

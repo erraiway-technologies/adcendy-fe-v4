@@ -4,7 +4,7 @@ import type {
   AdminReviewerUser,
   CreateReviewerPayload,
 } from '@/shared/types/reviews';
-import type { CampaignStatus } from '@/shared/types/campaign';
+import type { AdminCampaignStatus, CampaignStatus } from '@/shared/types/campaign';
 import {
   ADMIN_CAMPAIGN_DELETE_CONFIRMATION,
   type AdminCampaignDeleteResponse,
@@ -123,7 +123,7 @@ export const adminReviewMockAdapter: AdminReviewAdapter = {
     page?: number;
     pageSize?: number;
     q?: string;
-    status?: CampaignStatus;
+    status?: CampaignStatus | AdminCampaignStatus;
   }): Promise<AdminCampaignSummary[]> {
     await delay(180);
     const query = params?.q?.trim().toLowerCase();

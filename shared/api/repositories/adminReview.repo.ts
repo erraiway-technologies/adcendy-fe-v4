@@ -1,5 +1,5 @@
 import ENV, { createRuntimeRepositoryAdapter } from '@/lib/env';
-import type { CampaignStatus } from '@/shared/types/campaign';
+import type { AdminCampaignStatus, CampaignStatus } from '@/shared/types/campaign';
 import type {
   AdminCampaignDeleteResponse,
   AdminCampaignDetail,
@@ -47,7 +47,7 @@ export const adminReviewRepository = {
     page?: number;
     pageSize?: number;
     q?: string;
-    status?: CampaignStatus;
+    status?: CampaignStatus | AdminCampaignStatus;
   }): Promise<AdminCampaignSummary[]> {
     return adapter.listAdminCampaigns(params);
   },

@@ -1,7 +1,7 @@
 import { subDays } from 'date-fns';
 import { http } from '../index';
 import type { ApiResponse } from '../types';
-import type { CampaignStatus } from '@/shared/types/campaign';
+import type { AdminCampaignStatus, CampaignStatus } from '@/shared/types/campaign';
 import type {
   AdminCampaignDeleteResponse,
   AdminCampaignDetail,
@@ -226,7 +226,7 @@ export const adminReviewRealAdapter: AdminReviewAdapter = {
     page?: number;
     pageSize?: number;
     q?: string;
-    status?: CampaignStatus;
+    status?: CampaignStatus | AdminCampaignStatus;
   }): Promise<AdminCampaignSummary[]> {
     const response = await http<ApiResponse<AdminCampaignListResponse>>('/v1/admin/campaigns', {
       query: params,

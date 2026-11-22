@@ -86,9 +86,18 @@ export default function OverviewPage() {
   if (stage === 'waiting') {
     const filesAvailable = canAccessCampaignFiles(campaign);
     const waitingStatusLabel = formatCampaignStatus(campaign.status) ?? 'Under Review';
+    // V3-449: one sentence for each stage the campaign can be waiting in.
     const waitingStatusDescription =
-      campaign.status === 'SUBMITTED_FOR_REVIEW'
-        ? 'Your setup has been submitted and strategy generation is currently running.'
+      campaign.status === 'RESEARCHING'
+        ? 'We are researching your market: searches, competitors and the channels that fit your business.'
+        : campaign.status === 'STRATEGY_GENERATION' || campaign.status === 'SUBMITTED_FOR_REVIEW'
+        ? 'Your research is done and your strategy is being written.'
+        : campaign.status === 'ON_HOLD'
+        ? 'Our team is checking part of your research before your strategy is written. No action is needed from you.'
+        : campaign.status === 'READY_FOR_RELEASE'
+        ? 'Your files are ready and going through a final check before they are released to you.'
+        : campaign.status === 'STOPPED'
+        ? 'Work on this campaign has been stopped. Contact us if you would like it restarted.'
         : campaign.status === 'GENERATING_DELIVERABLES'
           ? 'Your strategy is approved. We are preparing the complete set of downloadable files.'
           : campaign.status === 'DELIVERABLE_GENERATION_FAILED'

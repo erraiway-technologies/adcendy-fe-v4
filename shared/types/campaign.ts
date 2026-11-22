@@ -2,25 +2,79 @@ import type { ID, ISODateTime } from './common';
 
 export const CAMPAIGN_STATUS_VALUES = [
   'DRAFT',
+  'RESEARCHING',
+  'STRATEGY_GENERATION',
   'SUBMITTED_FOR_REVIEW',
+  'ON_HOLD',
   'IN_REVIEW',
   'GENERATING_DELIVERABLES',
+  'READY_FOR_RELEASE',
   'DELIVERABLE_GENERATION_FAILED',
   'ACTIVE',
   'FAILED',
+  'STOPPED',
   'ARCHIVED',
 ] as const;
 
 export type CampaignStatus = (typeof CAMPAIGN_STATUS_VALUES)[number];
 
+/**
+ * V3-449: what the client reads. The status follows the campaign's latest
+ * run, so each stage - including a hold, a finished kit awaiting release and
+ * a stopped run - has its own words.
+ */
 export const CAMPAIGN_STATUS_LABELS: Record<CampaignStatus, string> = {
-  DRAFT: 'In Setup',
-  SUBMITTED_FOR_REVIEW: 'Generating',
-  IN_REVIEW: 'Under Review',
-  GENERATING_DELIVERABLES: 'Preparing Files',
-  DELIVERABLE_GENERATION_FAILED: 'File Generation Failed',
-  ACTIVE: 'Active',
-  FAILED: 'Needs Attention',
+  DRAFT: 'In setup',
+  RESEARCHING: 'Researching your market',
+  STRATEGY_GENERATION: 'Writing your strategy',
+  SUBMITTED_FOR_REVIEW: 'Writing your strategy',
+  ON_HOLD: 'Being checked by our team',
+  IN_REVIEW: 'Strategy under review',
+  GENERATING_DELIVERABLES: 'Preparing your files',
+  READY_FOR_RELEASE: 'Final checks',
+  DELIVERABLE_GENERATION_FAILED: 'Needs attention',
+  ACTIVE: 'Delivered',
+  FAILED: 'Needs attention',
+  STOPPED: 'Stopped',
+  ARCHIVED: 'Archived',
+};
+
+/**
+ * V3-449: the backend's campaign statuses as the admin reads them - what
+ * the team has to do, not what the client is told. Keyed by the backend's
+ * own values, so the admin list filters by them.
+ */
+export const ADMIN_CAMPAIGN_STATUS_VALUES = [
+  'WIZARD_DRAFT',
+  'RESEARCHING',
+  'STRATEGY_GENERATION',
+  'ON_HOLD',
+  'IN_REVIEW',
+  'GENERATING_DELIVERABLES',
+  'READY_FOR_RELEASE',
+  'ACTIVE',
+  'FAILED',
+  'DELIVERABLE_GENERATION_FAILED',
+  'STOPPED',
+  'ARCHIVED',
+] as const;
+
+export type AdminCampaignStatus = (typeof ADMIN_CAMPAIGN_STATUS_VALUES)[number];
+
+export const ADMIN_CAMPAIGN_STATUS_LABELS: Record<string, string> = {
+  WIZARD_DRAFT: 'In setup',
+  DRAFT: 'In setup',
+  RESEARCHING: 'Researching',
+  STRATEGY_GENERATION: 'Writing strategy',
+  SUBMITTED_FOR_REVIEW: 'Sections in review',
+  ON_HOLD: 'On hold: needs review',
+  IN_REVIEW: 'Sections in review',
+  GENERATING_DELIVERABLES: 'Assembling kit',
+  READY_FOR_RELEASE: 'Ready to release',
+  ACTIVE: 'Delivered',
+  FAILED: 'Failed: see run',
+  DELIVERABLE_GENERATION_FAILED: 'Kit failed: see run',
+  STOPPED: 'Cancelled',
   ARCHIVED: 'Archived',
 };
 
@@ -105,6 +159,11 @@ export function formatMarketScope(value: MarketScope | string | null | undefined
 
 export function formatCampaignStatus(value: CampaignStatus | string | null | undefined) {
   return formatCampaignEnumValue(value, CAMPAIGN_STATUS_LABELS);
+}
+
+/** V3-449: a campaign status in the admin's words. */
+export function formatAdminCampaignStatus(value: string | null | undefined) {
+  return formatCampaignEnumValue(value, ADMIN_CAMPAIGN_STATUS_LABELS);
 }
 
 /** V3-371: whether the client may start another (free) draft now. */
