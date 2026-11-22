@@ -202,6 +202,18 @@ export type ReleaseDeliverableKitV2Payload =
 export type ReleasedDeliverableKitV2 =
   components['schemas']['ReleasedDeliverableKitV2'];
 
+/** V3-448: one stored file of a kit document, and a link to download it. */
+export type DeliverableKitFileV2 =
+  DeliverableKitReleaseReviewV2['documents'][number]['files'][number];
+export type DeliverableKitFileFormatV2 = DeliverableKitFileV2['format'];
+export type DeliverableKitFileDownloadV2 =
+  components['schemas']['DeliverableKitFileDownloadV2'];
+export interface DeliverableKitFileDownloadQueryV2 {
+  deliverableKey: string;
+  market: string;
+  format: DeliverableKitFileFormatV2;
+}
+
 export type AdminCampaignTriggerType =
   | 'pipeline'
   | 'intelligence'

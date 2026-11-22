@@ -9,6 +9,8 @@ import type {
   CampaignCostSummary,
   CampaignHealthItem,
   CampaignOverviewV2,
+  DeliverableKitFileDownloadQueryV2,
+  DeliverableKitFileDownloadV2,
   DeliverableKitReleaseReviewV2,
   GenerateDeliverableKitV2Payload,
   ReleaseDeliverableKitV2Payload,
@@ -167,6 +169,21 @@ export const opsV2Repository = {
     runId: string,
   ): Promise<DeliverableKitReleaseReviewV2> {
     return adapter.getAdminDeliverableKitReview(runId);
+  },
+
+  /** V3-448: a short-lived link to one stored file of the run's kit. */
+  async getAdminDeliverableKitFileDownload(
+    runId: string,
+    query: DeliverableKitFileDownloadQueryV2,
+  ): Promise<DeliverableKitFileDownloadV2> {
+    return adapter.getAdminDeliverableKitFileDownload(runId, query);
+  },
+
+  /** V3-448: every stored file of the run's kit, as one ZIP archive. */
+  async downloadAdminDeliverableKitArchive(
+    runId: string,
+  ): Promise<AdminDownloadResponse> {
+    return adapter.downloadAdminDeliverableKitArchive(runId);
   },
 
   /** V3-285: release the kit read on the sheet to the campaign owner. */

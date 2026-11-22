@@ -10,6 +10,8 @@ import type {
   CampaignCostSummary,
   CampaignHealthItem,
   CampaignOverviewV2,
+  DeliverableKitFileDownloadQueryV2,
+  DeliverableKitFileDownloadV2,
   DeliverableKitReleaseReviewV2,
   GenerateDeliverableKitV2Payload,
   ReleaseDeliverableKitV2Payload,
@@ -379,6 +381,40 @@ export const opsV2RealAdapter = {
       `/api/v2/admin/runs/${runId}/deliverable-kit/review`,
     );
     return response.data;
+  },
+
+  async getAdminDeliverableKitFileDownload(
+    runId: string,
+    query: DeliverableKitFileDownloadQueryV2,
+  ): Promise<DeliverableKitFileDownloadV2> {
+    const response = await http<ApiResponse<DeliverableKitFileDownloadV2>>(
+      `/api/v2/admin/runs/${runId}/deliverable-kit/download`,
+      {
+        query: {
+          deliverableKey: query.deliverableKey,
+          market: query.market,
+          format: query.format,
+        },
+      },
+    );
+    return response.data;
+  },
+
+  async downloadAdminDeliverableKitArchive(
+    runId: string,
+  ): Promise<AdminDownloadResponse> {
+    const response = await httpRaw<Blob>(
+      `/api/v2/admin/runs/${runId}/deliverable-kit/archive`,
+      {
+        headers: { Accept: 'application/zip' },
+        responseType: 'blob',
+      },
+    );
+    return {
+      blob: response.data,
+      filename: getFilenameFromContentDisposition(response.headers.get('content-disposition')),
+      contentType: normalizeMimeType(response.contentType) ?? normalizeMimeType(response.data.type),
+    };
   },
 
   async releaseAdminDeliverableKit(

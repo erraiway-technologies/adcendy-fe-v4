@@ -8,6 +8,8 @@ import type {
   CampaignCostSummary,
   CampaignHealthItem,
   CampaignOverviewV2,
+  DeliverableKitFileDownloadQueryV2,
+  DeliverableKitFileDownloadV2,
   DeliverableKitReleaseReviewV2,
   GenerateDeliverableKitV2Payload,
   ReleaseDeliverableKitV2Payload,
@@ -900,8 +902,27 @@ trailer
       findingCount: 1,
       notCheckableCount: 0,
       documents: [
-        { deliverableKey: 'strategy_document', market: 'US', title: 'Strategy Document' },
-        { deliverableKey: 'action_plan', market: 'US', title: 'Action Plan' },
+        {
+          deliverableKey: 'strategy_document',
+          market: 'US',
+          title: 'Strategy Document',
+          files: [
+            { format: 'pdf', fileName: 'strategy-document-us.pdf', contentType: 'application/pdf', sizeBytes: 240000 },
+            { format: 'markdown', fileName: 'strategy-document-us.md', contentType: 'text/markdown', sizeBytes: null },
+            { format: 'notion', fileName: 'strategy-document-us.notion.md', contentType: 'text/markdown', sizeBytes: null },
+          ],
+        },
+        {
+          deliverableKey: 'action_plan',
+          market: 'US',
+          title: 'Action Plan',
+          files: [
+            { format: 'pdf', fileName: 'action-plan-us.pdf', contentType: 'application/pdf', sizeBytes: 180000 },
+            { format: 'markdown', fileName: 'action-plan-us.md', contentType: 'text/markdown', sizeBytes: null },
+            { format: 'notion', fileName: 'action-plan-us.notion.md', contentType: 'text/markdown', sizeBytes: null },
+            { format: 'csv', fileName: 'action-plan-us.csv', contentType: 'text/csv', sizeBytes: 13000 },
+          ],
+        },
       ],
       sheetMarkdown: [
         '# Kit check',
@@ -915,6 +936,32 @@ trailer
         '- **channel_state_disagrees** (V3-150, strategy_document, US): the plan starts Email Marketing now; this line says it already runs. Line: "with email automation already in place"',
         '',
       ].join('\n'),
+    };
+  },
+
+  async getAdminDeliverableKitFileDownload(
+    runId: string,
+    query: DeliverableKitFileDownloadQueryV2,
+  ): Promise<DeliverableKitFileDownloadV2> {
+    await delay(120);
+    const extension = query.format === 'pdf' ? 'pdf' : query.format === 'csv' ? 'csv' : query.format === 'notion' ? 'notion.md' : 'md';
+    const fileName = `${query.deliverableKey.replace(/_/g, '-')}-${query.market.toLowerCase()}.${extension}`;
+    return {
+      fileName,
+      contentType: 'application/octet-stream',
+      url: `https://example.com/mock-kit/${runId}/${fileName}`,
+      expiresAt: new Date(Date.now() + 900_000).toISOString(),
+    };
+  },
+
+  async downloadAdminDeliverableKitArchive(
+    runId: string,
+  ): Promise<AdminDownloadResponse> {
+    await delay(200);
+    return {
+      blob: new Blob([`Mock kit archive for ${runId}`], { type: 'application/zip' }),
+      filename: `mock-kit-${runId.slice(-8)}.zip`,
+      contentType: 'application/zip',
     };
   },
 

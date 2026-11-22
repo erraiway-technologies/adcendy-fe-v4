@@ -82,3 +82,30 @@ test('the admin page shows the findings sheet before the release button', () => 
   assert.match(releasePanelSource, /Release this kit to the client\?/);
   assert.match(releasePanelSource, /review\?\.kitGenerationId/);
 });
+
+// V3-448: the admin downloads the kit's files - each format of each document,
+// or all of them as one archive - released or not.
+test('kit downloads use the run-scoped download and archive routes', () => {
+  assert.match(
+    realAdapterSource,
+    /`\/api\/v2\/admin\/runs\/\$\{runId\}\/deliverable-kit\/download`/,
+  );
+  assert.match(
+    realAdapterSource,
+    /`\/api\/v2\/admin\/runs\/\$\{runId\}\/deliverable-kit\/archive`/,
+  );
+  assert.match(repositorySource, /getAdminDeliverableKitFileDownload/);
+  assert.match(repositorySource, /downloadAdminDeliverableKitArchive/);
+});
+
+test('the release panel offers every stored format and a download of the whole kit', () => {
+  for (const label of ["pdf: 'PDF'", "markdown: 'Markdown'", "notion: 'Notion'", "csv: 'CSV'"]) {
+    assert.ok(releasePanelSource.includes(label), label);
+  }
+  assert.match(releasePanelSource, /document\.files\.map/);
+  assert.match(releasePanelSource, /Download all \(\.zip\)/);
+  // Downloads do not wait for release: they sit outside the release-only branch.
+  const downloadsAt = releasePanelSource.indexOf('Download all (.zip)');
+  const releaseOnlyAt = releasePanelSource.indexOf("review.state === 'awaiting_release' ?");
+  assert.ok(downloadsAt > 0 && releaseOnlyAt > downloadsAt);
+});

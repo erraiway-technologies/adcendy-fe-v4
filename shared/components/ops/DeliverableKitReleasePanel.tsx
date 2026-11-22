@@ -1,13 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { FileWarning, Send } from 'lucide-react';
+import { Download, FileWarning, Send } from 'lucide-react';
 import {
   useAdminDeliverableKitReview,
   useReleaseAdminDeliverableKit,
 } from '@/hooks/useOpsV2';
 import { useToast } from '@/hooks/use-toast';
 import { ApiError } from '@/shared/api/errors';
+import { opsV2Repository } from '@/shared/api/repositories';
+import type {
+  DeliverableKitFileV2,
+  DeliverableKitReleaseReviewV2,
+} from '@/shared/types/opsV2';
+import { downloadFileFromUrl, resolveDownloadFilename, triggerBlobDownload } from '@/lib/download';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -30,6 +36,16 @@ interface DeliverableKitReleasePanelProps {
   runId: string | null;
 }
 
+type KitDocumentV2 = DeliverableKitReleaseReviewV2['documents'][number];
+
+/** V3-448: how each stored format is named on its button. */
+const FORMAT_LABELS_V2: Record<DeliverableKitFileV2['format'], string> = {
+  pdf: 'PDF',
+  markdown: 'Markdown',
+  notion: 'Notion',
+  csv: 'CSV',
+};
+
 /**
  * The release gate (V3-285). An assembled kit is not sent to the client: it
  * waits here with its kit check findings, and goes out only when an admin has
@@ -41,11 +57,53 @@ export function DeliverableKitReleasePanel({ runId }: DeliverableKitReleasePanel
   const releaseMutation = useReleaseAdminDeliverableKit(runId);
   const { toast } = useToast();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [downloading, setDownloading] = useState<string | null>(null);
   const review = reviewQuery.data;
 
   if (!runId) {
     return null;
   }
+
+  // V3-448: the kit's files, released or not, so it can be read before release.
+  const handleFileDownload = async (document: KitDocumentV2, file: DeliverableKitFileV2) => {
+    const key = `${document.deliverableKey}:${document.market}:${file.format}`;
+    setDownloading(key);
+    try {
+      const link = await opsV2Repository.getAdminDeliverableKitFileDownload(runId, {
+        deliverableKey: document.deliverableKey,
+        market: document.market,
+        format: file.format,
+      });
+      downloadFileFromUrl(new URL(link.url), link.fileName);
+    } catch (error) {
+      toast({
+        title: 'The file did not download',
+        description: error instanceof ApiError ? error.message : 'Try again after reloading the page.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDownloading(null);
+    }
+  };
+
+  const handleArchiveDownload = async () => {
+    setDownloading('archive');
+    try {
+      const archive = await opsV2Repository.downloadAdminDeliverableKitArchive(runId);
+      triggerBlobDownload(
+        archive.blob,
+        resolveDownloadFilename(archive.filename, `kit-${runId}`, archive.contentType ?? 'application/zip'),
+      );
+    } catch (error) {
+      toast({
+        title: 'The kit did not download',
+        description: error instanceof ApiError ? error.message : 'Try again after reloading the page.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   const handleRelease = async () => {
     try {
@@ -101,6 +159,53 @@ export function DeliverableKitReleasePanel({ runId }: DeliverableKitReleasePanel
                 {review.assembledAt ? `, assembled ${formatOpsDateTime(review.assembledAt)}` : ''}
               </span>
             </div>
+            {review.documents.length > 0 ? (
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-medium">Documents</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => void handleArchiveDownload()}
+                    disabled={downloading !== null}
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    {downloading === 'archive' ? 'Preparing…' : 'Download all (.zip)'}
+                  </Button>
+                </div>
+                <ul className="divide-y divide-border rounded-lg border border-border">
+                  {review.documents.map((document) => (
+                    <li
+                      key={`${document.deliverableKey}:${document.market}`}
+                      className="flex flex-wrap items-center justify-between gap-2 px-3 py-2"
+                    >
+                      <span className="text-sm">
+                        {document.title}
+                        <span className="ml-2 text-xs text-muted-foreground">{document.market}</span>
+                      </span>
+                      <span className="flex flex-wrap gap-1">
+                        {document.files.map((file) => {
+                          const key = `${document.deliverableKey}:${document.market}:${file.format}`;
+                          return (
+                            <Button
+                              key={file.format}
+                              variant="ghost"
+                              size="sm"
+                              aria-label={`Download ${document.title} as ${FORMAT_LABELS_V2[file.format]}`}
+                              onClick={() => void handleFileDownload(document, file)}
+                              disabled={downloading !== null}
+                            >
+                              <Download className="mr-1 h-3 w-3" />
+                              {downloading === key ? '…' : FORMAT_LABELS_V2[file.format]}
+                            </Button>
+                          );
+                        })}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
             <pre
               aria-label="Kit check findings"
               className="max-h-96 overflow-auto whitespace-pre-wrap rounded-lg border border-border bg-background/40 p-4 text-xs leading-relaxed"

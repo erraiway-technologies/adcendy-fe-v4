@@ -1,9 +1,9 @@
 {
-  "backendRevision": "feat/client-workspace-v2-strategy@2b55552a",
+  "backendRevision": "master@bfb587ee",
   "openApiVersion": "2.5.0",
   "openApiFormat": "3.0.3",
-  "openApiSha256": "cf61f71868b9982424560d6cc7e60c1176fc757918382e3a45c96035afdceb7e",
+  "openApiSha256": "b163e22697e92a61822f4d7a1a27d0050660d4ff27c671cd25c941d41b9ed2ae",
   "vendoredContract": "contracts/backend/api-v2/2.5.0/adcendy-api.openapi.json",
   "generatedClient": "src/generated/openapi.ts",
-  "generatedClientSha256": "ec934edc3b185c1a43b33d1de4a3bd5fce16cfe2febbfe0a03f70cc517b3efab"
+  "generatedClientSha256": "c7a181c31bc979a3c60556ee1d2283999e14a1407b85833494ffcecc8cd030b9"
 }
