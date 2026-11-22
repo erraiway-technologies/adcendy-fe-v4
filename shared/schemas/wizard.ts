@@ -22,7 +22,7 @@ const tagItemSchema = z.string().trim().min(1, 'Value cannot be empty').max(200,
 
 const rankedSalesChannelSchema = z.object({
   channel: z.enum(SALES_CHANNEL_VALUES, {
-    required_error: 'Select a sales channel',
+    error: 'Select a sales channel',
   }),
   rank: z.preprocess(
     (value) => (value === '' || value === null || value === undefined ? undefined : typeof value === 'number' ? value : Number(value)),
@@ -35,14 +35,14 @@ const rankedSalesChannelSchema = z.object({
 
 const socialHandleSchema = z.object({
   platform: z.enum(SOCIAL_PLATFORM_VALUES, {
-    required_error: 'Select a platform',
+    error: 'Select a platform',
   }),
   handle: z.string().trim().min(1, 'Handle is required').max(120, 'Keep handles under 120 characters'),
 });
 
 const digitalPresenceLinkSchema = z.object({
   type: z.enum(DIGITAL_PRESENCE_LINK_TYPE_VALUES, {
-    required_error: 'Select a type',
+    error: 'Select a type',
   }),
   url: z.string().trim().min(1, 'URL is required').max(500, 'Keep URLs under 500 characters').url('Please enter a valid URL'),
   label: z.string().trim().max(120, 'Keep labels under 120 characters').optional().or(z.literal('')),
@@ -384,7 +384,7 @@ export const step3Schema = z.object({
 });
 
 const requiredAnswerSchema = (message: string) =>
-  z.string({ required_error: message }).trim().min(1, message);
+  z.string({ error: message }).trim().min(1, message);
 
 /**
  * Step 5 answers the form requires before it saves. The backend keeps the
@@ -394,12 +394,12 @@ const requiredAnswerSchema = (message: string) =>
  */
 export const goalsStepAnswersSchema = z.object({
   monthlyMarketingBudget: z
-    .string({ required_error: 'Enter your total monthly marketing budget; 0 is fine.' })
+    .string({ error: 'Enter your total monthly marketing budget; 0 is fine.' })
     .refine(hasAmount, 'Enter your total monthly marketing budget; 0 is fine.'),
   paidAdsShare: requiredAnswerSchema('Choose how much of the budget goes to paid ads.'),
   marketingHoursPerWeek: requiredAnswerSchema('Choose how many hours a week you can give marketing.'),
   creativeCapabilities: z
-    .array(z.string(), { required_error: 'Choose what your team can make, or "None of these".' })
+    .array(z.string(), { error: 'Choose what your team can make, or "None of these".' })
     .min(1, 'Choose what your team can make, or "None of these".')
     .refine(
       (values) => !(values.includes('none') && values.length > 1),

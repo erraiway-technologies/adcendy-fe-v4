@@ -28,7 +28,7 @@ const fixtures = fs
     const parsed = campaignFixtureSchema.safeParse(raw);
     if (!parsed.success) {
       const issues = parsed.error.issues
-        .map((issue: { path: Array<string | number>; message: string }) => `${issue.path.join('.')}: ${issue.message}`)
+        .map((issue) => `${issue.path.map(String).join('.')}: ${issue.message}`)
         .join('\n');
       throw new Error(`Invalid campaign fixture ${fixturePath}:\n${issues}`);
     }

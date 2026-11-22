@@ -629,7 +629,7 @@ export class CampaignWizardPage {
     money: (amount: number | undefined) => string | undefined,
     optionLabel: (field: string, value: string) => string,
   ) {
-    const { step1, step2, step3, step4, step5, step6 } = this.fixture.wizard;
+    const { step2, step3, step4, step5, step6 } = this.fixture.wizard;
     const business = this.reviewSection('Business');
     const audience = this.reviewSection('Audience');
     const goals = this.reviewSection('Goals & Context');
