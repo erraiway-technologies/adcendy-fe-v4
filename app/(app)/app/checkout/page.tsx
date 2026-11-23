@@ -61,7 +61,6 @@ import {
   type BillingDetailsDraft,
 } from "@/shared/payments/invoice-billing";
 import { BUSINESS_TERMS } from "@/shared/marketing/business-terms";
-import { InvoicesCard } from "@/shared/components/billing/InvoicesCard";
 
 function contactSupportPhrase(): string {
   const support = getSupportContact();
@@ -1042,8 +1041,6 @@ export default function CheckoutPage() {
           </CardContent>
         </Card>
       </div>
-
-      <InvoicesCard />
     </div>
   );
 }

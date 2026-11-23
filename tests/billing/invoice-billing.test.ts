@@ -186,11 +186,15 @@ test("the admin orders screen reads each order's invoice and credit notes", () =
   );
 });
 
-test("checkout, the landing prices and the billing page carry the tax and the invoices", () => {
+test("checkout and the landing prices carry the tax; the profile page carries the invoices", () => {
   const checkout = readFileSync("app/(app)/app/checkout/page.tsx", "utf8");
   assert.match(checkout, /checkoutAmountRows\(/);
   assert.match(checkout, /billingDetailsPayload\(billingForm, draft\)/);
-  assert.match(checkout, /<InvoicesCard \/>/);
+  assert.doesNotMatch(checkout, /<InvoicesCard \/>/);
+  const profile = readFileSync("app/(app)/app/account/profile/page.tsx", "utf8");
+  assert.match(profile, /<InvoicesCard \/>/);
+  const shell = readFileSync("shared/components/layout/AppShell.tsx", "utf8");
+  assert.match(shell, /Profile &amp; invoices/);
   assert.match(checkout, /Boolean\(billingProblem\)/);
   const pricing = readFileSync("features/landing/components/home/PricingCard.tsx", "utf8");
   assert.match(pricing, /taxSuffix\(catalogue\.data\?\.tax\)/);

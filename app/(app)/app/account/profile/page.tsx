@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { queryKeys } from "@/shared/api/queryKeys";
 import { userProfileRepository } from "@/shared/api/repositories";
+import { InvoicesCard } from "@/shared/components/billing/InvoicesCard";
 
 export default function ProfilePage() {
   const profileQuery = useQuery({
@@ -126,6 +127,8 @@ export default function ProfilePage() {
           )}
         </CardContent>
       </Card>
+
+      <InvoicesCard />
     </div>
   );
 }

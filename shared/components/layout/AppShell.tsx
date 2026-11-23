@@ -3,9 +3,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, LogOut, ShieldOff } from 'lucide-react';
+import { ChevronDown, CircleUserRound, CreditCard, LogOut, Menu, ShieldCheck, ShieldOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from './ThemeToggle';
 import { clearAuth, getUser } from '@/features/auth/auth';
 import { hasRoleAtLeast } from '@/features/auth/rbac';
@@ -139,39 +146,46 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="hidden text-right text-xs text-muted-foreground md:block">
-                <p className="font-semibold">{user?.email}</p>
-                <p>{user?.role}</p>
-              </div>
-              <Button asChild variant={pathname.startsWith('/app/account/privacy-consents') ? 'default' : 'ghost'} size="sm">
-                <Link href="/app/account/privacy-consents">Privacy &amp; Consents</Link>
-              </Button>
-              <Button asChild variant={pathname.startsWith('/app/account/profile') ? 'default' : 'ghost'} size="sm">
-                <Link href="/app/account/profile">Profile</Link>
-              </Button>
-              <Button asChild variant={pathname.startsWith('/app/checkout') ? 'default' : 'ghost'} size="sm">
-                <Link href="/app/checkout">Billing</Link>
-              </Button>
+            <div className="flex items-center gap-2">
               <ThemeToggle />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-                onClick={handleLogout}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-                onClick={handleLogoutAll}
-              >
-                <ShieldOff className="mr-2 h-4 w-4" />
-                Sign out everywhere
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" aria-label="Account menu" data-testid="account-menu">
+                    <CircleUserRound className="h-5 w-5" />
+                    <span className="hidden max-w-[220px] truncate sm:inline">{user?.email}</span>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-60">
+                  <DropdownMenuItem asChild>
+                    <Link href="/app/account/profile">
+                      <CircleUserRound className="h-4 w-4" />
+                      Profile &amp; invoices
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/app/checkout">
+                      <CreditCard className="h-4 w-4" />
+                      Billing
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/app/account/privacy-consents">
+                      <ShieldCheck className="h-4 w-4" />
+                      Privacy &amp; Consents
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem variant="destructive" onSelect={() => void handleLogout()}>
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                  <DropdownMenuItem variant="destructive" onSelect={() => void handleLogoutAll()}>
+                    <ShieldOff className="h-4 w-4" />
+                    Sign out everywhere
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </header>
