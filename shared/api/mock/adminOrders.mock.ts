@@ -35,6 +35,8 @@ const orders: AdminOrder[] = [
     creditsTakenBack: 0,
     refundableMinor: 300000,
     refunds: [],
+    taxMinor: 0,
+    documents: [],
   },
   {
     id: 'order-mock-refunded',
@@ -56,6 +58,8 @@ const orders: AdminOrder[] = [
     pendingRefundMinor: 0,
     creditsTakenBack: 0,
     refundableMinor: 0,
+    taxMinor: 0,
+    documents: [],
     refunds: [
       {
         id: 'refund-mock-1',
@@ -97,6 +101,11 @@ export const adminOrdersMockAdapter = {
   },
 
   /** Records the refund as Razorpay would leave it: requested, processed later. */
+  async getDocumentLink(documentId: string): Promise<{ url: string; fileName: string }> {
+    await delay(50);
+    return { url: 'about:blank', fileName: `${documentId}.pdf` };
+  },
+
   async createRefund(orderId: string, payload: CreateRefundPayload): Promise<AdminRefund> {
     await delay(150);
     const order = orders.find((candidate) => candidate.id === orderId);

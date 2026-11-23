@@ -18,6 +18,18 @@ export interface BillingBundle {
   /** The price before the discount, when the server states one. */
   originalAmountMinor?: number | null;
   discountPercent?: number | null;
+  /** The tax on this price where tax is added on top (India); 0 elsewhere. */
+  taxMinor?: number;
+  /** What the buyer pays: the price plus its tax. */
+  totalMinor?: number;
+}
+
+/** The tax added on top of a market's prices (India's GST); null elsewhere. */
+export interface BillingCatalogueTax {
+  label: string;
+  /** 1800 is 18%. */
+  rateBasisPoints: number;
+  addedOnTop: true;
 }
 
 /** The pilot as the server reports it; seats are counted from orders. */
@@ -48,6 +60,8 @@ export interface BillingCatalogue {
    * page can show how many seats are left.
    */
   pilotOffer?: BillingPilotOffer | null;
+  /** The tax added on top of these prices; null or absent where none is. */
+  tax?: BillingCatalogueTax | null;
 }
 
 export interface BillingOrder {
@@ -67,6 +81,10 @@ export interface BillingOrder {
   /** The bundle price before the coupon; null when none was applied. */
   listAmountMinor?: number | null;
   discountMinor?: number;
+  /** What tax was charged on (after any coupon); null before invoicing. */
+  taxableAmountMinor?: number | null;
+  /** The tax inside `amountMinor`; 0 where none is charged. */
+  taxMinor?: number;
   createdAt: string;
   paidAt: string | null;
   /**
@@ -85,4 +103,52 @@ export interface VerifyPaymentPayload {
 export interface VerifyPaymentResult {
   verified: boolean;
   order: BillingOrder;
+}
+
+/** The buyer's billing details, as checkout sends them. */
+export interface BillingDetailsInput {
+  stateCode?: string;
+  postalCode?: string;
+  gstin?: string;
+  businessName?: string;
+  addressLine?: string;
+}
+
+/** What checkout asks a buyer for in their market, and what they gave last time. */
+export interface BillingDetailsForm {
+  /** True where tax needs the buyer's state and PIN code (India). */
+  required: boolean;
+  states: Array<{ code: string; name: string }>;
+  /** A buyer without a GSTIN gives a street address from this taxable amount. */
+  fullAddressFromMinor: number | null;
+  saved: {
+    stateCode: string | null;
+    postalCode: string | null;
+    gstin: string | null;
+    businessName: string | null;
+    addressLine: string | null;
+  } | null;
+}
+
+/** An issued invoice or credit note. */
+export interface BillingDocument {
+  documentId: string;
+  kind: "invoice" | "credit_note";
+  number: string;
+  issuedOn: string;
+  currency: string;
+  taxableMinor: number;
+  taxMinor: number;
+  totalMinor: number;
+  orderId: string | null;
+  /** Set on a credit note: the invoice it credits. */
+  againstInvoiceNumber: string | null;
+  emailed: boolean;
+}
+
+/** A short-lived link to one document's PDF. */
+export interface BillingDocumentLink {
+  url: string;
+  expiresAt: string;
+  fileName: string;
 }

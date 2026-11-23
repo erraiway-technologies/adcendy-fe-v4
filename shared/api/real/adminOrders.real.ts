@@ -27,6 +27,18 @@ export const adminOrdersRealAdapter = {
     return normalizeAdminOrderPage(unwrapResponseData(response));
   },
 
+  /** R-14: a short-lived link to an invoice's or credit note's PDF. */
+  async getDocumentLink(documentId: string): Promise<{ url: string; fileName: string }> {
+    const response = await http<ApiResponse<{ url: string; fileName: string }>>(
+      `${BASE}/documents/${encodeURIComponent(documentId)}/download`,
+    );
+    const link = unwrapResponseData(response);
+    if (!link?.url) {
+      throw new Error('The orders service returned no download link.');
+    }
+    return link;
+  },
+
   async createRefund(orderId: string, payload: CreateRefundPayload): Promise<AdminRefund> {
     const response = await http<ApiResponse<unknown>>(
       `${BASE}/${encodeURIComponent(orderId)}/refunds`,

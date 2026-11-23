@@ -32,6 +32,8 @@ const order = (overrides: Partial<AdminOrder> = {}): AdminOrder => ({
   creditsTakenBack: 0,
   refundableMinor: 300000,
   refunds: [],
+  taxMinor: 0,
+  documents: [],
   ...overrides,
 });
 

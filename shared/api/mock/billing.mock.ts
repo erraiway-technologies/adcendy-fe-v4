@@ -1,6 +1,10 @@
 import type {
   BillingBundle,
   BillingCatalogue,
+  BillingDetailsForm,
+  BillingDetailsInput,
+  BillingDocument,
+  BillingDocumentLink,
   BillingOrder,
   VerifyPaymentPayload,
   VerifyPaymentResult,
@@ -42,6 +46,17 @@ const usBundles: BillingBundle[] = [
   { sku: "5 Markets", credits: 5, amountMinor: 225000, currency: "USD" },
 ];
 const orders = new Map<string, BillingOrder>();
+const documents: BillingDocument[] = [];
+
+// R-14: India adds 18% GST on top, rounded to the paisa once, as the server
+// does; elsewhere no tax is added.
+const MOCK_GST_BASIS_POINTS = 1800;
+const mockTaxMinor = (amountMinor: number, currency: string) =>
+  currency === "INR" ? Math.round((amountMinor * MOCK_GST_BASIS_POINTS) / 10_000) : 0;
+const withMockTax = (bundle: BillingBundle): BillingBundle => {
+  const taxMinor = mockTaxMinor(bundle.amountMinor, bundle.currency);
+  return { ...bundle, taxMinor, totalMinor: bundle.amountMinor + taxMinor };
+};
 
 // Mock mode's one coupon: 10% off any regular package. The server's rules
 // (limits, dates, currency) live in the Backend; this exercises the page.
@@ -64,13 +79,17 @@ function priceWithMockCoupon(
   const discountMinor = Math.floor(
     (bundle.amountMinor * MOCK_COUPON_PERCENT) / 100,
   );
+  const amountMinor = bundle.amountMinor - discountMinor;
+  const taxMinor = mockTaxMinor(amountMinor, bundle.currency);
   return {
     couponCode: code,
     sku: bundle.sku,
     currency: bundle.currency,
     listAmountMinor: bundle.amountMinor,
     discountMinor,
-    amountMinor: bundle.amountMinor - discountMinor,
+    amountMinor,
+    taxMinor,
+    totalMinor: amountMinor + taxMinor,
   };
 }
 
@@ -91,7 +110,10 @@ export const billingMockAdapter = {
       pricingCountryCode: isIndia ? "IN" : "US",
       currency: isIndia ? "INR" : "USD",
       fallbackApplied: !isIndia && requestedCountryCode !== "US",
-      items: isIndia ? indiaBundles : usBundles,
+      items: (isIndia ? indiaBundles : usBundles).map(withMockTax),
+      tax: isIndia
+        ? { label: "GST", rateBasisPoints: MOCK_GST_BASIS_POINTS, addedOnTop: true }
+        : null,
       pilot: true,
       pilotOffer: {
         label: "Founding pricing",
@@ -109,19 +131,27 @@ export const billingMockAdapter = {
     _acceptedLegalDocumentVersionIdsV2?: string[],
     couponCode?: string | null,
     _givenConsentTypesV2?: string[],
+    billingDetails?: BillingDetailsInput | null,
     countryCode?: string,
   ): Promise<BillingOrder> {
     const catalogue = await this.listBundles(countryCode);
     const bundle = catalogue.items.find((item) => item.sku === sku);
     if (!bundle) throw new Error("Invalid bundle SKU");
     const coupon = couponCode ? priceWithMockCoupon(bundle, couponCode) : null;
+    if (bundle.currency === "INR" && (!billingDetails?.stateCode || !billingDetails.postalCode)) {
+      throw new Error("Choose your state.");
+    }
+    const taxableAmountMinor = coupon?.amountMinor ?? bundle.amountMinor;
+    const taxMinor = mockTaxMinor(taxableAmountMinor, bundle.currency);
     const orderId = `mock-${crypto.randomUUID()}`;
     const order: BillingOrder = {
       orderId,
       provider: "RAZORPAY",
       providerOrderId: `order_${crypto.randomUUID().replaceAll("-", "")}`,
       providerPaymentId: null,
-      amountMinor: coupon?.amountMinor ?? bundle.amountMinor,
+      amountMinor: taxableAmountMinor + taxMinor,
+      taxableAmountMinor,
+      taxMinor,
       currency: bundle.currency,
       credits: bundle.credits,
       status: "CREATED",
@@ -170,6 +200,50 @@ export const billingMockAdapter = {
       paidAt: new Date().toISOString(),
     };
     orders.set(orderId, paid);
+    documents.unshift({
+      documentId: `doc-${orderId}`,
+      kind: "invoice",
+      number: `ADC/2627/${String(documents.length + 1).padStart(5, "0")}`,
+      issuedOn: paid.paidAt!.slice(0, 10),
+      currency: paid.currency,
+      taxableMinor: paid.taxableAmountMinor ?? paid.amountMinor,
+      taxMinor: paid.taxMinor ?? 0,
+      totalMinor: paid.amountMinor,
+      orderId,
+      againstInvoiceNumber: null,
+      emailed: true,
+    });
     return { verified: true, order: paid };
+  },
+
+  async getBillingDetailsForm(countryCode?: string): Promise<BillingDetailsForm> {
+    const isIndia = (countryCode ?? "US").toUpperCase() === "IN";
+    return {
+      required: isIndia,
+      states: isIndia
+        ? [
+            { code: "07", name: "Delhi" },
+            { code: "29", name: "Karnataka" },
+            { code: "27", name: "Maharashtra" },
+            { code: "08", name: "Rajasthan" },
+          ]
+        : [],
+      fullAddressFromMinor: isIndia ? 5_000_000 : null,
+      saved: null,
+    };
+  },
+
+  async listDocuments(): Promise<BillingDocument[]> {
+    return [...documents];
+  },
+
+  async getDocumentLink(documentId: string): Promise<BillingDocumentLink> {
+    const document = documents.find((item) => item.documentId === documentId);
+    if (!document) throw new Error("Document not found");
+    return {
+      url: "about:blank",
+      expiresAt: new Date(Date.now() + 900_000).toISOString(),
+      fileName: `invoice-${document.number.replaceAll("/", "-")}.pdf`,
+    };
   },
 };

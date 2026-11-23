@@ -58,6 +58,21 @@ export interface AdminOrder {
   /** What a new refund may still return; 0 when the order cannot be refunded. */
   refundableMinor: number;
   refunds: AdminRefund[];
+  /** R-14: the tax inside `amountMinor`; 0 where none was charged. */
+  taxMinor: number;
+  /** R-14: the order's invoice and any credit notes, in issue order. */
+  documents: AdminBillingDocument[];
+}
+
+/** R-14: an issued invoice or credit note, as the orders screen lists it. */
+export interface AdminBillingDocument {
+  documentId: string;
+  kind: 'invoice' | 'credit_note';
+  number: string;
+  issuedOn: string;
+  totalMinor: number;
+  currency: string;
+  emailed: boolean;
 }
 
 export interface AdminOrderPage {
@@ -101,6 +116,21 @@ const nullableText = (value: unknown) =>
 const nullableInt = (value: unknown) =>
   typeof value === 'number' && Number.isInteger(value) ? value : null;
 const count = (value: unknown) => nullableInt(value) ?? 0;
+
+function normalizeDocument(value: unknown): AdminBillingDocument | null {
+  if (!isRecord(value) || typeof value.documentId !== 'string' || typeof value.number !== 'string') {
+    return null;
+  }
+  return {
+    documentId: value.documentId,
+    kind: value.kind === 'credit_note' ? 'credit_note' : 'invoice',
+    number: value.number,
+    issuedOn: text(value.issuedOn),
+    totalMinor: count(value.totalMinor),
+    currency: text(value.currency),
+    emailed: value.emailed === true,
+  };
+}
 
 function normalizeRefund(value: unknown): AdminRefund | null {
   if (!isRecord(value) || typeof value.id !== 'string') return null;
@@ -152,6 +182,12 @@ export function normalizeAdminOrder(value: unknown): AdminOrder | null {
     refundableMinor: count(value.refundableMinor),
     refunds: Array.isArray(value.refunds)
       ? value.refunds.map(normalizeRefund).filter((refund): refund is AdminRefund => refund !== null)
+      : [],
+    taxMinor: count(value.taxMinor),
+    documents: Array.isArray(value.documents)
+      ? value.documents
+          .map(normalizeDocument)
+          .filter((document): document is AdminBillingDocument => document !== null)
       : [],
   };
 }

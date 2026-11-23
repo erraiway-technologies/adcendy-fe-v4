@@ -104,6 +104,8 @@ test("mock checkout charges the price after the coupon", async () => {
     listAmountMinor: 1990000,
     discountMinor: 199000,
     amountMinor: 1791000,
+    taxMinor: 322380,
+    totalMinor: 2113380,
   });
 
   const order = await billingMockAdapter.createOrder(
@@ -112,9 +114,14 @@ test("mock checkout charges the price after the coupon", async () => {
     ["doc-terms"],
     "WELCOME10",
     [],
+    // R-14: an Indian buyer gives their state and PIN code.
+    { stateCode: "27", postalCode: "411001" },
     "IN",
   );
-  assert.equal(order.amountMinor, 1791000);
+  // R-14: GST is added on the price after the coupon.
+  assert.equal(order.taxableAmountMinor, 1791000);
+  assert.equal(order.taxMinor, 322380);
+  assert.equal(order.amountMinor, 2113380);
   assert.equal(order.listAmountMinor, 1990000);
   assert.equal(order.discountMinor, 199000);
   assert.equal(order.couponCode, "WELCOME10");

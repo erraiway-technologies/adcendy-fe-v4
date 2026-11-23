@@ -4,6 +4,7 @@ import { SectionLink } from '@/components/nav/section-link';
 import { cn } from '@/lib/utils';
 import { formatMinorAmount } from '@/shared/payments/razorpay';
 import { usePublicCatalogue } from '@/shared/payments/usePublicCatalogue';
+import { taxSuffix } from '@/shared/payments/invoice-billing';
 import {
   bundleOriginalPrice,
   marketCountDescription,
@@ -101,6 +102,8 @@ function LivePackages({ checkoutHref }: { checkoutHref: string }) {
   const packages = catalogue.data?.items ?? [];
   const { pilot, regular } = separatePilotPackages(packages, pilotOffer);
   const unavailable = catalogue.isError || (catalogue.isSuccess && packages.length === 0);
+  // R-14: "+ GST" beside every price where tax is added on top (India).
+  const priceSuffix = taxSuffix(catalogue.data?.tax);
 
   if (catalogue.isPending) {
     return (
@@ -125,10 +128,19 @@ function LivePackages({ checkoutHref }: { checkoutHref: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {pilotOffer && pilot.length > 0 && <PilotStrip offer={pilotOffer} bundles={pilot} href={checkoutHref} />}
+      {pilotOffer && pilot.length > 0 && (
+        <PilotStrip offer={pilotOffer} bundles={pilot} href={checkoutHref} priceSuffix={priceSuffix} />
+      )}
       <div className={GRID}>
         {regular.map((bundle, i) => (
-          <PackageCard key={bundle.sku} bundle={bundle} href={checkoutHref} primary={i === 0} delay={i * 80} />
+          <PackageCard
+            key={bundle.sku}
+            bundle={bundle}
+            href={checkoutHref}
+            primary={i === 0}
+            delay={i * 80}
+            priceSuffix={priceSuffix}
+          />
         ))}
         <CustomQuoteCard delay={regular.length * 80} />
       </div>
@@ -137,7 +149,17 @@ function LivePackages({ checkoutHref }: { checkoutHref: string }) {
 }
 
 /** The pilot, while it runs: its price for each package, set apart above the regular prices. */
-function PilotStrip({ offer, bundles, href }: { offer: BillingPilotOffer; bundles: BillingBundle[]; href: string }) {
+function PilotStrip({
+  offer,
+  bundles,
+  href,
+  priceSuffix,
+}: {
+  offer: BillingPilotOffer;
+  bundles: BillingBundle[];
+  href: string;
+  priceSuffix: string | null;
+}) {
   return (
     <Reveal className="flex flex-col gap-5 rounded-xl border border-white/40 bg-(--home-surface) p-7">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -157,6 +179,7 @@ function PilotStrip({ offer, bundles, href }: { offer: BillingPilotOffer; bundle
             <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
               <span className="text-[22px] tracking-[-.01em]">{marketCountLabel(bundle.credits)}</span>
               <span className="text-[34px] leading-none tracking-[-.03em]">{formatMinorAmount(bundle)}</span>
+              {priceSuffix ? <span className="text-base text-(--home-text-3)">{priceSuffix}</span> : null}
               {original && (
                 <span className="text-sm text-(--home-text-3)">
                   <span className="line-through">{formatMinorAmount(original)}</span>
@@ -182,11 +205,13 @@ function PackageCard({
   href,
   primary,
   delay,
+  priceSuffix,
 }: {
   bundle: BillingBundle;
   href: string;
   primary: boolean;
   delay: number;
+  priceSuffix: string | null;
 }) {
   const original = bundleOriginalPrice(bundle);
   const Button = primary ? PrimaryLink : SecondaryLink;
@@ -197,7 +222,10 @@ function PackageCard({
         <p className="text-sm leading-[1.5] text-(--home-text-3)">{marketCountDescription(bundle.credits)}</p>
       </div>
       <div className="flex flex-col gap-2">
-        <p className="text-[44px] leading-none tracking-[-.03em]">{formatMinorAmount(bundle)}</p>
+        <p className="text-[44px] leading-none tracking-[-.03em]">
+          {formatMinorAmount(bundle)}
+          {priceSuffix ? <span className="ml-2 text-base tracking-normal text-(--home-text-3)">{priceSuffix}</span> : null}
+        </p>
         <p className="font-geist-mono text-xs text-(--home-text-4)">
           {original ? (
             <>

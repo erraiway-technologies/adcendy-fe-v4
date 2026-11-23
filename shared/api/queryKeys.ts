@@ -8,6 +8,8 @@ export const queryKeys = {
     publicBundles: () => [...queryKeys.billing.all, 'public-bundles'] as const,
     bundles: () => [...queryKeys.billing.all, 'bundles'] as const,
     order: (orderId: string) => [...queryKeys.billing.all, 'order', orderId] as const,
+    billingDetails: () => [...queryKeys.billing.all, 'billing-details'] as const,
+    documents: () => [...queryKeys.billing.all, 'documents'] as const,
   },
   campaigns: {
     all: ['campaigns'] as const,

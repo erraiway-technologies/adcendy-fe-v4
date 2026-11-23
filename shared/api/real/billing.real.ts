@@ -2,6 +2,10 @@ import { http } from "../index";
 import type { ApiResponse } from "../types";
 import type {
   BillingCatalogue,
+  BillingDetailsForm,
+  BillingDetailsInput,
+  BillingDocument,
+  BillingDocumentLink,
   BillingOrder,
   VerifyPaymentPayload,
   VerifyPaymentResult,
@@ -37,6 +41,7 @@ export const billingRealAdapter = {
     acceptedLegalDocumentVersionIdsV2: string[],
     couponCode?: string | null,
     givenConsentTypesV2: string[] = [],
+    billingDetails: BillingDetailsInput | null = null,
   ): Promise<BillingOrder> {
     const response = await http<ApiResponse<BillingOrder> | BillingOrder>(
       "/v1/billing/orders",
@@ -51,6 +56,8 @@ export const billingRealAdapter = {
           // A required consent this buyer has not given yet (V3-63).
           ...(givenConsentTypesV2.length ? { givenConsentTypesV2 } : {}),
           ...(couponCode ? { couponCode } : {}),
+          // R-14: who the invoice is for; required where tax needs the state.
+          ...(billingDetails ? { billingDetails } : {}),
         },
         headers: { "Idempotency-Key": idempotencyKey },
       },
@@ -62,6 +69,30 @@ export const billingRealAdapter = {
     const response = await http<ApiResponse<CouponPreview> | CouponPreview>(
       "/v1/billing/coupons/preview",
       { method: "POST", body: { couponCode, sku }, allowAuthReplay: true },
+    );
+    return unwrapData(response);
+  },
+
+  /** R-14: the billing details checkout asks for here, and the saved ones. */
+  async getBillingDetailsForm(): Promise<BillingDetailsForm> {
+    const response = await http<ApiResponse<BillingDetailsForm> | BillingDetailsForm>(
+      "/v1/billing/billing-details",
+    );
+    return unwrapData(response);
+  },
+
+  /** R-14: the buyer's invoices and credit notes, newest first. */
+  async listDocuments(): Promise<BillingDocument[]> {
+    const response = await http<
+      ApiResponse<{ items: BillingDocument[] }> | { items: BillingDocument[] }
+    >("/v1/billing/documents");
+    return unwrapData(response).items;
+  },
+
+  /** R-14: a short-lived link to one document's PDF. */
+  async getDocumentLink(documentId: string): Promise<BillingDocumentLink> {
+    const response = await http<ApiResponse<BillingDocumentLink> | BillingDocumentLink>(
+      `/v1/billing/documents/${encodeURIComponent(documentId)}/download`,
     );
     return unwrapData(response);
   },

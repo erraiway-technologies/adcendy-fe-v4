@@ -16,6 +16,11 @@ export const adminOrdersRepository = {
     return adapter.listOrders(query);
   },
 
+  /** R-14: a short-lived link to an invoice's or credit note's PDF. */
+  async getDocumentLink(documentId: string): Promise<{ url: string; fileName: string }> {
+    return adapter.getDocumentLink(documentId);
+  },
+
   /** Records the markets decision, then asks Razorpay to refund. */
   async createRefund(orderId: string, payload: CreateRefundPayload): Promise<AdminRefund> {
     return adapter.createRefund(orderId, payload);

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { AlertCircle, ChevronLeft, Undo2 } from 'lucide-react';
+import { AlertCircle, ChevronLeft, FileText, Undo2 } from 'lucide-react';
 import { useAuth } from '@/features/auth/useAuth';
 import { useAdminOrders, useCreateRefund } from '@/hooks/useAdminOrders';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { formatOpsDateTime } from '@/shared/components/ops/opsUtils';
+import { adminOrdersRepository } from '@/shared/api/repositories';
 import { marketCountLabel } from '@/shared/payments/market-catalogue';
 import { formatMinorAmount } from '@/shared/payments/razorpay';
 import { majorToMinorUnits } from '@/shared/types/coupons';
@@ -36,6 +37,7 @@ import {
   marketsLeftToTakeBack,
   refundMarketsLabel,
   refundStateOf,
+  type AdminBillingDocument,
   type AdminOrder,
   type AdminOrderStatus,
   type AdminRefund,
@@ -243,6 +245,39 @@ function RefundLine({ refund }: { refund: AdminRefund }) {
   );
 }
 
+/** R-14: the order's invoice and credit notes, each a PDF link made on click. */
+function OrderDocuments({ documents }: { documents: AdminBillingDocument[] }) {
+  const [error, setError] = useState<string | null>(null);
+  const open = async (document: AdminBillingDocument) => {
+    setError(null);
+    try {
+      const link = await adminOrdersRepository.getDocumentLink(document.documentId);
+      window.open(link.url, '_blank', 'noopener,noreferrer');
+    } catch {
+      setError(`Could not open ${document.number}.`);
+    }
+  };
+  return (
+    <div className="flex flex-wrap items-center gap-2 text-xs">
+      {documents.map((document) => (
+        <Button
+          key={document.documentId}
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2"
+          onClick={() => void open(document)}
+          title={document.emailed ? 'Emailed to the buyer' : 'Not emailed yet'}
+        >
+          <FileText className="mr-1 h-3.5 w-3.5" />
+          {document.kind === 'credit_note' ? 'Credit note' : 'Invoice'} {document.number}
+        </Button>
+      ))}
+      {error ? <span className="text-destructive">{error}</span> : null}
+    </div>
+  );
+}
+
 function OrderRow({ order, onRefund }: { order: AdminOrder; onRefund: (order: AdminOrder) => void }) {
   const refundState = refundStateOf(order);
   return (
@@ -257,10 +292,12 @@ function OrderRow({ order, onRefund }: { order: AdminOrder; onRefund: (order: Ad
           </div>
           <p className="text-sm">
             {money(order.amountMinor, order.currency)} · {marketCountLabel(order.credits)}
+            {order.taxMinor > 0 ? ` · incl. ${money(order.taxMinor, order.currency)} GST` : ''}
             {order.couponCode
               ? ` · ${order.couponCode} (${money(order.discountMinor, order.currency)} off)`
               : ''}
           </p>
+          {order.documents.length > 0 ? <OrderDocuments documents={order.documents} /> : null}
           <p className="text-xs text-muted-foreground">
             {formatOpsDateTime(order.paidAt ?? order.createdAt)} · buyer has{' '}
             {marketCountLabel(order.buyerCreditsBalance).toLowerCase()} unused

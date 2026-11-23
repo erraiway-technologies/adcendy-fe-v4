@@ -51,7 +51,16 @@ import {
   nextOrderPollDelay,
 } from "@/shared/payments/order-polling";
 import { getSupportContact } from "@/shared/support/support-contact";
+import {
+  billingDetailsPayload,
+  billingDetailsProblem,
+  checkoutAmountRows,
+  emptyBillingDetailsDraft,
+  taxSuffix,
+  type BillingDetailsDraft,
+} from "@/shared/payments/invoice-billing";
 import { BUSINESS_TERMS } from "@/shared/marketing/business-terms";
+import { InvoicesCard } from "@/shared/components/billing/InvoicesCard";
 
 function contactSupportPhrase(): string {
   const support = getSupportContact();
@@ -82,6 +91,7 @@ function BundleOption({
   highlight = false,
   selected,
   onSelect,
+  priceSuffix = null,
 }: {
   bundle: BillingBundle;
   tag?: string;
@@ -89,6 +99,8 @@ function BundleOption({
   highlight?: boolean;
   selected: boolean;
   onSelect: (sku: string) => void;
+  /** R-14: "+ GST" where tax is added on top of the price. */
+  priceSuffix?: string | null;
 }) {
   return (
     <button
@@ -111,6 +123,11 @@ function BundleOption({
       </div>
       <div className="mt-3 font-medium">
         {formatMinorAmount(bundle)}
+        {priceSuffix ? (
+          <span className="ml-1 text-sm font-normal text-muted-foreground">
+            {priceSuffix}
+          </span>
+        ) : null}
         <PriceBeforeDiscount bundle={bundle} />
       </div>
       {note ? (
@@ -156,6 +173,21 @@ export default function CheckoutPage() {
     null,
   );
   const [couponError, setCouponError] = useState<string | null>(null);
+  // R-14: who the invoice is for. Filled from the buyer's last checkout.
+  const [billingDraft, setBillingDraft] = useState<BillingDetailsDraft | null>(
+    null,
+  );
+  const billingDetailsQuery = useQuery({
+    queryKey: queryKeys.billing.billingDetails(),
+    queryFn: () => billingRepository.getBillingDetailsForm(),
+    refetchOnWindowFocus: false,
+  });
+  const billingForm = billingDetailsQuery.data ?? null;
+  const draft = billingDraft ?? emptyBillingDetailsDraft(billingForm?.saved);
+  const updateDraft = (change: Partial<BillingDetailsDraft>) => {
+    setSubmitError(null);
+    setBillingDraft({ ...draft, ...change });
+  };
 
   // V3-63: what this buyer still owes - the purchase documents, any policy
   // updated since sign-up, any required consent never given - and no more:
@@ -231,12 +263,24 @@ export default function CheckoutPage() {
     appliedCoupon && appliedCoupon.sku === selectedBundle?.sku
       ? appliedCoupon
       : null;
-  const amountDue = selectedBundle
-    ? {
-        amountMinor: couponForSelection?.amountMinor ?? selectedBundle.amountMinor,
-        currency: selectedBundle.currency,
-      }
+  // R-14: the price, any coupon, the tax added on top, and the total paid.
+  const catalogueTax = bundlesQuery.data?.tax ?? null;
+  const priceSuffix = taxSuffix(catalogueTax);
+  const summary = selectedBundle
+    ? checkoutAmountRows({
+        bundle: selectedBundle,
+        coupon: couponForSelection,
+        tax: catalogueTax,
+      })
     : null;
+  const amountDue =
+    selectedBundle && summary
+      ? { amountMinor: summary.totalMinor, currency: selectedBundle.currency }
+      : null;
+  const taxableMinor = selectedBundle
+    ? (couponForSelection?.amountMinor ?? selectedBundle.amountMinor)
+    : 0;
+  const billingProblem = billingDetailsProblem(billingForm, draft, taxableMinor);
   const pilotOffer = bundlesQuery.data?.pilotOffer ?? null;
   // The pilot is shown beside the regular price for the same markets.
   const { comparisons, others } = useMemo(
@@ -355,12 +399,14 @@ export default function CheckoutPage() {
       // The tick travels with the order: the Backend records the acceptance
       // against it before Razorpay is opened, so a payment can never be taken
       // on an order whose policies were not accepted.
+      if (billingProblem) throw new Error(billingProblem);
       const order = await billingRepository.createOrder(
         selectedBundle.sku,
         crypto.randomUUID(),
         requiredDocumentIds,
         couponForSelection?.couponCode ?? null,
         outstandingConsents,
+        billingDetailsPayload(billingForm, draft),
       );
       if (!order.providerOrderId)
         throw new Error("Razorpay did not return an order ID.");
@@ -548,6 +594,7 @@ export default function CheckoutPage() {
                     highlight
                     selected={selectedBundle?.sku === pilot.sku}
                     onSelect={selectBundle}
+                    priceSuffix={priceSuffix}
                   />
                   {regular ? (
                     <BundleOption
@@ -556,6 +603,7 @@ export default function CheckoutPage() {
                       note="What every client pays after the pilot"
                       selected={selectedBundle?.sku === regular.sku}
                       onSelect={selectBundle}
+                      priceSuffix={priceSuffix}
                     />
                   ) : null}
                 </div>
@@ -571,6 +619,7 @@ export default function CheckoutPage() {
                   bundle={bundle}
                   selected={selectedBundle?.sku === bundle.sku}
                   onSelect={selectBundle}
+                  priceSuffix={priceSuffix}
                 />
               ))}
               {bundlesQuery.isLoading ? (
@@ -718,6 +767,140 @@ export default function CheckoutPage() {
               </Button>
             </CardContent>
           </Card>
+
+          {billingForm?.required ? (
+            <Card id="checkout-billing-details">
+              <CardHeader>
+                <CardTitle>3. Billing details</CardTitle>
+                <CardDescription>
+                  For your GST invoice. Your state decides which GST applies.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="billing-state"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    State
+                  </label>
+                  <select
+                    id="billing-state"
+                    value={draft.stateCode}
+                    onChange={(event) =>
+                      updateDraft({ stateCode: event.target.value })
+                    }
+                    disabled={isBusy}
+                    className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs"
+                  >
+                    <option value="">Choose your state</option>
+                    {billingForm.states.map((state) => (
+                      <option key={state.code} value={state.code}>
+                        {state.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="billing-postal-code"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    PIN code
+                  </label>
+                  <Input
+                    id="billing-postal-code"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={draft.postalCode}
+                    onChange={(event) =>
+                      updateDraft({
+                        postalCode: event.target.value.replace(/\D/g, ""),
+                      })
+                    }
+                    disabled={isBusy}
+                    placeholder="6 digits"
+                  />
+                </div>
+                {billingForm.fullAddressFromMinor !== null &&
+                taxableMinor >= billingForm.fullAddressFromMinor &&
+                !draft.addGstDetails ? (
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <label
+                      htmlFor="billing-address"
+                      className="text-sm font-medium text-foreground"
+                    >
+                      Billing address
+                    </label>
+                    <Input
+                      id="billing-address"
+                      value={draft.addressLine}
+                      onChange={(event) =>
+                        updateDraft({ addressLine: event.target.value })
+                      }
+                      disabled={isBusy}
+                      maxLength={300}
+                    />
+                  </div>
+                ) : null}
+                <label className="flex items-start gap-3 sm:col-span-2">
+                  <Checkbox
+                    checked={draft.addGstDetails}
+                    onCheckedChange={(checked) =>
+                      updateDraft({ addGstDetails: checked === true })
+                    }
+                    disabled={isBusy}
+                    className="mt-0.5"
+                  />
+                  <span className="text-sm text-foreground/90">
+                    Add GST details to claim input credit
+                  </span>
+                </label>
+                {draft.addGstDetails ? (
+                  <>
+                    <div className="space-y-1.5">
+                      <label
+                        htmlFor="billing-gstin"
+                        className="text-sm font-medium text-foreground"
+                      >
+                        GSTIN
+                      </label>
+                      <Input
+                        id="billing-gstin"
+                        value={draft.gstin}
+                        onChange={(event) =>
+                          updateDraft({
+                            gstin: event.target.value.toUpperCase(),
+                          })
+                        }
+                        disabled={isBusy}
+                        maxLength={15}
+                        placeholder="15 characters"
+                        className="font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label
+                        htmlFor="billing-business-name"
+                        className="text-sm font-medium text-foreground"
+                      >
+                        Registered business name
+                      </label>
+                      <Input
+                        id="billing-business-name"
+                        value={draft.businessName}
+                        onChange={(event) =>
+                          updateDraft({ businessName: event.target.value })
+                        }
+                        disabled={isBusy}
+                        maxLength={200}
+                      />
+                    </div>
+                  </>
+                ) : null}
+              </CardContent>
+            </Card>
+          ) : null}
         </div>
 
         <Card className="h-fit lg:sticky lg:top-6">
@@ -750,6 +933,28 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               </div>
+            ) : null}
+            {summary && selectedBundle && summary.rows.length > 2 ? (
+              <dl
+                data-testid="checkout-amount-rows"
+                className="space-y-1 border-b border-border pb-4 text-sm"
+              >
+                {summary.rows.map((row) => (
+                  <div
+                    key={row.label}
+                    className={`flex justify-between ${row.strong ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+                  >
+                    <dt>{row.label}</dt>
+                    <dd>
+                      {row.amountMinor < 0 ? "−" : ""}
+                      {formatMinorAmount({
+                        amountMinor: Math.abs(row.amountMinor),
+                        currency: selectedBundle.currency,
+                      })}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             ) : null}
 
             <div className="space-y-2">
@@ -867,6 +1072,14 @@ export default function CheckoutPage() {
                 .
               </p>
             ) : null}
+            {billingProblem && !isWaitingOnPolicies && !isBusy ? (
+              <p
+                id="checkout-billing-hint"
+                className="rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-sm text-foreground"
+              >
+                {billingProblem} (3. Billing details)
+              </p>
+            ) : null}
             <Button
               className="w-full"
               size="lg"
@@ -880,7 +1093,9 @@ export default function CheckoutPage() {
                 bundlesQuery.isLoading ||
                 !selectedBundle ||
                 !policiesReady ||
-                !hasAcceptedAllRequiredDocuments
+                !hasAcceptedAllRequiredDocuments ||
+                billingDetailsQuery.isLoading ||
+                Boolean(billingProblem)
               }
             >
               {startPaymentMutation.isPending
@@ -898,6 +1113,8 @@ export default function CheckoutPage() {
           </CardContent>
         </Card>
       </div>
+
+      <InvoicesCard />
     </div>
   );
 }

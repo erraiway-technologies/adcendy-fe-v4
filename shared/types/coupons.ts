@@ -61,6 +61,10 @@ export interface CouponPreview {
   listAmountMinor: number;
   discountMinor: number;
   amountMinor: number;
+  /** The tax on `amountMinor` where tax is added on top (India); 0 elsewhere. */
+  taxMinor?: number;
+  /** What the buyer pays with the coupon: the discounted price plus its tax. */
+  totalMinor?: number;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
