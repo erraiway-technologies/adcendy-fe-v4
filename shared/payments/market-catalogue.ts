@@ -88,18 +88,22 @@ export function splitPilotCatalogue(items: BillingBundle[]): {
 }
 
 /**
- * The landing's grouping: pilot bundles on their own, then every regular
- * bundle — the regular one-market price included — in the server's order.
- * Pilot bundles appear only while the server reports a pilot offer.
+ * The landing's grouping: pilot bundles on their own, then the regular
+ * bundles in the server's order. While a pilot bundle is on sale, the regular
+ * bundle buying the same markets is not listed: the pilot shows that price
+ * struck through, which is enough (operator, 2026-11-23). Pilot bundles
+ * appear only while the server reports a pilot offer; once it stops listing
+ * them (sold out), every regular bundle is listed again.
  */
 export function separatePilotPackages(
   items: readonly BillingBundle[],
   pilotOffer: BillingPilotOffer | null | undefined,
 ): { pilot: BillingBundle[]; regular: BillingBundle[] } {
-  return {
-    pilot: pilotOffer ? items.filter((item) => item.pilot === true) : [],
-    regular: items.filter((item) => item.pilot !== true),
-  };
+  const pilot = pilotOffer ? items.filter((item) => item.pilot === true) : [];
+  if (pilot.length === 0) {
+    return { pilot, regular: items.filter((item) => item.pilot !== true) };
+  }
+  return { pilot, regular: splitPilotCatalogue([...items]).others };
 }
 
 /**

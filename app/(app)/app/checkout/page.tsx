@@ -577,36 +577,19 @@ export default function CheckoutPage() {
                   </AlertDescription>
                 </Alert>
               ) : null}
-              {comparisons.length > 0 ? (
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:col-span-3">
-                  Pilot price beside the regular price
-                </p>
-              ) : null}
-              {comparisons.map(({ pilot, regular }) => (
-                <div
+              {/* While the pilot is on sale it replaces the regular package for
+                  the same markets: the pilot shows that price struck through. */}
+              {comparisons.map(({ pilot }) => (
+                <BundleOption
                   key={pilot.sku}
-                  className="grid gap-3 sm:col-span-3 sm:grid-cols-2"
-                >
-                  <BundleOption
-                    bundle={pilot}
-                    tag={pilotOffer?.label ?? "Pilot price"}
-                    note={pilotOffer ? pilotSeatsLabel(pilotOffer) : null}
-                    highlight
-                    selected={selectedBundle?.sku === pilot.sku}
-                    onSelect={selectBundle}
-                    priceSuffix={priceSuffix}
-                  />
-                  {regular ? (
-                    <BundleOption
-                      bundle={regular}
-                      tag="Regular price"
-                      note="What every client pays after the pilot"
-                      selected={selectedBundle?.sku === regular.sku}
-                      onSelect={selectBundle}
-                      priceSuffix={priceSuffix}
-                    />
-                  ) : null}
-                </div>
+                  bundle={pilot}
+                  tag={pilotOffer?.label ?? "Pilot price"}
+                  note={pilotOffer ? pilotSeatsLabel(pilotOffer) : null}
+                  highlight
+                  selected={selectedBundle?.sku === pilot.sku}
+                  onSelect={selectBundle}
+                  priceSuffix={priceSuffix}
+                />
               ))}
               {comparisons.length > 0 && others.length > 0 ? (
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:col-span-3">

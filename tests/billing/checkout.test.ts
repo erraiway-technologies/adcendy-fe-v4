@@ -200,18 +200,22 @@ test("the landing sets the pilot apart and lists every regular package after it"
     catalogue.pilotOffer,
   );
 
-  // The pilot stands alone: no regular package is pulled up beside it.
+  // The pilot stands alone, and while it is on sale the regular package for
+  // the same markets is not listed: the pilot shows that price struck through.
   assert.ok(pilot.length > 0);
   assert.ok(pilot.every((item) => item.pilot === true));
-  // The regular one-market price stays with the other regular packages.
-  assert.ok(regular.some((item) => item.credits === 1));
+  assert.ok(pilot.every((item) => (item.originalAmountMinor ?? 0) > item.amountMinor));
+  for (const offer of pilot) {
+    assert.ok(!regular.some((item) => item.credits === offer.credits));
+  }
   assert.ok(regular.every((item) => item.pilot !== true));
-  // Nothing dropped, nothing reordered.
+  // Every other package stays, in the server's order.
   assert.deepEqual(
     regular.map((item) => item.sku),
-    catalogue.items.filter((item) => item.pilot !== true).map((item) => item.sku),
+    catalogue.items
+      .filter((item) => item.pilot !== true && !pilot.some((offer) => offer.credits === item.credits))
+      .map((item) => item.sku),
   );
-  assert.equal(pilot.length + regular.length, catalogue.items.length);
 });
 
 test("without a pilot offer, pilot packages are not shown at all", async () => {
@@ -220,6 +224,15 @@ test("without a pilot offer, pilot packages are not shown at all", async () => {
 
   assert.deepEqual(pilot, []);
   assert.ok(regular.every((item) => item.pilot !== true));
+  // With no pilot on sale, the regular one-market price is listed again.
+  assert.ok(regular.some((item) => item.credits === 1));
+});
+
+test("checkout lists only the pilot while it runs, not the regular package beside it", () => {
+  const checkout = readFileSync("app/(app)/app/checkout/page.tsx", "utf8");
+  assert.doesNotMatch(checkout, /Pilot price beside the regular price/);
+  assert.doesNotMatch(checkout, /tag="Regular price"/);
+  assert.match(checkout, /comparisons\.map\(\(\{ pilot \}\)/);
 });
 
 test("price group headings say price, keeping the server's name for the pilot", () => {
