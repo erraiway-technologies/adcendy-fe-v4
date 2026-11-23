@@ -33,6 +33,7 @@ const allNavItems: NavItem[] = [
   { href: '/admin/meta-access', label: 'Meta access', minimumRole: 'ADMIN', visibleFor: ['ADMIN'] },
   { href: '/admin/coupons', label: 'Coupons', minimumRole: 'ADMIN', visibleFor: ['ADMIN'] },
   { href: '/admin/orders', label: 'Orders', minimumRole: 'ADMIN', visibleFor: ['ADMIN'] },
+  { href: '/admin/revenue', label: 'Revenue', minimumRole: 'ADMIN', visibleFor: ['ADMIN'] },
   { href: '/admin/prospect-scans', label: 'Prospect scans', minimumRole: 'ADMIN', visibleFor: ['ADMIN'] },
 ];
 
