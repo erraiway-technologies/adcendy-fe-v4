@@ -221,3 +221,13 @@ export function buildConsentMutationSource(
 ): LegalAcceptanceSource {
   return source;
 }
+
+/**
+ * What goes before each item of a list read as a sentence: nothing before the
+ * first, " and " before the last, ", " before the rest - "A, B and C".
+ */
+export function separatorsForList(count: number): string[] {
+  return Array.from({ length: count }, (_, index) =>
+    index === 0 ? '' : index === count - 1 ? ' and ' : ', ',
+  );
+}

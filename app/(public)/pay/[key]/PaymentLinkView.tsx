@@ -5,7 +5,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import { RequiredAgreement } from '@/shared/legal/RequiredAgreement';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ENV } from '@/lib/env';
@@ -257,45 +257,25 @@ export function PaymentLinkView({ linkKey }: { linkKey: string }) {
           ) : null}
 
           <div className="space-y-2">
-            {documents.map((document) => (
-              <label key={document.id} className="flex items-start gap-3 rounded-md border border-border px-3 py-3">
-                <Checkbox
-                  checked={accepted.includes(document.id)}
-                  onCheckedChange={(checked) =>
-                    setAccepted((previous) =>
-                      checked === true ? [...new Set([...previous, document.id])] : previous.filter((id) => id !== document.id),
-                    )
-                  }
-                  className="mt-0.5"
-                />
-                <span className="text-sm">
-                  I accept the{' '}
-                  {document.publicUrl ? (
-                    <a className="text-primary hover:underline" href={document.publicUrl} target="_blank" rel="noreferrer">
-                      {document.title}
-                    </a>
-                  ) : (
-                    document.title
-                  )}
-                </span>
-              </label>
-            ))}
-            {requiredConsents.map((consent) => (
-              <label key={consent} className="flex items-start gap-3 rounded-md border border-border px-3 py-3">
-                <Checkbox
-                  checked={consents.includes(consent)}
-                  onCheckedChange={(checked) =>
-                    setConsents((previous) =>
-                      checked === true ? [...new Set([...previous, consent])] : previous.filter((item) => item !== consent),
-                    )
-                  }
-                  className="mt-0.5"
-                />
-                <span className="text-sm">
-                  I consent to {buildConsentLabel(consent, consentCatalogue.data ?? [])} - needed to build your strategy.
-                </span>
-              </label>
-            ))}
+            <RequiredAgreement
+              testId="payment-link-required-agreement"
+              documents={documents.map((document) => ({
+                key: document.id,
+                label: document.title,
+                href: document.publicUrl ?? null,
+              }))}
+              consents={requiredConsents.map((consent) => ({
+                key: consent,
+                label: buildConsentLabel(consent, consentCatalogue.data ?? []),
+                href: consentCatalogue.data?.find((item) => item.consentType === consent)?.detailsUrl ?? null,
+              }))}
+              consentPurpose="needed to build your strategy"
+              checked={allAccepted}
+              onCheckedChange={(checked) => {
+                setAccepted(checked ? documents.map((document) => document.id) : []);
+                setConsents(checked ? [...requiredConsents] : []);
+              }}
+            />
           </div>
 
           {notice ? (

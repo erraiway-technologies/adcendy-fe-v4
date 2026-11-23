@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RequiredAgreement } from "@/shared/legal/RequiredAgreement";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { billingRepository, legalRepository } from "@/shared/api/repositories";
@@ -510,25 +511,26 @@ export default function CheckoutPage() {
     }
   };
 
-  const toggleAcceptedDocument = (documentId: string, checked: boolean) => {
+  // One tick agrees to every required document and consent shown.
+  const acceptAllRequired = (checked: boolean) => {
     setSubmitError(null);
-    setAcceptedDocumentIds((previous) =>
+    setAcceptedDocumentIds(
       checked
-        ? previous.includes(documentId)
-          ? previous
-          : [...previous, documentId]
-        : previous.filter((id) => id !== documentId),
+        ? [
+            ...new Set([
+              ...requiredDocumentIds,
+              ...checkoutChecklistItems.map((item) => item.id),
+            ]),
+          ]
+        : [],
     );
+    setGivenConsents(checked ? [...outstandingConsents] : []);
   };
 
   const isBusy = startPaymentMutation.isPending || isCheckoutOpen;
   // The Backend says which policies checkout requires; none listed means
   // they are not published, and no payment starts without them.
   const policiesReady = requiredDocumentIds.length > 0;
-  const policiesLeftToAccept =
-    requiredDocumentIds.filter((id) => !acceptedDocumentIds.includes(id))
-      .length +
-    outstandingConsents.filter((type) => !givenConsents.includes(type)).length;
   const isWaitingOnPolicies =
     policiesReady && !hasAcceptedAllRequiredDocuments && !isBusy;
 
@@ -665,80 +667,28 @@ export default function CheckoutPage() {
                   </AlertDescription>
                 </Alert>
               ) : null}
-              {checkoutChecklistItems.map((item) => (
-                <label
-                  key={item.id}
-                  className="flex items-start gap-3 rounded-md border border-border px-3 py-3"
-                >
-                  <Checkbox
-                    checked={acceptedDocumentIds.includes(item.id)}
-                    onCheckedChange={(checked) =>
-                      toggleAcceptedDocument(item.id, checked === true)
-                    }
-                    className="mt-0.5"
-                  />
-                  <span className="text-sm text-foreground/90">
-                    I accept the{" "}
-                    {item.href ? (
-                      <a
-                        className="text-primary hover:underline"
-                        href={item.href}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {item.label}
-                      </a>
-                    ) : (
-                      item.label
-                    )}
-                  </span>
-                </label>
-              ))}
-              {outstandingConsents.map((consentType) => {
-                const detailsUrl =
-                  consentCatalogueQuery.data?.find(
-                    (item) => item.consentType === consentType,
-                  )?.detailsUrl ?? null;
-                const label = buildConsentLabel(
-                  consentType,
-                  consentCatalogueQuery.data ?? [],
-                );
-                return (
-                  <label
-                    key={consentType}
-                    data-testid={`checkout-consent-${consentType}`}
-                    className="flex items-start gap-3 rounded-md border border-border px-3 py-3"
-                  >
-                    <Checkbox
-                      checked={givenConsents.includes(consentType)}
-                      onCheckedChange={(checked) =>
-                        setGivenConsents((previous) =>
-                          checked === true
-                            ? [...new Set([...previous, consentType])]
-                            : previous.filter((entry) => entry !== consentType),
-                        )
-                      }
-                      className="mt-0.5"
-                    />
-                    <span className="text-sm text-foreground/90">
-                      I consent to{" "}
-                      {detailsUrl ? (
-                        <a
-                          className="text-primary hover:underline"
-                          href={detailsUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {label}
-                        </a>
-                      ) : (
-                        label
-                      )}{" "}
-                      - needed to build your strategy.
-                    </span>
-                  </label>
-                );
-              })}
+              <RequiredAgreement
+                testId="checkout-required-agreement"
+                documents={checkoutChecklistItems.map((item) => ({
+                  key: item.id,
+                  label: item.label,
+                  href: item.href ?? null,
+                }))}
+                consents={outstandingConsents.map((consentType) => ({
+                  key: consentType,
+                  label: buildConsentLabel(
+                    consentType,
+                    consentCatalogueQuery.data ?? [],
+                  ),
+                  href:
+                    consentCatalogueQuery.data?.find(
+                      (item) => item.consentType === consentType,
+                    )?.detailsUrl ?? null,
+                }))}
+                consentPurpose="needed to build your strategy"
+                checked={hasAcceptedAllRequiredDocuments}
+                onCheckedChange={acceptAllRequired}
+              />
               <Button
                 type="button"
                 variant="outline"
@@ -1040,11 +990,7 @@ export default function CheckoutPage() {
                 id="checkout-pay-hint"
                 className="rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-sm text-foreground"
               >
-                To pay, accept{" "}
-                {policiesLeftToAccept === 1
-                  ? "the remaining policy"
-                  : `all ${policiesLeftToAccept} remaining policies`}{" "}
-                in{" "}
+                To pay, tick the agreement box in{" "}
                 <button
                   type="button"
                   onClick={scrollToPolicies}

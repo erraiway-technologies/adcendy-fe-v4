@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RequiredAgreement } from '@/shared/legal/RequiredAgreement';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { OtpInput } from '@/components/ui/otp-input';
@@ -271,18 +272,6 @@ function SignupContent() {
     }
   };
 
-  const handleSignupLegalToggle = (documentVersionId: string, checked: boolean) => {
-    setAcceptedSignupDocumentIds((previousIds) => {
-      if (checked) {
-        return previousIds.includes(documentVersionId)
-          ? previousIds
-          : [...previousIds, documentVersionId];
-      }
-
-      return previousIds.filter((id) => id !== documentVersionId);
-    });
-  };
-
   const handleSignupLegalContinue = async () => {
     if (!hasAcceptedAllSignupDocuments) {
       setError('Please accept the Terms of Service to continue.');
@@ -528,53 +517,32 @@ function SignupContent() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {signupLegalChecklistItems.map((item) => (
-                    <label
-                      key={item.id}
-                      className="flex items-start gap-3 rounded-md border border-border bg-card px-3 py-3"
-                    >
-                      <Checkbox
-                        checked={acceptedSignupDocumentIds.includes(item.id)}
-                        onCheckedChange={(nextChecked) => handleSignupLegalToggle(item.id, nextChecked === true)}
-                        className="mt-0.5"
-                      />
-                      <span className="text-sm text-foreground/90">
-                        I agree to the{' '}
-                        {item.href ? (
-                          <Link className="text-primary hover:underline" href={item.href}>
-                            {item.label}
-                          </Link>
-                        ) : (
-                          item.label
-                        )}
-                      </span>
-                    </label>
-                  ))}
-                  {signupConsents.map((consent) => (
-                    <label
-                      key={consent.consentType}
-                      data-testid={`signup-consent-${consent.consentType}`}
-                      className="flex items-start gap-3 rounded-md border border-border bg-card px-3 py-3"
-                    >
-                      <Checkbox
-                        checked={givenSignupConsents.includes(consent.consentType)}
-                        onCheckedChange={(nextChecked) =>
-                          handleSignupConsentToggle(consent.consentType, nextChecked === true)
-                        }
-                        className="mt-0.5"
-                      />
-                      <span className="text-sm text-foreground/90">
-                        I consent to{' '}
-                        {consent.detailsUrl ? (
-                          <Link className="text-primary hover:underline" href={consent.detailsUrl}>
-                            {consent.label}
-                          </Link>
-                        ) : (
-                          consent.label
-                        )}
-                      </span>
-                    </label>
-                  ))}
+                  <RequiredAgreement
+                    testId="signup-required-agreement"
+                    documents={signupLegalChecklistItems.map((item) => ({
+                      key: item.id,
+                      label: item.label,
+                      href: item.href ?? null,
+                    }))}
+                    consents={signupConsents.map((consent) => ({
+                      key: consent.consentType,
+                      label: consent.label,
+                      href: consent.detailsUrl ?? null,
+                    }))}
+                    checked={
+                      signupLegalChecklistItems.every((item) => acceptedSignupDocumentIds.includes(item.id)) &&
+                      hasGivenAllSignupConsents
+                    }
+                    onCheckedChange={(checked) => {
+                      setAcceptedSignupDocumentIds(checked ? signupLegalChecklistItems.map((item) => item.id) : []);
+                      const required = signupConsents.map((consent) => consent.consentType);
+                      setGivenSignupConsents((previous) =>
+                        checked
+                          ? [...new Set([...previous, ...required])]
+                          : previous.filter((entry) => !required.includes(entry)),
+                      );
+                    }}
+                  />
                   <p className="text-sm text-foreground/90" data-testid="signup-privacy-policy-notice">
                     {privacyPolicyUrl ? (
                       <>
