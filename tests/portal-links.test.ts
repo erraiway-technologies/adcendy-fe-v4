@@ -9,6 +9,7 @@ import { existsSync } from 'node:fs';
 const EMAILED_PORTAL_ROUTES = [
   '/app/campaigns/[campaignId]/files',
   '/app/campaigns/[campaignId]/strategy',
+  '/app/account/profile',
   // The payment link page (payment-links-v2.service.ts).
   '/pay/[key]',
 ];
