@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { billingRepository } from '@/shared/api/repositories';
 import { queryKeys } from '@/shared/api/queryKeys';
@@ -43,9 +43,6 @@ export function InvoicesCard() {
     <Card id="invoices">
       <CardHeader>
         <CardTitle>Invoices</CardTitle>
-        <CardDescription>
-          An invoice is issued and emailed to you when a payment is confirmed; a refund gets a credit note.
-        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {documentsQuery.isLoading ? <p className="text-sm text-muted-foreground">Loading invoices…</p> : null}
