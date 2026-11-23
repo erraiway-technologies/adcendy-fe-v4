@@ -126,6 +126,13 @@ export const queryKeys = {
     all: ['coupons'] as const,
     list: () => [...queryKeys.coupons.all, 'list'] as const,
   },
+  paymentLinks: {
+    all: ['paymentLinks'] as const,
+    list: (page: number) => ['paymentLinks', 'list', page] as const,
+    options: (pricingCountryCode: string, clientEmail: string) =>
+      ['paymentLinks', 'options', pricingCountryCode, clientEmail] as const,
+    page: (key: string) => ['paymentLinks', 'page', key] as const,
+  },
   adminOrders: {
     all: ['adminOrders'] as const,
     list: (query: Record<string, unknown>) => [...queryKeys.adminOrders.all, 'list', query] as const,

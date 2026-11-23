@@ -11,6 +11,7 @@ export { opsV2Repository } from './opsV2.repo';
 export { systemSettingsRepository } from './systemSettings.repo';
 export { couponsRepository } from './coupons.repo';
 export { adminOrdersRepository } from './adminOrders.repo';
+export { paymentLinksRepository } from './paymentLinks.repo';
 export { prospectScansRepository } from './prospectScans.repo';
 export { legalRepository } from './legal.repo';
 export { runsV2Repository } from './runsV2.repo';

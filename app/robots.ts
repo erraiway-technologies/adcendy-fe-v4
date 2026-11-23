@@ -14,7 +14,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       allow: '/',
       // The signed-in app and the API have nothing to index. `$` ends a match,
       // so /app$ keeps /apple-icon.png crawlable.
-      disallow: ['/app$', '/app/', '/admin$', '/admin/', '/api/', '/v1/'],
+      disallow: ['/app$', '/app/', '/admin$', '/admin/', '/api/', '/v1/', '/pay/'],
     },
     sitemap: `${site.origin}/sitemap.xml`,
   };

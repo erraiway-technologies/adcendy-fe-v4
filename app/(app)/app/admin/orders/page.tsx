@@ -29,6 +29,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { formatOpsDateTime } from '@/shared/components/ops/opsUtils';
 import { adminOrdersRepository } from '@/shared/api/repositories';
+import { PaymentLinksPanel } from '@/shared/components/billing/PaymentLinksPanel';
 import { marketCountLabel } from '@/shared/payments/market-catalogue';
 import { formatMinorAmount } from '@/shared/payments/razorpay';
 import { majorToMinorUnits } from '@/shared/types/coupons';
@@ -377,6 +378,8 @@ export default function AdminOrdersPage() {
           </p>
         </div>
       </div>
+
+      <PaymentLinksPanel />
 
       <form
         className="flex flex-col gap-3 sm:flex-row sm:items-end"
